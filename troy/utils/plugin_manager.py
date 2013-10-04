@@ -1,12 +1,10 @@
 
-import imp
-import sys
-import os
 
+import saga.utils as su
 
 # ------------------------------------------------------------------------------
 #
-class PluginManager (object) :
+class PluginManager (su.PluginManager) :
     """ 
     The TROY plugin management and loading utility.
 
@@ -53,78 +51,9 @@ class PluginManager (object) :
         """
         ptype: type of plugins to manage
         """
-
-        if  not ptype :
-            raise Exception ('no plugin type specified')
-
-        self._ptype   = ptype
-        self._plugins = {}
-
-        # load adaptors
-        self._load_plugins ()
-
-        print "-------------------------------------------"
-        print self._plugins
-        print "-------------------------------------------"
+        su.PluginManager.__init__ (self, 'troy', ptype)
 
 
-    #---------------------------------------------------------------------------
-    # 
-    def _load_plugins (self) :
-        """ 
-        Load all plugins of the given type.  All previously loaded plugins are
-        thrown away.
-        """
-
-        # search for plugins in all system module paths
-        for path in sys.path :
-
-            # we only load plugins installed under the troy hierarchy
-            ppath = "%s/troy/plugins/%s/"  %  (path, self._ptype)
-
-            if  os.path.isdir (ppath) :
-
-                # we assume that all python sources in that location are
-                # suitable plugins
-                pfs = os.listdir (ppath)
-
-                for pfile in pfs :
-
-                    # ignore non-python rubbish
-                    if  not pfile.endswith ('.py') :
-                        continue
-
-                    # ignore other plugin types
-                    if  not pfile.startswith ("plugin_%s" % self._ptype) :
-                        continue
-
-                    # strip the trailing '.py' to get plugin name, and also
-                    # strip plugin type prefix
-                    prefix_len = len ("plugin_%s_" % self._ptype)
-                    pf_name    = pfile[prefix_len:-3]
-                    mod_name   = "troy.plugins.%s.%s" % (self._ptype, pfile[:-3])
-
-                    # load and register the plugin
-                    plugin = imp.load_source (mod_name, "%s/%s" % (ppath, pfile))
-                    self._plugins[pf_name] = {
-                        'class'       : plugin.PLUGIN_CLASS,
-                        'version'     : plugin.PLUGIN_DESCRIPTION['version'],
-                        'description' : plugin.PLUGIN_DESCRIPTION['description']
-                    }
-
-
-    #---------------------------------------------------------------------------
-    # 
-    def load (self, name, *args, **kwargs) :
-        """
-        check if a plugin with given name was loaded, if so, instantiate its
-        plugin class, initialize and return in.
-        """
-        if  not name in self._plugins :
-            raise Exception ("No such plugin %s" % name)
-
-        return self._plugins[name]['class'](*args, **kwargs)
-
-
+# ------------------------------------------------------------------------------
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
