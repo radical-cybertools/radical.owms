@@ -1,9 +1,8 @@
 
-import troy.utils.plugin_manager
+import radical.utils as ru
 
-pm = troy.utils.plugin_manager.PluginManager ('workload_scheduler')
+pmgr    = ru.PluginManager ('troy', 'workload_scheduler')
+default = pmgr.load ('default', 'workload', 'overlay')
 
-default_scheduler = pm.load ('default', 'workload', 'overlay')
-
-print default_scheduler.run ()
+print default.run ()
 
