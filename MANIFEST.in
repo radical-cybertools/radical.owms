@@ -5,7 +5,6 @@ recursive-include tests *
 
 include troy/*.py
 
-include troy/utils/*.py
 include troy/plugins/*.py
 include troy/plugins/planner/*.py
 include troy/plugins/translator/*.py

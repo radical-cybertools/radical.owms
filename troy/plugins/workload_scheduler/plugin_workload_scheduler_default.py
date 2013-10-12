@@ -2,6 +2,7 @@
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
+    'type'        : 'workload_scheduler', 
     'name'        : 'default', 
     'version'     : '0.1',
     'type'        : 'workload_scheduler', 
@@ -18,28 +19,20 @@ class PLUGIN_CLASS (object) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, *args, **kwargs) :
+    def __init__ (self) :
 
-        print "initializing the default workload_scheduler plugin (%s) (%s)" \
-            % (args, kwargs)
+        print "create the default workload_scheduler plugin"
 
         self._workload = None
         self._overlay  = None
 
-        if 'workload' in kwargs :
-            self._workload = kwargs['workload']
-        elif len (args) :
-            self._workload = args[0]
-        else :
-            print "no workload given?  Duh!"
 
+    # --------------------------------------------------------------------------
+    #
+    def init (self, workload, overlay) :
 
-        if 'overlay' in kwargs :
-            self._overlay = kwargs['overlay']
-        elif len (args) :
-            self._overlay = args[0]
-        else :
-            print "no overlay  given?  Duh!"
+        self._workload = workload
+        self._overlay  = overlay
 
 
 
