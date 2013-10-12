@@ -45,7 +45,7 @@ class Task (sa.Attributes) :
             tid   = ru.generate_id ('t.')
             descr = copy.deepcopy (description)
 
-            if  not descr.attribute_exists ('tag') :
+            if  not 'tag' in descr :
                 raise ValueError ("no 'tag' in TaskDescription")
 
             # register attributes
