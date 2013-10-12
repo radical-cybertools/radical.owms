@@ -124,6 +124,7 @@ setup_args = {
     ],
     'packages': [
         "troy",
+        "troy.utils",
         "troy.plugins",
         "troy.plugins.planner",
         "troy.plugins.translator",

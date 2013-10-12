@@ -1,5 +1,6 @@
 
 
+import threading
 import radical.utils   as ru
 
 
@@ -11,7 +12,7 @@ class WorkloadManager (object) :
     instances, i.e. schedules and enacts those instances.
     """
 
-    self._rlock = threading.RLock ()
+    _rlock = threading.RLock ()
 
 
     # --------------------------------------------------------------------------
@@ -28,9 +29,9 @@ class WorkloadManager (object) :
             if  not dispatcher : dispatcher = 'default'
 
             # initialize state
-            plugin_mgr       = ru.PluginMannager ('troy')
-            self._scheduler  = plugin_mgr.load ('workload_scheduler',  scheduler)
-            self._dispatcher = plugin_mgr.load ('workload_dispatcher', dispatcher)
+            plugin_mgr       = ru.PluginManager ('troy')
+            self._scheduler  = plugin_mgr.load  ('workload_scheduler',  scheduler)
+            self._dispatcher = plugin_mgr.load  ('workload_dispatcher', dispatcher)
 
 
 
