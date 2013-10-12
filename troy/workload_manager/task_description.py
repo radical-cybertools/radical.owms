@@ -32,14 +32,6 @@ class TaskDescription (sa.Attributes) :
         self.update (dictionary)
 
 
-    # --------------------------------------------------------------------------
-    #
-    def __deepcopy__ (self, memo) :
-        other = TaskDescription ()
-        return self._attributes_deep_copy (other)
-
-
-
 # ------------------------------------------------------------------------------
 #
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
