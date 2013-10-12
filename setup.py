@@ -124,6 +124,7 @@ setup_args = {
     ],
     'packages': [
         "troy",
+        "troy.workload_manager",
         "troy.utils",
         "troy.plugins",
         "troy.plugins.planner",

@@ -4,6 +4,7 @@ include *.py
 recursive-include tests *
 
 include troy/*.py
+include troy/workload_manager/*.py
 
 include troy/plugins/*.py
 include troy/plugins/utils/*.py

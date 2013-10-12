@@ -1,7 +1,12 @@
 
 
-import radical.utils   as ru
-import saga.attributes as sa
+import threading
+
+import radical.utils    as ru
+import saga.attributes  as sa
+
+import task
+import task_description
 
 
 # ------------------------------------------------------------------------------
@@ -15,7 +20,7 @@ class Workload (sa.Attributes) :
     that class should change its composition and state.
     """
 
-    self._rlock = threading.RLock ()
+    _rlock = threading.RLock ()
 
 
     # --------------------------------------------------------------------------
@@ -31,10 +36,6 @@ class Workload (sa.Attributes) :
         """
 
         with self._rlock :
-
-            # call base constructor
-            self._super = super  (Workload, self)
-            self._super.__init__ (self)
 
             # initialize state
             self._id        = ru.generate_id ('wl.')
@@ -59,31 +60,36 @@ class Workload (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def add_task (self, task) :
+    def add_task (self, description) :
         """
         Add a task (or a list of tasks) to the workload.
         
-        Tasks are expected of type `Task`, and can only be added
-        once.
+        Tasks are expected of type `TaskDescription`.
         """
 
         with self._rlock :
 
             # handle scalar and list uniformly
-            if  type(task) != list :
-                task = [task]
+            if  type(description) != list :
+                description = [description]
 
             # check type and uniqueness for each task
-            for t in task :
+            for d in description :
 
-                if  type(t) != 'Task' :
-                    raise TypeError ("expected Task, got %s" % type(t))
+                if  not isinstance (d, task_description.TaskDescription) :
+                    raise TypeError ("expected TaskDescription, got %s" % type(d))
 
-                if t in self._tasks :
-                    raise ValueError ("Task '%s' cannot be added again" % t.name)
+                # FIXME: add sanity checks for task syntax / semantics
 
-            # all is well
-            self._tasks.append (task)
+                t = task.Task (d)
+
+              # t._attributes_dump ()
+
+                # FIXME: clarify what adding multiple tasks with same tags means
+                if t.tag in self._tasks :
+                    raise ValueError ("Task with tag '%s' already exists" % t.tag)
+                
+                self._tasks [d.tag] = t
 
 
     # --------------------------------------------------------------------------
@@ -97,6 +103,8 @@ class Workload (sa.Attributes) :
         added once.  The related tasks must already be in the
         `Workload` -- otherwise a `ValueError` is raised.
         """
+
+        # FIXME: need a relation description
 
         with self._rlock :
 
