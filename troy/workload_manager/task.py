@@ -43,7 +43,7 @@ class Task (sa.Attributes) :
     
             # initialize state
             tid   = ru.generate_id ('t.')
-            descr = copy.deepcopy (description)
+            descr = copy.deepcopy  (description)
 
             if  not 'tag' in descr :
                 raise ValueError ("no 'tag' in TaskDescription")

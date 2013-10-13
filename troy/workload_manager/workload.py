@@ -121,11 +121,11 @@ class Workload (sa.Attributes) :
                 if  r in self._relations :
                     raise ValueError ("Relation'%s' cannot be added again" % r.name)
 
-                if  not relation.task_1 in self._tasks :
-                    raise ValueError ("task_1 '%s' no known" % r.task_1)
+                if  not relation.head in self._tasks :
+                    raise ValueError ("head '%s' no known" % r.head)
 
-                if  not relation.task_2 in self._tasks :
-                    raise ValueError ("task_2 '%s' no known" % r.task_2)
+                if  not relation.tail in self._tasks :
+                    raise ValueError ("tail '%s' no known" % r.tail)
 
             # all is well
             self._relations.append (relation)
