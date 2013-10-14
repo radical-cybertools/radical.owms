@@ -3,14 +3,19 @@
 
 all: docs
 
+
 docs:
-	# make -C docs html
+	make -C docs html
 	@true
 
-test:
-	nosetests tests.restapi --config=tests/nose.cfg
+
+tests:
+	python tests/run_tests.py tests/config/*cfg
+
 
 copyright:
+	@echo 'make it yourself!'
+
 
 pylint:
 	@rm pylint.out ;\
@@ -29,13 +34,10 @@ pylint:
 	done ; \
 	test "`cat pylint.out | wc -c`" = 0 || false && rm -f pylint.out
 
-vpylint:
-	@for f in `find troy -name \*.py`; do \
-	   pylint -r n -f text $$f; \
-	done
 
 viz:
 	gource -s 0.1 -i 0 --title troy --max-files 99999 --max-file-lag -1 --user-friction 0.3 --user-scale 0.5 --camera-mode overview --highlight-users --hide progress,filenames -r 25 -viewport 1024x1024
+
 
 clean:
 	-rm -rf build/ troy.egg-info/ temp/ MANIFEST dist/ troy.egg-info pylint.out
