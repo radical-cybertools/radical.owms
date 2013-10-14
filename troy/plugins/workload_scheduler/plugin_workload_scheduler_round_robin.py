@@ -3,9 +3,9 @@
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
+    'type'        : 'workload_scheduler', 
     'name'        : 'round_robin', 
     'version'     : '0.1',
-    'type'        : 'workload_scheduler', 
     'description' : 'simple scheduler, assigns CUs to pilots in round-robin fashion.'
   }
 
@@ -19,34 +19,36 @@ class PLUGIN_CLASS (object) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, *args, **kwargs) :
+    def __init__ (self) :
 
-        print "initializing the round-robin workload_scheduler plugin (%s) (%s)" \
-            % (args, kwargs)
-
-        self._workload = None
-        self._overlay  = None
-
-        if 'workload' in kwargs :
-            self._workload = kwargs['workload']
-        elif len (args) :
-            self._workload = args[0]
-        else :
-            print "no workload given?  Duh!"
-
-
-        if 'overlay' in kwargs :
-            self._overlay = kwargs['overlay']
-        elif len (args) :
-            self._overlay = args[0]
-        else :
-            print "no overlay  given?  Duh!"
+        print "create the round-robin workload_scheduler plugin"
 
 
     # --------------------------------------------------------------------------
     #
-    def run () :
-        # do nothing
-        return self._workload
+    def schedule (self, workload, overlay) :
 
+        with workload.lock () and overlay.lock () :
+
+            # if  not overlay.pilots :
+            #     raise ValueError ("no pilots to schedule over")
+            #
+            # next_pilot = 0
+            #
+            # for t in workload.tasks :
+            #     for c in t.compute_units :
+            #         c.target_pilot = overlay.pilots[next_pilot].id
+            #         next_pilot += 1
+            #         if  next_pilot >= len (overlay.pilots) :
+            #             next_pilot  = 0
+            #
+
+            # do nothing
+            pass
+
+
+
+# ------------------------------------------------------------------------------
+#
+# vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 

@@ -1,6 +1,9 @@
 
-from workload_manager import TaskDescription
-from workload_manager import Task
-from workload_manager import Workload
+from workload         import RelationDescription
+from workload         import Relation
+from workload         import TaskDescription
+from workload         import Task
+from workload         import Workload
+
 from workload_manager import WorkloadManager
 

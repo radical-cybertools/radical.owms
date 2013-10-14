@@ -11,6 +11,24 @@ import task_description
 
 # ------------------------------------------------------------------------------
 #
+"""
+A workload undergoes a series of transformations before ending up as on
+a specific resource (pilot).  Those transformations are orchestrated by the
+workload manager.  To support that orchestratrion, a workload will be lockable,
+and it will have a state attribute.  The valid states are listed below
+
+FIXME: those states assume that all tansformations are atomic and complete, i.e.
+we do not expect a partial translation, followed by a partial schedule, followed
+byt another partial translations.  Is that assumption valid?
+"""
+NEW        = 'New'
+TRANSLATED = 'Translated'
+SCHEDULED  = 'Scheduled'
+DISPATCHED = 'Dispatched'
+
+
+# ------------------------------------------------------------------------------
+#
 class Workload (sa.Attributes) :
     """
     The `Workload` class represents a workload which is managed by Troy.  It
@@ -19,8 +37,6 @@ class Workload (sa.Attributes) :
     Workload instances are owned by the :class:`WorkloadManager` class -- only
     that class should change its composition and state.
     """
-
-    _rlock = threading.RLock ()
 
 
     # --------------------------------------------------------------------------
@@ -35,12 +51,16 @@ class Workload (sa.Attributes) :
         to reconnect to the thus identified workload instances.  
         """
 
+        # make this instance lockable
+        self._rlock = threading.RLock ()
+
         with self._rlock :
 
             # initialize state
             self._id        = ru.generate_id ('wl.')
+            self._state     = NEW
             self._tasks     = dict ()
-            self._relations = dict ()
+            self._relations = list ()
 
 
             # set attribute interface properties
@@ -49,13 +69,27 @@ class Workload (sa.Attributes) :
     
             # register attributes
             self._attributes_register   ('id',        self._id,        sa.STRING, sa.SCALAR, sa.READONLY)
+            self._attributes_register   ('state',     self._state,     sa.STRING, sa.SCALAR, sa.READONLY)
             self._attributes_register   ('tasks',     self._tasks,     sa.ANY,    sa.VECTOR, sa.READONLY)
             self._attributes_register   ('relations', self._relations, sa.ANY,    sa.VECTOR, sa.READONLY)
 
-            # register getter calls
-            self._attributes_set_getter ('id',        self.get_id)
-            self._attributes_set_getter ('tasks',     self.get_tasks)
-            self._attributes_set_getter ('relations', self.get_relations)
+
+    # --------------------------------------------------------------------------
+    #
+    def lock (self) :
+        """
+        The workload manager can lock a workload so that no more than one
+        workload transformation (translation, scheduling, enactment) is
+        happening at any point in time::
+
+            # this is a Workload Manager method stub
+            def translate (self, workload_id) :
+                if  not workload_id in self._workloads :
+                    raise LookupError ("no such workload '%s'" % workload_id)
+                with 
+
+        """
+        return self._rlock
 
 
     # --------------------------------------------------------------------------
@@ -121,51 +155,14 @@ class Workload (sa.Attributes) :
                 if  r in self._relations :
                     raise ValueError ("Relation'%s' cannot be added again" % r.name)
 
-                if  not relation.head in self._tasks :
+                if  not r.head in self._tasks :
                     raise ValueError ("head '%s' no known" % r.head)
 
-                if  not relation.tail in self._tasks :
+                if  not r.tail in self._tasks :
                     raise ValueError ("tail '%s' no known" % r.tail)
 
             # all is well
             self._relations.append (relation)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def get_id (self) :
-        """
-        Return a copy of the workload id, which uniquely (*) identifies 
-        this Workload instance.
-
-        (*) within the scope of one Troy instance.
-
-        """
-        return str(self._id) # return a copy to safeguard against changes
-
-
-    # --------------------------------------------------------------------------
-    #
-    def get_tasks (self) :
-        """
-        Return the list of tasks known by this workload manager.  
-
-        Note that the return list is a reference to the actual list of
-        tasks, and thus SHOULD NOT be altered.
-        """
-        return self._tasks
-
-
-    # --------------------------------------------------------------------------
-    #
-    def get_relations (self) :
-        """
-        Return the list of relations known by this workload manager.  
-
-        Note that the return list is a reference to the actual list of
-        tasks, and thus SHOULD NOT be altered.
-        """
-        return self._relations
 
 
 # ------------------------------------------------------------------------------

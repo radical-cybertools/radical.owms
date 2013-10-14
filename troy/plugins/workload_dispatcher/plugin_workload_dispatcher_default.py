@@ -2,30 +2,29 @@
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
-    'type'        : 'workload_scheduler', 
+    'type'        : 'workload_dispatcher', 
     'name'        : 'default', 
     'version'     : '0.1',
-    'description' : 'this is an empty scheduler which basically does nothing.'
+    'description' : 'this is an empty dispatcher which basically does nothing.'
   }
 
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (object) :
     """
-    This class implements the (empty) default workload scheduler algorithm for
-    TROY.
+    This class implements the (empty) default workload dispatcher for TROY.
     """
 
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
 
-        print "create the default workload_scheduler plugin"
+        print "create the default workload_dispatcher plugin"
 
 
     # --------------------------------------------------------------------------
     #
-    def schedule (self, workload, overlay) :
+    def dispatch (self, workload, overlay) :
 
         with workload.lock and overlay.lock () :
 

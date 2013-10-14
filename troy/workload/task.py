@@ -20,8 +20,6 @@ class Task (sa.Attributes) :
     pairs describing the represented workload element.
     """
 
-    _rlock = threading.RLock ()
-
 
     # --------------------------------------------------------------------------
     #
@@ -34,6 +32,9 @@ class Task (sa.Attributes) :
         Later implementations may allow for an additional id parameter, 
         to reconnect to the thus identified task instance.  
         """
+
+        # make this instance lockable
+        self._rlock = threading.RLock ()
 
         with self._rlock :
 
