@@ -16,6 +16,15 @@ class WorkloadManager (object) :
     The internal state of the workload manager is not open for inspection -- but
     the workloads it manages can be exposed for inspection, on request
     (:func:`inspect_workload()`).
+
+    FIXME: how are race conditions handled -- like, a workload is scheduled on
+    an overlay, but before dispatching, a pilot in that overlay disappears?
+    I guess we should add the option to schedule a single CU, or reschedule
+    a complete workload -- but that collides with the state semantics of the
+    workload.  Iterative scheduling needs to be implemented anyways though, if
+    we want to get any meaningful feedback loop.  Easiest and cleanest is
+    probably to allow to repeatedly run through earlier stages again -- DONE
+    tasks will then simply be ignored...
     """
 
 

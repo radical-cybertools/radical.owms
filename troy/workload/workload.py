@@ -32,10 +32,17 @@ DISPATCHED = 'Dispatched'
 class Workload (sa.Attributes) :
     """
     The `Workload` class represents a workload which is managed by Troy.  It
-    contains a set of Tasks, and a set of relationships between those tasks.
+    contains a set of :class:`Tasks`, and a set of :class:`Relation`s between
+    those tasks.
 
     Workload instances are owned by the :class:`WorkloadManager` class -- only
     that class should change its composition and state.
+
+    Internally, a workload is represented in two parts: a dictionary of tasks
+    (:class:`Task` instances mapped to their task id), and a list of
+    :class:`Relation` instances.  As the workload undergoes transformations, it
+    is enriched by additional information, although those are kept solely within
+    the :class:`Task` instances -- see there for more details.
     """
 
 
