@@ -98,10 +98,10 @@ class Workload (sa.Attributes) :
               # t._attributes_dump ()
 
                 # FIXME: clarify what adding multiple tasks with same tags means
-                if t.tag in self._tasks :
+                if t.tag in self.tasks :
                     raise ValueError ("Task with tag '%s' already exists" % t.tag)
                 
-                self._tasks [d.tag] = t
+                self.tasks [d.tag] = t
 
 
     # --------------------------------------------------------------------------
@@ -130,17 +130,17 @@ class Workload (sa.Attributes) :
                 if  type(r) != 'Relation' :
                     raise TypeError ("expected Relation, got %s" % type(r))
 
-                if  r in self._relations :
+                if  r in self.relations :
                     raise ValueError ("Relation'%s' cannot be added again" % r.name)
 
-                if  not r.head in self._tasks :
+                if  not r.head in self.tasks :
                     raise ValueError ("head '%s' no known" % r.head)
 
-                if  not r.tail in self._tasks :
+                if  not r.tail in self.tasks :
                     raise ValueError ("tail '%s' no known" % r.tail)
 
             # all is well
-            self._relations.append (relation)
+            self.relations.append (relation)
 
 
 # ------------------------------------------------------------------------------

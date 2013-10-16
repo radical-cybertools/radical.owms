@@ -1,10 +1,9 @@
 
 
 import threading
-import radical.utils                  as ru
+import radical.utils as ru
 
 import troy
-from   troy.constants import *
 
 
 # ------------------------------------------------------------------------------
@@ -86,7 +85,7 @@ class _Registry (object) :
                 if  entity.id in self._registry :
                     raise ValueError ("'%s' is already registered" % entity.id)
 
-                if  entity.state != NEW :
+                if  entity.state != troy.NEW :
                     raise ValueError ("'%s' not in NEW state" % entity.id)
 
                 self._registry[entity.id] = {}

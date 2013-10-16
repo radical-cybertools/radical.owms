@@ -25,6 +25,8 @@ class TaskDescription (sa.Attributes) :
     def __init__ (self, dictionary={}) :
 
 
+        sa.Attributes.__init__ (self, dictionary)
+
         # set attribute interface properties
         self._attributes_extensible  (True)  # FIXME
         self._attributes_camelcasing (True)
@@ -32,7 +34,6 @@ class TaskDescription (sa.Attributes) :
         # register attributes
         # FIXME
 
-        self.update (dictionary)
 
 
 # ------------------------------------------------------------------------------

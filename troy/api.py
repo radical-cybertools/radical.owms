@@ -4,7 +4,6 @@ import threading
 import radical.utils      as ru
 
 import troy
-from   troy.constants import *
 
 
 # ------------------------------------------------------------------------------
@@ -68,7 +67,7 @@ class Troy (object) :
                 workload_mgr.dispatch_workload      (workload_id, overlay_id)
 
             except Exception as e :
-                workload.state = FAILED
+                workload.state = troy.FAILED
                 workload.error = e
 
 
