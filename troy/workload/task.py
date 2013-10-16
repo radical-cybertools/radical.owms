@@ -72,33 +72,31 @@ class Task (sa.Attributes) :
         """
 
         # make this instance lockable
-        self._rlock = threading.RLock ()
+        self.lock = threading.RLock ()
 
-        with self._rlock :
+        # initialize state
+        tid   = ru.generate_id ('t.')
+        descr = copy.deepcopy  (description)
 
-            # initialize state
-            tid   = ru.generate_id ('t.')
-            descr = copy.deepcopy  (description)
+        if  not 'tag' in descr :
+            raise ValueError ("no 'tag' in TaskDescription")
 
-            if  not 'tag' in descr :
-                raise ValueError ("no 'tag' in TaskDescription")
+        # initialize members to support workload transformations.
+        self.translated = None
+        self.scheduled  = None
+        self.dispatched = None
 
-            # initialize members to support workload transformations.
-            self.translated = None
-            self.scheduled  = None
-            self.dispatched = None
+        # set attribute interface properties
+        self._attributes_extensible  (False)
+        self._attributes_camelcasing (True)
 
-            # set attribute interface properties
-            self._attributes_extensible  (False)
-            self._attributes_camelcasing (True)
-
-            # register attributes
-            self._attributes_register   ('id',          tid,       sa.STRING, sa.SCALAR, sa.READONLY)
-            self._attributes_register   ('tag',         descr.tag, sa.STRING, sa.SCALAR, sa.READONLY)
-            self._attributes_register   ('description', descr,     sa.ANY,    sa.SCALAR, sa.READONLY)
-             
-            # FIXME: complete attribute list, dig attributes from description,
-            # perform sanity checks
+        # register attributes
+        self._attributes_register   ('id',          tid,       sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('tag',         descr.tag, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('description', descr,     sa.ANY,    sa.SCALAR, sa.READONLY)
+         
+        # FIXME: complete attribute list, dig attributes from description,
+        # perform sanity checks
 
 
 # ------------------------------------------------------------------------------

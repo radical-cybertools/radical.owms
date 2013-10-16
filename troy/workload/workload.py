@@ -8,23 +8,7 @@ import saga.attributes  as sa
 import task
 import task_description
 
-
-# ------------------------------------------------------------------------------
-#
-"""
-A workload undergoes a series of transformations before ending up as on
-a specific resource (pilot).  Those transformations are orchestrated by the
-workload manager.  To support that orchestratrion, a workload will be lockable,
-and it will have a state attribute.  The valid states are listed below
-
-FIXME: those states assume that all tansformations are atomic and complete, i.e.
-we do not expect a partial translation, followed by a partial schedule, followed
-byt another partial translations.  Is that assumption valid?
-"""
-NEW        = 'New'
-TRANSLATED = 'Translated'
-SCHEDULED  = 'Scheduled'
-DISPATCHED = 'Dispatched'
+from   troy.constants import *
 
 
 # ------------------------------------------------------------------------------
@@ -43,6 +27,17 @@ class Workload (sa.Attributes) :
     :class:`Relation` instances.  As the workload undergoes transformations, it
     is enriched by additional information, although those are kept solely within
     the :class:`Task` instances -- see there for more details.
+    
+    A workload undergoes a series of transformations before ending up as on
+    a specific resource (pilot).  Those transformations are orchestrated by the
+    workload manager.  To support that orchestration, a workload will be
+    lockable, and it will have a state attribute.  The valid states are listed
+    below
+
+    FIXME: those states assume that all transformations are atomic and complete,
+    i.e.  we do not expect a partial translation, followed by a partial
+    schedule, followed by another partial translations.  Is that assumption
+    valid?  
     """
 
 
@@ -59,44 +54,20 @@ class Workload (sa.Attributes) :
         """
 
         # make this instance lockable
-        self._rlock = threading.RLock ()
+        self.lock = threading.RLock ()
 
-        with self._rlock :
+        wl_id = ru.generate_id ('wl.')
 
-            # initialize state
-            self._id        = ru.generate_id ('wl.')
-            self._state     = NEW
-            self._tasks     = dict ()
-            self._relations = list ()
-
-
-            # set attribute interface properties
-            self._attributes_extensible  (False)
-            self._attributes_camelcasing (True)
+        # set attribute interface properties
+        self._attributes_extensible  (False)
+        self._attributes_camelcasing (True)
     
-            # register attributes
-            self._attributes_register   ('id',        self._id,        sa.STRING, sa.SCALAR, sa.READONLY)
-            self._attributes_register   ('state',     self._state,     sa.STRING, sa.SCALAR, sa.READONLY)
-            self._attributes_register   ('tasks',     self._tasks,     sa.ANY,    sa.VECTOR, sa.READONLY)
-            self._attributes_register   ('relations', self._relations, sa.ANY,    sa.VECTOR, sa.READONLY)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def lock (self) :
-        """
-        The workload manager can lock a workload so that no more than one
-        workload transformation (translation, scheduling, enactment) is
-        happening at any point in time::
-
-            # this is a Workload Manager method stub
-            def translate (self, workload_id) :
-                if  not workload_id in self._workloads :
-                    raise LookupError ("no such workload '%s'" % workload_id)
-                with 
-
-        """
-        return self._rlock
+        # register attributes, initialize state
+        self._attributes_register   ('id',        wl_id,  sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('state',     NEW,    sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('error',     None,   sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('tasks',     dict(), sa.ANY,    sa.VECTOR, sa.READONLY)
+        self._attributes_register   ('relations', list(), sa.ANY,    sa.VECTOR, sa.READONLY)
 
 
     # --------------------------------------------------------------------------
@@ -108,7 +79,7 @@ class Workload (sa.Attributes) :
         Tasks are expected of type `TaskDescription`.
         """
 
-        with self._rlock :
+        with self.lock :
 
             # handle scalar and list uniformly
             if  type(description) != list :
@@ -147,7 +118,7 @@ class Workload (sa.Attributes) :
 
         # FIXME: need a relation description
 
-        with self._rlock :
+        with self.lock :
 
             # handle scalar and list uniformly
             if  type(relation) != list :
