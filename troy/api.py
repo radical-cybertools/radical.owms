@@ -53,20 +53,19 @@ class Troy (object) :
         def trace_example (workload_id) :
             try :
                 
-                planner      = troy.Planner         (workload_id)
-                workload_mgr = troy.WorkloadManager (workload_id)
+                planner      = troy.Planner         ()
+                workload_mgr = troy.WorkloadManager ()
+                overlay_mgr  = troy.OverlayManager  ()
 
-                overlay_id   = planner.plan         () # this will register the new overlay
+                overlay_id   = planner.plan         (workload_id)
 
-                overlay_mgr  = troy.OverlayManager  (overlay_id)
+                workload_mgr.translate_workload     (workload_id, overlay_id)
+                workload_mgr.schedule_workload      (workload_id, overlay_id)
 
-                workload_mgr.translate_workload     ()
-                workload_mgr.schedule_workload      ()
+                overlay_mgr.schedule_overlay        (overlay_id)
+                overlay_mgr.dispatch_overlay        (overlay_id)
 
-                overlay_mgr.schedule_overlay        ()
-                overlay_mgr.dispatch_overlay        ()
-
-                workload_mgr.dispatch_workload      (overlay_id)
+                workload_mgr.dispatch_workload      (workload_id, overlay_id)
 
             except Exception as e :
                 workload.state = FAILED

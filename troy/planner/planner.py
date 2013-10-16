@@ -26,7 +26,7 @@ class Planner (object) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, workload_id, planner='default') :
+    def __init__ (self, planner='default') :
         """
         Create a new planner instance for this workload.  
 
@@ -37,28 +37,28 @@ class Planner (object) :
         self.lock = threading.RLock ()
 
         # initialize state, load plugins
-        self._workload_id = workload_id
         self._registry    = troy._Registry ()
         self._plugin_mgr  = ru.PluginManager ('troy')
 
         # FIXME: error handling
         self._planner = self._plugin_mgr.load  ('planner', planner)
 
-        # make sure the workload exists
-        workload = self._registry.acquire (self._workload_id)
-        workload = self._registry.release (self._workload_id)
-
 
     # --------------------------------------------------------------------------
     #
-    def plan (self) :
+    def plan (self, workload_id) :
         """
         create overlay plan (description) from workload
         """
 
-        workload = self._registry.acquire (self._workload_id)
+        workload = None
+        overlay  = None
 
         try :
+
+            workload = self._registry.acquire (workload_id)
+            if  not workload :
+                KeyError ("'%s' is not registered" % workload_id)
 
             # make sure the workflow is 'fresh', so we can translate it
             if  workload.state != NEW :
@@ -71,8 +71,13 @@ class Planner (object) :
             self._registry.register (overlay)
 
         finally :
-            self._registry.release (self._workload_id)
+            self._registry.release  (workload_id)
 
+        if  overlay :
+            return overlay.id
+
+        # FIXME: the line below can never be reached, right?
+        return None
 
 
 

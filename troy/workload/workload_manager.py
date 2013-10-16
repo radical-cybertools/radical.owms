@@ -33,8 +33,7 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, workload_id, 
-                        translator = 'default', 
+    def __init__ (self, translator = 'default', 
                         scheduler  = 'default',
                         dispatcher = 'default') :
         """
@@ -47,7 +46,6 @@ class WorkloadManager (object) :
         self.lock = threading.RLock ()
 
         # initialize state, load plugins
-        self._workload_id = workload_id
         self._registry    = troy._Registry   ()
         self._plugin_mgr  = ru.PluginManager ('troy')
 
@@ -56,15 +54,10 @@ class WorkloadManager (object) :
         self._scheduler   = self._plugin_mgr.load  ('workload_scheduler',  scheduler)
         self._dispatcher  = self._plugin_mgr.load  ('workload_dispatcher', dispatcher)
 
-        # make sure the workload exists
-        workload = self._registry.acquire (self._workload_id)
-        workload = self._registry.release (self._workload_id)
-
-
 
     # --------------------------------------------------------------------------
     #
-    def translate_workload (self, overlay=None) :
+    def translate_workload (self, workload_id, overlay_id=None) :
         """
         Translate the referenced workload, i.e. transform its tasks into
         ComputeUnit and DataUnit descriptions.
@@ -75,9 +68,14 @@ class WorkloadManager (object) :
         translator changes and/or annotates the given workload.
         """
 
-        workload = self._registry.acquire (self._workload_id)
+        workload = None
+        overlay  = None
 
         try :
+            overlay  = self._registry.acquire (overlay_id)
+            workload = self._registry.acquire (workload_id)
+            if  not workload :
+                KeyError ("'%s' is not registered" % workload_id)
 
             # make sure the workflow is 'fresh', so we can translate it
             if  workload.state != NEW :
@@ -92,12 +90,14 @@ class WorkloadManager (object) :
 
         # exceptions fall through, but we make sure to release the workload
         finally :
-            self._registry.release (self._workload_id)
+            if  overlay:
+                self._registry.release (overlay_id)
+            self._registry.release (workload_id)
 
 
     # --------------------------------------------------------------------------
     #
-    def schedule_workload (self, overlay_id=None) :
+    def schedule_workload (self, workload_id, overlay_id=None) :
         """
         schedule the referenced workload, i.e. assign its components to specific
         overlay elements.
@@ -106,17 +106,14 @@ class WorkloadManager (object) :
         scheduler changes and/or annotates the given workload.
         """
 
-        workload = self._registry.acquire (self._workload_id)
+        workload = None
+        overlay  = None
 
         try :
-
-            # check if we have an overlay...
-            overlay = None
-            try :
-                if  overlay_id :
-                    overlay = self._registry.acquire (overlay_id)
-            except :
-                pass
+            overlay  = self._registry.acquire (overlay_id)
+            workload = self._registry.acquire (workload_id)
+            if  not workload :
+                KeyError ("'%s' is not registered" % workload_id)
 
             # make sure the workload is translated, so that we can schedule it
             if  workload.state != TRANSLATED :
@@ -130,17 +127,16 @@ class WorkloadManager (object) :
             workload.state = SCHEDULED
 
             # release overlay (if we had any...)
-            if  overlay:
-                self._registry.release (overlay_id)
-
         # exceptions fall through, but we make sure to release the workload
         finally :
-            self._registry.release (self._workload_id)
+            self._registry.release (overlay_id)
+            self._registry.release (workload_id)
+
 
 
     # --------------------------------------------------------------------------
     #
-    def dispatch_workload (self, overlay_id) :
+    def dispatch_workload (self, workload_id, overlay_id) :
         """
         schedule the referenced workload, i.e. submit its CUs and DUs to the
         respective overlay elements.  The workload must have been scheduled
@@ -150,37 +146,38 @@ class WorkloadManager (object) :
         scheduler changes and/or annotates the given workload.
         """
 
-        workload = self._registry.acquire (self._workload_id)
+        workload = None
+        overlay  = None
 
         try :
+
             overlay  = self._registry.acquire (overlay_id)
+            workload = self._registry.acquire (workload_id)
+            if  not workload :
+                KeyError ("'%s' is not registered" % workload_id)
 
-            try :
-            
-                # make sure the workload is scheduled, so we can dispatch it.
-                # we don't care about overlay state
-                if  workload.state != TRANSLATED :
-                    raise ValueError ("workload '%s' not in NEW state" % workload.id)
+            # make sure the workload is scheduled, so we can dispatch it.
+            # we don't care about overlay state
+            if  workload.state != TRANSLATED :
+                raise ValueError ("workload '%s' not in NEW state" % workload.id)
 
-                # within the locked scope, hand over control over workload to the
-                # dispatcher plugin, so it can do what it has to do.
-                self._dispatcher.dispatch (workload, overlay)
+            # within the locked scope, hand over control over workload to the
+            # dispatcher plugin, so it can do what it has to do.
+            self._dispatcher.dispatch (workload, overlay)
 
-                # mark workload as 'scheduled'
-                workload.state = DISPATCHED
+            # mark workload as 'scheduled'
+            workload.state = DISPATCHED
 
-            # exceptions fall through, but we make sure to release the overlay
-            finally :
-                self._registry.release (overlay_id)
-
-        # exceptions fall through, but we make sure to release the workload
+        # exceptions fall through, but we make sure to release the overlay and
+        # workload
         finally :
-            self._registry.release (self._workload_id)
+            self._registry.release (overlay_id)
+            self._registry.release (workload_id)
 
 
     # --------------------------------------------------------------------------
     #
-    def inspect_workload (self) :
+    def inspect_workload (self, workload_id) :
         """
         expose a workload to a requesting entity for inspection.
         
@@ -188,7 +185,12 @@ class WorkloadManager (object) :
         composition or properties.
         """
 
-        return self._registry.acquire (self._workload_id)
+        workload = self._registry.acquire (workload_id)
+        if  not workload :
+            KeyError ("'%s' is not registered" % workload_id)
+
+        # FIXME: who will release the lock on the workload??
+        return workload
 
 
 # ------------------------------------------------------------------------------

@@ -106,7 +106,8 @@ class _Registry (object) :
         with  self.lock :
 
             if  not entity_id in self._registry :
-                raise KeyError ("'%s' is not registered" % entity_id)
+              # KeyError ("'%s' is not registered" % entity_id)
+                return None 
 
             if  self._registry[entity_id]['leased'] :
                 raise ValueError ("'%s' is currently in use" % entity_id)
@@ -130,10 +131,12 @@ class _Registry (object) :
         with  self.lock :
 
             if  not entity_id in self._registry :
-                raise KeyError ("'%s' is not registered" % entity_id)
+             #  raise KeyError ("'%s' is not registered" % entity_id)
+                pass
 
             if  not self._registry[entity_id]['leased'] :
-                raise ValueError ("'%s' was not acquired" % entity_id)
+             #  raise ValueError ("'%s' was not acquired" % entity_id)
+                pass
 
             # release entity lock
             self._registry[entity_id]['entity'].lock.release ()
