@@ -22,8 +22,8 @@ class _Registry (object) :
     aims to support a variety of state diagram transitions, and thus the order
     of transitions is not pre-defined (first derive overlay then schedule CUs,
     or vice versa?).  Also, the ownership of state transitions for a workload is
-    not easily scoped (the :class:`Planner` will move a workload from `NEW` to
-    `PLANNED`, the :class:`WorkloadManager` will move it from `PLANNED` to
+    not easily scoped (the :class:`Planner` will move a workload from `DESCRIBED` 
+    to `PLANNED`, the :class:`WorkloadManager` will move it from `PLANNED` to
     `TRANSLATED`, etc.  And, finally, we want to allow for re-scheduling,
     re-translation, re-planning etc, which would require us to pass control of
     a workload back and forth between different modules.  Finally, this seems to
@@ -85,8 +85,8 @@ class _Registry (object) :
                 if  entity.id in self._registry :
                     raise ValueError ("'%s' is already registered" % entity.id)
 
-                if  entity.state != troy.NEW :
-                    raise ValueError ("'%s' not in NEW state" % entity.id)
+                if  entity.state != troy.DESCRIBED :
+                    raise ValueError ("'%s' not in DESCRIBED state" % entity.id)
 
                 self._registry[entity.id] = {}
                 self._registry[entity.id]['leased'] = False  # not leased

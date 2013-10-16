@@ -63,11 +63,11 @@ class Workload (sa.Attributes) :
         self._attributes_camelcasing (True)
     
         # register attributes, initialize state
-        self._attributes_register   ('id',        wl_id,  sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('state',     NEW,    sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('error',     None,   sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('tasks',     dict(), sa.ANY,    sa.VECTOR, sa.READONLY)
-        self._attributes_register   ('relations', list(), sa.ANY,    sa.VECTOR, sa.READONLY)
+        self._attributes_register   ('id',        wl_id,     sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('state',     DESCRIBED, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('error',     None,      sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('tasks',     dict(),    sa.ANY,    sa.VECTOR, sa.READONLY)
+        self._attributes_register   ('relations', list(),    sa.ANY,    sa.VECTOR, sa.READONLY)
 
 
     # --------------------------------------------------------------------------

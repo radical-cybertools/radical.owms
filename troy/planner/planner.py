@@ -61,8 +61,8 @@ class Planner (object) :
                 KeyError ("'%s' is not registered" % workload_id)
 
             # make sure the workflow is 'fresh', so we can translate it
-            if  workload.state != NEW :
-                raise ValueError ("workload '%s' not in NEW state" % workload.id)
+            if  workload.state != DESCRIBED :
+                raise ValueError ("workload '%s' not in DESCRIBED state" % workload.id)
 
             # derive overlay from workload
             overlay = self._planner.derive_overlay (workload)

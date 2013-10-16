@@ -50,7 +50,7 @@ class Task (sa.Attributes) :
     particular on re-scheduling and re-translation.  It might be cleaner to move
     the scheduled/dispatched annotations into the CU descriptions.
 
-    FIXME: do we need states for tasks?  Like: NEW, TRANSLATED, SCHEDULED,
+    FIXME: do we need states for tasks?  Like: DESCRIBED, TRANSLATED, SCHEDULED,
     DISPATCHED, DONE?  Sounds useful on a first glance, but on re-schedule etc
     (see comments in workload manager), the states quickly become meaningless...
     But related to that will be the workload state inspection from the upper

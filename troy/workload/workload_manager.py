@@ -78,8 +78,8 @@ class WorkloadManager (object) :
                 KeyError ("'%s' is not registered" % workload_id)
 
             # make sure the workflow is 'fresh', so we can translate it
-            if  workload.state != NEW :
-                raise ValueError ("workload '%s' not in NEW state" % workload.id)
+            if  workload.state != DESCRIBED :
+                raise ValueError ("workload '%s' not in DESCRIBED state" % workload.id)
 
             # within the locked scope, hand over control over workload to the
             # translator plugin, so it can do what it has to do.
@@ -97,7 +97,7 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def schedule_workload (self, workload_id, overlay_id=None) :
+    def schedule_workload (self, workload_id, overlay_id=None, binding=None) :
         """
         schedule the referenced workload, i.e. assign its components to specific
         overlay elements.
@@ -117,7 +117,24 @@ class WorkloadManager (object) :
 
             # make sure the workload is translated, so that we can schedule it
             if  workload.state != TRANSLATED :
-                raise ValueError ("workload '%s' not in NEW state" % workload.id)
+                raise ValueError ("workload '%s' not in TRANSLATED state" % workload.id)
+
+            # make sure we can honor the requested scheduling mode
+            if  binding == EARLY : 
+                if  overlay.state != DESCRIBED :
+                    raise ValueError ( "overlay '%s' not in DESCRIBED state, " \
+                                     + "too late for early binding" \
+                                     % overlay.id)
+
+            elif binding == LATE : 
+                if  overlay.state != SCHEDULED  and \
+                    overlay.state != DISPATCHED :
+                    raise ValueError ( "overlay '%s' neither scheduled nor " \
+                                     + "dispateched, cannot do late binding" \
+                                     % overlay.id)
+
+            else :
+                raise ValueError ("Unknown binding mode %s" % binding)
 
             # within the locked scope, hand over control over workload (and
             # overlay) to the scheduler plugin, so it can do what it has to do.
@@ -159,7 +176,7 @@ class WorkloadManager (object) :
             # make sure the workload is scheduled, so we can dispatch it.
             # we don't care about overlay state
             if  workload.state != TRANSLATED :
-                raise ValueError ("workload '%s' not in NEW state" % workload.id)
+                raise ValueError ("workload '%s' not in TRANSLATED state" % workload.id)
 
             # within the locked scope, hand over control over workload to the
             # dispatcher plugin, so it can do what it has to do.

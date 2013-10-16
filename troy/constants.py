@@ -1,8 +1,8 @@
 # ------------------------------------------------------------------------------
 #
-# Workload states
+# Workload and Overlay states
 #
-NEW        = 'New'
+DESCRIBED  = 'Described'  # i.e. New
 PLANNED    = 'Planned'
 TRANSLATED = 'Translated'
 SCHEDULED  = 'Scheduled'
@@ -51,4 +51,11 @@ PORT_VALUE       = 'PortValue'       # attribute key # FIXME: semantics?
 INPUT_PORT       = 'PortValue'       # attribute key # FIXME: semantics?
 OUTPUT_PORT      = 'PortValue'       # attribute key # FIXME: semantics?
 
+
+# ------------------------------------------------------------------------------
+# 
+# constants for binding mode flags on workload_manager.scheduler_workload() calls
+#
+EARLY            = 'Early'
+LATE             = 'Late'
 
