@@ -104,6 +104,16 @@ class WorkloadManager (object) :
 
         See the documentation of the :class:`Workload` class on how exactly the
         scheduler changes and/or annotates the given workload.
+
+        The `schedule_workload` method optionally accepts an additional
+        `binding` parameter, which can be set to `troy.EARLY` or `troy.LATE`.
+        If this parameter is set, it will trigger a test which ensures that the
+        given Overlay is in the respective state, i.e. is not yet scheduled or
+        dispatched in the case of early binding and is scheduled or dispatched
+        in the case of late binding.  Partially dispatched overlays will not be
+        usable in either case -- for those, the binding parameter must be left
+        unspecified (i.e. `None`).
+        
         """
 
         workload = None

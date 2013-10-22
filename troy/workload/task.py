@@ -61,7 +61,7 @@ class Task (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, description) :
+    def __init__ (self, descr) :
         """
         Create a new workload element, aka Task, according to the description..
 
@@ -76,7 +76,6 @@ class Task (sa.Attributes) :
 
         # initialize state
         tid   = ru.generate_id ('t.')
-        descr = copy.deepcopy  (description)
 
         if  not 'tag' in descr :
             raise ValueError ("no 'tag' in TaskDescription")
@@ -97,6 +96,13 @@ class Task (sa.Attributes) :
          
         # FIXME: complete attribute list, dig attributes from description,
         # perform sanity checks
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _dump (self) :
+
+        self._attributes_dump ()
 
 
 # ------------------------------------------------------------------------------

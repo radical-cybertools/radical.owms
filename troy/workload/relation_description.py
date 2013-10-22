@@ -35,6 +35,13 @@ class RelationDescription (sa.Attributes) :
         self.update (dictionary)
 
 
+    # --------------------------------------------------------------------------
+    #
+    def _dump (self) :
+
+        self._attributes_dump ()
+
+
 # ------------------------------------------------------------------------------
 #
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4

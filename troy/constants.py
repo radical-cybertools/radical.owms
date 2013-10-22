@@ -7,26 +7,31 @@ PLANNED    = 'Planned'
 TRANSLATED = 'Translated'
 SCHEDULED  = 'Scheduled'
 DISPATCHED = 'Dispatched'
+COMPLETED  = 'Completed'
 FAILED     = 'Failed'     # ABORT! ABORT! ABORT!
 
 
 # ------------------------------------------------------------------------------
 # 
-# constants for relation description attributes
+# constants for task description attributes
 #
 # RELATION_TIME
+TAG              = 'Tag'             # non-unique identified
 CARDINALITY      = 'Cardinality'     # Cardinality ;)
 
 RELATION_TIME    = 'RelationTime'    # attribute key -- for cardinal subtasks
 CONCURRENT       = 'Concurrent'      # subtasks are concurrent
+SEQUENTIAL_START = 'SequentialStart' # subtasks start when previous ones started
+SEQUENTIAL_END   = 'SequentialEnd'   # subtasks start when previous ones finished
 
 RELATION_SPACE   = 'RelationSpace'   # attribute key -- for cardinal subtasks
 COMMUNICATION    = 'Communication'   # subtasks directly exchange messages
 SHARED_DATA      = 'SharedData'      # subtasks access the same data sets
 SHARED_MEMORY    = 'SharedMemory'    # subtasks access the same data in memory
 
-HEAD             = 'PortName'        # attribute key
-HEAD_PORT        = 'HeadPort'        # attribute key
+EXECUTABLE       = 'Executable'
+ARGUMENTS        = 'Argument'
+ENVIRONMENT      = 'Environment'
 
 
 # ------------------------------------------------------------------------------
@@ -34,6 +39,9 @@ HEAD_PORT        = 'HeadPort'        # attribute key
 # constants for relation description attributes
 #
 # RELATION_TIME
+HEAD             = 'Head'            # leading  node for relation
+TAIL             = 'Tail'            # trailing node for relation
+
 RELATION_TIME    = 'RelationTime'    # attribute key
 CONCURRENT       = 'Concurrent'      # start TAIL and  HEAD concurrently
 SEQUENTIAL_START = 'SequentialStart' # start TAIL when HEAD is started

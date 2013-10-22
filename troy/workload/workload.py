@@ -2,13 +2,16 @@
 
 import threading
 
-import radical.utils    as ru
-import saga.attributes  as sa
+import radical.utils        as ru
+import saga.attributes      as sa
 
-import task
-import task_description
+import task                 as tt
+import task_description     as ttd
 
-from   troy.constants import *
+import relation             as tr
+import relation_description as trd
+
+from   troy.constants       import *
 
 
 # ------------------------------------------------------------------------------
@@ -22,22 +25,54 @@ class Workload (sa.Attributes) :
     Workload instances are owned by the :class:`WorkloadManager` class -- only
     that class should change its composition and state.
 
+    A workload undergoes a series of transformations before ending up as on
+    a specific resource (pilot).  Those transformations are orchestrated by the
+    workload manager.  To support that orchestration, a workload will be
+    lockable, and it will have a state attribute.  The valid states are listed
+    below.
+
     Internally, a workload is represented in two parts: a dictionary of tasks
     (:class:`Task` instances mapped to their task id), and a list of
     :class:`Relation` instances.  As the workload undergoes transformations, it
     is enriched by additional information, although those are kept solely within
     the :class:`Task` instances -- see there for more details.
-    
-    A workload undergoes a series of transformations before ending up as on
-    a specific resource (pilot).  Those transformations are orchestrated by the
-    workload manager.  To support that orchestration, a workload will be
-    lockable, and it will have a state attribute.  The valid states are listed
-    below
 
-    FIXME: those states assume that all transformations are atomic and complete,
-    i.e.  we do not expect a partial translation, followed by a partial
-    schedule, followed by another partial translations.  Is that assumption
-    valid?  
+    The workload transformations are:
+
+    * *Translation:* A workload is inspected, and its tasks are translated into 
+      compute units.  A single task may result in one or more compute units.
+      Multiple tasks may be combined into one compute unit.
+
+    * *Scheduling:* A translated workload is mapped onto an resource overlay.
+      More specifically, the compute units of an translated workload are
+      scheduled on the compute pilots of a given overlay.  
+
+    * *Dispatching:* A scheduled workload is dispatched to the active entities
+      (pilots) of an overlay.
+
+
+    Workload States
+    ---------------
+
+    A workload can be in different states, depending on the transformations
+    performed on it.  Specifically, it can be in `DESCRIBED`, `PLANNED`,
+    `TRANSLATED`, `SCHEDULED`, `DISPATCHED`, `COMPLETED` or `FAILED`.
+    A workload enters the workload manager in `DESCRIBED` or `PLANNED` state,
+    and all follow-up state transitions are kept within the wrokload manager.
+
+    Those states are ill defined in case of partial transformations -- if, for
+    example, a translation step only derives compute units for some of the
+    tasks, but not for others.  As a general rule, a workload will remain in
+    a state until the transformation has been performed on all applicable
+    workload components (tasks and relations).
+
+    Even on fully transformed workloads, the actual workload state may not be
+    trivial to determine -- for example, a specific compute unit configuration
+    derived in a translation step may show to be impossible to dispatch later
+    on, and may require a re-translation into a different configuration; or if
+    a newly `DESCRIBED` task is added to a `SCHEDULED` workload.   Those
+    feedback loops are considered out-of-scope for Troy at this point, so that
+    state transitions are considered irreversible.  
     """
 
 
@@ -49,8 +84,9 @@ class Workload (sa.Attributes) :
 
         Each new workload is assigned a new ID.
 
-        Later implementations may allow for an additional id parameter, 
-        to reconnect to the thus identified workload instances.  
+        Later (service oriented) Troy implementations may allow for an
+        additional id parameter, to reconnect to the thus identified workload
+        instances.  
         """
 
         # make this instance lockable
@@ -72,7 +108,7 @@ class Workload (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def add_task (self, description) :
+    def add_task (self, descr) :
         """
         Add a task (or a list of tasks) to the workload.
         
@@ -81,23 +117,22 @@ class Workload (sa.Attributes) :
 
         with self.lock :
 
+            if  self.state != DESCRIBED :
+                raise RuntimeError ("workload is not in DESCRIBED state -- cannot add tasks")
+
             # handle scalar and list uniformly
-            if  type(description) != list :
-                description = [description]
+            if  type(descr) != list :
+                descr = [descr]
 
-            # check type and uniqueness for each task
-            for d in description :
+            # check type, content and uniqueness for each task
+            for d in descr :
 
-                if  not isinstance (d, task_description.TaskDescription) :
+                if  not isinstance (d, ttd.TaskDescription) :
                     raise TypeError ("expected TaskDescription, got %s" % type(d))
 
                 # FIXME: add sanity checks for task syntax / semantics
+                t = tt.Task (d)
 
-                t = task.Task (d)
-
-              # t._attributes_dump ()
-
-                # FIXME: clarify what adding multiple tasks with same tags means
                 if t.tag in self.tasks :
                     raise ValueError ("Task with tag '%s' already exists" % t.tag)
                 
@@ -106,7 +141,7 @@ class Workload (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def add_relation (self, relation) :
+    def add_relation (self, descr) :
         """
         Add a relation for a pair of tasks, or a list relations for a set
         task-pairs, to the workload.  
@@ -116,31 +151,40 @@ class Workload (sa.Attributes) :
         `Workload` -- otherwise a `ValueError` is raised.
         """
 
-        # FIXME: need a relation description
-
         with self.lock :
 
+            if  self.state != DESCRIBED :
+                raise RuntimeError ("workload is not in DESCRIBED state -- cannot add relation")
+
             # handle scalar and list uniformly
-            if  type(relation) != list :
-                relation = [relation]
+            if  type(descr) != list :
+                descr = [descr]
 
             # check type, uniqueness and validity for each relation
-            for r in relation :
+            for d in descr :
 
-                if  type(r) != 'Relation' :
-                    raise TypeError ("expected Relation, got %s" % type(r))
+                if  not isinstance (d, trd.RelationDescription) :
+                    raise TypeError ("expected RelationDescription, got %s" % type(d))
 
-                if  r in self.relations :
-                    raise ValueError ("Relation'%s' cannot be added again" % r.name)
+                if  d in self.relations :
+                    raise ValueError ("Relation '%s' cannot be added again" % d.name)
 
-                if  not r.head in self.tasks :
-                    raise ValueError ("head '%s' no known" % r.head)
+                if  not d.head in self.tasks :
+                    raise ValueError ("relation head '%s' no known" % d.head)
 
-                if  not r.tail in self.tasks :
-                    raise ValueError ("tail '%s' no known" % r.tail)
+                if  not d.tail in self.tasks :
+                    raise ValueError ("relation tail '%s' no known" % d.tail)
 
-            # all is well
-            self.relations.append (relation)
+                r = tr.Relation (d)
+
+                self.relations.append (r)
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _dump (self) :
+
+        self._attributes_dump ()
 
 
 # ------------------------------------------------------------------------------
