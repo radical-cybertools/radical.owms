@@ -18,7 +18,7 @@ copyright:
 
 
 pylint:
-	@rm pylint.out ;\
+	@rm -f pylint.out ;\
 	for f in `find troy -name \*.py`; do \
 		echo "checking $$f"; \
 		( \
