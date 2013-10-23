@@ -22,6 +22,6 @@ from planner    import Planner
 from workload   import WorkloadManager
 #from overlay   import OverlayManager
 
-# _Registry is only internally used in Troy
-from registry   import _Registry
+import registry
+_registry = registry._Registry ()
 

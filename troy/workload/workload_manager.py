@@ -1,9 +1,9 @@
 
 
 import threading
-import radical.utils   as ru
+import radical.utils      as ru
 
-import troy
+import troy.registry      as treg
 from   troy.constants import *
 
 
@@ -46,7 +46,6 @@ class WorkloadManager (object) :
         self.lock = threading.RLock ()
 
         # initialize state, load plugins
-        self._registry    = troy._Registry   ()
         self._plugin_mgr  = ru.PluginManager ('troy')
 
         # FIXME: error handling
@@ -72,10 +71,11 @@ class WorkloadManager (object) :
         overlay  = None
 
         try :
-            overlay  = self._registry.acquire (overlay_id)
-            workload = self._registry.acquire (workload_id)
+            overlay  = troy._registry.acquire (overlay_id)
+            workload = troy._registry.acquire (workload_id)
+
             if  not workload :
-                KeyError ("'%s' is not registered" % workload_id)
+                raise KeyError ("'%s' is not registered" % workload_id)
 
             # make sure the workflow is 'fresh', so we can translate it
             if  workload.state != DESCRIBED :
@@ -90,9 +90,8 @@ class WorkloadManager (object) :
 
         # exceptions fall through, but we make sure to release the workload
         finally :
-            if  overlay:
-                self._registry.release (overlay_id)
-            self._registry.release (workload_id)
+            if  overlay : troy._registry.release (overlay_id)
+            if  workload: troy._registry.release (workload_id)
 
 
     # --------------------------------------------------------------------------
@@ -120,8 +119,9 @@ class WorkloadManager (object) :
         overlay  = None
 
         try :
-            overlay  = self._registry.acquire (overlay_id)
-            workload = self._registry.acquire (workload_id)
+            overlay  = troy._registry.acquire (overlay_id)
+            workload = troy._registry.acquire (workload_id)
+
             if  not workload :
                 KeyError ("'%s' is not registered" % workload_id)
 
@@ -156,8 +156,8 @@ class WorkloadManager (object) :
             # release overlay (if we had any...)
         # exceptions fall through, but we make sure to release the workload
         finally :
-            self._registry.release (overlay_id)
-            self._registry.release (workload_id)
+            troy._registry.release (overlay_id)
+            troy._registry.release (workload_id)
 
 
 
@@ -178,8 +178,9 @@ class WorkloadManager (object) :
 
         try :
 
-            overlay  = self._registry.acquire (overlay_id)
-            workload = self._registry.acquire (workload_id)
+            overlay  = troy._registry.acquire (overlay_id)
+            workload = troy._registry.acquire (workload_id)
+
             if  not workload :
                 KeyError ("'%s' is not registered" % workload_id)
 
@@ -198,8 +199,8 @@ class WorkloadManager (object) :
         # exceptions fall through, but we make sure to release the overlay and
         # workload
         finally :
-            self._registry.release (overlay_id)
-            self._registry.release (workload_id)
+            troy._registry.release (overlay_id)
+            troy._registry.release (workload_id)
 
 
     # --------------------------------------------------------------------------
@@ -212,7 +213,8 @@ class WorkloadManager (object) :
         composition or properties.
         """
 
-        workload = self._registry.acquire (workload_id)
+        workload = troy._registry.acquire (workload_id)
+
         if  not workload :
             KeyError ("'%s' is not registered" % workload_id)
 

@@ -88,9 +88,9 @@ class Workload (sa.Attributes) :
         additional id parameter, to reconnect to the thus identified workload
         instances.  
         """
-
+        
         # make this instance lockable
-        self.lock = threading.RLock ()
+        self.lock      = threading.RLock ()
 
         wl_id = ru.generate_id ('wl.')
 
@@ -104,6 +104,10 @@ class Workload (sa.Attributes) :
         self._attributes_register   ('error',     None,      sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   ('tasks',     dict(),    sa.ANY,    sa.VECTOR, sa.READONLY)
         self._attributes_register   ('relations', list(),    sa.ANY,    sa.VECTOR, sa.READONLY)
+
+        # register this workload so that it can be acquired/released by
+        # transformations
+        troy._registry.register (self)
 
 
     # --------------------------------------------------------------------------

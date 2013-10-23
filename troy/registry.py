@@ -3,7 +3,8 @@
 import threading
 import radical.utils as ru
 
-import troy
+import troy.workload as twl
+import troy.overlay  as tol
 
 
 # ------------------------------------------------------------------------------
@@ -70,14 +71,14 @@ class _Registry (object) :
         register a new workload or overlay.
         """
 
-        if  not isinstance  (entity, troy.Workload) and \
-            not isinstance  (entity, troy.Overlay)  :
+        if  not isinstance  (entity, twl.Workload) and \
+            not isinstance  (entity, tol.Overlay)  :
             raise TypeError ("expected 'Workload' or 'Overlay', not %s"
                           % type(entity))
 
 
         # lock manager before checking/manipulating the registry
-        with  self.lock :
+        with self.lock :
 
             # lock entity before checking state
             with entity.lock () :
@@ -87,6 +88,8 @@ class _Registry (object) :
 
                 if  entity.state != troy.DESCRIBED :
                     raise ValueError ("'%s' not in DESCRIBED state" % entity.id)
+
+                print 'register %s' % entity.id
 
                 self._registry[entity.id] = {}
                 self._registry[entity.id]['leased'] = False  # not leased
@@ -110,6 +113,8 @@ class _Registry (object) :
 
             if  self._registry[entity_id]['leased'] :
                 raise ValueError ("'%s' is currently in use" % entity_id)
+
+            print 'acquire %s' % entity_id
 
             # acquire entity lock
             self._registry[entity_id]['entity'].lock ().acquire ()
@@ -137,6 +142,8 @@ class _Registry (object) :
              #  raise ValueError ("'%s' was not acquired" % entity_id)
                 pass
 
+            print 'release %s' % entity_id
+
             # release entity lock
             self._registry[entity_id]['entity'].lock.release ()
             self._registry[entity_id]['leased'] = False
@@ -160,6 +167,8 @@ class _Registry (object) :
 
             if  self._registry[entity_id]['leased'] :
                 raise ValueError ("'%s' is currently used" % entity_id)
+
+            print 'unregister %s' % entity_id
 
             # remove entity from registry, w/o a trace...
             del self._registry[entity_id]
