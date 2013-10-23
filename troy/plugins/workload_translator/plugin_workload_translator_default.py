@@ -37,14 +37,14 @@ class PLUGIN_CLASS (object) :
             overlay_lock = threading.RLock ()
 
 
-        with workload.lock () and overlay.lock () :
+      # with workload.lock () and overlay.lock () :
             
             # for t in workload.tasks :
             #     t.compute_units = []
             #     t.compute_units[0] = t.description
 
             # do nothing
-            pass
+      #     pass
 
 # ------------------------------------------------------------------------------
 #

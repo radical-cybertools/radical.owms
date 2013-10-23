@@ -3,7 +3,6 @@
 import threading
 import radical.utils      as ru
 
-import troy.registry      as treg
 from   troy.constants import *
 
 
@@ -56,7 +55,7 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def translate_workload (self, workload_id, overlay_id=None) :
+    def translate_workload (self, workload, overlay=None) :
         """
         Translate the referenced workload, i.e. transform its tasks into
         ComputeUnit and DataUnit descriptions.
@@ -67,36 +66,21 @@ class WorkloadManager (object) :
         translator changes and/or annotates the given workload.
         """
 
-        workload = None
-        overlay  = None
+        # make sure the workflow is 'fresh', so we can translate it
+        if  workload.state != DESCRIBED :
+            raise ValueError ("workload '%s' not in DESCRIBED state" % workload.id)
 
-        try :
-            overlay  = troy._registry.acquire (overlay_id)
-            workload = troy._registry.acquire (workload_id)
+        # within the locked scope, hand over control over workload to the
+        # translator plugin, so it can do what it has to do.
+        self._translator.translate (workload, overlay)
 
-            if  not workload :
-                raise KeyError ("'%s' is not registered" % workload_id)
-
-            # make sure the workflow is 'fresh', so we can translate it
-            if  workload.state != DESCRIBED :
-                raise ValueError ("workload '%s' not in DESCRIBED state" % workload.id)
-
-            # within the locked scope, hand over control over workload to the
-            # translator plugin, so it can do what it has to do.
-            self._translator.translate (workload, overlay)
-
-            # mark workload as 'translated'
-            workload.state = TRANSLATED
-
-        # exceptions fall through, but we make sure to release the workload
-        finally :
-            if  overlay : troy._registry.release (overlay_id)
-            if  workload: troy._registry.release (workload_id)
+        # mark workload as 'translated'
+        workload.state = TRANSLATED
 
 
     # --------------------------------------------------------------------------
     #
-    def schedule_workload (self, workload_id, overlay_id=None, binding=None) :
+    def schedule_workload (self, workload, overlay=None, binding=None) :
         """
         schedule the referenced workload, i.e. assign its components to specific
         overlay elements.
@@ -115,55 +99,35 @@ class WorkloadManager (object) :
         
         """
 
-        workload = None
-        overlay  = None
+        # make sure the workload is translated, so that we can schedule it
+        if  workload.state != TRANSLATED :
+            raise ValueError ("workload '%s' not in TRANSLATED state" % workload.id)
 
-        try :
-            overlay  = troy._registry.acquire (overlay_id)
-            workload = troy._registry.acquire (workload_id)
+        # make sure we can honor the requested scheduling mode
+        if  binding == EARLY : 
+            if  overlay.state != DESCRIBED :
+                raise ValueError ( "overlay '%s' not in DESCRIBED state, " \
+                                 + "too late for early binding" \
+                                 % overlay.id)
 
-            if  not workload :
-                KeyError ("'%s' is not registered" % workload_id)
+        elif binding == LATE : 
+            if  overlay.state != SCHEDULED  and \
+                overlay.state != DISPATCHED :
+                raise ValueError ( "overlay '%s' neither scheduled nor " \
+                                 + "dispateched, cannot do late binding" \
+                                 % overlay.id)
 
-            # make sure the workload is translated, so that we can schedule it
-            if  workload.state != TRANSLATED :
-                raise ValueError ("workload '%s' not in TRANSLATED state" % workload.id)
+        # within the locked scope, hand over control over workload (and
+        # overlay) to the scheduler plugin, so it can do what it has to do.
+        self._scheduler.schedule (workload, overlay)
 
-            # make sure we can honor the requested scheduling mode
-            if  binding == EARLY : 
-                if  overlay.state != DESCRIBED :
-                    raise ValueError ( "overlay '%s' not in DESCRIBED state, " \
-                                     + "too late for early binding" \
-                                     % overlay.id)
-
-            elif binding == LATE : 
-                if  overlay.state != SCHEDULED  and \
-                    overlay.state != DISPATCHED :
-                    raise ValueError ( "overlay '%s' neither scheduled nor " \
-                                     + "dispateched, cannot do late binding" \
-                                     % overlay.id)
-
-            else :
-                raise ValueError ("Unknown binding mode %s" % binding)
-
-            # within the locked scope, hand over control over workload (and
-            # overlay) to the scheduler plugin, so it can do what it has to do.
-            self._scheduler.schedule (workload, overlay)
-
-            # mark workload as 'scheduled'
-            workload.state = SCHEDULED
-
-            # release overlay (if we had any...)
-        # exceptions fall through, but we make sure to release the workload
-        finally :
-            troy._registry.release (overlay_id)
-            troy._registry.release (workload_id)
-
+        # mark workload as 'scheduled'
+        workload.state = SCHEDULED
 
 
     # --------------------------------------------------------------------------
     #
-    def dispatch_workload (self, workload_id, overlay_id) :
+    def dispatch_workload (self, workload, overlay) :
         """
         schedule the referenced workload, i.e. submit its CUs and DUs to the
         respective overlay elements.  The workload must have been scheduled
@@ -173,53 +137,17 @@ class WorkloadManager (object) :
         scheduler changes and/or annotates the given workload.
         """
 
-        workload = None
-        overlay  = None
+        # make sure the workload is scheduled, so we can dispatch it.
+        # we don't care about overlay state
+        if  workload.state != TRANSLATED :
+            raise ValueError ("workload '%s' not in TRANSLATED state" % workload.id)
 
-        try :
+        # within the locked scope, hand over control over workload to the
+        # dispatcher plugin, so it can do what it has to do.
+        self._dispatcher.dispatch (workload, overlay)
 
-            overlay  = troy._registry.acquire (overlay_id)
-            workload = troy._registry.acquire (workload_id)
-
-            if  not workload :
-                KeyError ("'%s' is not registered" % workload_id)
-
-            # make sure the workload is scheduled, so we can dispatch it.
-            # we don't care about overlay state
-            if  workload.state != TRANSLATED :
-                raise ValueError ("workload '%s' not in TRANSLATED state" % workload.id)
-
-            # within the locked scope, hand over control over workload to the
-            # dispatcher plugin, so it can do what it has to do.
-            self._dispatcher.dispatch (workload, overlay)
-
-            # mark workload as 'scheduled'
-            workload.state = DISPATCHED
-
-        # exceptions fall through, but we make sure to release the overlay and
-        # workload
-        finally :
-            troy._registry.release (overlay_id)
-            troy._registry.release (workload_id)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def inspect_workload (self, workload_id) :
-        """
-        expose a workload to a requesting entity for inspection.
-        
-        The inspector is expected *not* to change the workload state, nor its
-        composition or properties.
-        """
-
-        workload = troy._registry.acquire (workload_id)
-
-        if  not workload :
-            KeyError ("'%s' is not registered" % workload_id)
-
-        # FIXME: who will release the lock on the workload??
-        return workload
+        # mark workload as 'scheduled'
+        workload.state = DISPATCHED
 
 
 # ------------------------------------------------------------------------------
