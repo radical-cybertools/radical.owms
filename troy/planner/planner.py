@@ -37,7 +37,6 @@ class Planner (object) :
         self.lock = threading.RLock ()
 
         # initialize state, load plugins
-        self._registry    = troy._Registry ()
         self._plugin_mgr  = ru.PluginManager ('troy')
 
         # FIXME: error handling
@@ -46,7 +45,7 @@ class Planner (object) :
 
     # --------------------------------------------------------------------------
     #
-    def plan (self, workload_id) :
+    def plan (self, workload) :
         """
         create overlay plan (description) from workload
         """
@@ -54,31 +53,14 @@ class Planner (object) :
         workload = None
         overlay  = None
 
-        try :
+        # make sure the workflow is 'fresh', so we can translate it
+        if  workload.state != DESCRIBED :
+            raise ValueError ("workload '%s' not in DESCRIBED state" % workload.id)
 
-            workload = self._registry.acquire (workload_id)
-            if  not workload :
-                KeyError ("'%s' is not registered" % workload_id)
+        # derive overlay from workload
+        overlay = self._planner.derive_overlay (workload)
 
-            # make sure the workflow is 'fresh', so we can translate it
-            if  workload.state != DESCRIBED :
-                raise ValueError ("workload '%s' not in DESCRIBED state" % workload.id)
-
-            # derive overlay from workload
-            overlay = self._planner.derive_overlay (workload)
-
-            # register the new overlay
-            self._registry.register (overlay)
-
-        finally :
-            self._registry.release  (workload_id)
-
-        if  overlay :
-            return overlay.id
-
-        # FIXME: the line below can never be reached, right?
-        return None
-
+        return overlay.id
 
 
 # ------------------------------------------------------------------------------

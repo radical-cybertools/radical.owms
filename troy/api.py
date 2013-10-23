@@ -25,9 +25,6 @@ class Troy (object) :
         # make this instance lockable
         self.lock = threading.RLock ()
 
-        # keep a registry handle
-        self._registry  = troy._Registry ()
-
 
     # --------------------------------------------------------------------------
     #
@@ -46,7 +43,6 @@ class Troy (object) :
             raise TypeError ("expected 'Session' instance, not %s" % type(session))
 
         workload._session = session
-        self._registry.register (workload)
 
         # this implements one specific trace (early binding)
         def trace_example (workload_id) :

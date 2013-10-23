@@ -22,6 +22,3 @@ from planner    import Planner
 from workload   import WorkloadManager
 #from overlay   import OverlayManager
 
-import registry
-_registry = registry._Registry ()
-
