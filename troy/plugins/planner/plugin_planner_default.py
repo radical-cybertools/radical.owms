@@ -26,10 +26,10 @@ class PLUGIN_CLASS(object):
     #
     def derive_overlay(self, workload):
 
-        with workload.lock:
+        #with workload.lock:
 
             # do nothing
-            pass
+            #pass
 
 
         ovl = Overlay()
