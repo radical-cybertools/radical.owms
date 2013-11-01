@@ -6,7 +6,6 @@ __license__ = "MIT"
 
 """
 Manages the pilot-based overlays for TROY.
-
 """
 
 import threading
@@ -51,7 +50,9 @@ class OverlayManager (object) :
         """
         Create a new overlay manager instance.
 
-        Use default plugins if not otherwise indicated.
+        Use default plugins if not otherwise indicated.  Note that the
+        provisioner plugin is actully not owned by the OverlayManager, but by
+        the pilots of the Overlay managed by the OverlayManager.
         """
 
         # initialize state, load plugins
