@@ -71,9 +71,6 @@ class Task (sa.Attributes) :
         to reconnect to the thus identified task instance.  
         """
 
-        # make this instance lockable
-        self.lock = threading.RLock ()
-
         # initialize state
         tid   = ru.generate_id ('t.')
 

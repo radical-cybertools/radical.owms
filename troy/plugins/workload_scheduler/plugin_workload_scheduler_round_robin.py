@@ -29,23 +29,7 @@ class PLUGIN_CLASS (object) :
     #
     def schedule (self, workload, overlay) :
 
-        with workload.lock () and overlay.lock () :
-
-            # if  not overlay.pilots :
-            #     raise ValueError ("no pilots to schedule over")
-            #
-            # next_pilot = 0
-            #
-            # for t in workload.tasks :
-            #     for c in t.compute_units :
-            #         c.target_pilot = overlay.pilots[next_pilot].id
-            #         next_pilot += 1
-            #         if  next_pilot >= len (overlay.pilots) :
-            #             next_pilot  = 0
-            #
-
-            # do nothing
-            pass
+        pass
 
 
 # ------------------------------------------------------------------------------
