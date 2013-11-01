@@ -11,8 +11,8 @@ Represent a pilot-based overlay that is managed by TROY.
 # -----------------------------------------------------------------------------
 #
 class Overlay (object) :
-	"""
-	"""
+    """
+    """
 
-	pass
+    pass
 

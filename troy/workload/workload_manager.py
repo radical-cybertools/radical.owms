@@ -56,26 +56,26 @@ class WorkloadManager (object) :
     # --------------------------------------------------------------------------
     #
     @classmethod
-    def register_workload (workload) :
+    def register_workload (cls, workload) :
         ru.Registry.register (workload)
 
 
     # --------------------------------------------------------------------------
     #
     @classmethod
-    def unregister_workload (workload_id) :
-        ru.Registry.register (workload_id)
+    def unregister_workload (cls, workload_id) :
+        ru.Registry.unregister (workload_id)
 
 
     # --------------------------------------------------------------------------
     #
     @classmethod
-    def get_workload (workload_id) :
+    def get_workload (cls, workload_id) :
         """
         We don't care about locking at this point -- so we simply release the
         workload immediately...
         """
-        wl = ru.Registry.acquire (workload_id)
+        wl = ru.Registry.acquire (workload_id, ru.READONLY)
         ru.Registry.release (workload_id)
 
         return wl
