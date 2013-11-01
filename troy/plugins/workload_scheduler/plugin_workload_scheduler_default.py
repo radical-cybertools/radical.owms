@@ -29,10 +29,6 @@ class PLUGIN_CLASS (object) :
     def schedule (self, workload, overlay) :
 
         pass
-      # with workload.lock and overlay.lock () :
-
-            # do nothing
-      #     pass
 
 
 # ------------------------------------------------------------------------------

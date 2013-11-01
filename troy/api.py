@@ -21,9 +21,7 @@ class Troy (object) :
         """
         Create a new troy instance.  
         """
-
-        # make this instance lockable
-        self.lock = threading.RLock ()
+        pass
 
 
     # --------------------------------------------------------------------------

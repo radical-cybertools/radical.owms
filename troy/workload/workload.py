@@ -113,28 +113,26 @@ class Workload (sa.Attributes) :
         Tasks are expected of type `TaskDescription`.
         """
 
-        with self._rlock :
+        if  self.state != DESCRIBED :
+            raise RuntimeError ("workload is not in DESCRIBED state -- cannot add tasks")
 
-            if  self.state != DESCRIBED :
-                raise RuntimeError ("workload is not in DESCRIBED state -- cannot add tasks")
+        # handle scalar and list uniformly
+        if  type(descr) != list :
+            descr = [descr]
 
-            # handle scalar and list uniformly
-            if  type(descr) != list :
-                descr = [descr]
+        # check type, content and uniqueness for each task
+        for d in descr :
 
-            # check type, content and uniqueness for each task
-            for d in descr :
+            if  not isinstance (d, ttd.TaskDescription) :
+                raise TypeError ("expected TaskDescription, got %s" % type(d))
 
-                if  not isinstance (d, ttd.TaskDescription) :
-                    raise TypeError ("expected TaskDescription, got %s" % type(d))
+            # FIXME: add sanity checks for task syntax / semantics
+            t = tt.Task (d)
 
-                # FIXME: add sanity checks for task syntax / semantics
-                t = tt.Task (d)
-
-                if t.tag in self.tasks :
-                    raise ValueError ("Task with tag '%s' already exists" % t.tag)
-                
-                self.tasks [d.tag] = t
+            if t.tag in self.tasks :
+                raise ValueError ("Task with tag '%s' already exists" % t.tag)
+            
+            self.tasks [d.tag] = t
 
 
     # --------------------------------------------------------------------------
@@ -149,33 +147,31 @@ class Workload (sa.Attributes) :
         `Workload` -- otherwise a `ValueError` is raised.
         """
 
-        with self._rlock :
+        if  self.state != DESCRIBED :
+            raise RuntimeError ("workload is not in DESCRIBED state -- cannot add relation")
 
-            if  self.state != DESCRIBED :
-                raise RuntimeError ("workload is not in DESCRIBED state -- cannot add relation")
+        # handle scalar and list uniformly
+        if  type(descr) != list :
+            descr = [descr]
 
-            # handle scalar and list uniformly
-            if  type(descr) != list :
-                descr = [descr]
+        # check type, uniqueness and validity for each relation
+        for d in descr :
 
-            # check type, uniqueness and validity for each relation
-            for d in descr :
+            if  not isinstance (d, trd.RelationDescription) :
+                raise TypeError ("expected RelationDescription, got %s" % type(d))
 
-                if  not isinstance (d, trd.RelationDescription) :
-                    raise TypeError ("expected RelationDescription, got %s" % type(d))
+            if  d in self.relations :
+                raise ValueError ("Relation '%s' cannot be added again" % d.name)
 
-                if  d in self.relations :
-                    raise ValueError ("Relation '%s' cannot be added again" % d.name)
+            if  not d.head in self.tasks :
+                raise ValueError ("relation head '%s' no known" % d.head)
 
-                if  not d.head in self.tasks :
-                    raise ValueError ("relation head '%s' no known" % d.head)
+            if  not d.tail in self.tasks :
+                raise ValueError ("relation tail '%s' no known" % d.tail)
 
-                if  not d.tail in self.tasks :
-                    raise ValueError ("relation tail '%s' no known" % d.tail)
+            r = tr.Relation (d)
 
-                r = tr.Relation (d)
-
-                self.relations.append (r)
+            self.relations.append (r)
 
 
     # --------------------------------------------------------------------------

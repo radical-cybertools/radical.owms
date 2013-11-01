@@ -32,9 +32,6 @@ class Planner(object):
         Use the default planner plugin if not indicated otherwise
         """
 
-        # make this instance lockable
-        self.lock = threading.RLock ()
-
         # initialize state, load plugins
         self._plugin_mgr = ru.PluginManager('troy')
 
