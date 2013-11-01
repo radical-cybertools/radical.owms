@@ -7,6 +7,7 @@ PLUGIN_DESCRIPTION = {
     'description' : 'This is the default planner.'
   }
 
+from overlay import Overlay
 
 # ------------------------------------------------------------------------------
 #
@@ -30,9 +31,10 @@ class PLUGIN_CLASS(object):
             # do nothing
             pass
 
-        overlay = "magic"
 
-        return overlay
+        ovl = Overlay()
+
+        return ovl
 
 
 #

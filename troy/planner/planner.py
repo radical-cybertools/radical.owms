@@ -1,15 +1,15 @@
 
 
 import threading
-import radical.utils   as ru
+import radical.utils as ru
 
 import troy
-from   troy.constants import *
+from troy.constants import *
 
 
 # ------------------------------------------------------------------------------
 #
-class Planner (object) :
+class Planner(object):
     """
     The `Planner` class represents the upper layer, i.e. the application facing
     layer, of Troy, and thus hosts the API that ultimately will be used by end
@@ -23,10 +23,9 @@ class Planner (object) :
     enacted by the :class:`OverlayManager`.
     """
 
-
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, planner='default') :
+    def __init__(self, planner='default'):
         """
         Create a new planner instance for this workload.  
 
@@ -37,30 +36,29 @@ class Planner (object) :
         self.lock = threading.RLock ()
 
         # initialize state, load plugins
-        self._plugin_mgr  = ru.PluginManager ('troy')
+        self._plugin_mgr = ru.PluginManager('troy')
 
         # FIXME: error handling
-        self._planner = self._plugin_mgr.load  ('planner', planner)
-
+        self._planner = self._plugin_mgr.load('planner', planner)
 
     # --------------------------------------------------------------------------
     #
-    def plan (self, workload) :
+    def plan(self, workload):
         """
         create overlay plan (description) from workload
         """
 
-        overlay  = None
+        overlay = None
 
         # make sure the workflow is 'fresh', so we can translate it
-        if  workload.state != DESCRIBED :
-            raise ValueError ("workload '%s' not in DESCRIBED state" % workload.id)
+        if workload.state != DESCRIBED:
+            raise ValueError("workload '%s' not in DESCRIBED state" %
+                             workload.id)
 
         # derive overlay from workload
         overlay = self._planner.derive_overlay(workload)
 
         return overlay.id
-
 
 # ------------------------------------------------------------------------------
 
