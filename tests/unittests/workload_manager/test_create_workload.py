@@ -4,7 +4,6 @@ __copyright__ = "Copyright 2013, The SAGA Project"
 __license__   = "MIT"
 
 
-import pprint
 import radical.utils.testing as rut
 
 import troy
@@ -18,7 +17,6 @@ def test_workload_create () :
     tc = rut.get_test_config ()
     wl_dict = tc.workload_dict
     wl      = troy.Workload ()
-    pprint.pprint (wl_dict)
 
     if  not 'tasks' in wl_dict :
         assert False, "no tasks in workload dict" 
