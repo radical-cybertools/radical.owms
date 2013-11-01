@@ -50,7 +50,6 @@ class Planner (object) :
         create overlay plan (description) from workload
         """
 
-        workload = None
         overlay  = None
 
         # make sure the workflow is 'fresh', so we can translate it
@@ -58,7 +57,7 @@ class Planner (object) :
             raise ValueError ("workload '%s' not in DESCRIBED state" % workload.id)
 
         # derive overlay from workload
-        overlay = self._planner.derive_overlay (workload)
+        overlay = self._planner.derive_overlay(workload)
 
         return overlay.id
 
