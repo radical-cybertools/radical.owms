@@ -47,7 +47,7 @@ class OverlayManager (object) :
     # --------------------------------------------------------------------------
     #
     def __init__ (self, informer    = 'default',
-        				scheduler   = 'default',
+                        scheduler   = 'default',
                         provisioner = 'default') :
         """
         Create a new overlay manager instance.
@@ -70,26 +70,26 @@ class OverlayManager (object) :
     # --------------------------------------------------------------------------
     #
     @classmethod
-    def register_overlay (overlay) :
+    def register_overlay (cls, overlay) :
         ru.Registry.register (overlay)
 
 
     # --------------------------------------------------------------------------
     #
     @classmethod
-    def unregister_overlay (overlay_id) :
-        ru.Registry.register (overlay_id)
+    def unregister_overlay (cls, overlay_id) :
+        ru.Registry.unregister (overlay_id)
 
 
     # --------------------------------------------------------------------------
     #
     @classmethod
-    def get_overlay (overlay_id) :
+    def get_overlay (cls, overlay_id) :
         """
         We don't care about locking at this point -- so we simply release the
         overlay immediately...
         """
-        wl = ru.Registry.acquire (overlay_id)
+        wl = ru.Registry.acquire (overlay_id, ru.READONLY)
         ru.Registry.release (overlay_id)
 
         return wl

@@ -12,15 +12,14 @@ Represent a pilot, as element of a troy.Overlay.
 # -----------------------------------------------------------------------------
 #
 class Pilot (object) :
-	"""
-	"""
+    """
+    """
 
-    def __init__ (self, overlay_dispatcher = 'default',
-        				scheduler   = 'default',
-                        provisioner = 'default') :
+    def __init__ (self, overlay_dispatcher = 'default') :
         """
         Create a new overlay manager instance.
 
         Use default plugins if not otherwise indicated.
         """
+        pass
 

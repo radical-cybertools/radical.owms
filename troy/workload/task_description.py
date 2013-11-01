@@ -31,8 +31,6 @@ class TaskDescription (sa.Attributes) :
         self._attributes_extensible  (True)  # FIXME
         self._attributes_camelcasing (True)
 
-        print self.keys()
-    
         # register attributes
         # FIXME
 
