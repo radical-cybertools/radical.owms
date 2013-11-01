@@ -21,7 +21,7 @@ git checkout -b feature/world_domination       # create a feature branch from th
 vim troy/world_domination.py                   # do the deed...
 vim tests/test_world_domination.py             #
 git commit -am 'we now dominate the world'     # commit your changes
-git push origin/feature/world_domination       # sync with github
+git push origin feature/world_domination       # sync with github
 ```
 
 The last command will ensure that your (until then only locally existing) branch
