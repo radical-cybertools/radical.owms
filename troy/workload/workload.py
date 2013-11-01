@@ -58,7 +58,7 @@ class Workload (sa.Attributes) :
     performed on it.  Specifically, it can be in `DESCRIBED`, `PLANNED`,
     `TRANSLATED`, `SCHEDULED`, `DISPATCHED`, `COMPLETED` or `FAILED`.
     A workload enters the workload manager in `DESCRIBED` or `PLANNED` state,
-    and all follow-up state transitions are kept within the wrokload manager.
+    and all follow-up state transitions are kept within the workload manager.
 
     Those states are ill defined in case of partial transformations -- if, for
     example, a translation step only derives compute units for some of the
