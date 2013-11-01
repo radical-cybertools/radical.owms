@@ -5,7 +5,7 @@ __license__   = "MIT"
 
 
 import pprint
-import radical.utils as ru
+import radical.utils.testing as rut
 
 import troy
 
@@ -15,7 +15,7 @@ def test_workload_create () :
     """ 
     test workload creation
     """
-    tc = ru.get_test_config ()
+    tc = rut.get_test_config ()
     wl_dict = tc.workload_dict
     wl      = troy.Workload ()
     pprint.pprint (wl_dict)
