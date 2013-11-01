@@ -41,9 +41,6 @@ class WorkloadManager (object) :
         Use default plugins if not indicated otherwise
         """
 
-        # make this instance lockable
-        self.lock = threading.RLock ()
-
         # initialize state, load plugins
         self._plugin_mgr  = ru.PluginManager ('troy')
 
@@ -100,8 +97,8 @@ class WorkloadManager (object) :
         if  workload.state != DESCRIBED :
             raise ValueError ("workload '%s' not in DESCRIBED state" % workload.id)
 
-        # within the locked scope, hand over control over workload to the
-        # translator plugin, so it can do what it has to do.
+        # hand over control over workload to the translator plugin, so it can do
+        # what it has to do.
         self._translator.translate (workload, overlay)
 
         # mark workload as 'translated'
@@ -149,8 +146,8 @@ class WorkloadManager (object) :
                                  + "dispateched, cannot do late binding" \
                                  % overlay.id)
 
-        # within the locked scope, hand over control over workload (and
-        # overlay) to the scheduler plugin, so it can do what it has to do.
+        # hand over control over workload (and overlay) to the scheduler plugin,
+        # so it can do what it has to do.
         self._scheduler.schedule (workload, overlay)
 
         # mark workload as 'scheduled'
@@ -176,8 +173,8 @@ class WorkloadManager (object) :
         if  workload.state != TRANSLATED :
             raise ValueError ("workload '%s' not in TRANSLATED state" % workload.id)
 
-        # within the locked scope, hand over control over workload to the
-        # dispatcher plugin, so it can do what it has to do.
+        # hand over control over workload to the dispatcher plugin, so it can do
+        # what it has to do.
         self._dispatcher.dispatch (workload, overlay)
 
         # mark workload as 'scheduled'

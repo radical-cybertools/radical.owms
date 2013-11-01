@@ -27,10 +27,8 @@ class PLUGIN_CLASS (object) :
     #
     def dispatch (self, workload, overlay) :
 
-        with workload.lock and overlay.lock () :
-
-            # do nothing
-            pass
+        # do nothing
+        pass
 
 
 # ------------------------------------------------------------------------------
