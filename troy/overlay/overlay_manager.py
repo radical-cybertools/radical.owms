@@ -19,9 +19,9 @@ from   troy.constants import *
 # -----------------------------------------------------------------------------
 #
 class OverlayManager (object) :
-	"""
-	Generates and instantiates an overlay. An overlay consists of pilot 
-	descriptions and instances.
+    """
+    Generates and instantiates an overlay. An overlay consists of pilot
+    descriptions and instances.
 
     Capabilities provided:
 
@@ -43,25 +43,25 @@ class OverlayManager (object) :
     * Schedule pilots on resources.
     * Provision pilots on resources [by means of Provisioner].
 
-	"""
+    """
 
-	def __init__ (self, informer    = 'default'
-						scheduler   = 'default'
-		                provisioner = 'default') :
-	"""
-	Create a new overlay manager instance.
+    def __init__ (self, informer    = 'default',
+        				scheduler   = 'default',
+                        provisioner = 'default') :
+        """
+        Create a new overlay manager instance.
 
-	Use default plugins if not otherwise indicated.
-	"""
+        Use default plugins if not otherwise indicated.
+        """
 
-    # initialize state, load plugins
-    self._registry   = troy._Registry ()
-    self._plugin_mgr = radical.utils.PluginManager ('troy')
+        # initialize state, load plugins
+        self._registry   = troy._Registry ()
+        self._plugin_mgr = radical.utils.PluginManager ('troy')
 
-    # FIXME: error handling
-    self._informer   = self._plugin_mgr.load ('overlay_informer',    informer)
-    self._scheduler  = self._plugin_mgr.load ('overlay_scheduler',   scheduler)
-    self._dispatcher = self._plugin_mgr.load ('overlay_provisioner', dispatcher)
+        # FIXME: error handling
+        self._informer   = self._plugin_mgr.load ('overlay_informer',    informer)
+        self._scheduler  = self._plugin_mgr.load ('overlay_scheduler',   scheduler)
+        self._dispatcher = self._plugin_mgr.load ('overlay_provisioner', dispatcher)
 
 
 # -----------------------------------------------------------------------------
