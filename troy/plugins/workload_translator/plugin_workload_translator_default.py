@@ -31,21 +31,7 @@ class PLUGIN_CLASS (object) :
     #
     def translate (self, workload, overlay=None) :
 
-        # make sure we have a simple with-scoped lock below
-        if  overlay :
-            overlay_lock = overlay.lock ()
-        else :
-            overlay_lock = threading.RLock ()
-
-
-      # with workload.lock () and overlay.lock () :
-            
-            # for t in workload.tasks :
-            #     t.compute_units = []
-            #     t.compute_units[0] = t.description
-
-            # do nothing
-      #     pass
+        pass
 
 
 # ------------------------------------------------------------------------------
