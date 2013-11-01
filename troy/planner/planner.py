@@ -55,6 +55,8 @@ class Planner(object):
         # derive overlay from workload
         overlay = self._planner.derive_overlay(workload)
 
+        troy.OverlayManager.register_overlay(overlay)
+
         return overlay.id
 
 # ------------------------------------------------------------------------------

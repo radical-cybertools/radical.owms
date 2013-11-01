@@ -37,5 +37,13 @@ def test_plan_workload():
         relation_description = troy.RelationDescription(relation_dict)
         wl.add_relation(relation_description)
 
-    planner.plan(wl)
+    overlay_id = planner.plan(wl)
+
+    overlay = troy.OverlayManager.get_overlay(overlay_id)
+
+    if not 'pilots' in overlay:
+        assert False, "No pilots in Overlay"
+
+    if not len(overlay.pilots):
+        assert False, "Zero pilots in Overlay"
 

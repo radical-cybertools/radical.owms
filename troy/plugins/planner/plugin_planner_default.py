@@ -31,8 +31,8 @@ class PLUGIN_CLASS(object):
             # do nothing
             #pass
 
-
         ovl = Overlay()
+
 
         return ovl
 
