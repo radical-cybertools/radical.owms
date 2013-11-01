@@ -3,6 +3,7 @@ __author__ = "TROY Development Team"
 __copyright__ = "Copyright 2013, RADICAL"
 __license__ = "MIT"
 
+
 """
 Manages the pilot-based overlays for TROY.
 
@@ -13,6 +14,7 @@ import radical.utils
 
 import troy
 from   troy.constants import *
+
 
 # -----------------------------------------------------------------------------
 #
@@ -63,4 +65,4 @@ class OverlayManager (object) :
 
 
 # -----------------------------------------------------------------------------
-#
+

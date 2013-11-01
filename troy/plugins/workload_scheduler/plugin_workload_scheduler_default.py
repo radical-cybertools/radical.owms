@@ -8,6 +8,7 @@ PLUGIN_DESCRIPTION = {
     'description' : 'this is an empty scheduler which basically does nothing.'
   }
 
+
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (object) :
@@ -35,6 +36,4 @@ class PLUGIN_CLASS (object) :
 
 
 # ------------------------------------------------------------------------------
-#
-
 
