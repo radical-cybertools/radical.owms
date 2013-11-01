@@ -16,6 +16,7 @@ from   troy.constants       import *
 
 # ------------------------------------------------------------------------------
 #
+@ru.Lockable
 class Workload (sa.Attributes) :
     """
     The `Workload` class represents a workload which is managed by Troy.  It
@@ -89,9 +90,6 @@ class Workload (sa.Attributes) :
         instances.  
         """
         
-        # make this instance lockable
-        self.lock      = threading.RLock ()
-
         wl_id = ru.generate_id ('wl.')
 
         # set attribute interface properties
@@ -115,7 +113,7 @@ class Workload (sa.Attributes) :
         Tasks are expected of type `TaskDescription`.
         """
 
-        with self.lock :
+        with self._rlock :
 
             if  self.state != DESCRIBED :
                 raise RuntimeError ("workload is not in DESCRIBED state -- cannot add tasks")
@@ -151,7 +149,7 @@ class Workload (sa.Attributes) :
         `Workload` -- otherwise a `ValueError` is raised.
         """
 
-        with self.lock :
+        with self._rlock :
 
             if  self.state != DESCRIBED :
                 raise RuntimeError ("workload is not in DESCRIBED state -- cannot add relation")

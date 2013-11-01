@@ -6,11 +6,10 @@ __license__ = "MIT"
 
 """
 Manages the pilot-based overlays for TROY.
-
 """
 
 import threading
-import radical.utils
+import radical.utils      as ru
 
 import troy
 from   troy.constants import *
@@ -45,13 +44,17 @@ class OverlayManager (object) :
 
     """
 
+    # --------------------------------------------------------------------------
+    #
     def __init__ (self, informer    = 'default',
-        				scheduler   = 'default',
+                        scheduler   = 'default',
                         provisioner = 'default') :
         """
         Create a new overlay manager instance.
 
-        Use default plugins if not otherwise indicated.
+        Use default plugins if not otherwise indicated.  Note that the
+        provisioner plugin is actully not owned by the OverlayManager, but by
+        the pilots of the Overlay managed by the OverlayManager.
         """
 
         # initialize state, load plugins
@@ -63,6 +66,33 @@ class OverlayManager (object) :
         self._scheduler  = self._plugin_mgr.load ('overlay_scheduler',   scheduler)
         self._dispatcher = self._plugin_mgr.load ('overlay_provisioner', dispatcher)
 
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def register_overlay (cls, overlay) :
+        ru.Registry.register (overlay)
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def unregister_overlay (cls, overlay_id) :
+        ru.Registry.unregister (overlay_id)
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def get_overlay (cls, overlay_id) :
+        """
+        We don't care about locking at this point -- so we simply release the
+        overlay immediately...
+        """
+        wl = ru.Registry.acquire (overlay_id, ru.READONLY)
+        ru.Registry.release (overlay_id)
+
+        return wl
 
 # -----------------------------------------------------------------------------
 
