@@ -31,6 +31,8 @@ developers.
 Once the group agreed on merging, you would run:
 
 ```
+git checkout devel
+git pull                               # get updates from github
 git checkout feature/world_domination
 git pull                               # get updates from github
 git merge devel                        # make sure branch is in sync with devel
