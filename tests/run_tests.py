@@ -8,7 +8,7 @@ import os
 import sys
 
 import troy.utils.test_config as tutc
-import radical.utils          as ru
+import radical.utils.testing  as rut
 
 
 #-----------------------------------------------------------------------------
@@ -16,7 +16,7 @@ import radical.utils          as ru
 if __name__ == "__main__":
 
     # set up the testing framework
-    testing = ru.Testing ('troy', __file__)
+    testing = rut.Testing ('troy', __file__)
 
     for config in sys.argv[1:] :
 

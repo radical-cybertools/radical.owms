@@ -4,12 +4,12 @@ __copyright__ = "Copyright 2012-2013, The SAGA Project"
 __license__   = "MIT"
 
 
-import radical.utils          as ru
+import radical.utils.testing  as rut
 
 
 # ------------------------------------------------------------------------------
 #
-class TestConfig (ru.TestConfig): 
+class TestConfig (rut.TestConfig): 
 
     #-----------------------------------------------------------------
     # 
@@ -17,7 +17,7 @@ class TestConfig (ru.TestConfig):
 
         # initialize configuration.  We only use the 'saga.tests' category from
         # the config file.
-        ru.TestConfig.__init__ (self, cfg_file, 'troy.tests')
+        rut.TestConfig.__init__ (self, cfg_file, 'troy.tests')
 
 
 # ------------------------------------------------------------------------------

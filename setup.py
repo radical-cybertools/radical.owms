@@ -126,6 +126,7 @@ setup_args = {
         "troy",
         "troy.utils",
         "troy.planner",
+        "troy.overlay",
         "troy.workload",
         "troy.plugins",
         "troy.plugins.planner",
