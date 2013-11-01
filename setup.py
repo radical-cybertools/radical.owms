@@ -146,8 +146,8 @@ setup_args = {
         'sdist': our_sdist,
         'test': our_test
     },
-    'install_requires': ['setuptools', 'saga-python', 'radical.utils', 'nose'],
-    'tests_require': ['setuptools', 'nose']
+    'install_requires': ['setuptools', 'saga-python', 'radical.utils', 'nose', 'bigjob'],
+    'tests_require':    ['setuptools', 'nose']
 }
 
 setup(**setup_args)

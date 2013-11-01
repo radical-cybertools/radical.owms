@@ -58,7 +58,6 @@ class OverlayManager (object) :
         """
 
         # initialize state, load plugins
-        self._registry   = troy._Registry ()
         self._plugin_mgr = radical.utils.PluginManager ('troy')
 
         # FIXME: error handling
