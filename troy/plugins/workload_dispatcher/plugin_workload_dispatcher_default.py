@@ -8,6 +8,7 @@ PLUGIN_DESCRIPTION = {
     'description' : 'this is an empty dispatcher which basically does nothing.'
   }
 
+
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (object) :
@@ -33,6 +34,4 @@ class PLUGIN_CLASS (object) :
 
 
 # ------------------------------------------------------------------------------
-#
-
 

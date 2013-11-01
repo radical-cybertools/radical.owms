@@ -12,6 +12,7 @@ PLUGIN_DESCRIPTION = {
     'description' : 'this is an empty translator which basically does nothing.'
   }
 
+
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (object) :
@@ -46,7 +47,6 @@ class PLUGIN_CLASS (object) :
             # do nothing
       #     pass
 
-# ------------------------------------------------------------------------------
-#
 
+# ------------------------------------------------------------------------------
 

@@ -9,6 +9,7 @@ PLUGIN_DESCRIPTION = {
     'description' : 'simple scheduler, assigns CUs to pilots in round-robin fashion.'
   }
 
+
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (object) :
@@ -47,8 +48,5 @@ class PLUGIN_CLASS (object) :
             pass
 
 
-
 # ------------------------------------------------------------------------------
-#
-
 
