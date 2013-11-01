@@ -9,7 +9,7 @@ Manages the pilot-based overlays for TROY.
 """
 
 import threading
-import radical.utils
+import radical.utils      as ru
 
 import troy
 from   troy.constants import *
@@ -44,6 +44,8 @@ class OverlayManager (object) :
 
     """
 
+    # --------------------------------------------------------------------------
+    #
     def __init__ (self, informer    = 'default',
         				scheduler   = 'default',
                         provisioner = 'default') :
@@ -64,6 +66,33 @@ class OverlayManager (object) :
         self._scheduler  = self._plugin_mgr.load ('overlay_scheduler',   scheduler)
         self._dispatcher = self._plugin_mgr.load ('overlay_provisioner', dispatcher)
 
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def register_overlay (overlay) :
+        ru.Registry.register (overlay)
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def unregister_overlay (overlay_id) :
+        ru.Registry.register (overlay_id)
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def get_overlay (overlay_id) :
+        """
+        We don't care about locking at this point -- so we simply release the
+        overlay immediately...
+        """
+        wl = ru.Registry.acquire (overlay_id)
+        ru.Registry.release (overlay_id)
+
+        return wl
 
 # -----------------------------------------------------------------------------
 

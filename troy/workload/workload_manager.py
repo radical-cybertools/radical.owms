@@ -55,7 +55,35 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def translate_workload (self, workload, overlay=None) :
+    @classmethod
+    def register_workload (workload) :
+        ru.Registry.register (workload)
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def unregister_workload (workload_id) :
+        ru.Registry.register (workload_id)
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def get_workload (workload_id) :
+        """
+        We don't care about locking at this point -- so we simply release the
+        workload immediately...
+        """
+        wl = ru.Registry.acquire (workload_id)
+        ru.Registry.release (workload_id)
+
+        return wl
+
+
+    # --------------------------------------------------------------------------
+    #
+    def translate_workload (self, workload_id, overlay=None) :
         """
         Translate the referenced workload, i.e. transform its tasks into
         ComputeUnit and DataUnit descriptions.
@@ -65,6 +93,8 @@ class WorkloadManager (object) :
         See the documentation of the :class:`Workload` class on how exactly the
         translator changes and/or annotates the given workload.
         """
+
+        workload = self.get_workload (workload_id)
 
         # make sure the workflow is 'fresh', so we can translate it
         if  workload.state != DESCRIBED :
@@ -80,7 +110,7 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def schedule_workload (self, workload, overlay=None, binding=None) :
+    def schedule_workload (self, workload_id, overlay=None, binding=None) :
         """
         schedule the referenced workload, i.e. assign its components to specific
         overlay elements.
@@ -98,6 +128,8 @@ class WorkloadManager (object) :
         unspecified (i.e. `None`).
         
         """
+
+        workload = self.get_workload (workload_id)
 
         # make sure the workload is translated, so that we can schedule it
         if  workload.state != TRANSLATED :
@@ -127,7 +159,7 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def dispatch_workload (self, workload, overlay) :
+    def dispatch_workload (self, workload_id, overlay) :
         """
         schedule the referenced workload, i.e. submit its CUs and DUs to the
         respective overlay elements.  The workload must have been scheduled
@@ -136,6 +168,8 @@ class WorkloadManager (object) :
         See the documentation of the :class:`Workload` class on how exactly the
         scheduler changes and/or annotates the given workload.
         """
+
+        workload = self.get_workload (workload_id)
 
         # make sure the workload is scheduled, so we can dispatch it.
         # we don't care about overlay state
