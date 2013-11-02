@@ -8,6 +8,7 @@ PLUGIN_DESCRIPTION = {
   }
 
 from overlay import Overlay
+from overlay import PilotDescription
 
 # ------------------------------------------------------------------------------
 #
@@ -31,7 +32,8 @@ class PLUGIN_CLASS(object):
 
         # Add pilots into it
         for p in range(42):
-            ovl.add_pilot()
+            d = PilotDescription({'size':42})
+            ovl.add_pilot(d)
 
         return ovl
 
