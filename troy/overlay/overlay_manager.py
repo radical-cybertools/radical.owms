@@ -88,10 +88,10 @@ class OverlayManager (object) :
         We don't care about locking at this point -- so we simply release the
         overlay immediately...
         """
-        wl = ru.Registry.acquire (overlay_id, ru.READONLY)
+        ol = ru.Registry.acquire (overlay_id, ru.READONLY)
         ru.Registry.release (overlay_id)
 
-        return wl
+        return ol
 
 # -----------------------------------------------------------------------------
 
