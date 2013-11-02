@@ -9,12 +9,12 @@ from   troy.constants import *
 
 # ------------------------------------------------------------------------------
 #
-class TaskDescription (sa.Attributes) :
+class PilotDescription (sa.Attributes) :
     """
-    The `TaskDescription` class is a simple container for attributes which
-    describe a :class:`Task`, i.e. a workload element.  `TaskDescription`s are
-    submitted to :class:`WorkloadManager` instances on `add_task`, and are
-    internally used to create :class:`Task` instances.
+    The `PilotDescription` class is a simple container for attributes which
+    describe a :class:`Pilot`, i.e. a overlay element.  `PilotDescription`s are
+    submitted to :class:`OverlayManager` instances on `add_pilot`, and are
+    internally used to create :class:`Pilot` instances.
 
     FIXME: description of supported attributes goes here
     """
