@@ -12,7 +12,7 @@ include troy/plugins/overlay_scheduler/*.py
 include troy/plugins/workload_translator/*.py
 include troy/plugins/workload_scheduler/*.py
 include troy/plugins/workload_dispatcher/*.py
-include troy/examples/*.py
+include examples/*.py
 
 include MANIFEST.in 
 
