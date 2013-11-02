@@ -31,7 +31,12 @@ class PilotDescription (sa.Attributes) :
         self._attributes_extensible  (True)  # FIXME
         self._attributes_camelcasing (True)
 
+        pd_id = ru.generate_id ('pd.')
+
         # register attributes
+        self._attributes_register   ('id',        pd_id,     sa.STRING,
+                                     sa.SCALAR, sa.READONLY)
+
         # FIXME
 
 
