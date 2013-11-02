@@ -9,6 +9,7 @@ import radical.utils        as ru
 
 import pilot              as tp
 import pilot_description  as tpd
+from troy.constants import DESCRIBED
 
 """
 Represent a pilot-based overlay that is managed by TROY.
