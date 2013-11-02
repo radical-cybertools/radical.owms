@@ -13,7 +13,7 @@ class RelationDescription (sa.Attributes) :
     """
     The `RelationDescription` class is a simple container for attributes which
     describe a :class:`Relation`, i.e. a workload element.  `RelationDescription`s are
-    submitted to :class:`WorkloadManager` instances on `add_relation`, and ar
+    submitted to :class:`WorkloadManager` instances on `add_relation`, and are
     internally used to create :class:`Relation` instances.
 
     FIXME: description of supported attributes goes here
