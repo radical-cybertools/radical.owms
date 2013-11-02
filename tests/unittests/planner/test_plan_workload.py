@@ -41,9 +41,6 @@ def test_plan_workload():
 
     overlay = troy.OverlayManager.get_overlay(overlay_id)
 
-    if not 'pilots' in overlay:
-        assert False, "No pilots in Overlay"
-
     if not len(overlay.pilots):
-        assert False, "Zero pilots in Overlay"
+        assert False, "No pilots in Overlay"
 
