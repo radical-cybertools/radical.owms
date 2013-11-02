@@ -118,7 +118,7 @@ class Overlay (object) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
             # FIXME: add sanity checks for task syntax / semantics
-            p = tp.Pilot (d)
+            p = tp.Pilot (d, self)
 
             self.pilots [d.id] = p
 
