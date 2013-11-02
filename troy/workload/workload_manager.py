@@ -32,7 +32,8 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, translator = 'default', 
+    def __init__ (self, informer   = 'default', 
+                        translator = 'default',
                         scheduler  = 'default',
                         dispatcher = 'default') :
         """
@@ -45,6 +46,7 @@ class WorkloadManager (object) :
         self._plugin_mgr  = ru.PluginManager ('troy')
 
         # FIXME: error handling
+        self._dispatcher  = self._plugin_mgr.load  ('workload_informer',   informer)
         self._translator  = self._plugin_mgr.load  ('workload_translator', translator)
         self._scheduler   = self._plugin_mgr.load  ('workload_scheduler',  scheduler)
         self._dispatcher  = self._plugin_mgr.load  ('workload_dispatcher', dispatcher)
@@ -72,6 +74,9 @@ class WorkloadManager (object) :
         We don't care about locking at this point -- so we simply release the
         workload immediately...
         """
+        if  not workload_id.startswith ('wl.') :
+            raise ValueError ("'%s' does not represent a workload" % workload_id)
+
         wl = ru.Registry.acquire (workload_id, ru.READONLY)
         ru.Registry.release (workload_id)
 

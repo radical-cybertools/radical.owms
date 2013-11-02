@@ -58,7 +58,6 @@ class OverlayManager (object) :
         """
 
         # initialize state, load plugins
-        self._registry   = troy._Registry ()
         self._plugin_mgr = radical.utils.PluginManager ('troy')
 
         # FIXME: error handling
@@ -89,10 +88,10 @@ class OverlayManager (object) :
         We don't care about locking at this point -- so we simply release the
         overlay immediately...
         """
-        wl = ru.Registry.acquire (overlay_id, ru.READONLY)
+        ol = ru.Registry.acquire (overlay_id, ru.READONLY)
         ru.Registry.release (overlay_id)
 
-        return wl
+        return ol
 
 # -----------------------------------------------------------------------------
 

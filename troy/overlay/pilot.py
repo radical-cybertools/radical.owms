@@ -15,7 +15,7 @@ class Pilot (object) :
     """
     """
 
-    def __init__ (self, overlay_dispatcher = 'default') :
+    def __init__ (self, description, overlay_manager, overlay_dispatcher = 'default') :
         """
         Create a new overlay manager instance.
 
