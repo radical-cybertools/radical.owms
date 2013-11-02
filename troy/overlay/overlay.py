@@ -41,7 +41,7 @@ class Overlay (object) :
 
     * *Scheduling:* A overlay is mapped onto resourced.
 
-    * *Dispatching:* A scheduled overlay is dispatched to the respective
+    * *Dispatching:* A scheduled overlay is provisioned to the respective
       resources.
 
 
@@ -50,7 +50,7 @@ class Overlay (object) :
 
     An overlay can be in different states, depending on the transformations
     performed on it.  Specifically, it can be in `DESCRIBED`, `SCHEDULED`,
-    `DISPATCHED`, `COMPLETED` or `FAILED`.
+    `PROVISIONED`, `COMPLETED` or `FAILED`.
 
     A overlay enters the overlay manager in `DESCRIBED` state, and all follow-up
     state transitions are kept within the overlay manager.

@@ -32,7 +32,7 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, informer   = 'default', 
+    def __init__ (self, inspector   = 'default', 
                         translator = 'default',
                         scheduler  = 'default',
                         dispatcher = 'default') :
@@ -46,7 +46,7 @@ class WorkloadManager (object) :
         self._plugin_mgr  = ru.PluginManager ('troy')
 
         # FIXME: error handling
-        self._dispatcher  = self._plugin_mgr.load  ('workload_informer',   informer)
+        self._dispatcher  = self._plugin_mgr.load  ('workload_inspector',  inspector)
         self._translator  = self._plugin_mgr.load  ('workload_translator', translator)
         self._scheduler   = self._plugin_mgr.load  ('workload_scheduler',  scheduler)
         self._dispatcher  = self._plugin_mgr.load  ('workload_dispatcher', dispatcher)
