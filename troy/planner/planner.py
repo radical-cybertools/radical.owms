@@ -45,8 +45,6 @@ class Planner(object):
         create overlay plan (description) from workload
         """
 
-        overlay = None
-
         # make sure the workflow is 'fresh', so we can translate it
         if workload.state != DESCRIBED:
             raise ValueError("workload '%s' not in DESCRIBED state" %
@@ -55,8 +53,10 @@ class Planner(object):
         # derive overlay from workload
         overlay = self._planner.derive_overlay(workload)
 
+        # Put the overlay into the system registry so others can access it
         troy.OverlayManager.register_overlay(overlay)
 
+        # Only pass the ID back
         return overlay.id
 
 # ------------------------------------------------------------------------------

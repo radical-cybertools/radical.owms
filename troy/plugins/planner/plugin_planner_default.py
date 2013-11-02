@@ -26,16 +26,14 @@ class PLUGIN_CLASS(object):
     #
     def derive_overlay(self, workload):
 
-        #with workload.lock:
-
-            # do nothing
-            #pass
-
+        # Create an overlay
         ovl = Overlay()
 
+        # Add pilots into it
+        for p in range(42):
+            ovl.add_pilot()
 
         return ovl
-
 
 #
 # ------------------------------------------------------------------------------
