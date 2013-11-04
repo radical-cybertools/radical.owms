@@ -13,7 +13,7 @@ class Context (saga.Context) : pass
 #
 # the Troy API layer
 #
-from api        import Troy
+#from api        import Troy
 from constants  import *
 
 
