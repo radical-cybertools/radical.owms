@@ -40,7 +40,7 @@ class Planner(object):
 
     # --------------------------------------------------------------------------
     #
-    def plan(self, workload):
+    def submit(self, workload):
         """
         create overlay plan (description) from workload
         """
@@ -49,6 +49,9 @@ class Planner(object):
         if workload.state != DESCRIBED:
             raise ValueError("workload '%s' not in DESCRIBED state" %
                              workload.id)
+
+        # expand (optional) cardinality in workload
+        self._planner.expand_workload(workload)
 
         # derive overlay from workload
         overlay = self._planner.derive_overlay(workload)

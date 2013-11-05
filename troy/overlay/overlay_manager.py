@@ -96,6 +96,31 @@ class OverlayManager (object) :
 
     # --------------------------------------------------------------------------
     #
+    def translate_overlay(self, overlay_id):
+        """
+        Inspect backend resources, and select suitable resources for the
+        overlay.
+
+        See the documentation of the :class:`Overlay` class on how exactly the
+        scheduler changes and/or annotates the given overlay.
+        """
+
+        overlay = self.get_overlay(overlay_id)
+
+        # make sure the overlay is 'fresh', so we can translate it it
+        if overlay.state != DESCRIBED:
+            raise ValueError ("overlay '%s' not in DESCRIBED state" % overlay.id)
+
+        # hand over control over overlay to the scheduler plugin, so it can do
+        # what it has to do.
+        self._scheduler.schedule(overlay)
+
+        # mark overlay as 'scheduled'
+        overlay.state = TRANSLATED
+
+
+    # --------------------------------------------------------------------------
+    #
     def schedule_overlay (self, overlay_id) :
         """
         Inspect backend resources, and select suitable resources for the
@@ -108,8 +133,8 @@ class OverlayManager (object) :
         overlay = self.get_overlay (overlay_id)
 
         # make sure the overlay is 'fresh', so we can schedule it
-        if  overlay.state != DESCRIBED :
-            raise ValueError ("overlay '%s' not in DESCRIBED state" % overlay.id)
+        if  overlay.state != TRANSLATED :
+            raise ValueError ("overlay '%s' not in TRANSLATED state" % overlay.id)
 
         # hand over control over overlay to the scheduler plugin, so it can do
         # what it has to do.
@@ -124,7 +149,6 @@ class OverlayManager (object) :
     def provision_overlay (self, overlay_id) :
         """
         Create pilot instances for each pilot described in the overlay.
-        overlay.
 
         See the documentation of the :class:`Overlay` class on how exactly the
         scheduler changes and/or annotates the given overlay.

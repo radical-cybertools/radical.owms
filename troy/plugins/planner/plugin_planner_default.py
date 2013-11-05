@@ -10,6 +10,8 @@ PLUGIN_DESCRIPTION = {
 from overlay import Overlay
 from overlay import PilotDescription
 
+from constants import PLANNED
+
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS(object):
@@ -25,15 +27,23 @@ class PLUGIN_CLASS(object):
 
     # --------------------------------------------------------------------------
     #
+    def expand_workload(self, workload):
+
+        # Do nothing for now, other than changing the state
+        workload.state = PLANNED
+
+    # --------------------------------------------------------------------------
+    #
     def derive_overlay(self, workload):
 
         # Create an overlay
         ovl = Overlay()
 
-        # Add pilots into it
-        for p in range(42):
-            d = PilotDescription({'size':42})
-            ovl.add_pilot(d)
+        # Ask for as many pilots as tasks
+        ovl.cores = len(workload.tasks)
+
+        # Minutes obviously
+        ovl.wall_time = (1 << 1) + (1 << 3) + (1 << 5)
 
         return ovl
 
