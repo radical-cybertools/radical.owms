@@ -50,8 +50,8 @@ class Overlay (sa.Attributes) :
     ---------------
 
     An overlay can be in different states, depending on the transformations
-    performed on it.  Specifically, it can be in `DESCRIBED`, `SCHEDULED`,
-    `PROVISIONED`, `COMPLETED` or `FAILED`.
+    performed on it.  Specifically, it can be in `DESCRIBED`,
+    `TRANSLATED`, `SCHEDULED`, `PROVISIONED`, `COMPLETED` or `FAILED`.
 
     A overlay enters the overlay manager in `DESCRIBED` state, and all follow-up
     state transitions are kept within the overlay manager.
@@ -93,6 +93,8 @@ class Overlay (sa.Attributes) :
         self._attributes_register   ('id',        ol_id,     sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   ('state',     DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
         self._attributes_register   ('error',     None,      sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('wall_time', None,      sa.STRING, sa.SCALAR, sa.WRITEABLE)
+        self._attributes_register   ('cores',     None,      sa.STRING, sa.SCALAR, sa.WRITEABLE)
         self._attributes_register   ('pilots',    dict(),    sa.ANY,    sa.VECTOR, sa.READONLY)
 
 
