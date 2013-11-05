@@ -37,7 +37,7 @@ def test_plan_workload():
         relation_description = troy.RelationDescription(relation_dict)
         wl.add_relation(relation_description)
 
-    overlay_id = planner.plan(wl)
+    overlay_id = planner.submit(wl)
 
     overlay = troy.OverlayManager.get_overlay(overlay_id)
 
