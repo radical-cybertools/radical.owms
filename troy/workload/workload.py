@@ -117,8 +117,12 @@ class Workload (sa.Attributes) :
             raise RuntimeError ("workload is not in DESCRIBED state -- cannot add tasks")
 
         # handle scalar and list uniformly
+        bulk = False
         if  type(descr) != list :
+            bulk  = True
             descr = [descr]
+
+        ret = []
 
         # check type, content and uniqueness for each task
         for d in descr :
@@ -133,6 +137,16 @@ class Workload (sa.Attributes) :
                 raise ValueError ("Task with tag '%s' already exists" % t.tag)
             
             self.tasks [d.tag] = t
+
+            ret.append (t.id)
+
+
+        if  bulk :
+            return ret
+        else :
+            return ret[0]
+
+
 
 
     # --------------------------------------------------------------------------
@@ -151,10 +165,13 @@ class Workload (sa.Attributes) :
             raise RuntimeError ("workload is not in DESCRIBED state -- cannot add relation")
 
         # handle scalar and list uniformly
+        bulk = False
         if  type(descr) != list :
+            bulk  = True
             descr = [descr]
 
         # check type, uniqueness and validity for each relation
+        ret = []
         for d in descr :
 
             if  not isinstance (d, trd.RelationDescription) :
@@ -172,6 +189,15 @@ class Workload (sa.Attributes) :
             r = tr.Relation (d)
 
             self.relations.append (r)
+
+            ret.append (r.id)
+
+
+        if  bulk :
+            return ret
+        else :
+            return ret[0]
+
 
 
     # --------------------------------------------------------------------------

@@ -112,16 +112,16 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def schedule_workload (self, workload_id, overlay=None, binding=None) :
+    def bind_workload (self, workload_id, overlay=None, bind_mode=None) :
         """
-        schedule the referenced workload, i.e. assign its components to specific
-        overlay elements.
+        bind (schedule) the referenced workload, i.e. assign its components to
+        specific overlay elements.
 
         See the documentation of the :class:`Workload` class on how exactly the
-        scheduler changes and/or annotates the given workload.
+        binding step changes and/or annotates the given workload.
 
-        The `schedule_workload` method optionally accepts an additional
-        `binding` parameter, which can be set to `troy.EARLY` or `troy.LATE`.
+        The `bind_workload` method optionally accepts an additional
+        `bind_mode` parameter, which can be set to `troy.EARLY` or `troy.LATE`.
         If this parameter is set, it will trigger a test which ensures that the
         given Overlay is in the respective state, i.e. is not yet scheduled or
         dispatched in the case of early binding and is scheduled or dispatched
@@ -133,18 +133,18 @@ class WorkloadManager (object) :
 
         workload = self.get_workload (workload_id)
 
-        # make sure the workload is translated, so that we can schedule it
+        # make sure the workload is translated, so that we can bind it
         if  workload.state != TRANSLATED :
             raise ValueError ("workload '%s' not in TRANSLATED state" % workload.id)
 
         # make sure we can honor the requested scheduling mode
-        if  binding == EARLY : 
+        if  bind_mode == EARLY : 
             if  overlay.state != DESCRIBED :
                 raise ValueError ( "overlay '%s' not in DESCRIBED state, " \
                                  + "too late for early binding" \
                                  % overlay.id)
 
-        elif binding == LATE : 
+        elif bind_mode == LATE : 
             if  overlay.state != SCHEDULED  and \
                 overlay.state != DISPATCHED :
                 raise ValueError ( "overlay '%s' neither scheduled nor " \
