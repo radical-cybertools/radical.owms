@@ -50,8 +50,8 @@ class Overlay (sa.Attributes) :
     ---------------
 
     An overlay can be in different states, depending on the transformations
-    performed on it.  Specifically, it can be in `DESCRIBED`, `SCHEDULED`,
-    `PROVISIONED`, `COMPLETED` or `FAILED`.
+    performed on it.  Specifically, it can be in `DESCRIBED`,
+    `TRANSLATED`, `SCHEDULED`, `PROVISIONED`, `COMPLETED` or `FAILED`.
 
     A overlay enters the overlay manager in `DESCRIBED` state, and all follow-up
     state transitions are kept within the overlay manager.
