@@ -42,6 +42,8 @@ if __name__ == '__main__':
         task_id = workload.add_task(task_desc)
         # Tasks are uncoupled so no relationships are specified
 
+    # Register the workload so we can pass it by ID
+    troy.WorkloadManager.register_workload(workload)
 
     # Initial description of the overlay based on the workload
     overlay_id = planner.derive_overlay(workload.id)
