@@ -43,9 +43,9 @@ def test_derive_overlay():
 
     overlay = troy.OverlayManager.get_overlay(overlay_id)
 
-    if not len(overlay.cores):
+    if  not overlay.description.cores :
         assert False, "No cores requested"
 
-    if not len(overlay.wall_time):
+    if  not overlay.description.wall_time :
         assert False, "Walltime is zero"
 

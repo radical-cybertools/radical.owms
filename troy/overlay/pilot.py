@@ -44,9 +44,17 @@ class Pilot (sa.Attributes) :
         self._attributes_register   ('tag',         descr.tag,       sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   ('description', descr,           sa.ANY,    sa.SCALAR, sa.READONLY)
         self._attributes_register   ('manager',     overlay_manager, sa.ANY,    sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('resource',    None,            sa.STRING, sa.SCALAR, sa.READWRITE)  # FIXME
          
         # FIXME: complete attribute list, dig attributes from description,
         # perform sanity checks
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _bind (self, resource) :
+
+        self.resource = resource
 
 
     # --------------------------------------------------------------------------

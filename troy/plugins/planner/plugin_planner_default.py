@@ -7,7 +7,7 @@ PLUGIN_DESCRIPTION = {
     'description' : 'This is the default planner.'
   }
 
-from overlay import Overlay
+import troy.overlay as to
 
 
 # ------------------------------------------------------------------------------
@@ -34,16 +34,19 @@ class PLUGIN_CLASS(object):
     #
     def derive_overlay(self, workload):
 
+        ovl_descr = to.OverlayDescription ( 
+            {
+                # Ask for as many pilots as tasks
+                'cores' : len(workload.tasks), 
+                # Minutes obviously
+                'wall_time' : (1 << 1) + (1 << 3) + (1 << 5)
+            })
+
+        ovl_descr._attributes_dump ()
+
         # Create an overlay
-        ovl = Overlay()
+        return to.Overlay(ovl_descr)
 
-        # Ask for as many pilots as tasks
-        ovl.cores = len(workload.tasks)
 
-        # Minutes obviously
-        ovl.wall_time = (1 << 1) + (1 << 3) + (1 << 5)
-
-        return ovl
-
-#
 # ------------------------------------------------------------------------------
+

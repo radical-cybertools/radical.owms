@@ -73,9 +73,9 @@ class Overlay (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self) :
+    def __init__ (self, descr) :
         """
-        Create a new overlay instance.
+        Create a new overlay instance, based on the given overlay description
 
         Each new overlay is assigned a new ID.
 
@@ -91,17 +91,16 @@ class Overlay (sa.Attributes) :
         self._attributes_camelcasing (True)
     
         # register attributes, initialize state
-        self._attributes_register   ('id',        ol_id,     sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('state',     DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
-        self._attributes_register   ('error',     None,      sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('wall_time', None,      sa.STRING, sa.SCALAR, sa.WRITEABLE)
-        self._attributes_register   ('cores',     None,      sa.STRING, sa.SCALAR, sa.WRITEABLE)
-        self._attributes_register   ('pilots',    dict(),    sa.ANY,    sa.VECTOR, sa.READONLY)
+        self._attributes_register    ('id',          ol_id,     sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register    ('state',       DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
+        self._attributes_register    ('error',       None,      sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register    ('description', descr,     sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register    ('pilots',      dict(),    sa.ANY,    sa.VECTOR, sa.READONLY)
 
 
     # --------------------------------------------------------------------------
     #
-    def add_pilot (self, descr) :
+    def _add_pilot (self, descr) :
         """
         Add a pilot (or a list of pilots) to the overlay.
         
