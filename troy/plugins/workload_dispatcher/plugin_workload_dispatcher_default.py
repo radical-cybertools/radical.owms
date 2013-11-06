@@ -31,7 +31,19 @@ class PLUGIN_CLASS (object) :
     #
     def dispatch (self, workload, overlay) :
 
-        # do nothing
+        for tid in workload.tasks.keys () :
+
+            t = workload.tasks[tid]
+
+            for cu_id in t['cus'] :
+                pilot = overlay.pilots[0]
+                print "submitting %s to %s" % (cu_id, pilot.instance)
+              # pilot.submit_job (t['cus'][tid]['description'])
+
+
+
+        exit
+        print " --------------------------- "
         pass
 
 

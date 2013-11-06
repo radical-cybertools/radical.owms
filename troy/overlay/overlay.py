@@ -94,7 +94,7 @@ class Overlay (sa.Attributes) :
         self._attributes_register    (STATE,       DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
         self._attributes_register    ('error',     None,      sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register    (DESCRIPTION, descr,     sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register    ('pilots',    dict(),    sa.ANY,    sa.VECTOR, sa.READONLY)
+        self._attributes_register    ('pilots',    list(),    sa.ANY,    sa.VECTOR, sa.READONLY)
 
 
     # --------------------------------------------------------------------------
@@ -112,7 +112,7 @@ class Overlay (sa.Attributes) :
         if  not isinstance (p, tp.Pilot) :
             raise TypeError ("expected Pilot, got %s" % type(p))
 
-        self.pilots[p.id] = p
+        self.pilots.append (p)
 
         return p.id
 

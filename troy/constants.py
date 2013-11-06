@@ -16,9 +16,21 @@
 DESCRIBED   = 'Described'   # tasks known
 PLANNED     = 'Planned'     # overlay derived
 TRANSLATED  = 'Translated'  # tasks derived
-SCHEDULED   = 'Scheduled'   # tasks scheduled
+SCEDULED    = 'Sceduled'    # tasks bound
 DISPATCHED  = 'Dispatched'  # tasks dispatched
 COMPLETED   = 'Completed'   # tasks completed
+FAILED      = 'Failed'      # oops
+
+
+# ------------------------------------------------------------------------------
+#
+# Task states
+#
+DESCRIBED   = 'Described'   # i.e. New
+TRANSLATED  = 'Translated'  # CUs derived
+SCEDULED    = 'Sceduled'    # CUs bound to pilot
+DISPATCHED  = 'Dispatched'  # CUs dispatched to pilot
+COMPLETED   = 'Completed'   # CUs completed
 FAILED      = 'Failed'      # oops
 
 
@@ -42,18 +54,6 @@ DESCRIBED   = 'Described'   # i.e. New
 SCHEDULED   = 'Scheduled'   # assigned to a resource
 PROVISIONED = 'Provisioned' # submitted to / running on a resource
 COMPLETED   = 'Completed'   # finished as planned
-FAILED      = 'Failed'      # oops
-
-
-# ------------------------------------------------------------------------------
-#
-# Task states
-#
-DESCRIBED   = 'Described'   # i.e. New
-TRANSLATED  = 'Translated'  # CUs derived
-SCHEDULED   = 'Scheduled'   # CUs scheduled
-DISPATCHED  = 'Dispatched'  # CUs dispatched
-COMPLETED   = 'Completed'   # CUs completed
 FAILED      = 'Failed'      # oops
 
 

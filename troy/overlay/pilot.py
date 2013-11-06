@@ -21,7 +21,7 @@ class Pilot (sa.Attributes) :
     """
     """
 
-    def __init__ (self, descr, overlay_manager) :
+    def __init__ (self, descr) :
         """
         Create a new pilot
 
@@ -34,9 +34,6 @@ class Pilot (sa.Attributes) :
         # initialize state
         pid   = ru.generate_id ('p.')
 
-        if  not 'tag' in descr :
-            raise ValueError ("no 'tag' in PilotDescription")
-
         # set attribute interface properties
         self._attributes_extensible  (False)
         self._attributes_camelcasing (True)
@@ -44,10 +41,9 @@ class Pilot (sa.Attributes) :
         # register attributes
         self._attributes_register   (ID,          pid,             sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   (STATE,       DESCRIBED,       sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
-        self._attributes_register   (TAG,         descr.tag,       sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   (DESCRIPTION, descr,           sa.ANY,    sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('manager',   overlay_manager, sa.ANY,    sa.SCALAR, sa.READONLY)
         self._attributes_register   ('resource',  None,            sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
+        self._attributes_register   ('instance',  None,            sa.ANY,    sa.SCALAR, sa.WRITEABLE)  # FIXME
          
         # FIXME: complete attribute list, dig attributes from description,
         # perform sanity checks
@@ -58,6 +54,13 @@ class Pilot (sa.Attributes) :
     def _bind (self, resource) :
 
         self.resource = resource
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _set_instance (self, p_instance) :
+
+        self.instance = p_instance
 
 
     # --------------------------------------------------------------------------

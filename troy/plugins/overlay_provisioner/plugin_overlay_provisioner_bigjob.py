@@ -1,5 +1,6 @@
 
-import pilot
+import os
+import bigjob
 
 
 from   troy.constants import *
@@ -37,11 +38,12 @@ class PLUGIN_CLASS (object) :
         # we simply assign all pilots to localhost
         for pilot in overlay.pilots :
             
-            bj_manager = bigjob.BigJobManager ()
-            bj_pilot   = bj_manager.create_pilot (pilot.descr)
+            # FIXME: ceck state
+            bj_manager   = bigjob.bigjob (coordination_url=os.environ['COORDINATION_URL'])
+            bj_pilot_url = bj_manager.start_pilot_job (pilot.resource)
 
-            pilot._set_instance ([bj_pilot, bj_manager])
-            pilot._bind ('ssh://localost')
+
+            pilot._set_instance ([bj_pilot_url, bj_manager])
 
 
 # ------------------------------------------------------------------------------

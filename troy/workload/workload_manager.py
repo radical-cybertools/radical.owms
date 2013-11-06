@@ -5,6 +5,8 @@ import radical.utils      as ru
 
 from   troy.constants import *
 
+import troy.overlay.overlay_manager as olm
+
 
 # ------------------------------------------------------------------------------
 #
@@ -46,7 +48,7 @@ class WorkloadManager (object) :
         self._plugin_mgr  = ru.PluginManager ('troy')
 
         # FIXME: error handling
-        self._dispatcher  = self._plugin_mgr.load  ('workload_inspector',  inspector)
+        self._inspector   = self._plugin_mgr.load  ('workload_inspector',  inspector)
         self._translator  = self._plugin_mgr.load  ('workload_translator', translator)
         self._scheduler   = self._plugin_mgr.load  ('workload_scheduler',  scheduler)
         self._dispatcher  = self._plugin_mgr.load  ('workload_dispatcher', dispatcher)
@@ -112,7 +114,7 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def bind_workload (self, workload_id, overlay=None, bind_mode=None) :
+    def bind_workload (self, workload_id, overlay_id=None, bind_mode=None) :
         """
         bind (schedule) the referenced workload, i.e. assign its components to
         specific overlay elements.
@@ -132,6 +134,7 @@ class WorkloadManager (object) :
         """
 
         workload = self.get_workload (workload_id)
+        overlay  = olm.OverlayManager.get_overlay (overlay_id)
 
         # make sure the workload is translated, so that we can bind it
         if  workload.state != TRANSLATED :
@@ -139,10 +142,10 @@ class WorkloadManager (object) :
 
         # make sure we can honor the requested scheduling mode
         if  bind_mode == EARLY : 
-            if  overlay.state != DESCRIBED :
-                raise ValueError ( "overlay '%s' not in DESCRIBED state, " \
-                                 + "too late for early binding" \
-                                 % overlay.id)
+            if  overlay.state != TRANSLATED :
+                print overlay.state
+                raise ValueError ("overlay '%s' not in TRANSLATED state, cannot " \
+                                  "do early binding" % str(overlay.id))
 
         elif bind_mode == LATE : 
             if  overlay.state != SCHEDULED  and \
@@ -161,7 +164,7 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def dispatch_workload (self, workload_id, overlay) :
+    def dispatch_workload (self, workload_id, overlay_id) :
         """
         schedule the referenced workload, i.e. submit its CUs and DUs to the
         respective overlay elements.  The workload must have been scheduled
@@ -172,11 +175,13 @@ class WorkloadManager (object) :
         """
 
         workload = self.get_workload (workload_id)
+        overlay  = olm.OverlayManager.get_overlay (overlay_id)
 
         # make sure the workload is scheduled, so we can dispatch it.
         # we don't care about overlay state
-        if  workload.state != TRANSLATED :
-            raise ValueError ("workload '%s' not in TRANSLATED state" % workload.id)
+        if  workload.state != SCHEDULED :
+            print workload.state
+            raise ValueError ("workload '%s' not in SCHEDULED state" % workload.id)
 
         # hand over control over workload to the dispatcher plugin, so it can do
         # what it has to do.

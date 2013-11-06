@@ -22,10 +22,10 @@ class TaskDescription (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, dictionary={}) :
+    def __init__ (self, descr={}) :
 
 
-        sa.Attributes.__init__ (self, dictionary)
+        sa.Attributes.__init__ (self, descr)
 
         # set attribute interface properties
         self._attributes_extensible  (True)  # FIXME
@@ -33,6 +33,20 @@ class TaskDescription (sa.Attributes) :
 
         # register attributes
         # FIXME
+
+
+    # --------------------------------------------------------------------------
+    #
+    def __str__ (self) :
+
+        return str(self.as_dict ())
+
+
+    # --------------------------------------------------------------------------
+    #
+    def __repr__ (self) :
+
+        return self.description
 
 
     # --------------------------------------------------------------------------

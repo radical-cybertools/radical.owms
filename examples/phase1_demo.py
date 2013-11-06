@@ -36,10 +36,11 @@ if __name__ == '__main__':
 
     # Create a task for every radicalist
     for r in radicalists:
-        task_desc = troy.TaskDescription()
-        task_desc.exe = '/bin/echo'
-        task_desc.args = ['Hello World, ', r, '!']
-        task_id = workload.add_task(task_desc)
+        task_descr = troy.TaskDescription()
+        task_descr.tag  = "%s" % r
+        task_descr.exe  = '/bin/echo'
+        task_descr.args = ['Hello World, ', r, '!']
+        task_id = workload.add_task(task_descr)
         # Tasks are uncoupled so no relationships are specified
 
     # Register the workload so we can pass it by ID
@@ -56,8 +57,8 @@ if __name__ == '__main__':
 
     # Schedule the workload onto the overlay
     # Early binding assumes the overlay is not yet scheduled.
-    workload_mgr.schedule_workload(workload.id, overlay_id,
-                                   binding=troy.EARLY)
+    workload_mgr.bind_workload (workload.id, overlay_id,
+                                bind_mode=troy.EARLY)
 
     # Decide which resources to use for constructing the overlay
     overlay_mgr.schedule_overlay(overlay_id)

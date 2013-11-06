@@ -33,7 +33,14 @@ class PLUGIN_CLASS (object) :
     #
     def translate (self, workload, overlay=None) :
 
-        pass
+        for tid in workload.tasks.keys () :
+
+            t = workload.tasks[tid]
+
+            # we simply and stupidly translate one task into one cu description
+            t['cus'][tid] = dict()
+            t['cus'][tid]['description'] = t.description.as_dict ()
+
 
 
 # ------------------------------------------------------------------------------

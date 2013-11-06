@@ -49,7 +49,7 @@ class OverlayManager (object) :
     def __init__ (self, inspector   = 'default',
                         translator  = 'default',
                         scheduler   = 'default',
-                        provisioner = 'default') :
+                        provisioner = 'bigjob') :
         """
         Create a new overlay manager instance.
 
@@ -63,6 +63,7 @@ class OverlayManager (object) :
 
         # FIXME: error handling
         self._inspector   = self._plugin_mgr.load ('overlay_inspector',   inspector)
+        self._translator  = self._plugin_mgr.load ('overlay_translator',  translator)
         self._scheduler   = self._plugin_mgr.load ('overlay_scheduler',   scheduler)
         self._provisioner = self._plugin_mgr.load ('overlay_provisioner', provisioner)
 
@@ -163,7 +164,7 @@ class OverlayManager (object) :
 
         # hand over control over overlay to the provisioner plugin, so it can do
         # what it has to do.
-        self._scheduler.provision (overlay)
+        self._provisioner.provision (overlay)
 
         # mark overlay as 'provisioned'
         overlay.state = PROVISIONED

@@ -32,7 +32,15 @@ class PLUGIN_CLASS (object) :
     #
     def schedule (self, workload, overlay) :
 
-        pass
+        # schedule to first available pilot
+        for tid in workload.tasks.keys () :
+
+            t = workload.tasks[tid]
+
+            for cu_id in t['cus'] :
+                print cu_id
+                t['cus'][tid]['pilot'] = overlay.pilots[0]
+        
 
 
 # ------------------------------------------------------------------------------

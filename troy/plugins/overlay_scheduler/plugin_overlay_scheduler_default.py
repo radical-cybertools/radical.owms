@@ -34,7 +34,7 @@ class PLUGIN_CLASS (object) :
 
         # we simply assign all pilots to localhost
         for pilot in overlay.pilots :
-            pilot._bind ('ssh://localost')
+            pilot._bind ('ssh://localhost')
 
 
 # ------------------------------------------------------------------------------
