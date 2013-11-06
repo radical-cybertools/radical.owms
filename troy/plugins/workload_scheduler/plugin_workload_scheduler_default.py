@@ -39,7 +39,7 @@ class PLUGIN_CLASS (object) :
 
             for cu_id in t['cus'] :
                 print cu_id
-                t['cus'][tid]['pilot'] = overlay.pilots[0]
+                t['cus'][cu_id]['pilot'] = overlay.pilots[0]
         
 
 
