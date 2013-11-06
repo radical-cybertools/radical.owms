@@ -39,5 +39,11 @@ def test_expand_workload():
 
     troy.WorkloadManager.register_workload(wl)
 
+    if not wl.state is troy.DESCRIBED:
+        assert False, "Workload state != DESCRIBED"
+
     planner.expand_workload(wl.id)
+
+    if not wl.state is troy.PLANNED:
+        assert False, "Workload state != PLANNED"
 
