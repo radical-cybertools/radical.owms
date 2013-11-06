@@ -32,7 +32,7 @@ class PilotDescription (sa.Attributes) :
         self._attributes_camelcasing (True)
 
         # register attributes
-        self._attributes_register   (SIZE, 1, sa.INT, sa.SCALAR, sa.WRITABLE)
+        self._attributes_register   (SIZE, 1, sa.INT, sa.SCALAR, sa.WRITEABLE)
 
         # FIXME
 

@@ -43,11 +43,11 @@ class Pilot (sa.Attributes) :
 
         # register attributes
         self._attributes_register   (ID,          pid,             sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   (STATE,       DESCRIBED,       sa.STRING, sa.SCALAR, sa.READWRITE)  # FIXME
+        self._attributes_register   (STATE,       DESCRIBED,       sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
         self._attributes_register   (TAG,         descr.tag,       sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   (DESCRIPTION, descr,           sa.ANY,    sa.SCALAR, sa.READONLY)
         self._attributes_register   ('manager',   overlay_manager, sa.ANY,    sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('resource',  None,            sa.STRING, sa.SCALAR, sa.READWRITE)  # FIXME
+        self._attributes_register   ('resource',  None,            sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
          
         # FIXME: complete attribute list, dig attributes from description,
         # perform sanity checks

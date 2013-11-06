@@ -16,7 +16,7 @@ def test_overlay_create () :
     """
     tc      = rut.get_test_config ()
     ol_dict = tc.overlay_dict
-    ol      = troy.Overlay ()
+    ol      = troy.Overlay ({troy.CORES : 1})
 
     if  not 'pilots' in ol_dict :
         assert False, "no pilots in overlay dict" 
@@ -26,7 +26,8 @@ def test_overlay_create () :
 
     for pilot_dict in ol_dict['pilots'] :
         pilot_description = troy.PilotDescription (pilot_dict)
-        ol.add_pilot (pilot_description)
+        pilot             = troy.Pilot (pilot_description, None)
+        ol._add_pilot (pilot)
 
     ol._dump ()
 

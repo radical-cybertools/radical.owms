@@ -8,7 +8,6 @@ import radical.utils        as ru
 import saga.attributes      as sa
 
 import pilot                as tp
-import pilot_description    as tpd
 
 from   troy.constants   import *
 
@@ -73,7 +72,7 @@ class Overlay (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, descr) :
+    def __init__ (self, descr={}) :
         """
         Create a new overlay instance, based on the given overlay description
 
@@ -100,7 +99,7 @@ class Overlay (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def _add_pilot (self, pilot) :
+    def _add_pilot (self, p) :
         """
         Add a pilot to te overlay
         """
@@ -109,31 +108,13 @@ class Overlay (sa.Attributes) :
             raise RuntimeError ("overlay is not in DESCRIBED state -- cannot add pilots")
 
         # handle scalar and list uniformly
-        bulk = False
-        if  type(descr) != list :
-            bulk  = True
-            descr = [descr]
-
-        ret = []
-
         # check type, content and uniqueness for each task
-        for d in descr :
+        if  not isinstance (p, tp.Pilot) :
+            raise TypeError ("expected Pilot, got %s" % type(p))
 
-            if  not isinstance (d, tpd.PilotDescription) :
-                raise TypeError ("expected TaskDescription, got %s" % type(d))
+        self.pilots[p.id] = p
 
-            # FIXME: add sanity checks for task syntax / semantics
-            p = tp.Pilot (d, self)
-
-            self.pilots [d.tag] = p
-
-            ret.append (p.id)
-
-
-        if  bulk :
-            return ret
-        else :
-            return ret[0]
+        return p.id
 
 
     # --------------------------------------------------------------------------
