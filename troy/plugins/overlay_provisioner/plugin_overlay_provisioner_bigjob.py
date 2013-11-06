@@ -46,10 +46,12 @@ class PLUGIN_CLASS (object) :
             # bj_pilot_url = bj_manager.start_pilot_job (pilot.resource)
 
             bj_manager   = 'bj://somewere.net/bj_maqnager_id_or_so'
-            bj_pilot_url = 'bj://somewere.net/bj_id_or_someting_%s' % _idx
+            bj_pilot_url = 'bj://somewere.net/bj_id_or_someting_%s' % pilot.id
             _idx += 1
 
             pilot._set_instance ([bj_pilot_url, bj_manager])
+
+            print 'overlay  provision: provision pilot  %s : %s ' % (pilot, pilot.instance)
 
 
 # ------------------------------------------------------------------------------

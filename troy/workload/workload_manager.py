@@ -34,9 +34,9 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, inspector   = 'default', 
+    def __init__ (self, inspector  = 'default', 
                         translator = 'default',
-                        scheduler  = 'default',
+                        scheduler  = 'round_robin',
                         dispatcher = 'default') :
         """
         Create a new workload manager instance.  
@@ -101,8 +101,8 @@ class WorkloadManager (object) :
         workload = self.get_workload (workload_id)
 
         # make sure the workflow is 'fresh', so we can translate it
-        if  workload.state != DESCRIBED :
-            raise ValueError ("workload '%s' not in DESCRIBED state" % workload.id)
+        if  workload.state not in [DESCRIBED, PLANNED] :
+            raise ValueError ("workload '%s' not in DESCRIBED nor PLANNED state" % workload.id)
 
         # hand over control over workload to the translator plugin, so it can do
         # what it has to do.

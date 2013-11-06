@@ -37,14 +37,17 @@ if __name__ == '__main__':
     # Create a task for every radicalist
     for r in radicalists:
         task_descr = troy.TaskDescription()
-        task_descr.tag  = "%s" % r
-        task_descr.exe  = '/bin/echo'
-        task_descr.args = ['Hello World, ', r, '!']
+        task_descr.tag   = "%s" % r
+        task_descr.exe   = '/bin/echo'
+        task_descr.args  = ['Hello World, ', r, '!']
         task_id = workload.add_task(task_descr)
         # Tasks are uncoupled so no relationships are specified
 
     # Register the workload so we can pass it by ID
     troy.WorkloadManager.register_workload(workload)
+
+    # combine or split tasks in te workload
+    overlay_id = planner.expand_workload(workload.id)
 
     # Initial description of the overlay based on the workload
     overlay_id = planner.derive_overlay(workload.id)

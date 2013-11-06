@@ -39,6 +39,13 @@ class PilotDescription (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
+    def __str__ (self) :
+
+        return str(self.as_dict ())
+
+
+    # --------------------------------------------------------------------------
+    #
     def _dump (self) :
 
         self._attributes_dump ()

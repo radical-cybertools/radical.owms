@@ -31,8 +31,9 @@ class PLUGIN_CLASS (object) :
 
     # --------------------------------------------------------------------------
     #
-    def inspoect (self, workload) :
+    def inspect (self, workload) :
 
+        print 'workload inspect : inspect workload ;)'
         return workload
 
 

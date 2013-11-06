@@ -206,6 +206,14 @@ class Workload (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
+    def __str__ (self) :
+
+        import pprint
+        return str(pprint.pformat ([self.tasks, self.relations]))
+
+
+    # --------------------------------------------------------------------------
+    #
     def _dump (self) :
 
         self._attributes_dump ()

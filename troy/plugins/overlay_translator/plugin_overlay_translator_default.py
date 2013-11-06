@@ -33,9 +33,11 @@ class PLUGIN_CLASS (object) :
     def translate (self, overlay) :
 
         # we simply use one pilot for te whole thing...
-        p_descr = to.PilotDescription ({'size' : overlay.description.cores})
-        pilot   = to.Pilot (p_descr)
-        overlay._add_pilot (pilot)
+        for i in range (0, overlay.description.cores) :
+            p_descr = to.PilotDescription ({'size' : 1})
+            pilot   = to.Pilot (p_descr)
+            print "overlay  translate: define   pilot %3d: %s" % (i, pilot)
+            overlay._add_pilot (pilot)
 
 
 # ------------------------------------------------------------------------------

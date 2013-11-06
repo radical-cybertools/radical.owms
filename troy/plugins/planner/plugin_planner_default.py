@@ -29,7 +29,9 @@ class PLUGIN_CLASS(object):
     def expand_workload(self, workload):
 
         # Do nothing for now
-        pass
+        
+        print "planner  expand wl: expand workload : %s" % workload
+
 
     # --------------------------------------------------------------------------
     #
@@ -43,7 +45,7 @@ class PLUGIN_CLASS(object):
                 'wall_time' : (1 << 1) + (1 << 3) + (1 << 5)
             })
 
-        ovl_descr._attributes_dump ()
+        print "planner  derive ol: derive overlay for workload: %s" % ovl_descr
 
         # Create an overlay
         return to.Overlay(ovl_descr)
