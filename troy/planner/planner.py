@@ -40,31 +40,6 @@ class Planner(object):
 
     # --------------------------------------------------------------------------
     #
-    def derive_overlay(self, workload):
-        """
-        create overlay plan (description) from workload
-        """
-
-        if workload.state == DESCRIBED:
-
-        elif workload.state == PLANNED:
-
-        else:
-            raise ValueError("workload '%s' not in DESCRIBED or PLANNED "
-                             "state" % workload.id)
-
-
-        # derive overlay from workload
-        overlay = self._planner.derive_overlay(workload)
-
-        # Put the overlay into the system registry so others can access it
-        troy.OverlayManager.register_overlay(overlay)
-
-        # Only pass the ID back
-        return overlay.id
-
-     # --------------------------------------------------------------------------
-    #
     def submit(self, workload):
         """
         create overlay plan (description) from workload

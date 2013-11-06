@@ -9,7 +9,6 @@ PLUGIN_DESCRIPTION = {
 
 from overlay import Overlay
 from overlay import PilotDescription
-
 from constants import PLANNED
 
 # ------------------------------------------------------------------------------
@@ -46,6 +45,7 @@ class PLUGIN_CLASS(object):
         ovl.wall_time = (1 << 1) + (1 << 3) + (1 << 5)
 
         return ovl
+
 
 #
 # ------------------------------------------------------------------------------
