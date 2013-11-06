@@ -3,13 +3,14 @@
 #
 # Workload and Overlay states
 #
-DESCRIBED  = 'Described'  # i.e. New
-PLANNED    = 'Planned'
-TRANSLATED = 'Translated'
-SCHEDULED  = 'Scheduled'
-DISPATCHED = 'Dispatched'
-COMPLETED  = 'Completed'
-FAILED     = 'Failed'     # ABORT! ABORT! ABORT!
+DESCRIBED   = 'Described'  # i.e. New
+PLANNED     = 'Planned'
+TRANSLATED  = 'Translated'
+SCHEDULED   = 'Scheduled'
+DISPATCHED  = 'Dispatched'
+PROVISIONED = 'Provisioned'
+COMPLETED   = 'Completed'
+FAILED      = 'Failed'     # ABORT! ABORT! ABORT!
 
 
 # ------------------------------------------------------------------------------
