@@ -8,9 +8,7 @@ PLUGIN_DESCRIPTION = {
   }
 
 from overlay import Overlay
-from overlay import PilotDescription
 
-from constants import PLANNED
 
 # ------------------------------------------------------------------------------
 #
@@ -29,8 +27,8 @@ class PLUGIN_CLASS(object):
     #
     def expand_workload(self, workload):
 
-        # Do nothing for now, other than changing the state
-        workload.state = PLANNED
+        # Do nothing for now
+        pass
 
     # --------------------------------------------------------------------------
     #
