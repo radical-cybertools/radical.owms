@@ -46,8 +46,10 @@ class Planner(object):
         """
 
         if workload.state == DESCRIBED:
+            pass
 
         elif workload.state == PLANNED:
+            pass
 
         else:
             raise ValueError("workload '%s' not in DESCRIBED or PLANNED "

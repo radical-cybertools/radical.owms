@@ -58,7 +58,7 @@ class OverlayManager (object) :
         """
 
         # initialize state, load plugins
-        self._plugin_mgr = radical.utils.PluginManager ('troy')
+        self._plugin_mgr = ru.PluginManager ('troy')
 
         # FIXME: error handling
         self._inspector   = self._plugin_mgr.load ('overlay_inspector',   inspector)
