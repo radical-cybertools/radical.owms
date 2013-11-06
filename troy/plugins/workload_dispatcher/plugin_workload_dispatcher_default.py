@@ -37,7 +37,7 @@ class PLUGIN_CLASS (object) :
 
             for cu_id in t['cus'] :
                 pilot = overlay.pilots[0]
-                print "submitting %s to %s" % (cu_id, pilot.instance)
+                print "submitting %-20s to %s" % (cu_id, pilot.instance)
               # pilot.submit_job (t['cus'][tid]['description'])
 
 
