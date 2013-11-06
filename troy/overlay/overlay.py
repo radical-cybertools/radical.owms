@@ -4,12 +4,13 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
-import saga.attributes      as sa
 import radical.utils        as ru
+import saga.attributes      as sa
 
-import pilot              as tp
-import pilot_description  as tpd
-from troy.constants import DESCRIBED
+import pilot                as tp
+import pilot_description    as tpd
+
+from   troy.constants   import *
 
 """
 Represent a pilot-based overlay that is managed by TROY.
@@ -111,8 +112,12 @@ class Overlay (sa.Attributes) :
             raise RuntimeError ("overlay is not in DESCRIBED state -- cannot add pilots")
 
         # handle scalar and list uniformly
+        bulk = False
         if  type(descr) != list :
+            bulk  = True
             descr = [descr]
+
+        ret = []
 
         # check type, content and uniqueness for each task
         for d in descr :
@@ -123,7 +128,15 @@ class Overlay (sa.Attributes) :
             # FIXME: add sanity checks for task syntax / semantics
             p = tp.Pilot (d, self)
 
-            self.pilots [d.id] = p
+            self.pilots [d.tag] = p
+
+            ret.append (p.id)
+
+
+        if  bulk :
+            return ret
+        else :
+            return ret[0]
 
 
     # --------------------------------------------------------------------------

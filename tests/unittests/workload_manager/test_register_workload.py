@@ -15,9 +15,7 @@ def test_workload_create () :
     """ 
     test workload creation
     """
-    tc = rut.get_test_config ()
-    wl_dict = tc.workload_dict
-    wl1     = troy.Workload ()
+    wl1  = troy.Workload ()
     wlid = wl1.id
 
     troy.WorkloadManager.register_workload  (wl1)

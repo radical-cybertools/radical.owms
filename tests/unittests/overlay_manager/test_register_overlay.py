@@ -15,20 +15,18 @@ def test_overlay_create () :
     """ 
     test overlay creation
     """
-    tc = rut.get_test_config ()
-    wl_dict = tc.overlay_dict
-    wl1     = troy.overlay ()
-    wlid = wl1.id
+    ol1  = troy.Overlay ()
+    olid = ol1.id
 
-    troy.overlayManager.register_overlay  (wl1)
-    wl2 = troy.overlayManager.get_overlay (wlid)
+    troy.OverlayManager.register_overlay  (ol1)
+    ol2 = troy.OverlayManager.get_overlay (olid)
 
-    assert wl1 == wl2, "%s == %s" % (wl1, wl2)
+    assert ol1 == ol2, "%s == %s" % (ol1, ol2)
 
-    troy.overlayManager.unregister_overlay (wlid)
+    troy.OverlayManager.unregister_overlay (olid)
 
     try :
-        wl2 = troy.OverlayManager.get_overlay (wlid)
+        ol2 = troy.OverlayManager.get_overlay (olid)
         assert False, "Expected LookupError, got nothing"
 
     except LookupError :
@@ -36,6 +34,4 @@ def test_overlay_create () :
 
     except Exception as e :
         assert False, "Expected LookupError, got %s" % e
-
-
 

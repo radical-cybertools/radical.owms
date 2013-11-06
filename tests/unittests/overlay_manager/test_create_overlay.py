@@ -14,16 +14,19 @@ def test_overlay_create () :
     """ 
     test overlay creation
     """
-    tc = rut.get_test_config ()
-    wl_dict = tc.overlay_dict
-    wl      = troy.overlay ()
+    tc      = rut.get_test_config ()
+    ol_dict = tc.overlay_dict
+    ol      = troy.Overlay ()
 
-    if  not 'tasks' in wl_dict :
-        assert False, "no tasks in overlay dict" 
+    if  not 'pilots' in ol_dict :
+        assert False, "no pilots in overlay dict" 
 
-    if  not len(wl_dict['tasks']) :
-        assert False, "zero tasks in overlay dict" 
+    if  not len(ol_dict['pilots']) :
+        assert False, "zero pilots in overlay dict" 
 
-    for task_dict in wl_dict['tasks'] :
-        task_description = troy.TaskDescription (task_dict)
-        wl.add_task (task_description)
+    for pilot_dict in ol_dict['pilots'] :
+        pilot_description = troy.PilotDescription (pilot_dict)
+        ol.add_pilot (pilot_description)
+
+    ol._dump ()
+

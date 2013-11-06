@@ -5,21 +5,55 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
+import radical.utils   as ru
+import saga.attributes as sa
+
+
 """
 Represent a pilot, as element of a troy.Overlay.
 """
 
 # -----------------------------------------------------------------------------
 #
-class Pilot (object) :
+class Pilot (sa.Attributes) :
     """
     """
 
-    def __init__ (self, description, overlay_manager, overlay_dispatcher = 'default') :
+    def __init__ (self, descr, overlay_manager) :
         """
-        Create a new overlay manager instance.
+        Create a new pilot
 
-        Use default plugins if not otherwise indicated.
+        Each new pilot is assigned a new ID.
+
+        Later implementations may allow for an additional id parameter, 
+        to reconnect to the thus identified pilot instance.  
         """
-        pass
+
+        # initialize state
+        pid   = ru.generate_id ('p.')
+
+        if  not 'tag' in descr :
+            raise ValueError ("no 'tag' in PilotDescription")
+
+        # set attribute interface properties
+        self._attributes_extensible  (False)
+        self._attributes_camelcasing (True)
+
+        # register attributes
+        self._attributes_register   ('id',          pid,             sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('tag',         descr.tag,       sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('description', descr,           sa.ANY,    sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('manager',     overlay_manager, sa.ANY,    sa.SCALAR, sa.READONLY)
+         
+        # FIXME: complete attribute list, dig attributes from description,
+        # perform sanity checks
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _dump (self) :
+
+        self._attributes_dump ()
+
+
 

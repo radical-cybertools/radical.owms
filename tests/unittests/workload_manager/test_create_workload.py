@@ -27,3 +27,6 @@ def test_workload_create () :
     for task_dict in wl_dict['tasks'] :
         task_description = troy.TaskDescription (task_dict)
         wl.add_task (task_description)
+
+    wl._dump ()
+
