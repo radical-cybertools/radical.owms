@@ -40,6 +40,9 @@ class Workload (sa.Attributes) :
 
     The workload transformations are:
 
+    * *Planning:* A workload is inspected and its cardinal parameters are
+      expanded, based on the overlay if it exists.
+
     * *Translation:* A workload is inspected, and its tasks are translated into 
       compute units.  A single task may result in one or more compute units.
       Multiple tasks may be combined into one compute unit.
@@ -99,6 +102,7 @@ class Workload (sa.Attributes) :
         # register attributes, initialize state
         self._attributes_register   ('id',        wl_id,     sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   ('state',     DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
+        self._attributes_register   ('parametrized', False,  sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   ('error',     None,      sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   ('tasks',     dict(),    sa.ANY,    sa.VECTOR, sa.READONLY)
         self._attributes_register   ('relations', list(),    sa.ANY,    sa.VECTOR, sa.READONLY)
