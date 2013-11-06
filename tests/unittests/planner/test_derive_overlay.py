@@ -12,9 +12,9 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-def test_plan_workload():
+def test_derive_overlay():
     """
-    test workload planning
+    test overlay derivation
     """
     tc = rut.get_test_config()
     wl_dict = tc.workload_dict
@@ -37,10 +37,15 @@ def test_plan_workload():
         relation_description = troy.RelationDescription(relation_dict)
         wl.add_relation(relation_description)
 
-    overlay_id = planner.plan(wl)
+    troy.WorkloadManager.register_workload(wl)
+
+    overlay_id = planner.derive_overlay(wl.id)
 
     overlay = troy.OverlayManager.get_overlay(overlay_id)
 
-    if not len(overlay.pilots):
-        assert False, "No pilots in Overlay"
+    if not len(overlay.cores):
+        assert False, "No cores requested"
+
+    if not len(overlay.wall_time):
+        assert False, "Walltime is zero"
 
