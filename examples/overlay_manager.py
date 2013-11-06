@@ -42,9 +42,8 @@ if __name__ == '__main__':
         task_id = workload.add_task(task_desc)
         # Tasks are uncoupled so no relationships are specified
 
-
-    # Initial description of the overlay based on the workload
-    overlay_id = planner.derive_overlay(workload.id)
+    # Initial submission of application workload to TROY
+    overlay_id = planner.submit(workload)
 
     # Translate 1 workload into N ComputeUnits and N DataUnits
     workload_mgr.translate_workload(workload.id, overlay_id)
