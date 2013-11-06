@@ -6,6 +6,7 @@ import threading
 import radical.utils   as ru
 import saga.attributes as sa
 
+from   troy.constants import *
 
 # ------------------------------------------------------------------------------
 #
@@ -46,10 +47,10 @@ class Relation (sa.Attributes) :
             raise ValueError ("no 'tail' in RelationDescription")
 
         # register attributes
-        self._attributes_register   ('id',          tid,        sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('head',        descr.head, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('tail',        descr.tail, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('description', descr,      sa.ANY,    sa.SCALAR, sa.READONLY)
+        self._attributes_register   (ID,          tid,        sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   (HEAD,        descr.head, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   (TAIL,        descr.tail, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   (DESCRIPTION, descr,      sa.ANY,    sa.SCALAR, sa.READONLY)
 
         # FIXME: complete attribute list, dig attributes from description,
         # perform sanity checks

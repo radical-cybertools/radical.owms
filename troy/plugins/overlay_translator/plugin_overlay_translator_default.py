@@ -1,4 +1,8 @@
 
+
+from   troy.constants import *
+
+
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
@@ -26,12 +30,12 @@ class PLUGIN_CLASS (object) :
 
     # --------------------------------------------------------------------------
     #
-    def schedule (self, overlay) :
+    def translate (self, overlay) :
 
-        # we simply assign all pilots to localhost
+        # we simply use one pilot for te whole thing...
         p_descr = to.PilotDescription ({'size' : overlay.descr.cores})
         pilot   = to.Pilot (p_descr)
-        overlay.pilots = [pilot]
+        overlay._add_pilot (pilot)
 
 
 # ------------------------------------------------------------------------------

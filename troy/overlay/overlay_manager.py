@@ -106,17 +106,17 @@ class OverlayManager (object) :
         scheduler changes and/or annotates the given overlay.
         """
 
-        overlay = self.get_overlay(overlay_id)
+        overlay = self.get_overlay (overlay_id)
 
         # make sure the overlay is 'fresh', so we can translate it it
-        if overlay.state != DESCRIBED:
+        if  overlay.state != DESCRIBED :
             raise ValueError ("overlay '%s' not in DESCRIBED state" % overlay.id)
 
         # hand over control over overlay to the scheduler plugin, so it can do
         # what it has to do.
-        self._scheduler.schedule(overlay)
+        self._translator.translate (overlay)
 
-        # mark overlay as 'scheduled'
+        # mark overlay as 'translated'
         overlay.state = TRANSLATED
 
 

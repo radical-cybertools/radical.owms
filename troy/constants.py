@@ -1,16 +1,60 @@
 
 # ------------------------------------------------------------------------------
 #
-# Workload and Overlay states
+# below are the state enums for the various stateful objects in troy.  State
+# diagrams are extremely simple right now -- state progression is only ever
+# linear, in the order listed.  The only exception are the final state FAILED
+# which can be reached at any time.
 #
-DESCRIBED   = 'Described'  # i.e. New
-PLANNED     = 'Planned'
-TRANSLATED  = 'Translated'
-SCHEDULED   = 'Scheduled'
-DISPATCHED  = 'Dispatched'
-PROVISIONED = 'Provisioned'
-COMPLETED   = 'Completed'
-FAILED      = 'Failed'     # ABORT! ABORT! ABORT!
+# ------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------
+#
+# workload states
+#
+DESCRIBED   = 'Described'   # tasks known
+PLANNED     = 'Planned'     # overlay derived
+TRANSLATED  = 'Translated'  # tasks derived
+SCHEDULED   = 'Scheduled'   # tasks scheduled
+DISPATCHED  = 'Dispatched'  # tasks dispatched
+COMPLETED   = 'Completed'   # tasks completed
+FAILED      = 'Failed'      # oops
+
+
+# ------------------------------------------------------------------------------
+#
+# overlay states
+#
+DESCRIBED   = 'Described'   # requirements known
+TRANSLATED  = 'Translated'  # pilots derived
+SCHEDULED   = 'Scheduled'   # pilots sceduled
+PROVISIONED = 'Provisioned' # pilots provisioned
+COMPLETED   = 'Completed'   # pilots completed 
+FAILED      = 'Failed'      # oops
+
+
+# ------------------------------------------------------------------------------
+#
+# pilot states
+#
+DESCRIBED   = 'Described'   # i.e. New
+SCHEDULED   = 'Scheduled'   # assigned to a resource
+PROVISIONED = 'Provisioned' # submitted to / running on a resource
+COMPLETED   = 'Completed'   # finished as planned
+FAILED      = 'Failed'      # oops
+
+
+# ------------------------------------------------------------------------------
+#
+# Task states
+#
+DESCRIBED   = 'Described'   # i.e. New
+TRANSLATED  = 'Translated'  # CUs derived
+SCHEDULED   = 'Scheduled'   # CUs scheduled
+DISPATCHED  = 'Dispatched'  # CUs dispatched
+COMPLETED   = 'Completed'   # CUs completed
+FAILED      = 'Failed'      # oops
 
 
 # ------------------------------------------------------------------------------
@@ -60,6 +104,32 @@ PORT_NAME        = 'PortName'        # attribute key
 PORT_VALUE       = 'PortValue'       # attribute key # FIXME: semantics?
 INPUT_PORT       = 'PortValue'       # attribute key # FIXME: semantics?
 OUTPUT_PORT      = 'PortValue'       # attribute key # FIXME: semantics?
+
+
+# ------------------------------------------------------------------------------
+# 
+# constants for overlay description attributes
+#
+# RELATION_TIME
+CORES            = 'Cores'           # number of required cores
+WALL_TIME        = 'WallTime'        # overlay lifetime in minutes
+
+
+# ------------------------------------------------------------------------------
+# 
+# constants for pilot description attributes
+#
+SIZE             = 'Size'            # number of cores
+
+
+# ------------------------------------------------------------------------------
+# 
+# constants for object inspection
+#
+ID               = 'ID'              # object id
+TAG              = 'TAG'             # object tag
+STATE            = 'State'           # object state
+DESCRIPTION      = 'Description'     # object description dict
 
 
 # ------------------------------------------------------------------------------

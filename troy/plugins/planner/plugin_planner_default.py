@@ -7,7 +7,8 @@ PLUGIN_DESCRIPTION = {
     'description' : 'This is the default planner.'
   }
 
-import troy.overlay as to
+import troy.overlay       as to
+from   troy.constants import *
 
 
 # ------------------------------------------------------------------------------
