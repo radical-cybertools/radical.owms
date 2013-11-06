@@ -91,20 +91,18 @@ class Overlay (sa.Attributes) :
         self._attributes_camelcasing (True)
     
         # register attributes, initialize state
-        self._attributes_register    ('id',          ol_id,     sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register    ('state',       DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
-        self._attributes_register    ('error',       None,      sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register    ('description', descr,     sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register    ('pilots',      dict(),    sa.ANY,    sa.VECTOR, sa.READONLY)
+        self._attributes_register    (ID,          ol_id,     sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register    (STATE,       DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
+        self._attributes_register    ('error',     None,      sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register    (DESCRIPTION, descr,     sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register    ('pilots',    dict(),    sa.ANY,    sa.VECTOR, sa.READONLY)
 
 
     # --------------------------------------------------------------------------
     #
-    def _add_pilot (self, descr) :
+    def _add_pilot (self, pilot) :
         """
-        Add a pilot (or a list of pilots) to the overlay.
-        
-        Pilots are expected of type `PilotDescription`.
+        Add a pilot to te overlay
         """
 
         if  self.state != DESCRIBED :

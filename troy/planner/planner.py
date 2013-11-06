@@ -4,7 +4,7 @@ import threading
 import radical.utils as ru
 
 import troy
-from troy.constants import *
+from   troy.constants import *
 
 
 # ------------------------------------------------------------------------------

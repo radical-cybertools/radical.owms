@@ -2,6 +2,9 @@
 import pilot
 
 
+from   troy.constants import *
+
+
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {

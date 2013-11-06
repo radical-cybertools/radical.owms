@@ -31,8 +31,8 @@ class OverlayDescription (sa.Attributes) :
         self._attributes_camelcasing (True)
 
         # register attributes
-        self._attributes_register    ('cores',     None, sa.INT, sa.SCALAR, sa.WRITEABLE)
-        self._attributes_register    ('wall_time', None, sa.INT, sa.SCALAR, sa.WRITEABLE)
+        self._attributes_register    (CORES,     1, sa.INT, sa.SCALAR, sa.WRITEABLE)
+        self._attributes_register    (WALL_TIME, 0, sa.INT, sa.SCALAR, sa.WRITEABLE)
 
 
     # --------------------------------------------------------------------------
