@@ -40,19 +40,22 @@ class Planner(object):
 
     # --------------------------------------------------------------------------
     #
-    def derive_overlay(self, workload):
+    def derive_overlay(self, workload_id):
         """
         create overlay plan (description) from workload
         """
 
-        if workload.state == DESCRIBED:
+        # Get the workload from the repo
+        workload = troy.WorkloadManager.get_workload(workload_id)
 
-        elif workload.state == PLANNED:
-
-        else:
+        # Workload doesn't need to be PLANNED, but if it is only DESCRIBED,
+        # it can't be parametrized.
+        if workload.state not in [PLANNED, DESCRIBED]:
             raise ValueError("workload '%s' not in DESCRIBED or PLANNED "
                              "state" % workload.id)
-
+        elif workload.state is DESCRIBED and workload.parametrized:
+            raise ValueError("Parametrized workload '%s' not PLANNED yet."
+                             % workload.id)
 
         # derive overlay from workload
         overlay = self._planner.derive_overlay(workload)
@@ -63,29 +66,26 @@ class Planner(object):
         # Only pass the ID back
         return overlay.id
 
-     # --------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     #
-    def submit(self, workload):
+    def expand_workload(self, workload_id):
         """
-        create overlay plan (description) from workload
+        Expand cardinality parameters in workload.
         """
+
+        # Get the workload from the repo
+        workload = troy.WorkloadManager.get_workload(workload_id)
 
         # make sure the workflow is 'fresh', so we can translate it
         if workload.state != DESCRIBED:
             raise ValueError("workload '%s' not in DESCRIBED state" %
                              workload.id)
 
-        # expand (optional) cardinality in workload
+        # Expand (optional) cardinality in workload
         self._planner.expand_workload(workload)
 
-        # derive overlay from workload
-        overlay = self._planner.derive_overlay(workload)
-
-        # Put the overlay into the system registry so others can access it
-        troy.OverlayManager.register_overlay(overlay)
-
-        # Only pass the ID back
-        return overlay.id
+        # Workload is now ready to go to the workload manager
+        workload.state = PLANNED
 
 # ------------------------------------------------------------------------------
 
