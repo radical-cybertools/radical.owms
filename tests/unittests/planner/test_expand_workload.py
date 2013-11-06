@@ -12,7 +12,7 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-def test_plan_workload():
+def test_expand_workload():
     """
     test workload planning
     """
@@ -37,13 +37,7 @@ def test_plan_workload():
         relation_description = troy.RelationDescription(relation_dict)
         wl.add_relation(relation_description)
 
-    overlay_id = planner.submit(wl)
+    troy.WorkloadManager.register_workload(wl)
 
-    overlay = troy.OverlayManager.get_overlay(overlay_id)
-
-    if not len(overlay.cores):
-        assert False, "No cores requested"
-
-    if not len(overlay.wall_time):
-        assert False, "Walltime is zero"
+    planner.expand_workload(wl.id)
 
