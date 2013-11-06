@@ -70,5 +70,5 @@ if __name__ == '__main__':
 
     # Of course nothing will fail due to TROY's magic robustness and
     # and we therefore just wait until its done!
-    while workload.state != troy.COMPLETED:
+    while workload.state in [troy.COMPLETED, troy.FAILED]:
         time.sleep(5)
