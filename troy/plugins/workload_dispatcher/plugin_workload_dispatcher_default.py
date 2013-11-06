@@ -39,7 +39,7 @@ class PLUGIN_CLASS (object) :
                 cu_descr = t['cus'][cu_id]['description']
                 pilot    = t['cus'][cu_id]['pilot']
                 print "submitting %-20s to %s" % (cu_id, pilot.instance)
-              # pilot.submit_job (t['cus'][tid]['description'])
+              # pilot.submit_job (cu_descr)
 
 
 
