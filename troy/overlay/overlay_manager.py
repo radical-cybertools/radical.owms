@@ -93,7 +93,6 @@ class OverlayManager (object) :
 
         return ol
 
-
     # --------------------------------------------------------------------------
     #
     def translate_overlay(self, overlay_id):
@@ -117,7 +116,6 @@ class OverlayManager (object) :
 
         # mark overlay as 'scheduled'
         overlay.state = TRANSLATED
-
 
     # --------------------------------------------------------------------------
     #

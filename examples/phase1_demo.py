@@ -1,78 +1,71 @@
 
+__author__ = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__ = "MIT"
 
-import threading
-import radical.utils      as ru
 
+"""
+    Demo application for 1 feb 2014
+    - Bag of Task (BoT)
+
+"""
+
+import time
 import troy
-
 
 # ------------------------------------------------------------------------------
 #
-class Troy (object) :
-    """
-    The `Troy` class exposes the application facing troy API, and mediates the
-    interaction between the application and Troy.
-    """
+if __name__ == '__main__':
 
+    radicalists = ['Shantenu Jha', 'Andre Merzky', 'Ole Weidner',
+                   'Andre Luckow', 'Matteo Turilli', 'Melissa Romanus',
+                   'Ashley Zebrowski', 'Dinesh Ganapathi', 'Mark Santcroos',
+                   'Antons Treikalis', 'Jeffery Rabinowitz', 'Patrick Gray',
+                   'Vishal Shah']
 
-    # --------------------------------------------------------------------------
-    #
-    def __init__ (self) :
-        """
-        Create a new troy instance.  
-        """
-        pass
+    # Responsible for application workload
+    workload_mgr = troy.WorkloadManager()
+    # Responsible for managing the pilot overlay
+    overlay_mgr = troy.OverlayManager()
 
+    # Planning makes initial mapping of workload to overlay
+    planner = troy.Planner()
 
-    # --------------------------------------------------------------------------
-    #
-    def submit_workload (self, workload, session=None) :
-        """
-        submit a new workload to run.
+    # TROY data structure that holds the tasks and their relations
+    workload = troy.Workload()
 
-        The optional session contains a set of security contexts to be used for
-        backend interactions.
-        """
+    # Create a task for every radicalist
+    for r in radicalists:
+        task_desc = troy.TaskDescription()
+        task_desc.exe = '/bin/echo'
+        task_desc.args = ['Hello World, ', r, '!']
+        task_id = workload.add_task(task_desc)
+        # Tasks are uncoupled so no relationships are specified
 
-        if  not isinstance (workload, troy.Workload) :
-            raise TypeError ("expected 'Workload' instance, not %s" % type(workload))
+    # Initial submission of application workload to TROY
+    overlay_id = planner.submit(workload)
 
-        if  session and not isinstance (session, troy.Session) :
-            raise TypeError ("expected 'Session' instance, not %s" % type(session))
+    # Translate 1 workload into N ComputeUnits and N DataUnits
+    workload_mgr.translate_workload(workload.id, overlay_id)
 
-        workload._session = session
+    # Translate 1 Overlay description into N Pilot Descriptions
+    overlay_mgr.translate_overlay(overlay_id)
 
-        # this implements one specific trace (early binding)
-        def trace_example (workload_id) :
-            try :
-                
-                planner      = troy.Planner         ()
-                workload_mgr = troy.WorkloadManager ()
-                overlay_mgr  = troy.OverlayManager  ()
+    # Schedule the workload onto the overlay
+    # Early binding assumes the overlay is not yet scheduled.
+    workload_mgr.schedule_workload(workload.id, overlay_id,
+                                   binding=troy.EARLY)
 
-                overlay_id   = planner.plan     (workload_id)
+    # Decide which resources to use for constructing the overlay
+    overlay_mgr.schedule_overlay(overlay_id)
 
-                workload_mgr.translate_workload (workload_id, overlay_id)
-                workload_mgr.schedule_workload  (workload_id, overlay_id,
-                                                      binding=troy.EARLY)
+    # Instantiate Pilots on specified resources
+    overlay_mgr.provision_overlay(overlay_id)
 
-                overlay_mgr.schedule_overlay    (overlay_id)
-                overlay_mgr.dispatch_overlay    (overlay_id)
+    # Execute the ComputeUnits on the Pilots
+    workload_mgr.dispatch_workload(workload.id, overlay_id)
 
-                workload_mgr.dispatch_workload  (workload_id, overlay_id)
-
-            except Exception as e :
-                workload.state = troy.FAILED
-                workload.error = e
-
-
-        # run that trace in a separate thread
-        threading.Thread (trace_example, workload.id).start ()
-
-        # we return the workload ID as identifier of this trace -- even though
-        # the app already has that ID within the submitted workload.
-        return workload.id
-
-
-# ------------------------------------------------------------------------------
-
+    # Of course nothing will fail due to TROY's magic robustness and
+    # and we therefore just wait until its done!
+    while workload.state != troy.COMPLETED:
+        time.sleep(5)

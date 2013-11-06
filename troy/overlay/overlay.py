@@ -93,8 +93,10 @@ class Overlay (sa.Attributes) :
         self._attributes_register   ('id',        ol_id,     sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   ('state',     DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
         self._attributes_register   ('error',     None,      sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('wall_time', None,      sa.STRING, sa.SCALAR, sa.WRITEABLE)
-        self._attributes_register   ('cores',     None,      sa.STRING, sa.SCALAR, sa.WRITEABLE)
+        self._attributes_register   ('wall_time', None,      sa.STRING,
+                                     sa.SCALAR, sa.WRITEABLE)
+        self._attributes_register   ('cores',     None,      sa.STRING,
+                                     sa.SCALAR, sa.WRITEABLE)
         self._attributes_register   ('pilots',    dict(),    sa.ANY,    sa.VECTOR, sa.READONLY)
 
 
