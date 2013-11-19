@@ -47,7 +47,7 @@ if __name__ == '__main__':
     troy.WorkloadManager.register_workload(workload)
 
     # combine or split tasks in te workload
-    overlay_id = planner.expand_workload(workload.id)
+    planner.expand_workload(workload.id)
 
     # Initial description of the overlay based on the workload
     overlay_id = planner.derive_overlay(workload.id)
