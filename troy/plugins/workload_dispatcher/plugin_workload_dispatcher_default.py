@@ -35,17 +35,10 @@ class PLUGIN_CLASS (object) :
 
             t = workload.tasks[tid]
 
-            for cu_id in t['cus'] :
-                cu_descr = t['cus'][cu_id]['description']
-                pilot    = t['cus'][cu_id]['pilot']
-                print 'workload dispatch : dispatch %-18s to %s' % (cu_id, pilot.instance)
-              # pilot.submit_job (cu_descr)
-
-
-
-        exit
-        print " --------------------------- "
-        pass
+            for unit_id in t['units'] :
+                unit_descr = t['units'][unit_id]['description']
+                pilot      = t['units'][unit_id]['pilot']
+                print 'workload dispatch : dispatch %-18s to %s' % (unit_id, pilot.instance)
 
 
 # ------------------------------------------------------------------------------

@@ -9,7 +9,7 @@ PLUGIN_DESCRIPTION = {
     'type'        : 'workload_scheduler', 
     'name'        : 'round_robin', 
     'version'     : '0.1',
-    'description' : 'simple scheduler, assigns CUs to pilots in round-robin fashion.'
+    'description' : 'simple scheduler, assigns units to pilots in round-robin fashion.'
   }
 
 _idx = 0
@@ -43,14 +43,14 @@ class PLUGIN_CLASS (object) :
 
             t = workload.tasks[tid]
 
-            for cu_id in t['cus'] :
+            for unit_id in t['units'] :
 
                 if  _idx > len(overlay.pilots) :
                     _idx = 0
 
                 pilot = overlay.pilots[_idx]
-                print "workload scedule  : assign cu %-18s to %s" % (cu_id, pilot.id)
-                t['cus'][cu_id]['pilot'] = pilot
+                print "workload scedule  : assign unit %-18s to %s" % (unit_id, pilot.id)
+                t['units'][unit_id]['pilot'] = pilot
 
                 _idx += 1
 

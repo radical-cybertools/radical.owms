@@ -13,13 +13,15 @@
 #
 # workload states
 #
-DESCRIBED   = 'Described'   # tasks known
-PLANNED     = 'Planned'     # overlay derived
-TRANSLATED  = 'Translated'  # tasks derived
-SCHEDULED   = 'Scheduled'   # tasks bound
-DISPATCHED  = 'Dispatched'  # tasks dispatched
-COMPLETED   = 'Completed'   # tasks completed
-FAILED      = 'Failed'      # oops
+DESCRIBED    = 'Described'   # tasks known
+PLANNED      = 'Planned'     # overlay derived
+TRANSLATED   = 'Translated'  # tasks derived
+BOUND        = 'Bound'       # tasks bound
+DISPATCHED   = 'Dispatched'  # tasks dispatched
+DONE         = 'Done'        # tasks completed
+FAILED       = 'Failed'      # oops
+CANCELED     = 'Canceled'    # tasks canceled
+UNKNOWN      = 'Unknown'     # what?
 
 
 # ------------------------------------------------------------------------------
@@ -27,34 +29,54 @@ FAILED      = 'Failed'      # oops
 # Task states
 #
 DESCRIBED    = 'Described'   # i.e. New
-TRANSLATED   = 'Translated'  # CUs derived
-SCHEDULED    = 'Scheduled'   # CUs bound to pilot
-DISPATCHED   = 'Dispatched'  # CUs dispatched to pilot
-COMPLETED    = 'Completed'   # CUs completed
+TRANSLATED   = 'Translated'  # Units derived
+BOUND        = 'Bound'       # Units bound to pilot
+DISPATCHED   = 'Dispatched'  # Units dispatched to pilot
+DONE         = 'Done'        # Units completed
 FAILED       = 'Failed'      # oops
+CANCELED     = 'Canceled'    # Units canceled
+UNKNOWN      = 'Unknown'     # what?
+
+
+# ------------------------------------------------------------------------------
+#
+# Unit states -- we don't have troy.compute_unit -- but we expect all adaptors to
+# use that state model
+#
+DESCRIBED    = 'Described'   # Unit created
+PENDING      = 'Pending'     # Unit submitted to pilot
+RUNNING      = 'Running'     # Unit active on pilot
+DONE         = 'Done'        # Unit completed
+FAILED       = 'Failed'      # oops
+CANCELED     = 'Canceled'    # Unit canceled
+UNKNOWN      = 'Unknown'     # what?
 
 
 # ------------------------------------------------------------------------------
 #
 # overlay states
 #
-DESCRIBED   = 'Described'   # requirements known
-TRANSLATED  = 'Translated'  # pilots derived
-SCHEDULED   = 'Scheduled'   # pilots sceduled
-PROVISIONED = 'Provisioned' # pilots provisioned
-COMPLETED   = 'Completed'   # pilots completed 
-FAILED      = 'Failed'      # oops
+DESCRIBED    = 'Described'   # requirements known
+TRANSLATED   = 'Translated'  # pilots derived
+SCHEDULED    = 'Scheduled'   # pilots scheduled
+PROVISIONED  = 'Provisioned' # pilots provisioned
+COMPLETED    = 'Completed'   # pilots completed 
+CANCELED     = 'Canceled'    # pilots canceled
+FAILED       = 'Failed'      # oops
+UNKNOWN      = 'Unknown'     # what?
 
 
-# ------------------------------------------------------------------------------
+# ---------- --------------------------------------------------------------------
 #
 # pilot states
 #
-DESCRIBED   = 'Described'   # i.e. New
-SCHEDULED   = 'Scheduled'   # assigned to a resource
-PROVISIONED = 'Provisioned' # submitted to / running on a resource
-COMPLETED   = 'Completed'   # finished as planned
-FAILED      = 'Failed'      # oops
+DESCRIBED    = 'Described'   # i.e. New
+SCHEDULED    = 'Scheduled'   # assigned to a resource
+PROVISIONED  = 'Provisioned' # submitted to / running on a resource
+COMPLETED    = 'Completed'   # finished as planned
+CANCELED     = 'Canceled'    # finished as requested
+FAILED       = 'Failed'      # oops
+UNKNOWN      = 'Unknown'     # what?
 
 
 # ------------------------------------------------------------------------------

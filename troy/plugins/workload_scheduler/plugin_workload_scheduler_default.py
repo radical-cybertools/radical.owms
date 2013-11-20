@@ -37,9 +37,9 @@ class PLUGIN_CLASS (object) :
 
             t = workload.tasks[tid]
 
-            for cu_id in t['cus'] :
-                print "workload schedule : assign cu %-18s to %s" % (cu_id, overlay.pilots[0].id)
-                t['cus'][cu_id]['pilot'] = overlay.pilots[0]
+            for unit_id in t['units'] :
+                print "workload schedule : assign unit %-18s to %s" % (unit_id, overlay.pilots[0].id)
+                t['units'][unit_id]['pilot'] = overlay.pilots[0]
         
 
 

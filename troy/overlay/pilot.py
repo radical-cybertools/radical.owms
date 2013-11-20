@@ -32,35 +32,52 @@ class Pilot (sa.Attributes) :
         """
 
         # initialize state
-        pid   = ru.generate_id ('p.')
+        pid = ru.generate_id ('p.')
 
         # set attribute interface properties
         self._attributes_extensible  (False)
         self._attributes_camelcasing (True)
 
         # register attributes
-        self._attributes_register   (ID,          pid,             sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   (STATE,       DESCRIBED,       sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
-        self._attributes_register   (DESCRIPTION, descr,           sa.ANY,    sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('resource',  None,            sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
-        self._attributes_register   ('instance',  None,            sa.ANY,    sa.SCALAR, sa.WRITEABLE)  # FIXME
+        self._attributes_register   (ID,           pid,             sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   (STATE,        DESCRIBED,       sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
+        self._attributes_register   (DESCRIPTION,  descr,           sa.ANY,    sa.SCALAR, sa.READONLY)
          
         # FIXME: complete attribute list, dig attributes from description,
         # perform sanity checks
+
+        self._resource      = None
+        self._instance      = None
+        self._instance_type = None
 
 
     # --------------------------------------------------------------------------
     #
     def _bind (self, resource) :
 
-        self.resource = resource
+        self._resource = resource
 
 
     # --------------------------------------------------------------------------
     #
-    def _set_instance (self, p_instance) :
+    def _set_instance (self, instance_type, instance) :
 
-        self.instance = p_instance
+        if  self._instance_type :
+            raise RuntimeError ("cannot set instance for pilot (is %s)" % self.instance_type)
+
+        self._instance_type = instance_type
+        self._instance      = instance
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _get_instance (self, instance_type) :
+
+        if  instance_type != self._instance_type :
+            raise RuntimeError ("pilot instance type is '%s', not '%s'" \
+                             % (self._instance_type, instance_type))
+
+        return self._instance
 
 
     # --------------------------------------------------------------------------

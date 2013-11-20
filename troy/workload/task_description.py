@@ -24,16 +24,16 @@ class TaskDescription (sa.Attributes) :
     #
     def __init__ (self, descr={}) :
 
-
-        sa.Attributes.__init__ (self, descr)
-
         # set attribute interface properties
-        self._attributes_extensible  (True)  # FIXME
+        self._attributes_extensible  (False)
         self._attributes_camelcasing (True)
 
         # register attributes
-        # FIXME
+        self._attributes_register    (TAG,        None, sa.STRING, sa.SCALAR, sa.WRITEABLE)
+        self._attributes_register    (EXECUTABLE, None, sa.STRING, sa.SCALAR, sa.WRITEABLE)
+        self._attributes_register    (ARGUMENTS,  None, sa.STRING, sa.VECTOR, sa.WRITEABLE)
 
+        sa.Attributes.__init__ (self, descr)
 
     # --------------------------------------------------------------------------
     #

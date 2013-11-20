@@ -60,7 +60,7 @@ class Workload (sa.Attributes) :
 
     A workload can be in different states, depending on the transformations
     performed on it.  Specifically, it can be in `DESCRIBED`, `PLANNED`,
-    `TRANSLATED`, `SCHEDULED`, `DISPATCHED`, `COMPLETED` or `FAILED`.
+    `TRANSLATED`, `SCHEDULED`, `DISPATCHED`, `DONE` or `FAILED`.
     A workload enters the workload manager in `DESCRIBED` or `PLANNED` state,
     and all follow-up state transitions are kept within the workload manager.
 
@@ -107,6 +107,8 @@ class Workload (sa.Attributes) :
         self._attributes_register   ('tasks',     dict(),    sa.ANY,    sa.VECTOR, sa.READONLY)
         self._attributes_register   ('relations', list(),    sa.ANY,    sa.VECTOR, sa.READONLY)
 
+        self._attributes_set_getter (STATE, self.get_state)
+
 
     # --------------------------------------------------------------------------
     #
@@ -118,7 +120,7 @@ class Workload (sa.Attributes) :
         """
 
         if  self.state != DESCRIBED :
-            raise RuntimeError ("workload is not in DESCRIBED state -- cannot add tasks")
+            raise RuntimeError ("workload is not in DESCRIBED state (%s) -- cannot add tasks" % self.state) 
 
         # handle scalar and list uniformly
         bulk = False
@@ -202,6 +204,73 @@ class Workload (sa.Attributes) :
         else :
             return ret[0]
 
+
+
+    # --------------------------------------------------------------------------
+    #
+    def get_state (self) :
+        """
+        The workload state is a wonderous thing -- it is sometimes atomic, and
+        sometimes it isn't...  It is derived as follows:
+
+        The initial stages of Troy cause atomic state transitions for the
+        workload -- it is created as `DESCRIBED`, 
+        `planner.plan()`                        moves it to `PLANNED`, 
+        `workload_manager.translate_workload()` moves it to `TRANSLATED`,
+        `workload_manager.bind_workload()`      moves it to `BOUND`,       and
+        `workload_manager.dispatch_workload()`  moves it to `DISPATCHED`.
+
+        Up to then, all state transitions are under full control of Troy, so we
+        can make sure that the global workload state makes sense -- if any of
+        the transitions cannot be performed for a task, we can raise an
+        exception and not advance the state, or revert everything and move into
+        FAILED state.
+
+        After dispatch, however, the tasks (and more precisely the units which
+        make up the tasks) have a state which is managed by some backend, and
+        have individual and uncorrelated state transitions.  At that point, we
+        make the workload state dependent on the tasks states, and define::
+
+                 if any task  is  FAILED   :  workload.state = FAILED
+            else if any task  is  CANCELED :  workload.state = CANCELED
+            else if any task  is  RUNNING  :  workload.state = RUNNING
+            else if all tasks are DONE     :  workload.state = DONE
+            else                           :  workload.state = UNKNOWN
+
+        """
+
+        # atomic states are set elsewhere
+        if  self.state in [DESCRIBED, PLANNED, TRANSLATED, BOUND] :
+            return self.state
+
+        # final states are never left
+        if  self.state in [DONE, FAILED, CANCELED] :
+            return self.state
+        
+        # only DISPATCHED and RUNNING are left -- state depends on task states
+        task_states = []
+        for tid in self.tasks.keys () :
+            task = self.tasks[tid]
+            task_states.append (task.state)
+          # print 'ts: %s' % task.state
+
+        if FAILED in task_states :
+            self.state = FAILED
+
+        elif CANCELED in task_states :
+            self.state = CANCELED
+
+        elif RUNNING in task_states :
+            self.state = RUNNING
+
+        else :
+            self.state = DONE
+            for s in task_states :
+                if s != DONE :
+                    self.state = UNKNOWN
+
+      # print 'wl: %s' % self.state
+        return self.state
 
 
     # --------------------------------------------------------------------------

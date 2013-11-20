@@ -33,11 +33,11 @@ class OverlayManager (object) :
       - Total time required for its execution [from Planner];
       - total space required for its execution [from Planner]:
         . # of cores.
-    * Get information about compute unit (CU) [from WorkloadManager]:
+    * Get information about compute unit [from WorkloadManager]:
       - Time required;
       - Space required:
         . # of cores.
-      - Grouping with other CUs.
+      - Grouping with other Units.
     * describe pilots.
     * Schedule pilots on resources.
     * Provision pilots on resources [by means of Provisioner].

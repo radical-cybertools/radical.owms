@@ -21,7 +21,7 @@ class WorkloadManager (object) :
 
     FIXME: how are race conditions handled -- like, a workload is scheduled on
     an overlay, but before dispatching, a pilot in that overlay disappears?
-    I guess we should add the option to schedule a single CU, or reschedule
+    I guess we should add the option to schedule a single unit, or reschedule
     a complete workload -- but that collides with the state semantics of the
     workload.  Iterative scheduling needs to be implemented anyways though, if
     we want to get any meaningful feedback loop.  Easiest and cleanest is
@@ -37,7 +37,7 @@ class WorkloadManager (object) :
     def __init__ (self, inspector  = 'default', 
                         translator = 'default',
                         scheduler  = 'round_robin',
-                        dispatcher = 'default') :
+                        dispatcher = 'bigjob') :
         """
         Create a new workload manager instance.  
 
@@ -143,12 +143,11 @@ class WorkloadManager (object) :
         # make sure we can honor the requested scheduling mode
         if  bind_mode == EARLY : 
             if  overlay.state != TRANSLATED :
-                print overlay.state
                 raise ValueError ("overlay '%s' not in TRANSLATED state, cannot " \
                                   "do early binding" % str(overlay.id))
 
         elif bind_mode == LATE : 
-            if  overlay.state != SCHEDULED  and \
+            if  overlay.state != BOUND      and \
                 overlay.state != DISPATCHED :
                 raise ValueError ( "overlay '%s' neither scheduled nor " \
                                  + "dispateched, cannot do late binding" \
@@ -159,14 +158,14 @@ class WorkloadManager (object) :
         self._scheduler.schedule (workload, overlay)
 
         # mark workload as 'scheduled'
-        workload.state = SCHEDULED
+        workload.state = BOUND
 
 
     # --------------------------------------------------------------------------
     #
     def dispatch_workload (self, workload_id, overlay_id) :
         """
-        schedule the referenced workload, i.e. submit its CUs and DUs to the
+        schedule the referenced workload, i.e. submit its Units to the
         respective overlay elements.  The workload must have been scheduled
         before diapatching.
 
@@ -179,9 +178,8 @@ class WorkloadManager (object) :
 
         # make sure the workload is scheduled, so we can dispatch it.
         # we don't care about overlay state
-        if  workload.state != SCHEDULED :
-            print workload.state
-            raise ValueError ("workload '%s' not in SCHEDULED state" % workload.id)
+        if  workload.state != BOUND :
+            raise ValueError ("workload '%s' not in BOUND state" % workload.id)
 
         # hand over control over workload to the dispatcher plugin, so it can do
         # what it has to do.

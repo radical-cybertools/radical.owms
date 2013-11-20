@@ -37,10 +37,10 @@ class PLUGIN_CLASS (object) :
 
             t = workload.tasks[tid]
 
-            # we simply and stupidly translate one task into one cu description
-            t['cus'][tid] = dict()
-            t['cus'][tid]['description'] = t.description.as_dict ()
-            print 'workload translate: derive cu %-18s for %s' % (tid, t.id)
+            # we simply and stupidly translate one task into one unit description
+            t['units'][tid] = dict()
+            t['units'][tid]['description'] = t.description.as_dict ()
+            print 'workload translate: derive unit %-18s for %s' % (tid, t.id)
 
 
 

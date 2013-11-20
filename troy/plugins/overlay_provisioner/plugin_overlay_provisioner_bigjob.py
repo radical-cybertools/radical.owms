@@ -2,7 +2,6 @@
 import os
 import bigjob
 
-
 from   troy.constants import *
 
 
@@ -43,15 +42,15 @@ class PLUGIN_CLASS (object) :
             
             # FIXME: ceck state
             bj_manager   = bigjob.bigjob (coordination_url=os.environ['COORDINATION_URL'])
-            bj_pilot_url = bj_manager.start_pilot_job (pilot.resource)
+            bj_pilot_url = bj_manager.start_pilot_job (pilot._resource,
+                               working_directory='/home/merzky/agent')
 
-            # bj_manager   = 'bj://somewere.net/bj_maqnager_id_or_so'
-            # bj_pilot_url = 'bj://somewere.net/bj_id_or_someting_%s' % pilot.id
             _idx += 1
 
-            pilot._set_instance ([bj_pilot_url, bj_manager])
+            pilot._set_instance ('bigjob', [bj_pilot_url, bj_manager])
 
-            print 'overlay  provision: provision pilot  %s : %s ' % (pilot, pilot.instance)
+            print 'overlay  provision: provision pilot  %s : %s ' \
+                % (pilot, pilot._get_instance ('bigjob'))
 
 
 # ------------------------------------------------------------------------------

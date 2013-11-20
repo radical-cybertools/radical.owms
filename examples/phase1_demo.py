@@ -17,14 +17,15 @@ import troy
 #
 if __name__ == '__main__':
 
-    radicalists = ['Shantenu Jha', 'Andre Merzky', 'Ole Weidner',
-                   'Andre Luckow', 'Matteo Turilli', 'Melissa Romanus',
-                   'Ashley Zebrowski', 'Dinesh Ganapathi', 'Mark Santcroos',
+    radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner',
+                   'Andre Luckow',     'Matteo Turilli',     'Melissa Romanus',
+                   'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
                    'Antons Treikalis', 'Jeffery Rabinowitz', 'Patrick Gray',
                    'Vishal Shah']
 
     # Responsible for application workload
     workload_mgr = troy.WorkloadManager()
+
     # Responsible for managing the pilot overlay
     overlay_mgr = troy.OverlayManager()
 
@@ -36,11 +37,13 @@ if __name__ == '__main__':
 
     # Create a task for every radicalist
     for r in radicalists:
-        task_descr = troy.TaskDescription()
-        task_descr.tag   = "%s" % r
-        task_descr.exe   = '/bin/echo'
-        task_descr.args  = ['Hello World, ', r, '!']
+        task_descr            = troy.TaskDescription()
+        task_descr.tag        = "%s" % r
+        task_descr.executable = '/bin/echo'
+        task_descr.arguments  = ['Hello World, ', r, '!']
+
         task_id = workload.add_task(task_descr)
+
         # Tasks are uncoupled so no relationships are specified
 
     # Register the workload so we can pass it by ID
@@ -74,6 +77,14 @@ if __name__ == '__main__':
 
     # Of course nothing will fail due to TROY's magic robustness and
     # and we therefore just wait until its done!
-    while workload.state in [troy.COMPLETED, troy.FAILED]:
-        time.sleep(5)
+    while workload.state not in [troy.DONE, troy.FAILED]:
+        print "whats up, buddy? (workload state: %s)" % workload.state
+        time.sleep(1)
+
+    print "ok, buddy, lets see what you got (workload state: %s)" % workload.state
+
+    if workload.state == troy.DONE :
+        print "game over"
+    else :
+        print "game over -- play again?"
 
