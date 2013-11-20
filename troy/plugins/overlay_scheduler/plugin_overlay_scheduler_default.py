@@ -1,6 +1,7 @@
 
 
 from   troy.constants import *
+import troy
 
 
 # ------------------------------------------------------------------------------
@@ -36,7 +37,7 @@ class PLUGIN_CLASS (object) :
         for pid in overlay.pilots.keys() :
             pilot = overlay.pilots[pid]
             troy._logger.info ('overlay  schedule : schedule pilot %s to localhost' % pilot.id)
-            pilot._bind ('ssh://localhost')
+            pilot._bind ('fork://localhost')
 
 
 # ------------------------------------------------------------------------------

@@ -3,6 +3,7 @@ import os
 import bigjob
 
 from   troy.constants import *
+import troy
 
 
 # ------------------------------------------------------------------------------
@@ -55,6 +56,16 @@ class PLUGIN_CLASS (object) :
 
             troy._logger.info ('overlay  provision: provision pilot  %s : %s ' \
                             % (pilot, pilot._get_instance ('bigjob')))
+
+
+    # --------------------------------------------------------------------------
+    #
+    def get_pilot_info (self, pilot) :
+
+        # find out what we can about the pilot...
+        bj_pilot_url, bj_manager = pilot._get_instance ('bigjob')
+
+        return dict()
 
 
     # --------------------------------------------------------------------------

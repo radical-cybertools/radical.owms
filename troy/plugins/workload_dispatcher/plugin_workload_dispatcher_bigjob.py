@@ -3,6 +3,7 @@
 import bigjob
 
 from   troy.constants import *
+import troy
 
 
 # ------------------------------------------------------------------------------
@@ -81,10 +82,6 @@ class PLUGIN_CLASS (object) :
 
         # hahaha python switch statement hahahahaha
         sj_state = sj.get_state ()
-
-      # print 'sj: %s' % sj
-      # print 'sj: %s' % sj.get_url ()
-      # print 'sj: %s' % sj.get_state ()
 
         return {"New"    : DESCRIBED, 
                 "Running": RUNNING, 

@@ -27,9 +27,7 @@ if __name__ == "__main__":
         # for each config, set up the test config singleton and run the tests
         tc = tutc.TestConfig (config)
 
-        print tc
-
-        testing.run ()
+        sys.exit (testing.run ())
 
 
 # ------------------------------------------------------------------------------

@@ -3,6 +3,7 @@
 import threading
 
 from   troy.constants import *
+import troy
 
 
 # ------------------------------------------------------------------------------

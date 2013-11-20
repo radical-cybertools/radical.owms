@@ -8,7 +8,8 @@ __license__   = "MIT"
 import radical.utils   as ru
 import saga.attributes as sa
 
-from troy.constants import *
+from   troy.constants import *
+import troy
 
 
 """
@@ -39,13 +40,14 @@ class Pilot (sa.Attributes) :
         self._attributes_camelcasing (True)
 
         # register attributes
-        self._attributes_register   (ID,           pid,             sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   (STATE,        DESCRIBED,       sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
-        self._attributes_register   (DESCRIPTION,  descr,           sa.ANY,    sa.SCALAR, sa.READONLY)
+        self._attributes_register   (ID,           pid,         sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   (STATE,        DESCRIBED,   sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
+        self._attributes_register   (DESCRIPTION,  descr,       sa.ANY,    sa.SCALAR, sa.READONLY)
 
         # inspection attributes needed by scheduler
-        self._attributes_register   ('ServiceURL',              None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('NumberOfProcesses',       None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('Size',                    None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('Resource',                None, sa.STRING, sa.SCALAR, sa.READONLY)
+
         self._attributes_register   ('ProcessesPerNode',        None, sa.INT   , sa.SCALAR, sa.READONLY)
         self._attributes_register   ('WorkingDirectory',        None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   ('Project',                 None, sa.STRING, sa.SCALAR, sa.READONLY)
@@ -63,7 +65,7 @@ class Pilot (sa.Attributes) :
         self._instance_type = None
         self._pilot_info    = None
 
-        self._attributes_set_global_getter (self.get_attribute)
+        self._attributes_set_global_getter (self._get_attribute)
 
 
     # --------------------------------------------------------------------------
@@ -83,14 +85,10 @@ class Pilot (sa.Attributes) :
         cancel the pilot
         """
 
-        if  self.state in [COMPLETED, FAILED, CANCELED] :
-            return
-
-        if  self.state not in [PROVISIONED] :
-            raise RuntimeError ("Cannot cancel pilot in '%s' state" % self.state)
-
-        self._provisioner.pilot_cancel (self)
-        self.state = CANCELED
+        if  self.state in [PROVISIONED] :
+            troy._logger.warning ('cancel pilot %s' % self.id)
+            self._provisioner.pilot_cancel (self)
+            self.state = CANCELED
 
 
     # --------------------------------------------------------------------------
@@ -136,10 +134,28 @@ class Pilot (sa.Attributes) :
         This method is invoked whenever some attribute is asked for, to give us 
         a chance to update the respective attribute value.
         """
-        print "getting attribute %s" % key
+
+        if not key in ['resource',              
+                       'size',       
+                       'processes_per_node',        
+                       'working_directory',        
+                       'project',                 
+                       'queue',                   
+                       'wall_time_limit',           
+                       'affinity_datacenter_label', 
+                       'affinity_machine_label'   ] :
+
+            # this is not a key we know about at this stage -- so simply 
+            # return the currently set value.  Use UP-flow so that the 
+            # attrib interface is not calling getters (duh!).
+            return self._attributes_i_get (key, flow='UP')
+
+        if  key == 'resource' : return self._resource
+        if  key == 'instance' : return self._instance
 
         # check if the info were available via the original description
-        if  key in self.description :
+        if  self.description and \
+            key in self.description :
             return self.description[key]
 
 
@@ -159,16 +175,11 @@ class Pilot (sa.Attributes) :
 
             # otherwise simply fetch all info(again?)
             # FIXME: need convention about key names / casing
-            self._pilot_info = self._provisioner.get_pilot_info ()
+            self._pilot_info = self._provisioner.get_pilot_info (self)
 
             if  key in self._pilot_info :
                 # wohoo!
                 return self._pilot_info[key]
-
-            # this is not a key we know about at this stage -- so simply 
-            # return the currently set value.  Use UP-flow so that the 
-            # attrib interface is not calling getters (duh!).
-            return self._attributes_i_get (key, flow='UP')
 
 
 

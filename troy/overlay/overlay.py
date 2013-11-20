@@ -10,6 +10,7 @@ import saga.attributes      as sa
 import pilot                as tp
 
 from   troy.constants   import *
+import troy
 
 """
 Represent a pilot-based overlay that is managed by TROY.
@@ -82,6 +83,9 @@ class Overlay (sa.Attributes) :
         additional id parameter, to reconnect to the thus identified overlay
         instance.
         """
+
+        if  isinstance (descr, dict) :
+            descr = troy.OverlayDescription (descr)
         
         ol_id = ru.generate_id ('ol.')
 
