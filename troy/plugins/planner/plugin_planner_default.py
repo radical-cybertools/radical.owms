@@ -7,8 +7,8 @@ PLUGIN_DESCRIPTION = {
     'description' : 'This is the default planner.'
   }
 
-import troy.overlay       as to
 from   troy.constants import *
+import troy
 
 # ------------------------------------------------------------------------------
 #
@@ -35,7 +35,7 @@ class PLUGIN_CLASS(object):
     #
     def derive_overlay(self, workload):
 
-        ovl_descr = to.OverlayDescription (
+        ovl_descr = troy.OverlayDescription (
             {
                 # Ask for as many pilots as tasks
                 'cores' : len(workload.tasks), 
@@ -46,7 +46,7 @@ class PLUGIN_CLASS(object):
         print "planner  derive ol: derive overlay for workload: %s" % ovl_descr
 
         # Create an overlay
-        return to.Overlay(ovl_descr)
+        return troy.Overlay(ovl_descr)
 
 
 # ------------------------------------------------------------------------------

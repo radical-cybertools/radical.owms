@@ -8,7 +8,6 @@ import saga
 class Session (saga.Session) : pass
 class Context (saga.Context) : pass
 
-
 # ------------------------------------------------------------------------------
 #
 # the Troy API layer
@@ -33,6 +32,7 @@ from workload   import WorkloadManager
 from overlay    import Pilot            # should be private
 from overlay    import PilotDescription # should be private
 from overlay    import Overlay
+from overlay    import OverlayDescription
 from overlay    import OverlayManager
 
 

@@ -36,25 +36,33 @@ if __name__ == '__main__':
 
     # Create a task for every radicalist
     for r in radicalists:
-        task_desc = troy.TaskDescription()
-        task_desc.exe = '/bin/echo'
-        task_desc.args = ['Hello World, ', r, '!']
+        task_desc            = troy.TaskDescription()
+        task_desc.tag        = 'tag.' + r
+        task_desc.executable = '/bin/echo'
+        task_desc.arguments  = ['Hello World, ', r, '!']
+
         task_id = workload.add_task(task_desc)
         # Tasks are uncoupled so no relationships are specified
 
-    # Initial submission of application workload to TROY
-    overlay_id = planner.submit(workload)
+    # Register the workload so we can pass it by ID
+    troy.WorkloadManager.register_workload(workload)
 
-    # Translate 1 workload into N ComputeUnits and N DataUnits
-    workload_mgr.translate_workload(workload.id, overlay_id)
+    # combine or split tasks in the workload
+    planner.expand_workload(workload.id)
+
+    # Initial description of the overlay based on the workload
+    overlay_id = planner.derive_overlay(workload.id)
 
     # Translate 1 Overlay description into N Pilot Descriptions
     overlay_mgr.translate_overlay(overlay_id)
 
+    # Translate 1 workload into N ComputeUnits and N DataUnits
+    workload_mgr.translate_workload(workload.id, overlay_id)
+
     # Schedule the workload onto the overlay
     # Early binding assumes the overlay is not yet scheduled.
-    workload_mgr.schedule_workload(workload.id, overlay_id,
-                                   binding=troy.EARLY)
+    workload_mgr.bind_workload(workload.id, overlay_id,
+                               bind_mode=troy.EARLY)
 
     # Decide which resources to use for constructing the overlay
     overlay_mgr.schedule_overlay(overlay_id)

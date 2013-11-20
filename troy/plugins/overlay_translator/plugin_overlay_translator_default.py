@@ -1,7 +1,7 @@
 
 
 from   troy.constants import *
-import troy.overlay       as to
+import troy
 
 
 # ------------------------------------------------------------------------------
@@ -35,8 +35,8 @@ class PLUGIN_CLASS (object) :
 
         # we simply use one pilot for te whole thing...
         for i in range (0, overlay.description.cores) :
-            p_descr = to.PilotDescription ({'size' : 1})
-            pilot   = to.Pilot (p_descr)
+            p_descr = troy.PilotDescription ({'size' : 1})
+            pilot   = troy.Pilot (p_descr)
             print "overlay  translate: define   pilot %3d: %s" % (i, pilot)
             overlay._add_pilot (pilot)
 

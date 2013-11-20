@@ -28,6 +28,8 @@ wl.add_task     ([td1, td2])
 wl.add_relation (rel)
 wl._dump ()
 
+troy.WorkloadManager.register_workload(wl)
+
 # # create overlay
 # pd1 = troy.PilotDescription ({troy.RESOURCE : 'local',
 #                               troy.SLOTS    : '1'})
@@ -42,9 +44,9 @@ wl._dump ()
 
 # run workload
 wlm = troy.WorkloadManager ()
-wlm.translate_workload (wl)             # DESCRIBED   -> TRANSLATED
-wlm.schedule_workload  (wl, None)       # TRANSLATED  -> SCHEDULED
-wlm.dispatch_workload  (wl, None)       # SCHEDULED   -> DISPATCHED
+wlm.translate_workload (wl.id)             # DESCRIBED   -> TRANSLATED
+wlm.bind_workload      (wl.id, None)       # TRANSLATED  -> BOUND
+wlm.dispatch_workload  (wl.id, None)       # SCHEDULED   -> DISPATCHED
 
 wl.wait ([troy.COMPLETED, troy.FAILED]) #  DISPATCHED -> COMPLETED | FAILED
 wl._dump ()

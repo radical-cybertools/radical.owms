@@ -90,6 +90,12 @@ class OverlayManager (object) :
         We don't care about locking at this point -- so we simply release the
         overlay immediately...
         """
+        if  not overlay_id :
+            return None
+
+        if  not overlay_id.startswith ('ol.') :
+            raise ValueError ("'%s' does not represent a overlay" % overlay_id)
+
         ol = ru.Registry.acquire (overlay_id, ru.READONLY)
         ru.Registry.release (overlay_id)
 

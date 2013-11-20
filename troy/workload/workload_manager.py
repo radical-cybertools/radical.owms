@@ -76,6 +76,9 @@ class WorkloadManager (object) :
         We don't care about locking at this point -- so we simply release the
         workload immediately...
         """
+        if  not workload_id :
+            return None
+
         if  not workload_id.startswith ('wl.') :
             raise ValueError ("'%s' does not represent a workload" % workload_id)
 
@@ -114,7 +117,7 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def bind_workload (self, workload_id, overlay_id=None, bind_mode=None) :
+    def bind_workload (self, workload_id, overlay_id, bind_mode=None) :
         """
         bind (schedule) the referenced workload, i.e. assign its components to
         specific overlay elements.
@@ -135,6 +138,9 @@ class WorkloadManager (object) :
 
         workload = self.get_workload (workload_id)
         overlay  = olm.OverlayManager.get_overlay (overlay_id)
+
+        if  not overlay :
+            raise ValueError ("binding needs a valid overlay")
 
         # make sure the workload is translated, so that we can bind it
         if  workload.state != TRANSLATED :
