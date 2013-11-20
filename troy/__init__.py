@@ -16,7 +16,6 @@ _logger = ru.logger.getLogger ('troy')
 #
 # the Troy API layer
 #
-#from api        import Troy
 from constants  import *
 
 

@@ -42,6 +42,17 @@ class Pilot (sa.Attributes) :
         self._attributes_register   (ID,           pid,             sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   (STATE,        DESCRIBED,       sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
         self._attributes_register   (DESCRIPTION,  descr,           sa.ANY,    sa.SCALAR, sa.READONLY)
+
+        # inspection attributes needed by scheduler
+        self._attributes_register   ('ServiceURL',              None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('NumberOfProcesses',       None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('ProcessesPerNode',        None, sa.INT   , sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('WorkingDirectory',        None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('Project',                 None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('Queue',                   None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('WallTimeLimit',           None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('AffinityDatacenterLabel', None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('AffinityMachineLabel',    None, sa.STRING, sa.SCALAR, sa.READONLY)
          
         # FIXME: complete attribute list, dig attributes from description,
         # perform sanity checks
@@ -50,8 +61,9 @@ class Pilot (sa.Attributes) :
         self._provisioner   = None
         self._instance      = None
         self._instance_type = None
+        self._pilot_info    = None
 
-        self._created       = True
+        self._attributes_set_global_getter (self.get_attribute)
 
 
     # --------------------------------------------------------------------------
@@ -115,6 +127,49 @@ class Pilot (sa.Attributes) :
                              % (self._instance_type, instance_type))
 
         return self._instance
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _get_attribute (self, key) :
+        """
+        This method is invoked whenever some attribute is asked for, to give us 
+        a chance to update the respective attribute value.
+        """
+        print "getting attribute %s" % key
+
+        # check if the info were available via the original description
+        if  key in self.description :
+            return self.description[key]
+
+
+        # else we need to ask the pilot provisioner plugin -- but that is 
+        # only available/usable after dispatching
+        if  self.state in [PROVISIONED, COMPLETED, CANCELED, FAILED] :
+
+            if  not self._provisioner :
+                raise RuntimeError ("pilot is in inconsistent state (no provisioner known)")
+
+            # if we already got the requested information, return them
+            # FIXME: this assumes that data are updated only once, ever...
+            if  self._pilot_info  and \
+                key in self._pilot_info :
+                    return self._pilot_info[key]
+
+
+            # otherwise simply fetch all info(again?)
+            # FIXME: need convention about key names / casing
+            self._pilot_info = self._provisioner.get_pilot_info ()
+
+            if  key in self._pilot_info :
+                # wohoo!
+                return self._pilot_info[key]
+
+            # this is not a key we know about at this stage -- so simply 
+            # return the currently set value.  Use UP-flow so that the 
+            # attrib interface is not calling getters (duh!).
+            return self._attributes_i_get (key, flow='UP')
+
 
 
     # --------------------------------------------------------------------------
