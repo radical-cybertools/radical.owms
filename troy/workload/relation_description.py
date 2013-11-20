@@ -22,7 +22,7 @@ class RelationDescription (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, dictionary={}) :
+    def __init__ (self, descr={}) :
 
 
         # set attribute interface properties
@@ -32,7 +32,7 @@ class RelationDescription (sa.Attributes) :
         # register attributes
         # FIXME
 
-        self.update (dictionary)
+        sa.Attributes.__init__ (self, descr)
 
 
     # --------------------------------------------------------------------------

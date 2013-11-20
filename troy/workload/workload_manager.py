@@ -191,34 +191,6 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def dispatch_workload (self, workload_id, overlay_id) :
-        """
-        schedule the referenced workload, i.e. submit its Units to the
-        respective overlay elements.  The workload must have been scheduled
-        before diapatching.
-
-        See the documentation of the :class:`Workload` class on how exactly the
-        scheduler changes and/or annotates the given workload.
-        """
-
-        workload = self.get_workload (workload_id)
-        overlay  = olm.OverlayManager.get_overlay (overlay_id)
-
-        # make sure the workload is scheduled, so we can dispatch it.
-        # we don't care about overlay state
-        if  workload.state != BOUND :
-            raise ValueError ("workload '%s' not in BOUND state" % workload.id)
-
-        # hand over control over workload to the dispatcher plugin, so it can do
-        # what it has to do.
-        self._dispatcher.dispatch (workload, overlay)
-
-        # mark workload as 'scheduled'
-        workload.state = DISPATCHED
-
-
-    # --------------------------------------------------------------------------
-    #
     def cancel_workload (self, workload_id) :
         """
         cancel the referenced workload, i.e. all its tasks
