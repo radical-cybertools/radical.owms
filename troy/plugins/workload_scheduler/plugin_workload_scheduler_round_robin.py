@@ -35,7 +35,7 @@ class PLUGIN_CLASS (object) :
 
         global _idx
 
-        if  not len(overlay.pilots) :
+        if  not len(overlay.pilots.keys()) :
             raise ValueError ('no pilots on overlay')
 
         # schedule to first 'next' pilot
@@ -45,10 +45,12 @@ class PLUGIN_CLASS (object) :
 
             for unit_id in t['units'] :
 
-                if  _idx > len(overlay.pilots) :
+                if  _idx > len(overlay.pilots.keys()) :
                     _idx = 0
 
-                pilot = overlay.pilots[_idx]
+                target_pid = overlay.pilots.keys()[_idx]
+
+                pilot = overlay.pilots[target_pid]
                 print "workload scedule  : assign unit %-18s to %s" % (unit_id, pilot.id)
                 t['units'][unit_id]['pilot'] = pilot
 

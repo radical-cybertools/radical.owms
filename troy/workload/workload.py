@@ -112,6 +112,37 @@ class Workload (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
+    def __del__ (self) :
+        """
+        Destructor -- cancels the workload
+        """
+
+        self.cancel ()
+
+
+    # --------------------------------------------------------------------------
+    #
+    def cancel (self) :
+        """
+        cancel all tasks
+        """
+
+        # don't touch final states
+        if  self.state in [CANCELED, DONE, FAILED] :
+            return
+
+        # non-final -- cancel all tasks
+        for tid in self.tasks.keys () :
+            task = self.tasks[tid]
+            task.cancel ()
+
+        # and update state
+        self.state = CANCELED
+
+
+
+    # --------------------------------------------------------------------------
+    #
     def add_task (self, descr) :
         """
         Add a task (or a list of tasks) to the workload.

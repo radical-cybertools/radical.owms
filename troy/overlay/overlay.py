@@ -94,7 +94,29 @@ class Overlay (sa.Attributes) :
         self._attributes_register    (STATE,       DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
         self._attributes_register    ('error',     None,      sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register    (DESCRIPTION, descr,     sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register    ('pilots',    list(),    sa.ANY,    sa.VECTOR, sa.READONLY)
+        self._attributes_register    ('pilots',    dict(),    sa.ANY,    sa.ANY,    sa.READONLY)
+
+
+    # --------------------------------------------------------------------------
+    #
+    def __del__ (self) :
+        """
+        Destructor -- cancels the overlay
+        """
+
+        self.cancel ()
+
+
+    # --------------------------------------------------------------------------
+    #
+    def cancel (self) :
+        """
+        cancel all pilots
+        """
+
+        for pid in self.pilots.keys () :
+            pilot = self.pilots[pid]
+            pilot.cancel ()
 
 
     # --------------------------------------------------------------------------
@@ -112,7 +134,7 @@ class Overlay (sa.Attributes) :
         if  not isinstance (p, tp.Pilot) :
             raise TypeError ("expected Pilot, got %s" % type(p))
 
-        self.pilots.append (p)
+        self.pilots[p.id] = p
 
         return p.id
 

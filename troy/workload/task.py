@@ -69,6 +69,30 @@ class Task (sa.Attributes) :
 
         self._attributes_set_getter (STATE, self.get_state)
 
+
+    # --------------------------------------------------------------------------
+    #
+    def __del__ (self) :
+        """
+        Destructor -- cancels the task
+        """
+
+        self.cancel ()
+
+
+    # --------------------------------------------------------------------------
+    #
+    def cancel (self) :
+        """
+        cancel all units
+        """
+
+        for uid in self.units.keys () :
+            unit = self.units[uid]
+            unit['dispatcher'].unit_cancel (unit['instance'])
+            self.state = CANCELED
+
+
     # --------------------------------------------------------------------------
     #
     def get_state (self) :
@@ -114,7 +138,7 @@ class Task (sa.Attributes) :
         unit_states = []
         for tid in self.units.keys () :
             unit       = self.units[tid]
-            unit_state = unit['dispatcher'].get_unit_state (unit['instance'])
+            unit_state = unit['dispatcher'].unit_get_state (unit['instance'])
             unit_states.append (unit_state)
           # print 'us: %s' % unit_state
 

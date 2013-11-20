@@ -37,9 +37,13 @@ class PLUGIN_CLASS (object) :
 
             t = workload.tasks[tid]
 
+            if  not overlay.pilots.keys() :
+                raise RuntimeError ('no pilots in overlay')
+
+            target_pid = overlay.pilots.keys()[0]
             for unit_id in t['units'] :
-                print "workload schedule : assign unit %-18s to %s" % (unit_id, overlay.pilots[0].id)
-                t['units'][unit_id]['pilot'] = overlay.pilots[0]
+                print "workload schedule : assign unit %-18s to %s" % (unit_id, overlay.pilots[target_pid].id)
+                t['units'][unit_id]['pilot'] = overlay.pilots[target_pid]
         
 
 

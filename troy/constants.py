@@ -71,7 +71,7 @@ UNKNOWN      = 'Unknown'     # what?
 # pilot states
 #
 DESCRIBED    = 'Described'   # i.e. New
-SCHEDULED    = 'Scheduled'   # assigned to a resource
+BOUND        = 'Bound'       # assigned to a resource
 PROVISIONED  = 'Provisioned' # submitted to / running on a resource
 COMPLETED    = 'Completed'   # finished as planned
 CANCELED     = 'Canceled'    # finished as requested

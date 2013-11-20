@@ -36,7 +36,11 @@ class PLUGIN_CLASS (object) :
     def provision (self, overlay) :
 
         # we simply assign all pilots to localhost
-        for pilot in overlay.pilots :
+        for pid in overlay.pilots.keys() :
+            pilot = overlay.pilots[pid]
+ 
+            if  pilot.state not in [BOUND] :
+                raise RuntimeError ("Can only provision pilots in BOUND state (%s)" % pilot.state)
 
             global _idx
             
@@ -47,10 +51,18 @@ class PLUGIN_CLASS (object) :
 
             _idx += 1
 
-            pilot._set_instance ('bigjob', [bj_pilot_url, bj_manager])
+            pilot._set_instance ('bigjob', self, [bj_pilot_url, bj_manager])
 
             print 'overlay  provision: provision pilot  %s : %s ' \
                 % (pilot, pilot._get_instance ('bigjob'))
+
+
+    # --------------------------------------------------------------------------
+    #
+    def pilot_cancel (self, pilot) :
+
+        bj_pilot_url, bj_manager = pilot._get_instance ('bigjob')
+        bj_manager.cancel ()
 
 
 # ------------------------------------------------------------------------------

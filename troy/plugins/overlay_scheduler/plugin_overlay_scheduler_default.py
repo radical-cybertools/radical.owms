@@ -33,8 +33,9 @@ class PLUGIN_CLASS (object) :
     def schedule (self, overlay) :
 
         # we simply assign all pilots to localhost
-        for pilot in overlay.pilots :
-            print 'overlay  schedule : schedule pilot %s to localost' % pilot
+        for pid in overlay.pilots.keys() :
+            pilot = overlay.pilots[pid]
+            print 'overlay  schedule : schedule pilot %s to localost' % pilot.id
             pilot._bind ('ssh://localhost')
 
 

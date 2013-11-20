@@ -22,6 +22,7 @@ if __name__ == '__main__':
                    'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
                    'Antons Treikalis', 'Jeffery Rabinowitz', 'Patrick Gray',
                    'Vishal Shah']
+    radicalists = ['Tom']
 
     # Responsible for application workload
     workload_mgr = troy.WorkloadManager()
@@ -87,4 +88,7 @@ if __name__ == '__main__':
         print "game over"
     else :
         print "game over -- play again?"
+
+    workload_mgr.cancel_workload (workload.id)   # same as workload.cancel ()
+    overlay_mgr .cancel_overlay  (overlay_id)
 

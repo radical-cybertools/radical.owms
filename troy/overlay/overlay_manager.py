@@ -170,5 +170,16 @@ class OverlayManager (object) :
         overlay.state = PROVISIONED
 
 
+    # --------------------------------------------------------------------------
+    #
+    def cancel_overlay (self, overlay_id) :
+        """
+        cancel the referenced overlay, i.e. all its pilots
+        """
+
+        overlay = self.get_overlay (overlay_id)
+        overlay.cancel ()
+
+
 # -----------------------------------------------------------------------------
 

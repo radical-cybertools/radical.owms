@@ -47,26 +47,61 @@ class Pilot (sa.Attributes) :
         # perform sanity checks
 
         self._resource      = None
+        self._provisioner   = None
         self._instance      = None
         self._instance_type = None
 
 
     # --------------------------------------------------------------------------
     #
-    def _bind (self, resource) :
+    def __del__ (self) :
+        """
+        Destructor -- cancels the pilot
+        """
 
-        self._resource = resource
+        self.cancel ()
 
 
     # --------------------------------------------------------------------------
     #
-    def _set_instance (self, instance_type, instance) :
+    def cancel (self) :
+        """
+        cancel the pilot
+        """
 
-        if  self._instance_type :
-            raise RuntimeError ("cannot set instance for pilot (is %s)" % self.instance_type)
+        if  self.state in [COMPLETED, FAILED, CANCELED] :
+            return
 
+        if  self.state not in [PROVISIONED] :
+            raise RuntimeError ("Cannot cancel pilot in '%s' state" % self.state)
+
+        self._provisioner.pilot_cancel (self)
+        self.state = CANCELED
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _bind (self, resource) :
+
+        if  self.state not in [DESCRIBED] :
+            raise RuntimeError ("Can only bind pilots in DESCRIBED state (%s)" % self.state)
+            
+        self._resource = resource
+        self.state     = BOUND
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _set_instance (self, instance_type, provisioner, instance) :
+
+        if  self.state not in [BOUND] :
+            raise RuntimeError ("Can only provision pilots in BOUND state (%s)" % self.state)
+
+        self._provisioner   = provisioner
         self._instance_type = instance_type
         self._instance      = instance
+
+        self.state          = PROVISIONED
 
 
     # --------------------------------------------------------------------------
