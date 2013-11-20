@@ -21,7 +21,7 @@ def test_expand_workload():
 
     wl = troy.Workload()
     planner = troy.Planner()
-    pprint.pprint(wl_dict)
+  # pprint.pprint(wl_dict)
 
     if not 'tasks' in wl_dict:
         assert False, "no tasks in workload dict"

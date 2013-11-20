@@ -26,7 +26,7 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        print "create the default overlay_translator plugin"
+        troy._logger.info ("create the default overlay_translator plugin")
 
 
     # --------------------------------------------------------------------------
@@ -37,7 +37,7 @@ class PLUGIN_CLASS (object) :
         for i in range (0, overlay.description.cores) :
             p_descr = troy.PilotDescription ({'size' : 1})
             pilot   = troy.Pilot (p_descr)
-            print "overlay  translate: define   pilot %3d: %s" % (i, pilot)
+            troy._logger.info ("overlay  translate: define   pilot %3d: %s" % (i, pilot))
             overlay._add_pilot (pilot)
 
 

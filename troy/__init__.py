@@ -8,6 +8,10 @@ import saga
 class Session (saga.Session) : pass
 class Context (saga.Context) : pass
 
+
+import radical.utils as ru
+_logger = ru.logger.getLogger ('troy')
+
 # ------------------------------------------------------------------------------
 #
 # the Troy API layer

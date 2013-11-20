@@ -26,7 +26,7 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        print "create the bigjob workload_dispatcher plugin"
+        troy._logger.info ("create the bigjob workload_dispatcher plugin")
 
 
     # --------------------------------------------------------------------------
@@ -41,8 +41,8 @@ class PLUGIN_CLASS (object) :
                 unit       = t['units'][unit_id]
                 unit_descr = unit['description']
                 pilot      = unit['pilot']
-                print 'workload dispatch : dispatch %-18s to %s' \
-                    % (unit_id, pilot._get_instance('bigjob'))
+                troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
+                                % (unit_id, pilot._get_instance('bigjob')))
                 
                 # FIXME: sanity check for pilot type
                 bj_pilot_url, bj_manager = pilot._get_instance ('bigjob')

@@ -26,14 +26,14 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        print "create the default workload_inspector plugin"
+        troy._logger.info ("create the default workload_inspector plugin")
 
 
     # --------------------------------------------------------------------------
     #
     def inspect (self, workload) :
 
-        print 'workload inspect : inspect workload ;)'
+        troy._logger.info ('workload inspect : inspect workload ;)')
         return workload
 
 

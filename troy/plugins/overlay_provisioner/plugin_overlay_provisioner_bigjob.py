@@ -28,7 +28,7 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        print "create the bigjob overlay_provisioner plugin"
+        troy._logger.info ("create the bigjob overlay_provisioner plugin")
 
 
     # --------------------------------------------------------------------------
@@ -53,8 +53,8 @@ class PLUGIN_CLASS (object) :
 
             pilot._set_instance ('bigjob', self, [bj_pilot_url, bj_manager])
 
-            print 'overlay  provision: provision pilot  %s : %s ' \
-                % (pilot, pilot._get_instance ('bigjob'))
+            troy._logger.info ('overlay  provision: provision pilot  %s : %s ' \
+                            % (pilot, pilot._get_instance ('bigjob')))
 
 
     # --------------------------------------------------------------------------

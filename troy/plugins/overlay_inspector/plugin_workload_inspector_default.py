@@ -26,7 +26,7 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        print "create the default overlay_inspector plugin"
+        troy._logger.info ("create the default overlay_inspector plugin")
 
 
     # --------------------------------------------------------------------------

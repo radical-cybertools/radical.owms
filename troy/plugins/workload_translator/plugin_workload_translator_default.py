@@ -26,7 +26,7 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        print "create the default workload_translator plugin"
+        troy._logger.info ("create the default workload_translator plugin")
 
 
     # --------------------------------------------------------------------------
@@ -40,7 +40,7 @@ class PLUGIN_CLASS (object) :
             # we simply and stupidly translate one task into one unit description
             t['units'][tid] = dict()
             t['units'][tid]['description'] = t.description.as_dict ()
-            print 'workload translate: derive unit %-18s for %s' % (tid, t.id)
+            troy._logger.info ('workload translate: derive unit %-18s for %s' % (tid, t.id))
 
 
 

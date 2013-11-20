@@ -26,7 +26,7 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        print "create the round-robin workload_scheduler plugin"
+        troy._logger.info ("create the round-robin workload_scheduler plugin")
 
 
     # --------------------------------------------------------------------------
@@ -51,7 +51,7 @@ class PLUGIN_CLASS (object) :
                 target_pid = overlay.pilots.keys()[_idx]
 
                 pilot = overlay.pilots[target_pid]
-                print "workload scedule  : assign unit %-18s to %s" % (unit_id, pilot.id)
+                troy._logger.info ("workload schedule : assign unit %-18s to %s" % (unit_id, pilot.id))
                 t['units'][unit_id]['pilot'] = pilot
 
                 _idx += 1

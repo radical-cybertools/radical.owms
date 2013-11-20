@@ -51,6 +51,8 @@ class Pilot (sa.Attributes) :
         self._instance      = None
         self._instance_type = None
 
+        self._created       = True
+
 
     # --------------------------------------------------------------------------
     #

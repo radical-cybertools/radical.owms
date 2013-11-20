@@ -26,8 +26,8 @@ def test_overlay_create () :
 
     for pilot_dict in ol_dict['pilots'] :
         pilot_description = troy.PilotDescription (pilot_dict)
-        pilot             = troy.Pilot (pilot_description, None)
+        pilot             = troy.Pilot (pilot_description)
         ol._add_pilot (pilot)
 
-    ol._dump ()
+  # ol._dump ()
 

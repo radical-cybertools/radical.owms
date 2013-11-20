@@ -24,7 +24,7 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        print "create the default workload_dispatcher plugin"
+        troy._logger.info ("create the default workload_dispatcher plugin")
 
 
     # --------------------------------------------------------------------------
@@ -38,7 +38,7 @@ class PLUGIN_CLASS (object) :
             for unit_id in t['units'] :
                 unit_descr = t['units'][unit_id]['description']
                 pilot      = t['units'][unit_id]['pilot']
-                print 'workload dispatch : dispatch %-18s to %s' % (unit_id, pilot.instance)
+                troy._logger.info ('workload dispatch : dispatch %-23s to %s' % (unit_id, pilot.instance))
 
 
 # ------------------------------------------------------------------------------
