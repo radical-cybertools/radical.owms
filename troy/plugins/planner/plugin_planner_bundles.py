@@ -7,8 +7,8 @@ PLUGIN_DESCRIPTION = {
     'description' : 'This is the bundles planner.'
   }
 
-import troy.overlay       as to
 from   troy.constants import *
+import troy
 from bundle import BundleManager
 
 # ------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ class PLUGIN_CLASS(object):
     #
     def derive_overlay(self, workload):
 
-        ovl_descr = to.OverlayDescription (
+        ovl_descr = troy.OverlayDescription (
             {
                 # Ask for as many pilots as tasks
                 'cores' : len(workload.tasks), 
@@ -84,7 +84,8 @@ class PLUGIN_CLASS(object):
         self.check_resource_availability(ovl_descr)
 
         # Create an overlay
-        return to.Overlay(ovl_descr)
+        return troy.Overlay(ovl_descr)
+
 
 
 # ------------------------------------------------------------------------------
