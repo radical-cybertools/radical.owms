@@ -46,7 +46,7 @@ if sys.hexversion < 0x02050000:
 class our_install_data(install_data):
 
     def finalize_options(self): 
-        self.set_undefined_options('install',
+        self.set_undefined_options ('install',
                                    ('install_lib', 'install_dir'))
         install_data.finalize_options(self)
 
@@ -69,21 +69,20 @@ class our_sdist(sdist):
 
 
 class our_test(Command):
-    user_options = []
 
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
+  # def initialize_options (self):
+  #     pass
+  #
+  # def finalize_options (self):
+  #     pass
 
     def run(self):
         import sys
         import subprocess
         testdir = "%s/tests/" % os.path.dirname(os.path.realpath(__file__))
-        errno = subprocess.call([sys.executable, '%s/run_tests.py' % testdir,
-                                '--config=%s/configs/basetests.cfg' % testdir])
-        raise SystemExit(errno)
+        retval  = subprocess.call([sys.executable, '%s/run_tests.py'          % testdir,
+                                                   '%s/configs/basetests.cfg' % testdir])
+        raise SystemExit(retval)
 
 
 setup_args = {
@@ -147,11 +146,20 @@ setup_args = {
     'data_files': [("troy", [])],
     'cmdclass': {
         'install_data': our_install_data,
-        'sdist': our_sdist,
-        'test': our_test
+        'sdist':        our_sdist,
+        'test':         our_test
     },
-    'install_requires': ['setuptools', 'saga-python', 'radical.utils', 'nose', 'bigjob'],
-    'tests_require':    ['setuptools', 'nose']
+    'install_requires': ['setuptools', 
+                         'saga-python>=1.0beta',
+                         'radical.utils>=1.0beta', 
+                         'bigjob>=1.0beta',
+                         'nose'], 
+    'tests_require':    ['setuptools', 'nose'],
+    'dependency_links':
+        ['http://github.com/saga-project/saga-python/tarball/devel#egg=saga-python-1.0beta',
+         'http://github.com/saga-project/radical.utils/tarball/master#egg=radical.utils-1.0beta',
+         'http://github.com/saga-project/bigjob/tarball/develop#egg=bigjob-1.0beta',
+        ],
 }
 
 setup(**setup_args)
