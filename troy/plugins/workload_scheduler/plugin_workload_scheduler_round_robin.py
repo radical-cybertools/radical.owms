@@ -1,13 +1,18 @@
 
 
+from   troy.constants import *
+
+
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
+    'type'        : 'workload_scheduler', 
     'name'        : 'round_robin', 
     'version'     : '0.1',
-    'type'        : 'workload_scheduler', 
-    'description' : 'simple scheduler, assigns CUs to pilots in round-robin fashion.'
+    'description' : 'simple scheduler, assigns units to pilots in round-robin fashion.'
   }
+
+_idx = 0
 
 # ------------------------------------------------------------------------------
 #
@@ -19,34 +24,38 @@ class PLUGIN_CLASS (object) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, *args, **kwargs) :
+    def __init__ (self) :
 
-        print "initializing the round-robin workload_scheduler plugin (%s) (%s)" \
-            % (args, kwargs)
-
-        self._workload = None
-        self._overlay  = None
-
-        if 'workload' in kwargs :
-            self._workload = kwargs['workload']
-        elif len (args) :
-            self._workload = args[0]
-        else :
-            print "no workload given?  Duh!"
-
-
-        if 'overlay' in kwargs :
-            self._overlay = kwargs['overlay']
-        elif len (args) :
-            self._overlay = args[0]
-        else :
-            print "no overlay  given?  Duh!"
+        print "create the round-robin workload_scheduler plugin"
 
 
     # --------------------------------------------------------------------------
     #
-    def run () :
-        # do nothing
-        return self._workload
+    def schedule (self, workload, overlay) :
 
+        global _idx
+
+        if  not len(overlay.pilots.keys()) :
+            raise ValueError ('no pilots on overlay')
+
+        # schedule to first 'next' pilot
+        for tid in workload.tasks.keys () :
+
+            t = workload.tasks[tid]
+
+            for unit_id in t['units'] :
+
+                if  _idx > len(overlay.pilots.keys()) :
+                    _idx = 0
+
+                target_pid = overlay.pilots.keys()[_idx]
+
+                pilot = overlay.pilots[target_pid]
+                print "workload scedule  : assign unit %-18s to %s" % (unit_id, pilot.id)
+                t['units'][unit_id]['pilot'] = pilot
+
+                _idx += 1
+
+
+# ------------------------------------------------------------------------------
 

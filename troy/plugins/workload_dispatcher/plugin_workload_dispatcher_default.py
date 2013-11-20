@@ -6,10 +6,10 @@ from   troy.constants import *
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
-    'type'        : 'workload_scheduler', 
+    'type'        : 'workload_dispatcher', 
     'name'        : 'default', 
     'version'     : '0.1',
-    'description' : 'this is an empty scheduler which basically does nothing.'
+    'description' : 'this is an empty dispatcher which basically does nothing.'
   }
 
 
@@ -17,34 +17,28 @@ PLUGIN_DESCRIPTION = {
 #
 class PLUGIN_CLASS (object) :
     """
-    This class implements the (empty) default workload scheduler algorithm for
-    TROY.
+    This class implements the (empty) default workload dispatcher for TROY.
     """
 
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
 
-        print "create the default workload_scheduler plugin"
+        print "create the default workload_dispatcher plugin"
 
 
     # --------------------------------------------------------------------------
     #
-    def schedule (self, workload, overlay) :
+    def dispatch (self, workload, overlay) :
 
-        # schedule to first available pilot
         for tid in workload.tasks.keys () :
 
             t = workload.tasks[tid]
 
-            if  not overlay.pilots.keys() :
-                raise RuntimeError ('no pilots in overlay')
-
-            target_pid = overlay.pilots.keys()[0]
             for unit_id in t['units'] :
-                print "workload schedule : assign unit %-18s to %s" % (unit_id, overlay.pilots[target_pid].id)
-                t['units'][unit_id]['pilot'] = overlay.pilots[target_pid]
-        
+                unit_descr = t['units'][unit_id]['description']
+                pilot      = t['units'][unit_id]['pilot']
+                print 'workload dispatch : dispatch %-18s to %s' % (unit_id, pilot.instance)
 
 
 # ------------------------------------------------------------------------------

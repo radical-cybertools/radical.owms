@@ -125,11 +125,19 @@ setup_args = {
     'packages': [
         "troy",
         "troy.utils",
+        "troy.planner",
+        "troy.overlay",
+        "troy.workload",
         "troy.plugins",
         "troy.plugins.planner",
-        "troy.plugins.translator",
+        "troy.plugins.overlay_inspector",
+        "troy.plugins.overlay_translator",
         "troy.plugins.overlay_scheduler",
+        "troy.plugins.overlay_provisioner",
+        "troy.plugins.workload_inspector",
         "troy.plugins.workload_scheduler",
+        "troy.plugins.workload_translator",
+        "troy.plugins.workload_dispatcher",
     ],
     'package_data': {'': ['*.sh']},
     'zip_safe': False,
@@ -142,8 +150,8 @@ setup_args = {
         'sdist': our_sdist,
         'test': our_test
     },
-    'install_requires': [],
-    'tests_require': ['setuptools', 'nose']
+    'install_requires': ['setuptools', 'saga-python', 'radical.utils', 'nose', 'bigjob'],
+    'tests_require':    ['setuptools', 'nose']
 }
 
 setup(**setup_args)
