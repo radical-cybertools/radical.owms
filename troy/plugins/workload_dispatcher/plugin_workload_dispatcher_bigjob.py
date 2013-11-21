@@ -42,11 +42,10 @@ class PLUGIN_CLASS (object) :
                 unit       = t['units'][unit_id]
                 unit_descr = unit['description']
 
-                if  not 'pilot_id' in unit :
+                if  not 'pilot' in unit :
                     raise RuntimeError ("Cannot dispatch unscheduled unit %s" % unit.id)
 
-                pilot_id   = unit['pilot_id']
-                pilot      = troy.Pilot (pilot_id)
+                pilot = unit['pilot']
                 troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
                                 % (unit_id, pilot._get_instance('bigjob')))
                 
