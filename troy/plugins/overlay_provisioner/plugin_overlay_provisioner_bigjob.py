@@ -1,5 +1,6 @@
 
 import os
+import saga
 import bigjob
 
 from   troy.constants import *
@@ -31,6 +32,11 @@ class PLUGIN_CLASS (object) :
 
         troy._logger.info ("create the bigjob overlay_provisioner plugin")
 
+        if  not 'COORDINATION_URL' in os.environ :
+            raise RuntimeError ("Cannot use bigjob backend - no CCORDINATION_URL set")
+
+        self._coord = os.environ['COORDINATION_URL']
+
 
     # --------------------------------------------------------------------------
     #
@@ -46,13 +52,14 @@ class PLUGIN_CLASS (object) :
             global _idx
             
             # FIXME: ceck state
-            bj_manager   = bigjob.bigjob (coordination_url=os.environ['COORDINATION_URL'])
-            bj_pilot_url = bj_manager.start_pilot_job (pilot._resource,
-                               working_directory='/home/merzky/agent')
+            bj_manager     = bigjob.bigjob (coordination_url=self._coord)
+            bj_manager_url = bj_manager.get_url ()
+            bj_pilot_url   = bj_manager.start_pilot_job (pilot._resource,
+                                 working_directory='/home/merzky/agent')
 
             _idx += 1
 
-            pilot._set_instance ('bigjob', self, [bj_pilot_url, bj_manager])
+            pilot._set_instance ('bigjob', self, [bj_pilot_url, bj_manager], bj_manager.get_url ())
 
             troy._logger.info ('overlay  provision: provision pilot  %s : %s ' \
                             % (pilot, pilot._get_instance ('bigjob')))
@@ -60,7 +67,19 @@ class PLUGIN_CLASS (object) :
 
     # --------------------------------------------------------------------------
     #
-    def get_pilot_info (self, pilot) :
+    def pilot_reconnect (self, native_id) :
+
+        bj_manager     = bigjob.bigjob (coordination_url=self._coord, 
+                                        pilot_url=native_id)
+        bj_manager_url = bj_manager.get_url ()
+        bj_pilot_url   = saga.Url (bj_manager_url).path[1:]
+
+        return [bj_pilot_url, bj_manager]
+
+
+    # --------------------------------------------------------------------------
+    #
+    def pilot_get_info (self, pilot) :
 
         info = dict()
 

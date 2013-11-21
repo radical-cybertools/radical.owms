@@ -51,23 +51,14 @@ class Pilot (sa.Attributes) :
                              "description (troy.PilotDescription), not '%s'" \
                           % type(param))
 
-
-        # ----------------------------------------------------------------------
-        reconnect = True
-        if  not pid :
-            # initialize state
-            reconnect = False
-
         # set attribute interface properties
         self._attributes_extensible  (False)
         self._attributes_camelcasing (True)
 
         # register attributes
-        self._attributes_register     (ID,           pid,         sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     (STATE,        DESCRIBED,   sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
-
-        if  descr :
-            self._attributes_register (DESCRIPTION,  descr,       sa.ANY,    sa.SCALAR, sa.READONLY)
+        self._attributes_register     (ID,           pid,               sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register     (STATE,        DESCRIBED,         sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
+        self._attributes_register     (DESCRIPTION,  descr,             sa.ANY,    sa.SCALAR, sa.READONLY)
 
         # inspection attributes needed by scheduler
         self._attributes_register     ('Size',                    None, sa.STRING, sa.SCALAR, sa.READONLY)
@@ -104,16 +95,18 @@ class Pilot (sa.Attributes) :
             candidates = plugin_mgr.list ('overlay_provisioner')
             print candidates
 
+            native_id = troy.OverlayManager.pilot_id_to_native_id (pid)
             for candidate in candidates :
                 print candidate
                 provisioner = plugin_mgr.load ('overlay_provisioner', candidate)
 
-                try :
-                    self._instance      = provisioner.pilot_reconnect (pid)
+              # try :
+                if True :
+                    self._instance      = provisioner.pilot_reconnect (native_id)
                     self._instance_type = candidate
                     self._provisioner   = provisioner
-                except :
-                    pass
+              # except :
+              #     pass
 
             if  not self._instance :
                 raise ValueError ("Could not reconnect to pilot %s" % pid)
@@ -158,7 +151,7 @@ class Pilot (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def _set_instance (self, instance_type, provisioner, instance) :
+    def _set_instance (self, instance_type, provisioner, instance, native_id) :
 
         if  self.state not in [BOUND] :
             raise RuntimeError ("Can only provision pilots in BOUND state (%s)" % self.state)
@@ -168,6 +161,9 @@ class Pilot (sa.Attributes) :
         self._instance      = instance
 
         self.state          = PROVISIONED
+
+        print 'register id %s: %s' % (self.id, native_id)
+        troy.OverlayManager.pilot_id_to_native_id (self.id, native_id)
 
 
     # --------------------------------------------------------------------------
@@ -196,7 +192,7 @@ class Pilot (sa.Attributes) :
 
             # otherwise simply fetch all info(again?)
             # FIXME: need convention about key names / casing
-            self._pilot_info = self._provisioner.get_pilot_info (self)
+            self._pilot_info = self._provisioner.pilot_get_info (self)
             return
 
         # else we attempt to dig through the pilot info
@@ -241,7 +237,7 @@ class Pilot (sa.Attributes) :
 
             # otherwise simply fetch all info(again?)
             # FIXME: need convention about key names / casing
-            self._pilot_info = self._provisioner.get_pilot_info (self)
+            self._pilot_info = self._provisioner.pilot_get_info (self)
 
             if  key in self._pilot_info :
                 # wohoo!
