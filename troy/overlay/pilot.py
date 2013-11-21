@@ -93,11 +93,9 @@ class Pilot (sa.Attributes) :
 
             # FIXME: error handling
             candidates = plugin_mgr.list ('overlay_provisioner')
-            print candidates
 
             native_id = troy.OverlayManager.pilot_id_to_native_id (pid)
             for candidate in candidates :
-                print candidate
                 provisioner = plugin_mgr.load ('overlay_provisioner', candidate)
 
               # try :
@@ -162,7 +160,6 @@ class Pilot (sa.Attributes) :
 
         self.state          = PROVISIONED
 
-        print 'register id %s: %s' % (self.id, native_id)
         troy.OverlayManager.pilot_id_to_native_id (self.id, native_id)
 
 
