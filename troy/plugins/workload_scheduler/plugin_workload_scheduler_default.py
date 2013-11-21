@@ -46,6 +46,7 @@ class PLUGIN_CLASS (object) :
                 troy._logger.info ("workload schedule : assign unit %-18s to %s" \
                                 % (unit_id, overlay.pilots[target_pid].id))
                 t['units'][unit_id]['pilot'] = overlay.pilots[target_pid]
+                overlay.pilots[target_pid].assigned_units.append (unit_id)
         
 
 

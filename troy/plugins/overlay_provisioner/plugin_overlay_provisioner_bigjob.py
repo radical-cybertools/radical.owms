@@ -62,10 +62,14 @@ class PLUGIN_CLASS (object) :
     #
     def get_pilot_info (self, pilot) :
 
+        info = dict()
+
         # find out what we can about the pilot...
         bj_pilot_url, bj_manager = pilot._get_instance ('bigjob')
 
-        return dict()
+        info['units'] = bj_manager.list_subjobs ()
+
+        return info
 
 
     # --------------------------------------------------------------------------

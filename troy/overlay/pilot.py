@@ -22,9 +22,13 @@ class Pilot (sa.Attributes) :
     """
     """
 
-    def __init__ (self, descr) :
+    _idmap = dict ()
+
+    # --------------------------------------------------------------------------
+    #
+    def __init__ (self, param) :
         """
-        Create a new pilot
+        Create a new pilot according to a description, or reconnect to a pilot with an ID.
 
         Each new pilot is assigned a new ID.
 
@@ -32,29 +36,51 @@ class Pilot (sa.Attributes) :
         to reconnect to the thus identified pilot instance.  
         """
 
-        # initialize state
-        pid = ru.generate_id ('p.')
+        if isinstance (param, basestring) :
+            pid       = param
+            descr     = troy.PilotDescription ()
+            reconnect = True
+
+        elif isinstance (param, troy.PilotDescription) :
+            pid       = ru.generate_id ('p.')
+            descr     = param
+            reconnect = False
+
+        else :
+            raise TypeError ("Pilot constructor accepts either a pid (string) or a "
+                             "description (troy.PilotDescription), not '%s'" \
+                          % type(param))
+
+
+        # ----------------------------------------------------------------------
+        reconnect = True
+        if  not pid :
+            # initialize state
+            reconnect = False
 
         # set attribute interface properties
         self._attributes_extensible  (False)
         self._attributes_camelcasing (True)
 
         # register attributes
-        self._attributes_register   (ID,           pid,         sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   (STATE,        DESCRIBED,   sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
-        self._attributes_register   (DESCRIPTION,  descr,       sa.ANY,    sa.SCALAR, sa.READONLY)
+        self._attributes_register     (ID,           pid,         sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register     (STATE,        DESCRIBED,   sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
+
+        if  descr :
+            self._attributes_register (DESCRIPTION,  descr,       sa.ANY,    sa.SCALAR, sa.READONLY)
 
         # inspection attributes needed by scheduler
-        self._attributes_register   ('Size',                    None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('Resource',                None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register     ('Size',                    None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register     ('Resource',                None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register     ('Units',                   None, sa.STRING, sa.VECTOR, sa.READONLY)
 
-        self._attributes_register   ('ProcessesPerNode',        None, sa.INT   , sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('WorkingDirectory',        None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('Project',                 None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('Queue',                   None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('WallTimeLimit',           None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('AffinityDatacenterLabel', None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('AffinityMachineLabel',    None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register     ('ProcessesPerNode',        None, sa.INT   , sa.SCALAR, sa.READONLY)
+        self._attributes_register     ('WorkingDirectory',        None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register     ('Project',                 None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register     ('Queue',                   None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register     ('WallTimeLimit',           None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register     ('AffinityDatacenterLabel', None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register     ('AffinityMachineLabel',    None, sa.STRING, sa.SCALAR, sa.READONLY)
          
         # FIXME: complete attribute list, dig attributes from description,
         # perform sanity checks
@@ -66,6 +92,34 @@ class Pilot (sa.Attributes) :
         self._pilot_info    = None
 
         self._attributes_set_global_getter (self._get_attribute)
+
+
+        if  reconnect :
+            # we need to get instance and instance type -- but for that we 
+            # need to find the provisioner.  So we cycle through all overlay 
+            # provision plugins, and ask them if they know about our ID.
+            plugin_mgr = ru.PluginManager ('troy')
+
+            # FIXME: error handling
+            candidates = plugin_mgr.list ('overlay_provisioner')
+            print candidates
+
+            for candidate in candidates :
+                print candidate
+                provisioner = plugin_mgr.load ('overlay_provisioner', candidate)
+
+                try :
+                    self._instance      = provisioner.pilot_reconnect (pid)
+                    self._instance_type = candidate
+                    self._provisioner   = provisioner
+                except :
+                    pass
+
+            if  not self._instance :
+                raise ValueError ("Could not reconnect to pilot %s" % pid)
+
+            # refresh pilot information and state from the backend
+            self._get_attribute ()
 
 
     # --------------------------------------------------------------------------
@@ -129,14 +183,26 @@ class Pilot (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def _get_attribute (self, key) :
+    def _get_attribute (self, key=None) :
         """
         This method is invoked whenever some attribute is asked for, to give us 
         a chance to update the respective attribute value.
         """
 
+        # if key is not given, we simply fetch new information
+        if  not key :
+            if  not self._provisioner :
+                raise RuntimeError ("pilot is in inconsistent state (no provisioner known)")
+
+            # otherwise simply fetch all info(again?)
+            # FIXME: need convention about key names / casing
+            self._pilot_info = self._provisioner.get_pilot_info (self)
+            return
+
+        # else we attempt to dig through the pilot info
         if not key in ['resource',              
                        'size',       
+                       'units',       
                        'processes_per_node',        
                        'working_directory',        
                        'project',                 

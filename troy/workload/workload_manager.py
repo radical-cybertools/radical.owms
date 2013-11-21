@@ -153,11 +153,13 @@ class WorkloadManager (object) :
                                   "do early binding" % str(overlay.id))
 
         elif bind_mode == LATE : 
-            if  overlay.state != BOUND      and \
-                overlay.state != DISPATCHED :
-                raise ValueError ( "overlay '%s' neither scheduled nor " \
-                                 + "dispateched, cannot do late binding" \
-                                 % overlay.id)
+            if  overlay.state != BOUND   and \
+                overlay.state != PROVISIONED :
+                print overlay.state
+                print overlay.id
+                raise ValueError ( "overlay '%s' neither scheduled nor " % str(overlay.id) \
+                                 + "dispateched, cannot do late binding")
+                                 
 
         # hand over control over workload (and overlay) to the scheduler plugin,
         # so it can do what it has to do.

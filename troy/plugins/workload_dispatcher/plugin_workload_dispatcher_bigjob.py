@@ -41,7 +41,8 @@ class PLUGIN_CLASS (object) :
             for unit_id in t['units'] :
                 unit       = t['units'][unit_id]
                 unit_descr = unit['description']
-                pilot      = unit['pilot']
+                pilot_id   = unit['pilot']
+                pilot      = troy.Pilot (pilot_id)
                 troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
                                 % (unit_id, pilot._get_instance('bigjob')))
                 
