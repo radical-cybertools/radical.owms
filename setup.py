@@ -145,6 +145,7 @@ setup_args = {
         "troy.external.bundle.src.bundle.impl",
         "troy.external.bundle.src.bundle.api",
         "troy.external.bundle.src.bundle.example",
+        "troy.bundle_wrapper",
     ],
     'package_data': {'': ['*.sh']},
     'zip_safe': False,

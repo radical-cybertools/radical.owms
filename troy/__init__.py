@@ -35,6 +35,7 @@ from overlay    import Overlay
 from overlay    import OverlayDescription
 from overlay    import OverlayManager
 
+from bundle_wrapper import BundleManager
 
 # ------------------------------------------------------------------------------
 

@@ -20,7 +20,7 @@ include troy/external/bundle/src/bundle/*.py
 include troy/external/bundle/src/bundle/impl/*.py
 include troy/external/bundle/src/bundle/api/*.py
 include troy/external/bundle/src/bundle/example/*.py
-
+include troy/bundle_wrapper/*.py
 
 include MANIFEST.in 
 
