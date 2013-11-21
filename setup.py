@@ -138,12 +138,13 @@ setup_args = {
         "troy.plugins.workload_scheduler",
         "troy.plugins.workload_translator",
         "troy.plugins.workload_dispatcher",
-        "troy.external.bundle.src/bundle/impl
-        "troy.external.bundle.src/bundle/api
-        "troy.external.bundle.src/bundle/example
-        "troy.external.bundle.src/bundle
-        "troy.external.bundle.src/bundle.egg-info
-        "troy.external.bundle.src
+        "troy.external",
+        "troy.external.bundle",
+        "troy.external.bundle.src",
+        "troy.external.bundle.src.bundle",
+        "troy.external.bundle.src.bundle.impl",
+        "troy.external.bundle.src.bundle.api",
+        "troy.external.bundle.src.bundle.example",
     ],
     'package_data': {'': ['*.sh']},
     'zip_safe': False,

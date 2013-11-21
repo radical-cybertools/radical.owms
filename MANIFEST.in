@@ -13,6 +13,14 @@ include troy/plugins/workload_translator/*.py
 include troy/plugins/workload_scheduler/*.py
 include troy/plugins/workload_dispatcher/*.py
 include examples/*.py
+include troy/external/*.py
+include troy/external/bundle/*.py
+include troy/external/bundle/src/*.py
+include troy/external/bundle/src/bundle/*.py
+include troy/external/bundle/src/bundle/impl/*.py
+include troy/external/bundle/src/bundle/api/*.py
+include troy/external/bundle/src/bundle/example/*.py
+
 
 include MANIFEST.in 
 
