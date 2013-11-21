@@ -4,8 +4,6 @@ __copyright__ = "Copyright 2013, RADICAL @ Rutgers"
 __license__   = "MIT"
 
 
-import imp
-
 # ------------------------------------------------------------------------------
 #
 def test_bundle_import():
@@ -14,6 +12,6 @@ def test_bundle_import():
     """
 
     try:
-        imp.find_module('troy.external.bundle')
+        from troy.external.bundle import BundleManager
     except ImportError:
         assert False, 'Can not find (external) bundle module'
