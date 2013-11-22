@@ -10,10 +10,12 @@ import pprint
 # output_directory=/Users/mark/proj/troy/output
 # log_level=42
 # i_feel_lucky=yes
+# bundle_finished_job_trace=/Users/mark/bla
 #
 # [compute:india]
 # endpoint=india.futuregrid.org
 # type=moab
+# port=22
 # username=marksant
 # ssh_key=/Users/mark/.ssh/id_rsa
 # h_flag=True
@@ -21,6 +23,7 @@ import pprint
 # [compute:sierra]
 # endpoint=sierra.futuregrid.org
 # type=moab
+# port=22
 # username=marksant
 # ssh_key=/Users/mark/.ssh/id_rsa
 # h_flag=True
@@ -64,6 +67,15 @@ class Configuration(ruc.Configurable):
             'valid_options' : ['yes', 'no'],
             'documentation' : 'Need I say more?',
             'env_variable'  : ''
+        }, {
+            # bundle_finished_job_trace
+            'category'      : 'general',
+            'name'          : 'bundle_finished_job_trace',
+            'type'          : str,
+            'default'       : '',
+            'valid_options' : '',
+            'documentation' : 'Storage of finished job traces for bundles',
+            'env_variable'  : ''
         }]
 
         ruc.Configurable.config_options (self, 'general', _general_section)
@@ -96,6 +108,15 @@ class Configuration(ruc.Configurable):
                 'default'       : 'moab',
                 'valid_options' : ['moab', 'pbs'],
                 'documentation' : 'This option specifies the type endpoint address of the resource',
+                'env_variable'  : ''
+            }, {
+                # port
+                'category'      : section_name,
+                'name'          : 'port',
+                'type'          : str,
+                'default'       : '22',
+                'valid_options' : '',
+                'documentation' : 'Port to use at endpoint address of the resource',
                 'env_variable'  : ''
             }, {
                 # username
