@@ -85,9 +85,9 @@ class Configuration(ruc.Configurable):
         # Get all sections that begin with "compute:" and consider them endpoints
         cd = self.get_config_as_dict()
         all_sections = cd.keys()
-        compute_sections = filter(lambda x: x.startswith('compute:'),  all_sections)
+        self.compute_sections = filter(lambda x: x.startswith('compute:'), all_sections)
 
-        for section_name in compute_sections:
+        for section_name in self.compute_sections:
 
             _compute_section_template = [
             {
@@ -135,6 +135,15 @@ class Configuration(ruc.Configurable):
                 'default'       : '', # $HOME/.ssh/id_rsa ?
                 'valid_options' : '',
                 'documentation' : 'This option specifies the ssh key to use with the resource',
+                'env_variable'  : ''
+            }, {
+                # password
+                'category'      : section_name,
+                'name'          : 'password',
+                'type'          : str,
+                'default'       : '',
+                'valid_options' : '',
+                'documentation' : 'Specifies the password to use with the resource',
                 'env_variable'  : ''
             }, {
                 # h_flag?
