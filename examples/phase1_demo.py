@@ -31,7 +31,7 @@ if __name__ == '__main__':
     overlay_mgr = troy.OverlayManager()
 
     # Planning makes initial mapping of workload to overlay
-    planner = troy.Planner('bundles', guard=UP)
+    planner = troy.Planner('bundles', guard=troy.UPPER_LIMIT)
 
     # TROY data structure that holds the tasks and their relations
     workload = troy.Workload()
