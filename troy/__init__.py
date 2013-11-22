@@ -25,10 +25,12 @@ from constants  import *
 #
 from planner    import Planner
 
-from workload   import RelationDescription
-from workload   import Relation
+from workload   import ComputeUnitDescription
+from workload   import ComputeUnit
 from workload   import TaskDescription
 from workload   import Task
+from workload   import RelationDescription
+from workload   import Relation
 from workload   import Workload
 from workload   import WorkloadManager
 

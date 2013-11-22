@@ -31,6 +31,9 @@ class WorkloadManager (object) :
 
     # FIXME: state checks ignore PLANNED state...
 
+    # this map is used to translate between troy unit IDs and native backend
+    # IDs. 
+    _unit_id_map = dict ()
 
     # --------------------------------------------------------------------------
     #
@@ -86,6 +89,30 @@ class WorkloadManager (object) :
         ru.Registry.release (workload_id)
 
         return wl
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def unit_id_to_native_id (cls, unit_id, native_id=None) :
+
+        # FIXME: this is not threadsafe.
+        # FIXME: load from disk on first call
+
+        if  native_id :
+
+            # register id
+            if  unit_id in cls._unit_id_map :
+                raise ValueError ("Cannot register that unit id -- already known")
+            cls._unit_id_map[unit_id] = native_id
+            # FIXME: dump to disk
+
+        else :
+
+            # lookup id
+            if  not unit_id in cls._unit_id_map :
+                raise ValueError ("no such unit known '%s'" % unit_id)
+            return cls._unit_id_map[unit_id]
 
 
     # --------------------------------------------------------------------------

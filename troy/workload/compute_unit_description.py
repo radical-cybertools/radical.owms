@@ -32,6 +32,7 @@ class ComputeUnitDescription (sa.Attributes) :
         # register attributes
         self._attributes_register    (EXECUTABLE, None, sa.STRING, sa.SCALAR, sa.WRITEABLE)
         self._attributes_register    (ARGUMENTS,  None, sa.STRING, sa.VECTOR, sa.WRITEABLE)
+        # FIXME: complete...
 
         sa.Attributes.__init__ (self, descr)
 
@@ -47,14 +48,14 @@ class ComputeUnitDescription (sa.Attributes) :
     #
     def __repr__ (self) :
 
-        return self.description
+        return (self.as_dict ())
 
 
     # --------------------------------------------------------------------------
     #
     def _dump (self) :
 
-        self.__str__ ()
+        self._attributes_dump ()
 
 
 # ------------------------------------------------------------------------------

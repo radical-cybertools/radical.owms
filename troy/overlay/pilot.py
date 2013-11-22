@@ -28,12 +28,9 @@ class Pilot (sa.Attributes) :
     #
     def __init__ (self, param) :
         """
-        Create a new pilot according to a description, or reconnect to a pilot with an ID.
+        Create a new pilot according to a description, or reconnect to with an ID.
 
         Each new pilot is assigned a new ID.
-
-        Later implementations may allow for an additional id parameter, 
-        to reconnect to the thus identified pilot instance.  
         """
 
         if isinstance (param, basestring) :
@@ -61,6 +58,7 @@ class Pilot (sa.Attributes) :
         self._attributes_register     (DESCRIPTION,  descr,             sa.ANY,    sa.SCALAR, sa.READONLY)
 
         # inspection attributes needed by scheduler
+        self._attributes_register     ('NativeID',                None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register     ('Size',                    None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register     ('Resource',                None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register     ('Units',                   None, sa.STRING, sa.VECTOR, sa.READONLY)
@@ -108,6 +106,8 @@ class Pilot (sa.Attributes) :
 
             if  not self._instance :
                 raise ValueError ("Could not reconnect to pilot %s" % pid)
+
+            self.native_id = native_id
 
             # refresh pilot information and state from the backend
             self._get_attribute ()
