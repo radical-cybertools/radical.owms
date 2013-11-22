@@ -30,12 +30,13 @@ class PLUGIN_CLASS(object):
     #
     def init_bundles(self):
 
-        self.bundle_config = '/Users/mark/proj/troy/bundle_credentials-mark.conf'
-
-        print 'Initializing Bundle Manager using config: %s' % self.bundle_config
+        bundle_credential = { '' : 'boe' }
+        print 'Initializing Bundle Manager'
 
         self.bm = BundleManager()
         self.bm.load_cluster_credentials(self.bundle_config)
+        self.bm.add_cluster(cluster_credential, finished_job_trace)
+
 
         self.cluster_list = self.bm.get_cluster_list()
 
