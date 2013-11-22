@@ -155,8 +155,6 @@ class WorkloadManager (object) :
         elif bind_mode == LATE : 
             if  overlay.state != BOUND   and \
                 overlay.state != PROVISIONED :
-                print overlay.state
-                print overlay.id
                 raise ValueError ( "overlay '%s' neither scheduled nor " % str(overlay.id) \
                                  + "dispateched, cannot do late binding")
                                  

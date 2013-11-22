@@ -76,6 +76,9 @@ class PLUGIN_CLASS (object) :
                 sj = bigjob.subjob ()
                 sj.submit_job (bj_pilot_url, bj_cu_descr)
 
+ #              print dir(sj)
+ #              print sj.get_details ()
+
 
                 unit['dispatcher'] = self
                 unit['instance']   = sj

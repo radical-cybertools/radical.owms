@@ -69,7 +69,7 @@ def test_pilot_inspection () :
     assert (str(pilot.resource) == 'fork://localhost'), "%s != 'fork://localhost'" % pilot.resource
     assert (str(pilot.size)  == '2')                  , "%s != '2'"                % pilot.size  
     assert (len(pilot.units) ==  1 )                  , "%d !=  1"                 % len (pilot.units)
-    print pilot.units
+  # print pilot.units
     assert (None == pilot.processes_per_node)
     assert (None == pilot.working_directory)
     assert (None == pilot.project)
