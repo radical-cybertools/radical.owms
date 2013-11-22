@@ -11,6 +11,7 @@ from   troy.constants import *
 import troy
 from bundle import BundleManager
 
+
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS(object):
@@ -26,6 +27,7 @@ class PLUGIN_CLASS(object):
 
         self.init_bundles()
 
+
     # --------------------------------------------------------------------------
     #
     def init_bundles(self):
@@ -36,15 +38,29 @@ class PLUGIN_CLASS(object):
         print 'Initializing Bundle Manager'
 
         self.bm = BundleManager()
-        #self.bm.load_cluster_credentials(self.bundle_config)
 
-        self.bm.add_cluster(cred, finished_job_trace)
+        cf = troy.Configuration()
 
+        cg = cf.get_config('general')
+        finished_job_trace = cg['bundle_finished_job_trace'].get_value()
+
+        for sect in cf.compute_sections:
+            cs = cf.get_config(sect)
+
+            cred = { 'port': int(cs['port'].get_value()),
+                     'hostname': cs['endpoint'].get_value(),
+                     'cluster_type': cs['type'].get_value(),
+                     'username': cs['username'].get_value(),
+                     'password': cs['password'].get_value(),
+                     'key_filename': cs['ssh_key'].get_value(),
+                     'h_flag': cs['h_flag'].get_value()
+            }
+            self.bm.add_cluster(cred, finished_job_trace)
 
         self.cluster_list = self.bm.get_cluster_list()
 
         if not self.cluster_list:
-            raise('No clusters available in Bundle Manager')
+            raise RuntimeError ('No clusters available in Bundle Manager')
 
     # --------------------------------------------------------------------------
     #
@@ -60,7 +76,7 @@ class PLUGIN_CLASS(object):
         # Find entries that are not -1
         usable = filter(lambda x: x != -1, predictions.values())
         if not usable:
-            raise('No resources available that can fulfill this request!')
+            raise RuntimeError ('No resources available that can fulfill this request!')
 
     # --------------------------------------------------------------------------
     #
@@ -72,7 +88,7 @@ class PLUGIN_CLASS(object):
 
     # --------------------------------------------------------------------------
     #
-    def derive_overlay(self, workload):
+    def derive_overlay(self, workload, guard):
 
         ovl_descr = troy.OverlayDescription (
             {
