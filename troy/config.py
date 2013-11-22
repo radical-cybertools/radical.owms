@@ -122,7 +122,7 @@ class Configuration(ruc.Configurable):
                 'type'          : bool,
                 'default'       : 'True',
                 'valid_options' : '',
-                'documentation' : 'No idea ...',
+                'documentation' : 'Heterogenerous resource type',
                 'env_variable'  : ''
             }]
 
