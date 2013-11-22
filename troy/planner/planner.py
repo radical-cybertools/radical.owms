@@ -25,7 +25,7 @@ class Planner(object):
 
     # --------------------------------------------------------------------------
     #
-    def __init__(self, planner='default'):
+    def __init__(self, planner='default', guard=LOWER_LIMIT):
         """
         Create a new planner instance for this workload.  
 
@@ -37,6 +37,8 @@ class Planner(object):
 
         # FIXME: error handling
         self._planner = self._plugin_mgr.load('planner', planner)
+
+        self.guard = guard
 
     # --------------------------------------------------------------------------
     #
@@ -58,7 +60,7 @@ class Planner(object):
                              % workload.id)
 
         # derive overlay from workload
-        overlay = self._planner.derive_overlay(workload)
+        overlay = self._planner.derive_overlay(workload, self.guard)
 
         # Put the overlay into the system registry so others can access it
         troy.OverlayManager.register_overlay(overlay)
