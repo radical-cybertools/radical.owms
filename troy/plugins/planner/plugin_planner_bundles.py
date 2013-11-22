@@ -30,12 +30,15 @@ class PLUGIN_CLASS(object):
     #
     def init_bundles(self):
 
-        bundle_credential = { '' : 'boe' }
+        # bundle_credential members { 'port', 'hostname', 'username',
+        #                             'password' 'key_filename', 'h_flag' }
+
         print 'Initializing Bundle Manager'
 
         self.bm = BundleManager()
-        self.bm.load_cluster_credentials(self.bundle_config)
-        self.bm.add_cluster(cluster_credential, finished_job_trace)
+        #self.bm.load_cluster_credentials(self.bundle_config)
+
+        self.bm.add_cluster(cred, finished_job_trace)
 
 
         self.cluster_list = self.bm.get_cluster_list()
