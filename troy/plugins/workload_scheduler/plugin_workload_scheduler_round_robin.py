@@ -46,16 +46,16 @@ class PLUGIN_CLASS (object) :
 
             for unit_id in t['units'] :
 
-                if  _idx > len(overlay.pilots.keys()) :
-                    _idx = 0
+                if  _idx >= len(overlay.pilots.keys()) :
+                    _idx  = 0
 
                 target_pid = overlay.pilots.keys()[_idx]
+                _idx += 1
 
                 pilot = overlay.pilots[target_pid]
                 troy._logger.info ("workload schedule : assign unit %-18s to %s" % (unit_id, pilot.id))
                 t['units'][unit_id]['pilot_id'] = pilot.id
 
-                _idx += 1
 
 
 # ------------------------------------------------------------------------------

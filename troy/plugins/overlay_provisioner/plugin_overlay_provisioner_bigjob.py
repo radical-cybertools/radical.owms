@@ -54,8 +54,7 @@ class PLUGIN_CLASS (object) :
             # FIXME: ceck state
             bj_manager     = bigjob.bigjob (coordination_url=self._coord)
             bj_manager_url = bj_manager.get_url ()
-            bj_pilot_url   = bj_manager.start_pilot_job (pilot._resource,
-                                 working_directory='/home/merzky/agent')
+            bj_pilot_url   = bj_manager.start_pilot_job (pilot._resource)
 
             _idx += 1
 

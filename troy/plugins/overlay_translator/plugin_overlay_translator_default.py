@@ -34,11 +34,11 @@ class PLUGIN_CLASS (object) :
     def translate (self, overlay) :
 
         # we simply use one pilot for te whole thing...
-        for i in range (0, overlay.description.cores) :
-            p_descr = troy.PilotDescription ({'size' : 1})
-            pilot   = troy.Pilot (p_descr)
-            troy._logger.info ("overlay  translate: define   pilot %3d: %s" % (i, pilot))
-            overlay._add_pilot (pilot)
+      # for i in range (0, overlay.description.cores) :
+        p_descr = troy.PilotDescription ({'size' : 1})
+        pilot   = troy.Pilot (p_descr)
+        troy._logger.info ("overlay  translate: define   pilot %3d: %s" % (1, pilot))
+        overlay._add_pilot (pilot)
 
 
 # ------------------------------------------------------------------------------

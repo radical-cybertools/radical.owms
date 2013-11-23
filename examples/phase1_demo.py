@@ -22,7 +22,6 @@ if __name__ == '__main__':
                    'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
                    'Antons Treikalis', 'Jeffery Rabinowitz', 'Patrick Gray',
                    'Vishal Shah']
-    radicalists = ['Tom']
 
     # Responsible for application workload
     workload_mgr = troy.WorkloadManager()
