@@ -45,16 +45,16 @@ class PLUGIN_CLASS (object) :
 
             for unit_id in t['units'] :
 
-                if  _idx > len(overlay.pilots.keys()) :
-                    _idx = 0
+                if  _idx >= len(overlay.pilots.keys()) :
+                    _idx  = 0
 
                 target_pid = overlay.pilots.keys()[_idx]
+                _idx += 1
 
                 pilot = overlay.pilots[target_pid]
                 print "workload scedule  : assign unit %-18s to %s" % (unit_id, pilot.id)
                 t['units'][unit_id]['pilot'] = pilot
 
-                _idx += 1
 
 
 # ------------------------------------------------------------------------------
