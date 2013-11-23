@@ -55,8 +55,8 @@ if __name__ == '__main__':
     planner.expand_workload(workload.id)
 
     # Initial description of the overlay based on the workload
-    #overlay_id = planner.derive_overlay(workload.id, guard=troy.UPPER_LIMIT)
-    overlay_id = planner.derive_overlay(workload.id)
+    overlay_id = planner.derive_overlay(workload.id, guard=troy.UPPER_LIMIT)
+    #overlay_id = planner.derive_overlay(workload.id)
 
     # Translate 1 workload into N ComputeUnits and N DataUnits
     workload_mgr.translate_workload(workload.id, overlay_id)
