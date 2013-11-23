@@ -23,7 +23,7 @@ class PLUGIN_CLASS(object):
     #
     def __init__(self):
 
-        print "create the default planner plugin"
+        print "create the bundle planner plugin"
 
         self.init_bundles()
 
@@ -83,24 +83,37 @@ class PLUGIN_CLASS(object):
     def expand_workload(self, workload):
 
         # Do nothing for now
-        
+
         print "planner  expand wl: expand workload : %s" % workload
 
     # --------------------------------------------------------------------------
     #
-    def derive_overlay(self, workload, guard):
+    def derive_overlay(self, workload, guard=LOWER_LIMIT):
+
+        # Determine the number of cores required
+        if guard == UPPER_LIMIT:
+            # We don't have any concurrency mechanisms yet,
+            # so assume all concurrent.
+            cores = len(workload.tasks)
+        elif guard == LOWER_LIMIT:
+            # We don't have any concurrency mechanisms yet,
+            # so lower limit is 1
+            cores = 1
+        else:
+            raise RuntimeError('Unknown guard: "%d') % guard
 
         ovl_descr = troy.OverlayDescription (
             {
                 # Ask for as many pilots as tasks
-                'cores' : len(workload.tasks), 
+                'cores' : cores,
                 # Minutes obviously
                 'wall_time' : (1 << 1) + (1 << 3) + (1 << 5)
             })
 
-        print "planner  derive ol: derive overlay for workload: %s" % ovl_descr
+        print "planner derive ol: derive overlay for workload: %s" % ovl_descr
 
         # Check if there is at least one bundle that can satisfy our request
+        # TODO: How to communicate back to application?
         self.check_resource_availability(ovl_descr)
 
         # Create an overlay
