@@ -10,7 +10,10 @@ import pprint
 # output_directory=/Users/mark/proj/troy/output
 # log_level=42
 # i_feel_lucky=yes
-# bundle_finished_job_trace=/Users/mark/bla
+#
+# [bundle]
+# mode=local
+# finished_job_trace=/Users/mark/bla
 #
 # [compute:india]
 # endpoint=india.futuregrid.org
@@ -40,7 +43,7 @@ class Configuration(ruc.Configurable):
         #self._cfg = self.get_config('troy.engine')
 
         _general_section = [
-            {
+        {
             # output_directory
             'category'      : 'general',
             'name'          : 'output_directory',
@@ -67,10 +70,25 @@ class Configuration(ruc.Configurable):
             'valid_options' : ['yes', 'no'],
             'documentation' : 'Need I say more?',
             'env_variable'  : ''
+        }]
+
+        ruc.Configurable.config_options (self, 'general', _general_section)
+        #general_config = ruc.Configurable.get_config(self, 'general')
+
+        _bundle_section = [
+        {
+            # mode
+            'category'      : 'bundle',
+            'name'          : 'mode',
+            'type'          : str,
+            'default'       : 'local',
+            'valid_options' : ['local', 'remote'],
+            'documentation' : 'Mode of operation for bundles.',
+            'env_variable'  : ''
         }, {
-            # bundle_finished_job_trace
-            'category'      : 'general',
-            'name'          : 'bundle_finished_job_trace',
+            # finished_job_trace
+            'category'      : 'bundle',
+            'name'          : 'finished_job_trace',
             'type'          : str,
             'default'       : '',
             'valid_options' : '',
@@ -78,9 +96,8 @@ class Configuration(ruc.Configurable):
             'env_variable'  : ''
         }]
 
-        ruc.Configurable.config_options (self, 'general', _general_section)
-        general_config = ruc.Configurable.get_config(self, 'general')
-
+        ruc.Configurable.config_options (self, 'bundle', _bundle_section)
+        #bundle_config = ruc.Configurable.get_config(self, 'bundle')
 
         # Get all sections that begin with "compute:" and consider them endpoints
         cd = self.get_config_as_dict()
