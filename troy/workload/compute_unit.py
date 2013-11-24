@@ -85,7 +85,7 @@ class ComputeUnit (sa.Attributes) :
         self._instance_type = None
         self._unit_info     = None
 
-        self._attributes_set_global_getter (self._get_attribute)
+        self._attributes_set_global_getter (self._get_attribute, flow=self._DOWN)
 
 
         if  reconnect :
@@ -136,8 +136,10 @@ class ComputeUnit (sa.Attributes) :
 
         if  self.state not in [DONE, FAILED, CANCELED] :
             troy._logger.warning ('cancel unit %s' % self.id)
+
             if  self._dispatcher :
                 self._dispatcher.unit_cancel (self._instance)
+
             self.state = CANCELED
 
 

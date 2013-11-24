@@ -190,7 +190,7 @@ class Task (sa.Attributes) :
                 if s != DONE :
                     self.state = UNKNOWN
 
-      # print 'ts -> %s %s' % (self.state, str(unit_states))
+        troy._logger.debug ('task state %-6s : %-10s %s' % (self.id, self.state, str(unit_states)))
 
         return self.state
 

@@ -12,6 +12,7 @@ import relation             as tr
 import relation_description as trd
 
 from   troy.constants       import *
+import troy
 
 
 # ------------------------------------------------------------------------------
@@ -307,7 +308,7 @@ class Workload (sa.Attributes) :
                 if s != DONE :
                     self.state = UNKNOWN
 
-      # print 'wl: %s' % self.state
+        troy._logger.debug ('wl   state %-6s: %-10s %s' % (self.id, self.state, str(task_states)))
         return self.state
 
 

@@ -80,7 +80,7 @@ class Pilot (sa.Attributes) :
         self._instance_type = None
         self._pilot_info    = None
 
-        self._attributes_set_global_getter (self._get_attribute)
+        self._attributes_set_global_getter (self._get_attribute, flow=self._DOWN)
 
 
         if  reconnect :
@@ -131,7 +131,9 @@ class Pilot (sa.Attributes) :
 
         if  self.state in [PROVISIONED] :
             troy._logger.warning ('cancel pilot %s' % self.id)
-            self._provisioner.pilot_cancel (self)
+
+            if self._provisioner :
+                self._provisioner.pilot_cancel (self)
             self.state = CANCELED
 
 
