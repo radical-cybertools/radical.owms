@@ -21,7 +21,7 @@ if __name__ == '__main__':
                    'Andre Luckow',     'Matteo Turilli',     'Melissa Romanus',
                    'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
                    'Antons Treikalis', 'Jeffery Rabinowitz', 'Patrick Gray',
-                   'Vishal Shah']
+                   'Vishal Shah',      'Radicalobot']
 
     # Responsible for application workload
     workload_mgr = troy.WorkloadManager()
@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
         task_descr.working_directory = '/tmp/agent/'
         task_descr.executable = '/bin/touch'
-        task_descr.arguments  = ['/tmp/"%s"' % r]
+        task_descr.arguments  = ['/tmp/agent/' + r.replace (' ', '_')]
 
         task_id = workload.add_task(task_descr)
 
@@ -95,4 +95,6 @@ if __name__ == '__main__':
 
     workload_mgr.cancel_workload (workload.id)   # same as workload.cancel ()
     overlay_mgr .cancel_overlay  (overlay_id)
+
+
 

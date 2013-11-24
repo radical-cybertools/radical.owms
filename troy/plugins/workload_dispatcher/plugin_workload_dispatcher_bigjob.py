@@ -82,7 +82,6 @@ class PLUGIN_CLASS (object) :
                 unit._set_instance ('bigjob', self, bj_cu, bj_cu_url)
 
 
-
     # --------------------------------------------------------------------------
     #
     def unit_reconnect (self, native_id) :
@@ -92,19 +91,30 @@ class PLUGIN_CLASS (object) :
         return bj_cu
 
 
+
+
     # --------------------------------------------------------------------------
     #
-    def unit_get_state (self, sj) :
+    def unit_get_info (self, unit) :
 
-        sj_state = sj.get_state ()
+        # find out what we can about the pilot...
+        bj_cu = unit._get_instance ('bigjob')
 
-        # hahaha python switch statement hahahahaha
-        return {"New"    : DESCRIBED, 
-                "Running": RUNNING, 
-                "Staging": RUNNING, 
-                "Failed" : FAILED, 
-                "Done"   : DONE, 
-                "Unknown": UNKNOWN}.get (sj.get_state (), UNKNOWN)
+        info = bj_cu.get_details ()
+
+        # translate bj state to troy state
+        if  'state' in info :
+            # hahaha python switch statement hahahahaha
+            info['state'] =  {"New"    : DESCRIBED, 
+                              "Running": RUNNING, 
+                              "Staging": RUNNING, 
+                              "Failed" : FAILED, 
+                              "Done"   : DONE, 
+                              "Unknown": UNKNOWN}.get (info['state'], UNKNOWN)
+
+      # print 'unit_get_info: %s' % info
+
+        return info
 
 
     # --------------------------------------------------------------------------

@@ -197,7 +197,8 @@ class ComputeUnit (sa.Attributes) :
             return
 
         # else we attempt to dig through the unit info
-        if not key in ['resource',              
+        if not key in ['state', 
+                       'resource',              
                        'size',       
                        'working_directory',        
                        'affinity_datacenter_label', 
@@ -219,26 +220,28 @@ class ComputeUnit (sa.Attributes) :
 
         # else we need to ask the unit dispatcher plugin -- but that is 
         # only available/usable after dispatching
-        if  self.state in [PROVISIONED, COMPLETED, CANCELED, FAILED] :
+        if  self._dispatcher :
+            if  self.state not in [COMPLETED, CANCELED, FAILED] :
 
-            if  not self._dispatcher :
-                raise RuntimeError ("unit is in inconsistent state (no dispatcher known)")
+                # if we already got the requested information, return them
+                # FIXME: this assumes that data are updated only once, ever...  
+                # So, ignore for state!
+                if  key not in ['state'] :
+                    if  self._unit_info  and \
+                        key in self._unit_info :
+                            return self._unit_info[key]
 
-            # if we already got the requested information, return them
-            # FIXME: this assumes that data are updated only once, ever...
-            if  self._unit_info  and \
-                key in self._unit_info :
+
+                # otherwise simply fetch all info(again?)
+                # FIXME: need convention about key names / casing
+                self._unit_info = self._dispatcher.unit_get_info (self)
+
+                if  key in self._unit_info :
+                    # wohoo!
                     return self._unit_info[key]
 
-
-            # otherwise simply fetch all info(again?)
-            # FIXME: need convention about key names / casing
-            self._unit_info = self._dispatcher.unit_get_info (self)
-
-            if  key in self._unit_info :
-                # wohoo!
-                return self._unit_info[key]
-
+        # we don't have the requested backend info -- fall back to attribs
+        return self._attributes_i_get (key, flow='UP')
 
 
     # --------------------------------------------------------------------------

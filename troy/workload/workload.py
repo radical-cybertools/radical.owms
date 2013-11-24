@@ -262,11 +262,11 @@ class Workload (sa.Attributes) :
         have individual and uncorrelated state transitions.  At that point, we
         make the workload state dependent on the tasks states, and define::
 
-                 if any task  is  FAILED   :  workload.state = FAILED
-            else if any task  is  CANCELED :  workload.state = CANCELED
-            else if any task  is  RUNNING  :  workload.state = RUNNING
-            else if all tasks are DONE     :  workload.state = DONE
-            else                           :  workload.state = UNKNOWN
+                 if any task  is  FAILED     :  workload.state = FAILED
+            else if any task  is  CANCELED   :  workload.state = CANCELED
+            else if any task  is  DISPATCHED :  workload.state = DISPATCHED
+            else if all tasks are DONE       :  workload.state = DONE
+            else                             :  workload.state = UNKNOWN
 
         """
 
@@ -278,21 +278,28 @@ class Workload (sa.Attributes) :
         if  self.state in [DONE, FAILED, CANCELED] :
             return self.state
         
-        # only DISPATCHED and RUNNING are left -- state depends on task states
+        # if there are no tasks, then there was no further state transition
+        if  not len(self.tasks) :
+            return self.state
+        
+        # state depends on task states
         task_states = []
         for tid in self.tasks.keys () :
             task = self.tasks[tid]
             task_states.append (task.state)
           # print 'ts: %s' % task.state
 
-        if FAILED in task_states :
+        if UNKNOWN in task_states :
+            self.state = UNKNOWN
+
+        elif FAILED in task_states :
             self.state = FAILED
 
         elif CANCELED in task_states :
             self.state = CANCELED
 
-        elif RUNNING in task_states :
-            self.state = RUNNING
+        elif DISPATCHED in task_states :
+            self.state = DISPATCHED
 
         else :
             self.state = DONE
