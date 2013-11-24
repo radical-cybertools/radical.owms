@@ -36,19 +36,21 @@ class PLUGIN_CLASS (object) :
 
         for tid in workload.tasks.keys () :
 
-            t = workload.tasks[tid]
+            task = workload.tasks[tid]
 
-            for unit_id in t['units'] :
-                unit       = t['units'][unit_id]
-                unit_descr = unit['description']
+            for uid in task.units.keys () :
 
-                if  not 'pilot_id' in unit :
-                    raise RuntimeError ("Cannot dispatch unscheduled unit %s" % unit.id)
+                unit = task.units[uid]
 
-                pilot_id   = unit['pilot_id']
+                if  unit.state not in [BOUND] :
+                    raise RuntimeError ("Can only dispatch units in BOUND state (%s)" % unit.state)
+
+
+                unit_descr = unit.description
+                pilot_id   = unit['_pilot_id']
                 pilot      = troy.Pilot (pilot_id)
                 troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
-                                % (unit_id, pilot._get_instance('bigjob')))
+                                % (uid, pilot._get_instance('bigjob')))
                 
                 # FIXME: sanity check for pilot type
                 bj_pilot_url, bj_manager = pilot._get_instance ('bigjob')
@@ -73,24 +75,30 @@ class PLUGIN_CLASS (object) :
 
                     bj_cu_descr.set_attribute (key, unit_descr[key])
 
-                sj = bigjob.subjob ()
-                sj.submit_job (bj_pilot_url, bj_cu_descr)
+                bj_cu = bigjob.subjob ()
+                bj_cu.submit_job (bj_pilot_url, bj_cu_descr)
+                bj_cu_url = bj_cu.get_url ()
 
- #              print dir(sj)
- #              print sj.get_details ()
+                unit._set_instance ('bigjob', self, bj_cu, bj_cu_url)
 
 
-                unit['dispatcher'] = self
-                unit['instance']   = sj
+
+    # --------------------------------------------------------------------------
+    #
+    def unit_reconnect (self, native_id) :
+
+        bj_cu = bigjob.subjob (subjob_url=native_id)
+
+        return bj_cu
 
 
     # --------------------------------------------------------------------------
     #
     def unit_get_state (self, sj) :
 
-        # hahaha python switch statement hahahahaha
         sj_state = sj.get_state ()
 
+        # hahaha python switch statement hahahahaha
         return {"New"    : DESCRIBED, 
                 "Running": RUNNING, 
                 "Staging": RUNNING, 

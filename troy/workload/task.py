@@ -7,6 +7,7 @@ import radical.utils   as ru
 import saga.attributes as sa
 
 from   troy.constants import *
+import troy
 
 # ------------------------------------------------------------------------------
 #
@@ -91,6 +92,27 @@ class Task (sa.Attributes) :
             unit = self.units[uid]
             unit['dispatcher'].unit_cancel (unit['instance'])
             self.state = CANCELED
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _add_unit (self, u) :
+        """
+        Add a unit to the task
+        """
+
+        print self.state
+  #     if  self.state != DESCRIBED :
+  #         raise RuntimeError ("task is not in DESCRIBED state -- cannot add units")
+
+        # handle scalar and list uniformly
+        # check type, content and uniqueness for each task
+        if  not isinstance (u, troy.ComputeUnit) :
+            raise TypeError ("expected ComputeUnit, got %s" % type(p))
+
+        self.units[u.id] = u
+
+        return u.id
 
 
     # --------------------------------------------------------------------------

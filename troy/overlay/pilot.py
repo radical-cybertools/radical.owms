@@ -16,13 +16,12 @@ import troy
 Represent a pilot, as element of a troy.Overlay.
 """
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 #
 class Pilot (sa.Attributes) :
     """
     """
 
-    _idmap = dict ()
 
     # --------------------------------------------------------------------------
     #
@@ -48,6 +47,7 @@ class Pilot (sa.Attributes) :
                              "description (troy.PilotDescription), not '%s'" \
                           % type(param))
 
+
         # set attribute interface properties
         self._attributes_extensible  (False)
         self._attributes_camelcasing (True)
@@ -58,7 +58,7 @@ class Pilot (sa.Attributes) :
         self._attributes_register     (DESCRIPTION,  descr,             sa.ANY,    sa.SCALAR, sa.READONLY)
 
         # inspection attributes needed by scheduler
-        self._attributes_register     ('NativeID',                None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register     ('NativeID',                None, sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
         self._attributes_register     ('Size',                    None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register     ('Resource',                None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register     ('Units',                   None, sa.STRING, sa.VECTOR, sa.READONLY)
@@ -96,13 +96,12 @@ class Pilot (sa.Attributes) :
             for candidate in candidates :
                 provisioner = plugin_mgr.load ('overlay_provisioner', candidate)
 
-              # try :
-                if True :
+                try :
                     self._instance      = provisioner.pilot_reconnect (native_id)
                     self._instance_type = candidate
                     self._provisioner   = provisioner
-              # except :
-              #     pass
+                except :
+                    pass
 
             if  not self._instance :
                 raise ValueError ("Could not reconnect to pilot %s" % pid)
@@ -251,9 +250,17 @@ class Pilot (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
+    def __repr__ (self) :
+
+        return str(self.description)
+
+
+    # --------------------------------------------------------------------------
+    #
     def _dump (self) :
 
         self._attributes_dump ()
 
 
+# ------------------------------------------------------------------------------
 

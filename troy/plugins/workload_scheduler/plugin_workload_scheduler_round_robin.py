@@ -42,20 +42,20 @@ class PLUGIN_CLASS (object) :
         # schedule to first 'next' pilot
         for tid in workload.tasks.keys () :
 
-            t = workload.tasks[tid]
+            task = workload.tasks[tid]
 
-            for unit_id in t['units'] :
+            for unit_id in task.units :
 
                 if  _idx >= len(overlay.pilots.keys()) :
                     _idx  = 0
 
-                target_pid = overlay.pilots.keys()[_idx]
-                _idx += 1
+                pilot_id  = overlay.pilots.keys()[_idx]
+                _idx     += 1
 
-                pilot = overlay.pilots[target_pid]
-                troy._logger.info ("workload schedule : assign unit %-18s to %s" % (unit_id, pilot.id))
-                t['units'][unit_id]['pilot_id'] = pilot.id
+                unit = task.units[unit_id]
+                unit._bind (pilot_id)
 
+                troy._logger.info ("workload schedule : assign unit %-18s to %s" % (unit_id, pilot_id))
 
 
 # ------------------------------------------------------------------------------

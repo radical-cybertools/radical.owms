@@ -35,9 +35,11 @@ class PLUGIN_CLASS (object) :
 
         # we simply assign all pilots to localhost
         for pid in overlay.pilots.keys() :
+
             pilot = overlay.pilots[pid]
-            troy._logger.info ('overlay  schedule : schedule pilot %s to localhost' % pilot.id)
             pilot._bind ('fork://localhost')
+
+            troy._logger.info ('overlay  schedule : schedule pilot %s to localhost' % pilot.id)
 
 
 # ------------------------------------------------------------------------------

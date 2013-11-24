@@ -39,8 +39,13 @@ if __name__ == '__main__':
     for r in radicalists:
         task_descr            = troy.TaskDescription()
         task_descr.tag        = "%s" % r
-        task_descr.executable = '/bin/echo'
-        task_descr.arguments  = ['Hello World, ', r, '!']
+
+      # task_descr.executable = '/bin/echo'
+      # task_descr.arguments  = ['Hello World, ', r, '!']
+
+        task_descr.working_directory = '/tmp/agent/'
+        task_descr.executable = '/bin/touch'
+        task_descr.arguments  = ['/tmp/"%s"' % r]
 
         task_id = workload.add_task(task_descr)
 

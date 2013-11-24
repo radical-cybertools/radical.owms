@@ -36,12 +36,13 @@ class PLUGIN_CLASS (object) :
 
         for tid in workload.tasks.keys () :
 
-            t = workload.tasks[tid]
+            task = workload.tasks[tid]
 
             # we simply and stupidly translate one task into one unit description
-            t['units'][tid] = dict()
-            t['units'][tid]['description'] = t.description.as_dict ()
-            troy._logger.info ('workload translate: derive unit %-18s for %s' % (tid, t.id))
+            cu_descr = troy.ComputeUnitDescription (task.description.as_dict ())
+            cu       = troy.ComputeUnit (cu_descr)
+            task._add_unit (cu)
+            troy._logger.info ('workload translate: derive unit %-18s for %s' % (cu.id, task.id))
 
 
 

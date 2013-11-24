@@ -1,13 +1,20 @@
 
 
-import copy
-import threading
+__author__    = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__   = "MIT"
+
 
 import radical.utils   as ru
 import saga.attributes as sa
 
 from   troy.constants import *
 import troy
+
+
+"""
+Represent a compute unit, as element of a troy.Task in a troy.Workload.
+"""
 
 # ------------------------------------------------------------------------------
 #
@@ -58,7 +65,7 @@ class ComputeUnit (sa.Attributes) :
         self._attributes_register   ('pilot_id',        None,      sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
 
         # inspection attributes needed by scheduler
-        self._attributes_register     ('NativeID',                None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register     ('NativeID',                None, sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
         self._attributes_register     ('Size',                    None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register     ('Resource',                None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register     ('ProcessesPerNode',        None, sa.INT   , sa.SCALAR, sa.READONLY)
@@ -72,13 +79,13 @@ class ComputeUnit (sa.Attributes) :
         # FIXME: complete attribute list, dig attributes from description,
         # perform sanity checks
 
-        self._attributes_set_getter (STATE, self.get_state)
-
         self._pilot_id      = None
-        self._unit_info     = None
         self._dispatcher    = None
-        self._instance_type = None
         self._instance      = None
+        self._instance_type = None
+        self._unit_info     = None
+
+        self._attributes_set_global_getter (self._get_attribute)
 
 
         if  reconnect :
@@ -94,13 +101,12 @@ class ComputeUnit (sa.Attributes) :
             for candidate in candidates :
                 dispatcher = plugin_mgr.load ('workload_dispatcher', candidate)
 
-              # try :
-                if True :
+                try :
                     self._instance      = dispatcher.unit_reconnect (native_id)
                     self._instance_type = candidate
                     self._dispatcher    = dispatcher
-              # except :
-              #     pass
+                except :
+                    pass
 
             if  not self._instance :
                 raise ValueError ("Could not reconnect to unit %s" % uid)
@@ -129,16 +135,28 @@ class ComputeUnit (sa.Attributes) :
         """
 
         if  self.state not in [DONE, FAILED, CANCELED] :
+            troy._logger.warning ('cancel unit %s' % self.id)
             self._dispatcher.unit_cancel (self._instance)
             self.state = CANCELED
 
 
     # --------------------------------------------------------------------------
     #
-    def _set_instance (self, instance_type, dispatcher, instance, native_id) :
+    def _bind (self, pilot_id) :
 
         if  self.state not in [DESCRIBED] :
-            raise RuntimeError ("Can only dispatch units in DESCRIBED state (%s)" % self.state)
+            raise RuntimeError ("Can only bind pilots in DESCRIBED state (%s)" % self.state)
+            
+        self._pilot_id = pilot_id
+        self.state     = BOUND
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _set_instance (self, instance_type, dispatcher, instance, native_id) :
+
+        if  self.state not in [BOUND] :
+            raise RuntimeError ("Can only dispatch units in BOUND state (%s)" % self.state)
 
         self._dispatcher    = dispatcher
         self._instance_type = instance_type
@@ -221,22 +239,6 @@ class ComputeUnit (sa.Attributes) :
                 # wohoo!
                 return self._unit_info[key]
 
-
-
-    # --------------------------------------------------------------------------
-    #
-    def get_state (self) :
-        """
-        """
-
-        # final states are never left
-        if  self.state in [DONE, FAILED, CANCELED] :
-            return self.state
-        
-        # only DESCRIBED, DISPATCHED and RUNNING are left
-        self._state = self._dispatcher.unit_get_state (self._instance)
-
-        return self.state
 
 
     # --------------------------------------------------------------------------

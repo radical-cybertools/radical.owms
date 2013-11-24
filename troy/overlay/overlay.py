@@ -127,7 +127,7 @@ class Overlay (sa.Attributes) :
     #
     def _add_pilot (self, p) :
         """
-        Add a pilot to te overlay
+        Add a pilot to the overlay
         """
 
         if  self.state != DESCRIBED :
