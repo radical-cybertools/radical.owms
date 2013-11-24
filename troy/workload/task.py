@@ -90,7 +90,7 @@ class Task (sa.Attributes) :
 
         for uid in self.units.keys () :
             unit = self.units[uid]
-            unit['dispatcher'].unit_cancel (unit['instance'])
+            unit.cancel ()
             self.state = CANCELED
 
 

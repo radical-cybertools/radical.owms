@@ -136,7 +136,8 @@ class ComputeUnit (sa.Attributes) :
 
         if  self.state not in [DONE, FAILED, CANCELED] :
             troy._logger.warning ('cancel unit %s' % self.id)
-            self._dispatcher.unit_cancel (self._instance)
+            if  self._dispatcher :
+                self._dispatcher.unit_cancel (self._instance)
             self.state = CANCELED
 
 
