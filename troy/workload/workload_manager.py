@@ -94,6 +94,18 @@ class WorkloadManager (object) :
     # --------------------------------------------------------------------------
     #
     @classmethod
+    def native_id_to_unit_id (cls, native_id) :
+
+        for troy_id in cls._unit_id_map :
+            if  native_id == cls._unit_id_map[troy_id] :
+                return troy_id
+
+        return None
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
     def unit_id_to_native_id (cls, unit_id, native_id=None) :
 
         # FIXME: this is not threadsafe.
@@ -111,6 +123,8 @@ class WorkloadManager (object) :
 
             # lookup id
             if  not unit_id in cls._unit_id_map :
+                import pprint
+                pprint.pprint (cls._unit_id_map)
                 raise ValueError ("no such unit known '%s'" % unit_id)
             return cls._unit_id_map[unit_id]
 

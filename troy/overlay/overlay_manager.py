@@ -90,6 +90,18 @@ class OverlayManager (object) :
     # --------------------------------------------------------------------------
     #
     @classmethod
+    def native_id_to_pilot_id (cls, native_id) :
+
+        for troy_id in cls._pilot_id_map :
+            if  native_id == cls._pilot_id_map[troy_id] :
+                return troy_id
+
+        return None
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
     def pilot_id_to_native_id (cls, pilot_id, native_id=None) :
 
         # FIXME: this is not threadsafe.

@@ -1,6 +1,7 @@
 
 
 import threading
+import weakref
 
 import radical.utils        as ru
 import saga.attributes      as sa
@@ -103,8 +104,6 @@ class Workload (sa.Attributes) :
         # register attributes, initialize state
         self._attributes_register   (ID,          wl_id,     sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   (STATE,       DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
-        self._attributes_register   ('parametrized', False,  sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('error',     None,      sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   ('tasks',     dict(),    sa.ANY,    sa.VECTOR, sa.READONLY)
         self._attributes_register   ('relations', list(),    sa.ANY,    sa.VECTOR, sa.READONLY)
 
@@ -169,14 +168,13 @@ class Workload (sa.Attributes) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
             # FIXME: add sanity checks for task syntax / semantics
-            t = tt.Task (d)
+            task = tt.Task (d, _manager=self)
 
-            if t.tag in self.tasks :
-                raise ValueError ("Task with tag '%s' already exists" % t.tag)
+            if task.tag in self.tasks :
+                raise ValueError ("Task with tag '%s' already exists" % task.tag)
             
-            self.tasks [d.tag] = t
-
-            ret.append (t.id)
+            self.tasks [d.tag] = task
+            ret.append (task.id)
 
 
         if  bulk :
@@ -317,7 +315,14 @@ class Workload (sa.Attributes) :
     def __str__ (self) :
 
         import pprint
-        return str(pprint.pformat ([self.tasks, self.relations]))
+        return "%-7s : %s" % (self.id, str(pprint.pformat ([self.tasks, self.relations])))
+
+
+    # --------------------------------------------------------------------------
+    #
+    def __repr__ (self) :
+
+        return str(self)
 
 
     # --------------------------------------------------------------------------

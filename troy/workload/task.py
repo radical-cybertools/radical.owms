@@ -1,6 +1,7 @@
 
 
 import copy
+import weakref
 import threading
 
 import radical.utils   as ru
@@ -37,7 +38,7 @@ class Task (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, descr) :
+    def __init__ (self, descr, _manager=None) :
         """
         Create a new workload element, aka Task, according to the description..
 
@@ -62,7 +63,8 @@ class Task (sa.Attributes) :
         self._attributes_register   (STATE,             DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
         self._attributes_register   (TAG,               descr.tag, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   (DESCRIPTION,       descr,     sa.ANY,    sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('units',           dict(),    sa.ANY,    sa.VECTOR, sa.WRITEABLE)
+        self._attributes_register   ('units',           dict(),    sa.ANY,    sa.VECTOR, sa.WRITEABLE) # FIXME
+        self._attributes_register   ('manager',         _manager,  sa.ANY,    sa.SCALAR, sa.READONLY)
          
         # FIXME: complete attribute list, dig attributes from description,
         # perform sanity checks
@@ -96,7 +98,7 @@ class Task (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def _add_unit (self, u) :
+    def _add_unit (self, cu_descr) :
         """
         Add a unit to the task
         """
@@ -106,8 +108,10 @@ class Task (sa.Attributes) :
 
         # handle scalar and list uniformly
         # check type, content and uniqueness for each task
-        if  not isinstance (u, troy.ComputeUnit) :
-            raise TypeError ("expected ComputeUnit, got %s" % type(p))
+        if  not isinstance (cu_descr, troy.ComputeUnitDescription) :
+            raise TypeError ("expected ComputeUnitDescription, got %s" % type(cu_descr))
+
+        u = troy.ComputeUnit (cu_descr, _task=self)
 
         self.units[u.id] = u
 
@@ -199,7 +203,14 @@ class Task (sa.Attributes) :
     #
     def __str__ (self) :
 
-        return str(self.description)
+        return '%-7s: %s' % (self.id, self.description)
+
+
+    # --------------------------------------------------------------------------
+    #
+    def __repr__ (self) :
+
+        return str(self)
 
 
     # --------------------------------------------------------------------------

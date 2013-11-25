@@ -2,6 +2,7 @@
 import os
 import saga
 import bigjob
+import weakref
 
 from   troy.constants import *
 import troy
@@ -80,12 +81,26 @@ class PLUGIN_CLASS (object) :
     #
     def pilot_get_info (self, pilot) :
 
-        info = dict()
 
         # find out what we can about the pilot...
         bj_pilot_url, bj_manager = pilot._get_instance ('bigjob')
 
-        info['units'] = bj_manager.list_subjobs ()
+        info     = bj_manager.get_details ()
+        unit_ids = bj_manager.list_subjobs ()
+
+        info['units'] = dict ()
+        for unit_id in unit_ids :
+            cu = troy.ComputeUnit (_native_id=unit_id, _pilot_id=pilot.id)
+            info['units'][unit_id] = cu
+
+        # translate bj state to troy state
+        if  'state' in info :
+            # hahaha python switch statement hahahahaha
+            info['state'] =  {"New"    : DESCRIBED, 
+                              "Running": PROVISIONED, 
+                              "Failed" : FAILED, 
+                              "Done"   : DONE, 
+                              "Unknown": UNKNOWN}.get (info['state'], UNKNOWN)
 
         return info
 

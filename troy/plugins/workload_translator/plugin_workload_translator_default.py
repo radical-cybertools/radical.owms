@@ -40,9 +40,8 @@ class PLUGIN_CLASS (object) :
 
             # we simply and stupidly translate one task into one unit description
             cu_descr = troy.ComputeUnitDescription (task.description.as_dict ())
-            cu       = troy.ComputeUnit (cu_descr)
-            task._add_unit (cu)
-            troy._logger.info ('workload translate: derive unit %-18s for %s' % (cu.id, task.id))
+            cu_id    = task._add_unit (cu_descr)
+            troy._logger.info ('workload translate: derive unit %-18s for %s' % (cu_id, task.id))
 
 
 

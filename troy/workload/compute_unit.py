@@ -31,12 +31,16 @@ class ComputeUnit (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, param) :
+    def __init__ (self, param=None, _native_id=None, _task=None, _pilot_id=None) :
         """
         Create a new ComputeUnit, according to the description, or reconnect to with an ID
 
         Each new CU is assigned a new ID.
         """
+
+        if  _native_id :
+            # back-translate native if to troy id
+            param = str(troy.WorkloadManager.native_id_to_unit_id (_native_id))
 
         if isinstance (param, basestring) :
             uid       = param
@@ -59,22 +63,23 @@ class ComputeUnit (sa.Attributes) :
         self._attributes_camelcasing (True)
 
         # register attributes
-        self._attributes_register   (ID,                uid,       sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   (STATE,             DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
-        self._attributes_register   (DESCRIPTION,       descr,     sa.ANY,    sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('pilot_id',        None,      sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
+        self._attributes_register   (ID,                  uid,        sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   (STATE,               DESCRIBED,  sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
+        self._attributes_register   (DESCRIPTION,         descr,      sa.ANY,    sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('pilot_id',          _pilot_id,  sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
+        self._attributes_register   ('task',              _task,      sa.ANY,    sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('NativeID',          _native_id, sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
 
         # inspection attributes needed by scheduler
-        self._attributes_register     ('NativeID',                None, sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
-        self._attributes_register     ('Size',                    None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('Resource',                None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('ProcessesPerNode',        None, sa.INT   , sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('WorkingDirectory',        None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('Project',                 None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('Queue',                   None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('WallTimeLimit',           None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('AffinityDatacenterLabel', None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('AffinityMachineLabel',    None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('Size',                    None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('Resource',                None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('ProcessesPerNode',        None, sa.INT   , sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('WorkingDirectory',        None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('Project',                 None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('Queue',                   None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('WallTimeLimit',           None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('AffinityDatacenterLabel', None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('AffinityMachineLabel',    None, sa.STRING, sa.SCALAR, sa.READONLY)
          
         # FIXME: complete attribute list, dig attributes from description,
         # perform sanity checks
@@ -92,21 +97,37 @@ class ComputeUnit (sa.Attributes) :
             # we need to get instance and instance type -- but for that we 
             # need to find the provisioner.  So we cycle through all overlay 
             # provision plugins, and ask them if they know about our ID.
-            plugin_mgr = ru.PluginManager ('troy')
 
-            # FIXME: error handling
-            candidates = plugin_mgr.list ('workload_dispatcher')
-
-            native_id = troy.WorkloadManager.unit_id_to_native_id (uid)
-            for candidate in candidates :
-                dispatcher = plugin_mgr.load ('workload_dispatcher', candidate)
+            if  self.task :
+                # ha, shortcut found: task should know provisioner
+                dispatcher = self.task.manager._dispatcher ()
 
                 try :
-                    self._instance      = dispatcher.unit_reconnect (native_id)
-                    self._instance_type = candidate
                     self._dispatcher    = dispatcher
+                    self._instance      = dispatcher.unit_reconnect (_native_id)
+                    self._instance_type = dispatcher.name
                 except :
                     pass
+
+            # lets check if the above shortcut applied:
+            if not self._instance :
+
+                # ok, need to serach provisioner after all...
+                plugin_mgr = ru.PluginManager ('troy')
+                native_id = troy.WorkloadManager.unit_id_to_native_id (uid)
+
+                # FIXME: error handling
+                candidates = plugin_mgr.list ('workload_dispatcher')
+
+                for candidate in candidates :
+                    dispatcher = plugin_mgr.load ('workload_dispatcher', candidate)
+
+                    try :
+                        self._instance      = dispatcher.unit_reconnect (native_id)
+                        self._instance_type = candidate
+                        self._dispatcher    = dispatcher
+                    except :
+                        pass
 
             if  not self._instance :
                 raise ValueError ("Could not reconnect to unit %s" % uid)
@@ -124,6 +145,7 @@ class ComputeUnit (sa.Attributes) :
         Destructor -- cancels the CU
         """
 
+        print 'unit_info : %s' % self._unit_info
         self.cancel ()
 
 
@@ -164,6 +186,7 @@ class ComputeUnit (sa.Attributes) :
         self._dispatcher    = dispatcher
         self._instance_type = instance_type
         self._instance      = instance
+        self.native_id      = native_id
 
         self.state          = DISPATCHED
 
@@ -251,14 +274,14 @@ class ComputeUnit (sa.Attributes) :
     #
     def __str__ (self) :
 
-        return str(self.description)
+        return '%-7s: %s' % (self.id, self.description)
 
 
     # --------------------------------------------------------------------------
     #
     def __repr__ (self) :
 
-        return str(self.description)
+        return str(self)
 
 
     # --------------------------------------------------------------------------

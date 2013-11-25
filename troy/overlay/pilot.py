@@ -25,7 +25,7 @@ class Pilot (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, param) :
+    def __init__ (self, param, _overlay=None) :
         """
         Create a new pilot according to a description, or reconnect to with an ID.
 
@@ -56,12 +56,13 @@ class Pilot (sa.Attributes) :
         self._attributes_register     (ID,           pid,               sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register     (STATE,        DESCRIBED,         sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
         self._attributes_register     (DESCRIPTION,  descr,             sa.ANY,    sa.SCALAR, sa.READONLY)
+        self._attributes_register     ('overlay',    _overlay,          sa.ANY,    sa.SCALAR, sa.READONLY)
 
         # inspection attributes needed by scheduler
         self._attributes_register     ('NativeID',                None, sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
         self._attributes_register     ('Size',                    None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register     ('Resource',                None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('Units',                   None, sa.STRING, sa.VECTOR, sa.READONLY)
+        self._attributes_register     ('Units',                   None, sa.ANY,    sa.ANY,    sa.READONLY)
 
         self._attributes_register     ('ProcessesPerNode',        None, sa.INT   , sa.SCALAR, sa.READONLY)
         self._attributes_register     ('WorkingDirectory',        None, sa.STRING, sa.SCALAR, sa.READONLY)
@@ -118,6 +119,8 @@ class Pilot (sa.Attributes) :
         """
         Destructor -- cancels the pilot
         """
+
+        print 'pilot_info: %s' % self._pilot_info
 
         self.cancel ()
 

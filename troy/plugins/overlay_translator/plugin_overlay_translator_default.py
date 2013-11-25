@@ -35,10 +35,9 @@ class PLUGIN_CLASS (object) :
 
         # we simply use one pilot for te whole thing...
       # for i in range (0, overlay.description.cores) :
-        p_descr = troy.PilotDescription ({'size' : 1})
-        pilot   = troy.Pilot (p_descr)
-        troy._logger.info ("overlay  translate: define   pilot %3d: %s" % (1, pilot))
-        overlay._add_pilot (pilot)
+        p_descr  = troy.PilotDescription ({'size' : 1})
+        pilot_id = overlay._add_pilot (p_descr)
+        troy._logger.info ("overlay  translate: define   pilot %3d: %s" % (1, pilot_id))
 
 
 # ------------------------------------------------------------------------------
