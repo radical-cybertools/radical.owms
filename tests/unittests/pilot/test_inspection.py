@@ -1,4 +1,5 @@
 
+import time
 import radical.utils.testing as rut
 
 from   troy.constants import *
@@ -98,8 +99,9 @@ def test_pilot_inspection () :
     unit_id = pilot.units.keys ()[0]
     unit    = pilot.units[unit_id]
     assert unit
-    assert (RUNNING == unit.state),     "%s != RUNNING" % unit.state
-    assert (unit.pilot_id == pilot.id), "%s != %s"      % (unit.pilot_id, pilot.id)
+    time.sleep (1) # get the unit running *fingers crossed*
+    assert (unit.state    == RUNNING),     "%s != RUNNING" % unit.state
+    assert (unit.pilot_id == pilot.id),    "%s != %s"      % (unit.pilot_id, pilot.id)
     print "pilot_info: %s" % str(pilot._pilot_info)
 
     # --------------------------------------------------------------------------
