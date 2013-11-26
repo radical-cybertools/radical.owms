@@ -92,15 +92,15 @@ def test_pilot_inspection () :
     assert (str(pilot.resource) == 'fork://localhost'), "%s != 'fork://localhost'"   % pilot.resource
     assert (str(pilot.size)  == '2')                  , "%s != '2'"                  % pilot.size  
     assert (len(pilot.units) ==  1 )                  , "%d !=  1"                   % len (pilot.units)
-    assert (pilot.native_id)                          , "no native id (%s)"          % pilot.native_id
-    assert (pilot.native_description)                 , "no native description (%s)" % pilot.native_description
-    assert (pilot.start_time)                         , "no start_time (%s)"         % pilot.start_time
-    assert (pilot.last_contact)                       , "no last contact (%s)"       % pilot.last_contact
-    assert (pilot.end_queue_time)                     , "no end_queue_time (%s)"     % pilot.end_queue_time
-    assert (pilot.processes_per_node)                 , "no processes_per_node (%s)" % pilot.processes_per_node
-    assert (pilot.slots)                              , "no slots (%s)"              % pilot.slots
-  # assert (pilot.working_directory)                  , "no working_directory (%s)"  % pilot.working_directory
-    assert (pilot.service_url)                        , "no service_url (%s)"        % pilot.service_url
+    assert (pilot.native_id)                          , "no native id"
+    assert (pilot.native_description)                 , "no native description"
+    assert (pilot.start_time)                         , "no start_time"
+    assert (pilot.last_contact)                       , "no last contact"
+    assert (pilot.end_queue_time)                     , "no end_queue_time"
+    assert (pilot.processes_per_node)                 , "no processes_per_node"
+    assert (pilot.slots)                              , "no slots"
+  # assert (pilot.working_directory)                  , "no working_directory"
+    assert (pilot.service_url)                        , "no service_url"
 
     # --------------------------------------------------------------------------
     #
@@ -112,7 +112,6 @@ def test_pilot_inspection () :
     time.sleep (1) # get the unit running *fingers crossed*
     assert (unit.state    == RUNNING),     "%s != RUNNING" % unit.state
     assert (unit.pilot_id == pilot.id),    "%s != %s"      % (unit.pilot_id, pilot.id)
-    print "pilot_info: %s" % str(pilot._pilot_info)
 
     # --------------------------------------------------------------------------
     #
@@ -147,7 +146,14 @@ def test_pilot_inspection () :
     assert (unit.description.executable == "/bin/sleep"),   "%s != '/bin/sleep'" % unit.description.executable
     assert (unit.task.id                == task.id     ),   "%s != %s"           % (unit.task.id, task.id)
     assert (unit.native_id                             ),   "no native id"
-    print "unit_info: %s" % str(unit._unit_info)
+    assert (unit.executable                            ),   "no executable"
+    assert (unit.slots                                 ),   "no slots"
+    assert (unit.start_time                            ),   "no start_time"
+    assert (unit.agent_start_time                      ),   "no agent_start_time"
+    assert (unit.tag == task.tag                       ),   "%s != %s"           % (unit.tag, task.tag)
+    assert (unit.arguments                             ),   "no arguments"
+    assert (unit.job_id                                ),   "no job_id"
+    assert (unit.end_queue_time                        ),   "no end_queue_time"
 
     # --------------------------------------------------------------------------
     #

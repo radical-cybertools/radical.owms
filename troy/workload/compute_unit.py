@@ -70,7 +70,17 @@ class ComputeUnit (sa.Attributes) :
         self._attributes_register   ('task',              _task,      sa.ANY,    sa.SCALAR, sa.READONLY)
         self._attributes_register   ('NativeID',          _native_id, sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
 
-        # inspection attributes needed by scheduler
+        # info from backend
+        self._attributes_register   ('JobID',                   None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('Tag',                     None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('Executable',              None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('Arguments',               None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('Slots',                   None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('StartTime',               None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('AgentStartTime',          None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self._attributes_register   ('EndQueueTime',            None, sa.STRING, sa.SCALAR, sa.READONLY)
+
+        # info from backend - wishes
         self._attributes_register   ('Size',                    None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   ('Resource',                None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   ('ProcessesPerNode',        None, sa.INT   , sa.SCALAR, sa.READONLY)
@@ -80,6 +90,29 @@ class ComputeUnit (sa.Attributes) :
         self._attributes_register   ('WallTimeLimit',           None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   ('AffinityDatacenterLabel', None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   ('AffinityMachineLabel',    None, sa.STRING, sa.SCALAR, sa.READONLY)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
          
         # FIXME: complete attribute list, dig attributes from description,
         # perform sanity checks
@@ -145,7 +178,6 @@ class ComputeUnit (sa.Attributes) :
         Destructor -- cancels the CU
         """
 
-        print 'unit_info : %s' % self._unit_info
         self.cancel ()
 
 
@@ -220,6 +252,7 @@ class ComputeUnit (sa.Attributes) :
             # otherwise simply fetch all info(again?)
             # FIXME: need convention about key names / casing
             self._unit_info = self._dispatcher.unit_get_info (self)
+            self._update_unit_info ()
             return
 
         # else we attempt to dig through the unit info
@@ -261,6 +294,7 @@ class ComputeUnit (sa.Attributes) :
                 # otherwise simply fetch all info(again?)
                 # FIXME: need convention about key names / casing
                 self._unit_info = self._dispatcher.unit_get_info (self)
+                self._update_unit_info ()
 
                 if  key in self._unit_info :
                     # wohoo!
@@ -268,6 +302,38 @@ class ComputeUnit (sa.Attributes) :
 
         # we don't have the requested backend info -- fall back to attribs
         return self._attributes_i_get (key, flow='UP')
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _update_unit_info (self) :
+
+        # FIXME: this code should actually live within the bigjob plugin, as
+        # only it should know about the mapping below
+
+        keymap = {'native_id'         : 'native_id'        ,
+                  'job-id'            : 'job_id'           ,
+                  'tag'               : 'tag'              ,
+                  'Executable'        : 'executable'       ,
+                  'Arguments'         : 'arguments'        ,
+                  'NumberOfProcesses' : 'slots'            ,
+                  'start_time'        : 'start_time'       ,
+                  'agent_start_time'  : 'agent_start_time' ,
+                  'end_queue_time'    : 'end_queue_time'   ,
+                }
+
+
+        # now that we have fresh info, lets update all unit attributes
+        for info_key in self._unit_info :
+
+            if  info_key in keymap : new_key = keymap[info_key]
+            else                   : new_key =        info_key
+
+          # print 'KEY: %s - %s' % (info_key, new_key)
+
+            # this will trigger registered callbacks
+            self._attributes_i_set (new_key, self._unit_info[info_key],
+                                    force=True, flow=self._UP)
 
 
     # --------------------------------------------------------------------------

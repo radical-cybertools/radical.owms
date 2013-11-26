@@ -310,8 +310,6 @@ class Pilot (sa.Attributes) :
                 self._attributes_i_set (new_key, description[descr_key],
                                         force=True, flow=self._UP)
 
-        return str(self.description)
-
 
     # --------------------------------------------------------------------------
     #
