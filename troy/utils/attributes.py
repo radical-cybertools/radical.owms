@@ -12,7 +12,9 @@ class Attributes (saga.Attributes) :
     Notifications:
     --------------
 
-    Assume we want to get a callback involved when a task's state changes::
+    Assume we want to allow users to register callback for a task's state
+    change, which is getting invoked whenever the task's `state` property
+    changes::
 
         def my_cb (obj, key, val) :
             print 'state of task %s changed to %s' % (obj.id, val)
@@ -21,64 +23,93 @@ class Attributes (saga.Attributes) :
         task.add_callback ('state', my_cb)
 
 
-    For that to work, we need to declare which properties are eligible for
-    callbacks::
+    For that to work, Troy needs to declare which properties are eligible for
+    those callbacks::
 
         class troy.workload (troy.utils.Attributes) :
 
             self.register_property ('state')
             ...
 
-    From that point on, any plugin, or any thread within troy, can set the
+    From that point on, any plugin, or any thread within Troy, can set the
     workload state attribute, and any application callback registered for that
-    property will get invoked.
+    property will get invoked.  For example, a bigjob dispatcher plugin could
+    use::
+
+        tasks[i].state = troy.FAILED
+
+    that would immediately call the application callback (in the same thread
+    context).
 
 
     Refresh:
     --------
 
-    It is costly for troy to frequently update all possible information from
+    It is costly for Troy to frequently update all possible information from
     remote information sources -- without actually knowing what is needed.  It
     would be more efficient to pull information only when they are actually
-    accessed.  For that, we would need again to declare those properties which
-    are eligible for on-demand (or rather: on-access) refreshs, and we need to
-    declare what method refreshes (i.e. updates) all properties, or a single
-    property::
+    accessed.  For that, Troy needs again to explicitly register properties
+    which are eligible for on-demand (or rather: on-access) updates, and also
+    what method updates the property/properties::
 
         class troy.workload (troy.utils.Attributes) :
 
+            # ------------------------------------------------------------------
+            #
             def __init__ (...) :
+
+                # register properties for callback
                 self.register_property ('state')
                 self.register_property ('runtime')
 
-                # set a property updater for 'state'
-                self.register_property_update ('state', self._update_state)
+                # set a property updater for the 'state' property
+                self.register_property_updater ('state', self._state_updater)
 
                 # set a property updater for all registered properties
-                self.register_property_update (self._update_properties)
+                self.register_property_updater (self._properties_updater)
 
 
-            def _update_state (self) :
+            # ------------------------------------------------------------------
+            #
+            def _state_updater (self) :
+
                 # update 'state' property by backend polling
                 self.state = self._backend.get_state (self.id)
+
+                # this is equivalent to:
+                self.update_property ('state', self._backend.get_state (self.id))
                 
 
-            def _update_properties (self, key) :
-                # update other properties by backend polling
+            # ------------------------------------------------------------------
+            #
+            def _properties_updater (self) :
+
+                # update all properties by backend polling
                 info = self._backend.get_all_info (self.id)
-                if  key not in info :
-                    print "we have no information about '%s'" % key
-                else :
-                    self.__setattr__ (key, info[key])
+                for key in info :
+                    self.update_property (key, info[key])
 
 
     Note: the `_update_properties` method can be made even more efficient by
     caching the resulting info dict - but that optimization is out of scope for
     this part of the documentation.
 
+            # ------------------------------------------------------------------
+            #
+            def _properties_updater (self) :
+                # update all properties by backend polling
+                if  (time.now() - self._info_age > self._cache_ttl) :
+
+                    # info cache timed out - -refetch properties
+                    info = self._backend.get_all_info (self.id)
+                    self._info_age = time.now()
+                    for key in info :
+                        self.__setattr__ (key, info[key])
+
     Also note that the the above is very similar to the native Python way to
     provide property getters -- but integrates that mechanism with callback
-    management.
+    management.  For more detailed information, see the implementation and
+    documentation of the saga.Attributes interface.
     """
 
     # --------------------------------------------------------------------------
@@ -86,13 +117,11 @@ class Attributes (saga.Attributes) :
     def __init__ (self, inits={}) :
 
         # set up attribute interface -- allow normal properties (extensible),
-        # and do not CamelCase properties when accessed via the dictionary
-        # interface: 
-        #     workload.state != workload['State']
+        # and initialize from a given dictionary
 
         saga.Attributes.__init__ (self, inits)
         self._attributes_extensible  (True)
-        self._attributes_camelcasing (False)
+        self._attributes_camelcasing (False)  # don't change property cases on the fly
     
 
     # --------------------------------------------------------------------------
@@ -113,7 +142,7 @@ class Attributes (saga.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def register_property_update (self, key=None, update=None) :
+    def register_property_updater (self, key=None, update=None) :
 
         if  key :
             # set getter for one specific attribute...
