@@ -1,21 +1,21 @@
 
-
+import saga
 
 class Attributes (saga.Attributes) :
     """
-
     Several Troy classes benefit from somewhat richer than default python
     properties -- in particular, we want to get notification callbacks on state
-    changes, and want to be able to refresh properties on the fly, i.e. when
-    they are needed.
+    changes (and similar), and want to be able to refresh properties on the fly,
+    i.e. when they are needed.
+
 
     Notifications:
     --------------
 
     Assume we want to get a callback involved when a task's state changes::
 
-        def my_cb (task, key, val) :
-            print 'state of task %s changed to %s' % (task.id, val)
+        def my_cb (obj, key, val) :
+            print 'state of task %s changed to %s' % (obj.id, val)
 
         task = workload.tasks[3]
         task.add_callback ('state', my_cb)
@@ -30,7 +30,8 @@ class Attributes (saga.Attributes) :
             ...
 
     From that point on, any plugin, or any thread within troy, can set the
-    workload state attribute, and any registered user callback will get invoked.
+    workload state attribute, and any application callback registered for that
+    property will get invoked.
 
 
     Refresh:
@@ -80,19 +81,47 @@ class Attributes (saga.Attributes) :
     management.
     """
 
+    # --------------------------------------------------------------------------
+    #
+    def __init__ (self, inits={}) :
+
+        # set up attribute interface -- allow normal properties (extensible),
+        # and do not CamelCase properties when accessed via the dictionary
+        # interface: 
+        #     workload.state != workload['State']
+
+        saga.Attributes.__init__ (self, inits)
+        self._attributes_extensible  (True)
+        self._attributes_camelcasing (False)
+    
+
+    # --------------------------------------------------------------------------
+    #
     def register_property (self, key) :
-        # register atribute w/o type checking
+
+        # register attribute w/o type checking
         self._attributes_register (key)
 
+
+    # --------------------------------------------------------------------------
+    #
     def update_property (self, key, val) :
-        # force updated, also triggers attached callbacks
+
+        # force attribute updated, also triggers attached callbacks
         self._attributes_i_set (key, val, force=True, flow=self._UP)
 
-    def register_property_update (self, key=None, update=None) :
-        # set getters for a key, or for all keys
-        if  not key :
-            self._attributes_set_global_getter (update)
-        else :
-            self._attributes_set_getter (key, update)
 
+    # --------------------------------------------------------------------------
+    #
+    def register_property_update (self, key=None, update=None) :
+
+        if  key :
+            # set getter for one specific attribute...
+            self._attributes_set_getter   (key, update)
+        else :
+            # ... or for all attributes
+            self._attributes_set_global_getter (update)
+
+
+# ------------------------------------------------------------------------------
 
