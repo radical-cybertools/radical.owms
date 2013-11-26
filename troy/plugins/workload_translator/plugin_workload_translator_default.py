@@ -3,6 +3,7 @@
 import threading
 
 from   troy.constants import *
+import troy
 
 
 # ------------------------------------------------------------------------------
@@ -26,7 +27,7 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        print "create the default workload_translator plugin"
+        troy._logger.info ("create the default workload_translator plugin")
 
 
     # --------------------------------------------------------------------------
@@ -35,12 +36,12 @@ class PLUGIN_CLASS (object) :
 
         for tid in workload.tasks.keys () :
 
-            t = workload.tasks[tid]
+            task = workload.tasks[tid]
 
             # we simply and stupidly translate one task into one unit description
-            t['units'][tid] = dict()
-            t['units'][tid]['description'] = t.description.as_dict ()
-            print 'workload translate: derive unit %-18s for %s' % (tid, t.id)
+            cu_descr = troy.ComputeUnitDescription (task.description.as_dict ())
+            cu_id    = task._add_unit (cu_descr)
+            troy._logger.info ('workload translate: derive unit %-18s for %s' % (cu_id, task.id))
 
 
 

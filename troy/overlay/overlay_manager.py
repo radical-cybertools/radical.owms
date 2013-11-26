@@ -44,6 +44,11 @@ class OverlayManager (object) :
 
     """
 
+
+    # this map is used to translate between troy pilot IDs and native backend
+    # IDs. 
+    _pilot_id_map = dict ()
+
     # --------------------------------------------------------------------------
     #
     def __init__ (self, inspector   = 'default',
@@ -80,6 +85,42 @@ class OverlayManager (object) :
     @classmethod
     def unregister_overlay (cls, overlay_id) :
         ru.Registry.unregister (overlay_id)
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def native_id_to_pilot_id (cls, native_id) :
+
+        for troy_id in cls._pilot_id_map :
+            if  native_id == cls._pilot_id_map[troy_id] :
+                return troy_id
+
+        return None
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def pilot_id_to_native_id (cls, pilot_id, native_id=None) :
+
+        # FIXME: this is not threadsafe.
+        # FIXME: load from disk on first call
+
+        if  native_id :
+
+            # register id
+            if  pilot_id in cls._pilot_id_map :
+                raise ValueError ("Cannot register that pilot id -- already known")
+            cls._pilot_id_map[pilot_id] = native_id
+            # FIXME: dump to disk
+
+        else :
+
+            # lookup id
+            if  not pilot_id in cls._pilot_id_map :
+                raise ValueError ("no such pilot known '%s'" % pilot_id)
+            return cls._pilot_id_map[pilot_id]
 
 
     # --------------------------------------------------------------------------

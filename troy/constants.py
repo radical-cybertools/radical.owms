@@ -44,8 +44,9 @@ UNKNOWN      = 'Unknown'     # what?
 # use that state model
 #
 DESCRIBED    = 'Described'   # Unit created
-PENDING      = 'Pending'     # Unit submitted to pilot
-RUNNING      = 'Running'     # Unit active on pilot
+DISPATCHED   = 'Dispatched'  # Unit submitted to pilot
+PENDING      = 'Pending'     # Unit scheduled on pilot
+RUNNING      = 'Running'     # Unit active    on pilot
 DONE         = 'Done'        # Unit completed
 FAILED       = 'Failed'      # oops
 CANCELED     = 'Canceled'    # Unit canceled

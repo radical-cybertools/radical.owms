@@ -8,11 +8,14 @@ import saga
 class Session (saga.Session) : pass
 class Context (saga.Context) : pass
 
+
+import radical.utils as ru
+_logger = ru.logger.getLogger ('troy')
+
 # ------------------------------------------------------------------------------
 #
 # the Troy API layer
 #
-#from api        import Troy
 from constants  import *
 
 
@@ -24,10 +27,12 @@ from config import Configuration
 
 from planner    import Planner
 
-from workload   import RelationDescription
-from workload   import Relation
+from workload   import ComputeUnitDescription
+from workload   import ComputeUnit
 from workload   import TaskDescription
 from workload   import Task
+from workload   import RelationDescription
+from workload   import Relation
 from workload   import Workload
 from workload   import WorkloadManager
 

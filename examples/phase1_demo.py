@@ -21,8 +21,7 @@ if __name__ == '__main__':
                    'Andre Luckow',     'Matteo Turilli',     'Melissa Romanus',
                    'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
                    'Antons Treikalis', 'Jeffery Rabinowitz', 'Patrick Gray',
-                   'Vishal Shah']
-    #radicalists = ['Tom']
+                   'Vishal Shah',      'Radicalobot']
 
     # Responsible for application workload
     workload_mgr = troy.WorkloadManager()
@@ -41,6 +40,7 @@ if __name__ == '__main__':
     for r in radicalists:
         task_descr            = troy.TaskDescription()
         task_descr.tag        = "%s" % r
+
         task_descr.executable = '/bin/echo'
         task_descr.arguments  = ['Hello World, ', r, '!']
 
@@ -81,16 +81,18 @@ if __name__ == '__main__':
     # Of course nothing will fail due to TROY's magic robustness and
     # and we therefore just wait until its done!
     while workload.state not in [troy.DONE, troy.FAILED]:
-        print "whats up, buddy? (workload state: %s)" % workload.state
+        troy._logger.info ("whats up, buddy? (workload state: %s)" % workload.state)
         time.sleep(1)
 
-    print "ok, buddy, lets see what you got (workload state: %s)" % workload.state
+    troy._logger.info ("ok, buddy, lets see what you got (workload state: %s)" % workload.state)
 
     if workload.state == troy.DONE :
-        print "game over"
+        troy._logger.info ("game over")
     else :
-        print "game over -- play again?"
+        troy._logger.info ("game over -- play again?")
 
     workload_mgr.cancel_workload (workload.id)   # same as workload.cancel ()
     overlay_mgr .cancel_overlay  (overlay_id)
+
+
 

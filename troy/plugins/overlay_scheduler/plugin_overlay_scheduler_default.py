@@ -1,6 +1,7 @@
 
 
 from   troy.constants import *
+import troy
 
 
 # ------------------------------------------------------------------------------
@@ -25,7 +26,7 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        print "create the default overlay_scheduler plugin"
+        troy._logger.info ("create the default overlay_scheduler plugin")
 
 
     # --------------------------------------------------------------------------
@@ -34,9 +35,11 @@ class PLUGIN_CLASS (object) :
 
         # we simply assign all pilots to localhost
         for pid in overlay.pilots.keys() :
+
             pilot = overlay.pilots[pid]
-            print 'overlay  schedule : schedule pilot %s to localhost' % pilot.id
-            pilot._bind ('ssh://localhost')
+            pilot._bind ('fork://localhost')
+
+            troy._logger.info ('overlay  schedule : schedule pilot %s to localhost' % pilot.id)
 
 
 # ------------------------------------------------------------------------------

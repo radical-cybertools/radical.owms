@@ -31,6 +31,9 @@ class WorkloadManager (object) :
 
     # FIXME: state checks ignore PLANNED state...
 
+    # this map is used to translate between troy unit IDs and native backend
+    # IDs. 
+    _unit_id_map = dict ()
 
     # --------------------------------------------------------------------------
     #
@@ -86,6 +89,44 @@ class WorkloadManager (object) :
         ru.Registry.release (workload_id)
 
         return wl
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def native_id_to_unit_id (cls, native_id) :
+
+        for troy_id in cls._unit_id_map :
+            if  native_id == cls._unit_id_map[troy_id] :
+                return troy_id
+
+        return None
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def unit_id_to_native_id (cls, unit_id, native_id=None) :
+
+        # FIXME: this is not threadsafe.
+        # FIXME: load from disk on first call
+
+        if  native_id :
+
+            # register id
+            if  unit_id in cls._unit_id_map :
+                raise ValueError ("Cannot register that unit id -- already known")
+            cls._unit_id_map[unit_id] = native_id
+            # FIXME: dump to disk
+
+        else :
+
+            # lookup id
+            if  not unit_id in cls._unit_id_map :
+                import pprint
+                pprint.pprint (cls._unit_id_map)
+                raise ValueError ("no such unit known '%s'" % unit_id)
+            return cls._unit_id_map[unit_id]
 
 
     # --------------------------------------------------------------------------
@@ -153,11 +194,11 @@ class WorkloadManager (object) :
                                   "do early binding" % str(overlay.id))
 
         elif bind_mode == LATE : 
-            if  overlay.state != BOUND      and \
-                overlay.state != DISPATCHED :
-                raise ValueError ( "overlay '%s' neither scheduled nor " \
-                                 + "dispateched, cannot do late binding" \
-                                 % overlay.id)
+            if  overlay.state != BOUND   and \
+                overlay.state != PROVISIONED :
+                raise ValueError ( "overlay '%s' neither scheduled nor " % str(overlay.id) \
+                                 + "dispateched, cannot do late binding")
+                                 
 
         # hand over control over workload (and overlay) to the scheduler plugin,
         # so it can do what it has to do.

@@ -21,7 +21,8 @@ class PLUGIN_CLASS(object):
     #
     def __init__(self):
 
-        print "create the default planner plugin"
+        troy._logger.info ("create the default planner plugin")
+
 
     # --------------------------------------------------------------------------
     #
@@ -29,7 +30,8 @@ class PLUGIN_CLASS(object):
 
         # Do nothing for now
         
-        print "planner  expand wl: expand workload : %s" % workload
+        troy._logger.info ("planner  expand wl: expand workload : %s" % workload)
+
 
     # --------------------------------------------------------------------------
     #
@@ -43,7 +45,7 @@ class PLUGIN_CLASS(object):
                 'wall_time' : (1 << 1) + (1 << 3) + (1 << 5)
             })
 
-        print "planner  derive ol: derive overlay for workload: %s" % ovl_descr
+        troy._logger.info ("planner  derive ol: derive overlay for workload: %s" % ovl_descr)
 
         # Create an overlay
         return troy.Overlay(ovl_descr)

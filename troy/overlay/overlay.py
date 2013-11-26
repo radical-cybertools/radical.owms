@@ -4,12 +4,13 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
+import weakref
+
 import radical.utils        as ru
 import saga.attributes      as sa
 
-import pilot                as tp
-
 from   troy.constants   import *
+import troy
 
 """
 Represent a pilot-based overlay that is managed by TROY.
@@ -82,6 +83,9 @@ class Overlay (sa.Attributes) :
         additional id parameter, to reconnect to the thus identified overlay
         instance.
         """
+
+        if  isinstance (descr, dict) :
+            descr = troy.OverlayDescription (descr)
         
         ol_id = ru.generate_id ('ol.')
 
@@ -92,7 +96,6 @@ class Overlay (sa.Attributes) :
         # register attributes, initialize state
         self._attributes_register    (ID,          ol_id,     sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register    (STATE,       DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
-        self._attributes_register    ('error',     None,      sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register    (DESCRIPTION, descr,     sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register    ('pilots',    dict(),    sa.ANY,    sa.ANY,    sa.READONLY)
 
@@ -121,9 +124,9 @@ class Overlay (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def _add_pilot (self, p) :
+    def _add_pilot (self, p_descr) :
         """
-        Add a pilot to te overlay
+        Add a pilot to the overlay
         """
 
         if  self.state != DESCRIBED :
@@ -131,8 +134,10 @@ class Overlay (sa.Attributes) :
 
         # handle scalar and list uniformly
         # check type, content and uniqueness for each task
-        if  not isinstance (p, tp.Pilot) :
-            raise TypeError ("expected Pilot, got %s" % type(p))
+        if  not isinstance (p_descr, troy.PilotDescription) :
+            raise TypeError ("expected PilotDescription, got %s" % type(p_descr))
+
+        p = troy.Pilot (p_descr, _overlay=self)
 
         self.pilots[p.id] = p
 
@@ -143,7 +148,15 @@ class Overlay (sa.Attributes) :
     #
     def __str__ (self) :
 
-        return str(self.description)
+        import pprint
+        return "%-7s : %s" % (self.id, str(pprint.pformat (self.pilots)))
+
+
+    # --------------------------------------------------------------------------
+    #
+    def __repr__ (self) :
+
+        return str(self)
 
 
     # --------------------------------------------------------------------------

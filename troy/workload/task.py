@@ -1,12 +1,14 @@
 
 
 import copy
+import weakref
 import threading
 
 import radical.utils   as ru
 import saga.attributes as sa
 
 from   troy.constants import *
+import troy
 
 # ------------------------------------------------------------------------------
 #
@@ -36,7 +38,7 @@ class Task (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, descr) :
+    def __init__ (self, descr, _manager=None) :
         """
         Create a new workload element, aka Task, according to the description..
 
@@ -58,10 +60,11 @@ class Task (sa.Attributes) :
 
         # register attributes
         self._attributes_register   (ID,                tid,       sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   (STATE,             UNKNOWN,   sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
+        self._attributes_register   (STATE,             DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
         self._attributes_register   (TAG,               descr.tag, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   (DESCRIPTION,       descr,     sa.ANY,    sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('units',           dict(),    sa.ANY,    sa.VECTOR, sa.WRITEABLE)
+        self._attributes_register   ('units',           dict(),    sa.ANY,    sa.VECTOR, sa.WRITEABLE) # FIXME
+        self._attributes_register   ('manager',         _manager,  sa.ANY,    sa.SCALAR, sa.READONLY)
          
         # FIXME: complete attribute list, dig attributes from description,
         # perform sanity checks
@@ -89,8 +92,30 @@ class Task (sa.Attributes) :
 
         for uid in self.units.keys () :
             unit = self.units[uid]
-            unit['dispatcher'].unit_cancel (unit['instance'])
+            unit.cancel ()
             self.state = CANCELED
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _add_unit (self, cu_descr) :
+        """
+        Add a unit to the task
+        """
+
+        if  self.state != DESCRIBED :
+            raise RuntimeError ("task is not in DESCRIBED state -- cannot add units (%s)" % self.state)
+
+        # handle scalar and list uniformly
+        # check type, content and uniqueness for each task
+        if  not isinstance (cu_descr, troy.ComputeUnitDescription) :
+            raise TypeError ("expected ComputeUnitDescription, got %s" % type(cu_descr))
+
+        u = troy.ComputeUnit (cu_descr, _task=self)
+
+        self.units[u.id] = u
+
+        return u.id
 
 
     # --------------------------------------------------------------------------
@@ -117,40 +142,51 @@ class Task (sa.Attributes) :
         state transitions.  At that point, we make the task state dependent on the
         tasks states, and define::
 
-                 if any unit  is  FAILED   : task.state = FAILED
-            else if any unit  is  CANCELED : task.state = CANCELED
-            else if any unit  is  PENDING  : task.state = RUNNING
-            else if any unit  is  RUNNING  : task.state = RUNNING
-            else if all units are DONE     : task.state = DONE
-            else                           : task.state = UNKNOWN
+                 if any unit  is  FAILED     : task.state = FAILED
+            else if any unit  is  CANCELED   : task.state = CANCELED
+            else if any unit  is  DISPATCHED : task.state = DISPATCHED
+            else if any unit  is  DISPATCHED : task.state = RUNNING
+            else if any unit  is  RUNNING    : task.state = RUNNING
+            else if all units are DONE       : task.state = DONE
+            else                             : task.state = UNKNOWN
 
         """
 
         # atomic states are set elsewhere
-        if  self.state in [DESCRIBED, TRANSLATED, BOUND] :
+        if  self.state in [TRANSLATED, BOUND] :
+          # print "ts -> unchanged %s (early)" % self.state
             return self.state
 
         # final states are never left
         if  self.state in [DONE, FAILED, CANCELED] :
+          # print "ts -> unchanged %s (final)" % self.state
+            return self.state
+
+        # if there are no units, then there was no further state transition
+        if  not len(self.units) :
+          # print "ts -> unchanged %s (no units)" % self.state
             return self.state
         
         # only DISPATCHED and RUNNING are left -- state depends on unit states
         unit_states = []
         for tid in self.units.keys () :
             unit       = self.units[tid]
-            unit_state = unit['dispatcher'].unit_get_state (unit['instance'])
-            unit_states.append (unit_state)
-          # print 'us: %s' % unit_state
+            unit_states.append (unit.state)
+          # print 'us %s: %s' % (unit.id, unit.state)
 
-        if FAILED in unit_states :
+        if  UNKNOWN in unit_states :
+            self.state = UNKNOWN
+
+        elif FAILED in unit_states :
             self.state = FAILED
 
         elif CANCELED in unit_states :
             self.state = CANCELED
 
-        elif PENDING in unit_states or \
-             RUNNING in unit_states :
-            self.state = RUNNING
+        elif DISPATCHED in unit_states or \
+             PENDING    in unit_states or \
+             RUNNING    in unit_states :
+            self.state = DISPATCHED
 
         else :
             self.state = DONE
@@ -158,6 +194,7 @@ class Task (sa.Attributes) :
                 if s != DONE :
                     self.state = UNKNOWN
 
+        troy._logger.debug ('task state %-6s : %-10s %s' % (self.id, self.state, str(unit_states)))
 
         return self.state
 
@@ -166,7 +203,14 @@ class Task (sa.Attributes) :
     #
     def __str__ (self) :
 
-        return str(self.description)
+        return '%-7s: %s' % (self.id, self.description)
+
+
+    # --------------------------------------------------------------------------
+    #
+    def __repr__ (self) :
+
+        return str(self)
 
 
     # --------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 
 
 import threading
+import weakref
 
 import radical.utils        as ru
 import saga.attributes      as sa
@@ -12,6 +13,7 @@ import relation             as tr
 import relation_description as trd
 
 from   troy.constants       import *
+import troy
 
 
 # ------------------------------------------------------------------------------
@@ -102,8 +104,6 @@ class Workload (sa.Attributes) :
         # register attributes, initialize state
         self._attributes_register   (ID,          wl_id,     sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   (STATE,       DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
-        self._attributes_register   ('parametrized', False,  sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('error',     None,      sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register   ('tasks',     dict(),    sa.ANY,    sa.VECTOR, sa.READONLY)
         self._attributes_register   ('relations', list(),    sa.ANY,    sa.VECTOR, sa.READONLY)
 
@@ -140,7 +140,6 @@ class Workload (sa.Attributes) :
         self.state = CANCELED
 
 
-
     # --------------------------------------------------------------------------
     #
     def add_task (self, descr) :
@@ -168,22 +167,19 @@ class Workload (sa.Attributes) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
             # FIXME: add sanity checks for task syntax / semantics
-            t = tt.Task (d)
+            task = tt.Task (d, _manager=self)
 
-            if t.tag in self.tasks :
-                raise ValueError ("Task with tag '%s' already exists" % t.tag)
+            if task.tag in self.tasks :
+                raise ValueError ("Task with tag '%s' already exists" % task.tag)
             
-            self.tasks [d.tag] = t
-
-            ret.append (t.id)
+            self.tasks [d.tag] = task
+            ret.append (task.id)
 
 
         if  bulk :
             return ret
         else :
             return ret[0]
-
-
 
 
     # --------------------------------------------------------------------------
@@ -236,7 +232,6 @@ class Workload (sa.Attributes) :
             return ret[0]
 
 
-
     # --------------------------------------------------------------------------
     #
     def get_state (self) :
@@ -262,11 +257,11 @@ class Workload (sa.Attributes) :
         have individual and uncorrelated state transitions.  At that point, we
         make the workload state dependent on the tasks states, and define::
 
-                 if any task  is  FAILED   :  workload.state = FAILED
-            else if any task  is  CANCELED :  workload.state = CANCELED
-            else if any task  is  RUNNING  :  workload.state = RUNNING
-            else if all tasks are DONE     :  workload.state = DONE
-            else                           :  workload.state = UNKNOWN
+                 if any task  is  FAILED     :  workload.state = FAILED
+            else if any task  is  CANCELED   :  workload.state = CANCELED
+            else if any task  is  DISPATCHED :  workload.state = DISPATCHED
+            else if all tasks are DONE       :  workload.state = DONE
+            else                             :  workload.state = UNKNOWN
 
         """
 
@@ -278,21 +273,28 @@ class Workload (sa.Attributes) :
         if  self.state in [DONE, FAILED, CANCELED] :
             return self.state
         
-        # only DISPATCHED and RUNNING are left -- state depends on task states
+        # if there are no tasks, then there was no further state transition
+        if  not len(self.tasks) :
+            return self.state
+        
+        # state depends on task states
         task_states = []
         for tid in self.tasks.keys () :
             task = self.tasks[tid]
             task_states.append (task.state)
           # print 'ts: %s' % task.state
 
-        if FAILED in task_states :
+        if UNKNOWN in task_states :
+            self.state = UNKNOWN
+
+        elif FAILED in task_states :
             self.state = FAILED
 
         elif CANCELED in task_states :
             self.state = CANCELED
 
-        elif RUNNING in task_states :
-            self.state = RUNNING
+        elif DISPATCHED in task_states :
+            self.state = DISPATCHED
 
         else :
             self.state = DONE
@@ -300,7 +302,7 @@ class Workload (sa.Attributes) :
                 if s != DONE :
                     self.state = UNKNOWN
 
-      # print 'wl: %s' % self.state
+        troy._logger.debug ('wl   state %-6s: %-10s %s' % (self.id, self.state, str(task_states)))
         return self.state
 
 
@@ -309,7 +311,14 @@ class Workload (sa.Attributes) :
     def __str__ (self) :
 
         import pprint
-        return str(pprint.pformat ([self.tasks, self.relations]))
+        return "%-7s : %s" % (self.id, str(pprint.pformat ([self.tasks, self.relations])))
+
+
+    # --------------------------------------------------------------------------
+    #
+    def __repr__ (self) :
+
+        return str(self)
 
 
     # --------------------------------------------------------------------------
@@ -317,6 +326,7 @@ class Workload (sa.Attributes) :
     def _dump (self) :
 
         self._attributes_dump ()
+
 
 # ------------------------------------------------------------------------------
 
