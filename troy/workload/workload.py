@@ -140,7 +140,6 @@ class Workload (sa.Attributes) :
         self.state = CANCELED
 
 
-
     # --------------------------------------------------------------------------
     #
     def add_task (self, descr) :
@@ -181,8 +180,6 @@ class Workload (sa.Attributes) :
             return ret
         else :
             return ret[0]
-
-
 
 
     # --------------------------------------------------------------------------
@@ -233,7 +230,6 @@ class Workload (sa.Attributes) :
             return ret
         else :
             return ret[0]
-
 
 
     # --------------------------------------------------------------------------
@@ -330,6 +326,7 @@ class Workload (sa.Attributes) :
     def _dump (self) :
 
         self._attributes_dump ()
+
 
 # ------------------------------------------------------------------------------
 

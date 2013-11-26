@@ -87,10 +87,20 @@ def test_pilot_inspection () :
     pilot_id = overlay.pilots.keys ()[1]
     pilot    = overlay.pilots[pilot_id]
     assert (pilot)
-    assert (pilot.state == PROVISIONED)               , "%s != Provisioned'"       % pilot.state
-    assert (str(pilot.resource) == 'fork://localhost'), "%s != 'fork://localhost'" % pilot.resource
-    assert (str(pilot.size)  == '2')                  , "%s != '2'"                % pilot.size  
-    assert (len(pilot.units) ==  1 )                  , "%d !=  1"                 % len (pilot.units)
+    assert (pilot.state == PROVISIONED)               , "%s != Provisioned'"         % pilot.state
+    assert (pilot.description)                        , "no description (%s)"        % pilot.description
+    assert (str(pilot.resource) == 'fork://localhost'), "%s != 'fork://localhost'"   % pilot.resource
+    assert (str(pilot.size)  == '2')                  , "%s != '2'"                  % pilot.size  
+    assert (len(pilot.units) ==  1 )                  , "%d !=  1"                   % len (pilot.units)
+    assert (pilot.native_id)                          , "no native id (%s)"          % pilot.native_id
+    assert (pilot.native_description)                 , "no native description (%s)" % pilot.native_description
+    assert (pilot.start_time)                         , "no start_time (%s)"         % pilot.start_time
+    assert (pilot.last_contact)                       , "no last contact (%s)"       % pilot.last_contact
+    assert (pilot.end_queue_time)                     , "no end_queue_time (%s)"     % pilot.end_queue_time
+    assert (pilot.processes_per_node)                 , "no processes_per_node (%s)" % pilot.processes_per_node
+    assert (pilot.slots)                              , "no slots (%s)"              % pilot.slots
+  # assert (pilot.working_directory)                  , "no working_directory (%s)"  % pilot.working_directory
+    assert (pilot.service_url)                        , "no service_url (%s)"        % pilot.service_url
 
     # --------------------------------------------------------------------------
     #

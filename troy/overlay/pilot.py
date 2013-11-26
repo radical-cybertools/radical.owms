@@ -59,13 +59,23 @@ class Pilot (sa.Attributes) :
         self._attributes_register     ('overlay',    _overlay,          sa.ANY,    sa.SCALAR, sa.READONLY)
 
         # inspection attributes needed by scheduler
-        self._attributes_register     ('NativeID',                None, sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
         self._attributes_register     ('Size',                    None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register     ('Resource',                None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register     ('Units',                   None, sa.ANY,    sa.ANY,    sa.READONLY)
+        self._attributes_register     ('NativeID',                None, sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
 
-        self._attributes_register     ('ProcessesPerNode',        None, sa.INT   , sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('WorkingDirectory',        None, sa.STRING, sa.SCALAR, sa.READONLY)
+        # info from backend
+        self._attributes_register     ('NativeDescription',       None, sa.ANY,    sa.ANY,    sa.READONLY)
+        self._attributes_register     ('StartTime',               None, sa.ANY,    sa.ANY,    sa.READONLY)
+        self._attributes_register     ('LastContact',             None, sa.ANY,    sa.ANY,    sa.READONLY)
+        self._attributes_register     ('EndQueueTime',            None, sa.ANY,    sa.ANY,    sa.READONLY)
+        self._attributes_register     ('ProcessesPerNode',        None, sa.ANY,    sa.ANY,    sa.READONLY)
+        self._attributes_register     ('Slots',                   None, sa.ANY,    sa.ANY,    sa.READONLY)
+        self._attributes_register     ('WorkingDirectory',        None, sa.ANY,    sa.ANY,    sa.READONLY)
+        self._attributes_register     ('ServiceUrl',              None, sa.ANY,    sa.ANY,    sa.READONLY)
+
+
+        # info from backend - wishes
         self._attributes_register     ('Project',                 None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register     ('Queue',                   None, sa.STRING, sa.SCALAR, sa.READONLY)
         self._attributes_register     ('WallTimeLimit',           None, sa.STRING, sa.SCALAR, sa.READONLY)
@@ -120,8 +130,6 @@ class Pilot (sa.Attributes) :
         Destructor -- cancels the pilot
         """
 
-        print 'pilot_info: %s' % self._pilot_info
-
         self.cancel ()
 
 
@@ -162,6 +170,7 @@ class Pilot (sa.Attributes) :
         self._instance_type = instance_type
         self._instance      = instance
 
+        self.native_id      = native_id
         self.state          = PROVISIONED
 
         troy.OverlayManager.pilot_id_to_native_id (self.id, native_id)
@@ -194,6 +203,8 @@ class Pilot (sa.Attributes) :
             # otherwise simply fetch all info(again?)
             # FIXME: need convention about key names / casing
             self._pilot_info = self._provisioner.pilot_get_info (self)
+            self._update_pilot_info ()
+
             return
 
         # else we attempt to dig through the pilot info
@@ -240,6 +251,7 @@ class Pilot (sa.Attributes) :
                 # otherwise simply fetch all info(again?)
                 # FIXME: need convention about key names / casing
                 self._pilot_info = self._provisioner.pilot_get_info (self)
+                self._update_pilot_info ()
 
                 if  key in self._pilot_info :
                     # wohoo!
@@ -248,6 +260,57 @@ class Pilot (sa.Attributes) :
 
         # we don't have the requested backend info -- fall back to attribs
         return self._attributes_i_get (key, flow='UP')
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _update_pilot_info (self) :
+
+        # FIXME: this code should actually live within the bigjob plugin, as
+        # only it should know about the mapping below
+
+        keymap = {'description'          : 'native_description', 
+                  'bigjob_id'            : 'native_id', 
+                  'start_time'           : 'start_time',
+                  'last_contact'         : 'last_contact',
+                  'stopped'              : 'stopped',
+                  'end_queue_time'       : 'end_queue_time',
+                  'processes_per_node'   : 'processes_per_node',
+                  'number_of_processes'  : 'slots',
+                  'working_directory'    : 'working_directory',
+                  'service_url'          : 'service_url',
+                }
+
+
+        # now that we have fresh info, lets update all pilot attributes
+        for info_key in self._pilot_info :
+
+            if  info_key in keymap : new_key = keymap[info_key]
+            else                   : new_key =        info_key
+
+          # print 'KEY: %s - %s' % (info_key, new_key)
+
+            # this will trigger registered callbacks
+            self._attributes_i_set (new_key, self._pilot_info[info_key],
+                                    force=True, flow=self._UP)
+
+
+        # also, flatten the description into the pilot properties
+        if  'description' in self._pilot_info :
+
+            # WHAT.THE.FUCK ...
+            description = eval(self._pilot_info['description']) 
+
+            for descr_key in description : 
+
+                if  descr_key in keymap : new_key = keymap[descr_key]
+                else                    : new_key =        descr_key
+
+                # this will trigger registered callbacks
+                self._attributes_i_set (new_key, description[descr_key],
+                                        force=True, flow=self._UP)
+
+        return str(self.description)
 
 
     # --------------------------------------------------------------------------
