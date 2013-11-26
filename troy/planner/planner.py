@@ -53,7 +53,7 @@ class Planner(object):
         if workload.state not in [PLANNED, DESCRIBED]:
             raise ValueError("workload '%s' not in DESCRIBED or PLANNED "
                              "state" % workload.id)
-        elif workload.state is DESCRIBED and workload.parametrized:
+        elif workload.state is DESCRIBED and workload._parametrized:
             raise ValueError("Parametrized workload '%s' not PLANNED yet."
                              % workload.id)
 

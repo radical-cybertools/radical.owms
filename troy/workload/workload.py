@@ -109,6 +109,9 @@ class Workload (sa.Attributes) :
 
         self._attributes_set_getter (STATE, self.get_state)
 
+        # initialize private properties
+        self._parametrized = False
+
 
     # --------------------------------------------------------------------------
     #
