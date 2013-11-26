@@ -27,7 +27,7 @@ class Planner(object):
     #
     def __init__(self, planner='default'):
         """
-        Create a new planner instance for this workload.  
+        Create a new planner instance for this workload.
 
         Use the default planner plugin if not indicated otherwise
         """
@@ -40,7 +40,7 @@ class Planner(object):
 
     # --------------------------------------------------------------------------
     #
-    def derive_overlay(self, workload_id):
+    def derive_overlay(self, workload_id, **kwargs):
         """
         create overlay plan (description) from workload
         """
@@ -58,7 +58,7 @@ class Planner(object):
                              % workload.id)
 
         # derive overlay from workload
-        overlay = self._planner.derive_overlay(workload)
+        overlay = self._planner.derive_overlay(workload, **kwargs)
 
         # Put the overlay into the system registry so others can access it
         troy.OverlayManager.register_overlay(overlay)

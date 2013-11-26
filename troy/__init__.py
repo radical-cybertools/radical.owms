@@ -20,6 +20,8 @@ from constants  import *
 #
 # and the internal Troy classes -- which are also exposed in Troy.v1
 #
+from config import Configuration
+
 from planner    import Planner
 
 from workload   import RelationDescription
@@ -35,7 +37,7 @@ from overlay    import Overlay
 from overlay    import OverlayDescription
 from overlay    import OverlayManager
 
-from config import Configuration
+from bundle_wrapper import BundleManager
 
 # ------------------------------------------------------------------------------
 
