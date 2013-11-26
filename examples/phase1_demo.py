@@ -12,6 +12,7 @@ __license__   = "MIT"
 
 import time
 import troy
+import getpass
 
 # ------------------------------------------------------------------------------
 #
@@ -84,7 +85,10 @@ if __name__ == '__main__':
         troy._logger.info ("whats up, buddy? (workload state: %s)" % workload.state)
         time.sleep(1)
 
-    troy._logger.info ("ok, buddy, lets see what you got (workload state: %s)" % workload.state)
+    if 'merzky' in getpass.getuser():
+        troy._logger.info ("ok, German Skripter, lets see what you got (workload state: %s)" % workload.state)
+    else:
+        troy._logger.info ("ok, buddy, lets see what you got (workload state: %s)" % workload.state)
 
     if workload.state == troy.DONE :
         troy._logger.info ("game over")
