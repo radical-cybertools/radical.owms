@@ -10,19 +10,19 @@ The Troy Overlay...
 
 .. #############################################################################
 
-.. autoclass:: saga.overlay.PilotDescription
+.. autoclass:: troy.overlay.PilotDescription
    :members:
    :inherited-members:
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: saga.overlay.Pilot
+.. autoclass:: troy.overlay.Pilot
    :members:
    :inherited-members:
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: saga.overlay.Overlay
+.. autoclass:: troy.overlay.Overlay
    :members:
    :inherited-members:
    :undoc-members:

@@ -10,31 +10,31 @@ The Troy Workload...
 
 .. #############################################################################
 
-.. autoclass:: saga.workload.ComputeUnitDescription
+.. autoclass:: troy.workload.ComputeUnitDescription
    :members:
    :inherited-members:
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: saga.workload.ComputeUnit
+.. autoclass:: troy.workload.ComputeUnit
    :members:
    :inherited-members:
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: saga.workload.TaskDescription
+.. autoclass:: troy.workload.TaskDescription
    :members:
    :inherited-members:
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: saga.workload.Task
+.. autoclass:: troy.workload.Task
    :members:
    :inherited-members:
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: saga.workload.Workload
+.. autoclass:: troy.workload.Workload
    :members:
    :inherited-members:
    :undoc-members:
