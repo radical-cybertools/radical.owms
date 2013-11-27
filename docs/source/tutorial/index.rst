@@ -1,0 +1,32 @@
+
+.. _chapter_tutorial:
+
+********
+Tutorial
+********
+
+This Troy tutorial will ...
+
+
+**Prerequisites:**
+
+* You are familiar with Linux or UNIX
+* You can read and write Python code
+* You can use SSH and understand how public and private keys work
+* You understand the basic concepts of distributed computing
+
+
+**You will learn how to:**
+
+* Install Troy on your own machine
+* Write a program that runs a workload locally on your machine
+* Use the same program with a different plugins to run on a remote site
+
+**Contents:**
+
+.. toctree::
+   :numbered:
+   :maxdepth: 1
+
+   part1
+
