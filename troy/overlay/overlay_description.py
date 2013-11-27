@@ -1,15 +1,18 @@
 
+__author__ = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__ = "MIT"
 
-import radical.utils   as ru
-import saga.attributes as sa
 
-import troy
+import radical.utils      as ru
+import troy.utils         as tu
 from   troy.constants import *
+import troy
 
 
 # ------------------------------------------------------------------------------
 #
-class OverlayDescription (sa.Attributes) :
+class OverlayDescription (tu.Attributes) :
     """
     The `OverlayDescription` class is a simple container for attributes which
     describe a :class:`Overlay`.  `OverlayDescription`s passed to `Overlay`
@@ -21,18 +24,14 @@ class OverlayDescription (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, dictionary={}) :
+    def __init__ (self, descr={}) :
 
 
-        sa.Attributes.__init__ (self, dictionary)
-
-        # set attribute interface properties
-        self._attributes_extensible  (True)  # FIXME
-        self._attributes_camelcasing (True)
+        tu.Attributes.__init__ (self, descr)
 
         # register attributes
-        self._attributes_register    (CORES,     1, sa.INT, sa.SCALAR, sa.WRITEABLE)
-        self._attributes_register    (WALL_TIME, 0, sa.INT, sa.SCALAR, sa.WRITEABLE)
+        self.register_property ('cores')
+        self.register_property ('wall_time')
 
 
     # --------------------------------------------------------------------------
@@ -40,13 +39,6 @@ class OverlayDescription (sa.Attributes) :
     def __str__ (self) :
 
         return str(self.as_dict ())
-
-
-    # --------------------------------------------------------------------------
-    #
-    def _dump (self) :
-
-        self._attributes_dump ()
 
 
 # ------------------------------------------------------------------------------
