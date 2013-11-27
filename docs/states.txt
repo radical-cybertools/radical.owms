@@ -1,0 +1,44 @@
+
+
+  CU: state from BJ, with 
+      "New"    : DESCRIBED
+      "Running": RUNNING
+      "Staging": RUNNING
+      "Failed" : FAILED
+      "Done"   : DONE
+      "Unknown": UNKNOWN
+    
+  Task:
+           if any unit  is  FAILED     : task.state = FAILED
+      else if any unit  is  CANCELED   : task.state = CANCELED
+      else if any unit  is  DISPATCHED : task.state = DISPATCHED
+      else if any unit  is  DISPATCHED : task.state = RUNNING
+      else if any unit  is  RUNNING    : task.state = RUNNING
+      else if all units are DONE       : task.state = DONE
+      else                             : task.state = UNKNOWN
+
+
+   Workload:
+           if any task  is  FAILED     :  workload.state = FAILED
+      else if any task  is  CANCELED   :  workload.state = CANCELED
+      else if any task  is  DISPATCHED :  workload.state = DISPATCHED
+      else if all tasks are DONE       :  workload.state = DONE
+      else                             :  workload.state = UNKNOWN
+      
+
+  Pilot:
+    state from BJ, with 
+    "New"    : DESCRIBED
+    "Running": PROVISIONED
+    "Failed" : FAILED
+    "Done"   : DONE
+    "Unknown": UNKNOWN
+
+  Overlay:
+           if any pilot  is  FAILED      :  overlay.state = FAILED
+      else if any pilot  is  CANCELED    :  overlay.state = CANCELED
+      else if any pilot  is  DESCRIBED   :  overlay.state = DESCRIBED
+      else if any pilot  is  PROVISIONED :  overlay.state = PROVISIONED
+      else if all pilots are DONE        :  overlay.state = DONE
+      else                               :  overlay.state = UNKNOWN
+

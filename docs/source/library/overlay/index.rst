@@ -12,19 +12,16 @@ The Troy Overlay...
 
 .. autoclass:: troy.overlay.PilotDescription
    :members:
-   :inherited-members:
    :undoc-members:
    :show-inheritance:
 
 .. autoclass:: troy.overlay.Pilot
    :members:
-   :inherited-members:
    :undoc-members:
    :show-inheritance:
 
 .. autoclass:: troy.overlay.Overlay
    :members:
-   :inherited-members:
    :undoc-members:
    :show-inheritance:
 
