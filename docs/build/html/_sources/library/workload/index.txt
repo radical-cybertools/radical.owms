@@ -12,21 +12,16 @@ The Troy Workload...
 
 .. autoclass:: troy.workload.ComputeUnitDescription
    :members:
-   :undoc-members:
 
 .. autoclass:: troy.workload.ComputeUnit
    :members:
-   :undoc-members:
 
 .. autoclass:: troy.workload.TaskDescription
    :members:
-   :undoc-members:
 
 .. autoclass:: troy.workload.Task
    :members:
-   :undoc-members:
 
 .. autoclass:: troy.workload.Workload
    :members:
-   :undoc-members:
 
