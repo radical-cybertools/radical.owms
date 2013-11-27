@@ -12,31 +12,21 @@ The Troy Workload...
 
 .. autoclass:: troy.workload.ComputeUnitDescription
    :members:
-   :inherited-members:
    :undoc-members:
-   :show-inheritance:
 
 .. autoclass:: troy.workload.ComputeUnit
    :members:
-   :inherited-members:
    :undoc-members:
-   :show-inheritance:
 
 .. autoclass:: troy.workload.TaskDescription
    :members:
-   :inherited-members:
    :undoc-members:
-   :show-inheritance:
 
 .. autoclass:: troy.workload.Task
    :members:
-   :inherited-members:
    :undoc-members:
-   :show-inheritance:
 
 .. autoclass:: troy.workload.Workload
    :members:
-   :inherited-members:
    :undoc-members:
-   :show-inheritance:
 
