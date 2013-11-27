@@ -4,7 +4,6 @@ import threading
 import weakref
 
 import radical.utils        as ru
-import saga.attributes      as sa
 
 import task                 as tt
 import task_description     as ttd
@@ -12,6 +11,7 @@ import task_description     as ttd
 import relation             as tr
 import relation_description as trd
 
+import troy.utils           as tu
 from   troy.constants       import *
 import troy
 
@@ -19,7 +19,7 @@ import troy
 # ------------------------------------------------------------------------------
 #
 @ru.Lockable
-class Workload (sa.Attributes) :
+class Workload (tu.Attributes) :
     """
     The `Workload` class represents a workload which is managed by Troy.  It
     contains a set of :class:`Tasks`, and a set of :class:`Relation`s between
@@ -97,17 +97,21 @@ class Workload (sa.Attributes) :
         
         wl_id = ru.generate_id ('wl.')
 
-        # set attribute interface properties
-        self._attributes_extensible  (False)
-        self._attributes_camelcasing (True)
-    
-        # register attributes, initialize state
-        self._attributes_register   (ID,          wl_id,     sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   (STATE,       DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
-        self._attributes_register   ('tasks',     dict(),    sa.ANY,    sa.VECTOR, sa.READONLY)
-        self._attributes_register   ('relations', list(),    sa.ANY,    sa.VECTOR, sa.READONLY)
+        tu.Attributes.__init__ (self)
 
-        self._attributes_set_getter (STATE, self.get_state)
+        # register attributes, initialize state
+        self.register_property ('id')
+        self.register_property ('state')
+        self.register_property ('tasks')
+        self.register_property ('relations')
+
+        # initialize essential properties
+        self.id        = wl_id
+        self.state     = DESCRIBED
+        self.tasks     = dict()
+        self.relations = list()
+
+        self._attributes_set_getter ('state', self.get_state)
 
         # initialize private properties
         self._parametrized = False
@@ -322,13 +326,6 @@ class Workload (sa.Attributes) :
     def __repr__ (self) :
 
         return str(self)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def _dump (self) :
-
-        self._attributes_dump ()
 
 
 # ------------------------------------------------------------------------------

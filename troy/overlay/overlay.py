@@ -7,8 +7,7 @@ __license__   = "MIT"
 import weakref
 
 import radical.utils        as ru
-import saga.attributes      as sa
-
+import troy.utils           as tu
 from   troy.constants   import *
 import troy
 
@@ -19,7 +18,7 @@ Represent a pilot-based overlay that is managed by TROY.
 # -----------------------------------------------------------------------------
 #
 @ru.Lockable
-class Overlay (sa.Attributes) :
+class Overlay (tu.Attributes) :
     """
     The `Overlay` class represents a resource overlay which is managed by Troy,
     i.e. in application and user space.  It contains a set of :class:`Pilots`, 
@@ -89,15 +88,20 @@ class Overlay (sa.Attributes) :
         
         ol_id = ru.generate_id ('ol.')
 
-        # set attribute interface properties
-        self._attributes_extensible  (False)
-        self._attributes_camelcasing (True)
-    
+        
+        tu.Attributes.__init__ (self, descr)
+
         # register attributes, initialize state
-        self._attributes_register    (ID,          ol_id,     sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register    (STATE,       DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
-        self._attributes_register    (DESCRIPTION, descr,     sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register    ('pilots',    dict(),    sa.ANY,    sa.ANY,    sa.READONLY)
+        self.register_property ('id')
+        self.register_property ('state')
+        self.register_property ('description')
+        self.register_property ('pilots')
+
+        # initialize essential properties
+        self.id          = ol_id
+        self.state       = DESCRIBED
+        self.description = descr
+        self.pilots      = dict()
 
 
     # --------------------------------------------------------------------------
@@ -159,10 +163,5 @@ class Overlay (sa.Attributes) :
         return str(self)
 
 
-    # --------------------------------------------------------------------------
-    #
-    def _dump (self) :
-
-        self._attributes_dump ()
-
 # ------------------------------------------------------------------------------
+

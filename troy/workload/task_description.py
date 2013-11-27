@@ -1,15 +1,15 @@
 
 
-import radical.utils   as ru
-import saga.attributes as sa
 
+import radical.utils      as ru
+import troy.utils         as tu
 import troy
 from   troy.constants import *
 
 
 # ------------------------------------------------------------------------------
 #
-class TaskDescription (sa.Attributes) :
+class TaskDescription (tu.Attributes) :
     """
     The `TaskDescription` class is a simple container for attributes which
     describe a :class:`Task`, i.e. a workload element.  `TaskDescription`s are
@@ -24,16 +24,12 @@ class TaskDescription (sa.Attributes) :
     #
     def __init__ (self, descr={}) :
 
-        # set attribute interface properties
-        self._attributes_extensible  (False)
-        self._attributes_camelcasing (True)
-
         # register attributes
-        self._attributes_register    (TAG,        None, sa.STRING, sa.SCALAR, sa.WRITEABLE)
-        self._attributes_register    (EXECUTABLE, None, sa.STRING, sa.SCALAR, sa.WRITEABLE)
-        self._attributes_register    (ARGUMENTS,  None, sa.STRING, sa.VECTOR, sa.WRITEABLE)
+        self.register_property ('tag')
+        self.register_property ('executable')
+        self.register_property ('arguments')
 
-        sa.Attributes.__init__ (self, descr)
+        tu.Attributes.__init__ (self, descr)
 
     # --------------------------------------------------------------------------
     #
@@ -47,13 +43,6 @@ class TaskDescription (sa.Attributes) :
     def __repr__ (self) :
 
         return self.description
-
-
-    # --------------------------------------------------------------------------
-    #
-    def _dump (self) :
-
-        self._attributes_dump ()
 
 
 # ------------------------------------------------------------------------------

@@ -1,15 +1,13 @@
 
 
-import radical.utils   as ru
-import saga.attributes as sa
-
-import troy
+import troy.utils         as tu
 from   troy.constants import *
+import troy
 
 
 # ------------------------------------------------------------------------------
 #
-class RelationDescription (sa.Attributes) :
+class RelationDescription (tu.Attributes) :
     """
     The `RelationDescription` class is a simple container for attributes which
     describe a :class:`Relation`, i.e. a workload element.  `RelationDescription`s are
@@ -25,21 +23,10 @@ class RelationDescription (sa.Attributes) :
     def __init__ (self, descr={}) :
 
 
-        # set attribute interface properties
-        self._attributes_extensible  (True)  # FIXME
-        self._attributes_camelcasing (True)
-    
         # register attributes
         # FIXME
 
-        sa.Attributes.__init__ (self, descr)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def _dump (self) :
-
-        self._attributes_dump ()
+        tu.Attributes.__init__ (self, descr)
 
 
 # ------------------------------------------------------------------------------

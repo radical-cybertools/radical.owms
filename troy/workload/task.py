@@ -4,15 +4,14 @@ import copy
 import weakref
 import threading
 
-import radical.utils   as ru
-import saga.attributes as sa
-
+import radical.utils      as ru
+import troy.utils         as tu
 from   troy.constants import *
 import troy
 
 # ------------------------------------------------------------------------------
 #
-class Task (sa.Attributes) :
+class Task (tu.Attributes) :
     """
     The `Task` class represents a element of work to be performed on behalf of
     an application, and is part of a workload managed by Troy.
@@ -54,23 +53,28 @@ class Task (sa.Attributes) :
         if  not 'tag' in descr :
             raise ValueError ("no 'tag' in TaskDescription")
 
-        # set attribute interface properties
-        self._attributes_extensible  (False)
-        self._attributes_camelcasing (True)
+        tu.Attributes.__init__ (self, descr)
 
         # register attributes
-        self._attributes_register   (ID,                tid,       sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   (STATE,             DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
-        self._attributes_register   (TAG,               descr.tag, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   (DESCRIPTION,       descr,     sa.ANY,    sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('units',           dict(),    sa.ANY,    sa.VECTOR, sa.WRITEABLE) # FIXME
-        self._attributes_register   ('manager',         _manager,  sa.ANY,    sa.SCALAR, sa.READONLY)
+        self.register_property ('id')
+        self.register_property ('state')
+        self.register_property ('tag')
+        self.register_property ('description')
+        self.register_property ('units')
+        self.register_property ('manager')
          
+        # initialize essential properties
+        self.id          = tid
+        self.state       = DESCRIBED
+        self.tag         = descr.tag
+        self.description = descr
+        self.units       = dict()
+
         # FIXME: complete attribute list, dig attributes from description,
         # perform sanity checks
 
 
-        self._attributes_set_getter (STATE, self.get_state)
+        self.register_property_updater ('state', self.get_state)
 
 
     # --------------------------------------------------------------------------
@@ -211,13 +215,6 @@ class Task (sa.Attributes) :
     def __repr__ (self) :
 
         return str(self)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def _dump (self) :
-
-        self._attributes_dump ()
 
 
 # ------------------------------------------------------------------------------

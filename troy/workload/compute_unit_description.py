@@ -1,15 +1,13 @@
 
 
-import radical.utils   as ru
-import saga.attributes as sa
-
-from   troy.constants import *
+import troy.utils            as tu
+from   troy.constants    import *
 import troy
 
 
 # ------------------------------------------------------------------------------
 #
-class ComputeUnitDescription (sa.Attributes) :
+class ComputeUnitDescription (tu.Attributes) :
     """
     The `ComputeUnitDescription` class is a simple container for attributes
     which describe a :class:`ComputeUnit`, i.e. a workload element.
@@ -25,16 +23,13 @@ class ComputeUnitDescription (sa.Attributes) :
     #
     def __init__ (self, descr={}) :
 
-        # set attribute interface properties
-        self._attributes_extensible  (False)
-        self._attributes_camelcasing (True)
+        tu.Attributes.__init__ (self, descr)
 
         # register attributes
-        self._attributes_register    (EXECUTABLE, None, sa.STRING, sa.SCALAR, sa.WRITEABLE)
-        self._attributes_register    (ARGUMENTS,  None, sa.STRING, sa.VECTOR, sa.WRITEABLE)
+        self.register_property ('executable')
+        self.register_property ('arguments')
         # FIXME: complete...
 
-        sa.Attributes.__init__ (self, descr)
 
 
     # --------------------------------------------------------------------------
@@ -49,13 +44,6 @@ class ComputeUnitDescription (sa.Attributes) :
     def __repr__ (self) :
 
         return (self.as_dict ())
-
-
-    # --------------------------------------------------------------------------
-    #
-    def _dump (self) :
-
-        self._attributes_dump ()
 
 
 # ------------------------------------------------------------------------------

@@ -5,9 +5,8 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
-import radical.utils   as ru
-import saga.attributes as sa
-
+import radical.utils      as ru
+import troy.utils         as tu
 from   troy.constants import *
 import troy
 
@@ -18,7 +17,7 @@ Represent a compute unit, as element of a troy.Task in a troy.Workload.
 
 # ------------------------------------------------------------------------------
 #
-class ComputeUnit (sa.Attributes) :
+class ComputeUnit (tu.Attributes) :
     """
     The `ComputeUnit` class represents the smallest element of work to be
     performed on behalf of an application, and is part of a workload managed by
@@ -57,61 +56,44 @@ class ComputeUnit (sa.Attributes) :
                              "description (troy.ComputeUnitDescription), not '%s'" \
                           % type(param))
 
-
-        # set attribute interface properties
-        self._attributes_extensible  (False)
-        self._attributes_camelcasing (True)
+        tu.Attributes.__init__ (self, descr)
 
         # register attributes
-        self._attributes_register   (ID,                  uid,        sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   (STATE,               DESCRIBED,  sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
-        self._attributes_register   (DESCRIPTION,         descr,      sa.ANY,    sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('pilot_id',          _pilot_id,  sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
-        self._attributes_register   ('task',              _task,      sa.ANY,    sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('NativeID',          _native_id, sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
+        self.register_property ('id')
+        self.register_property ('state')
+        self.register_property ('description')
+        self.register_property ('pilot_id')
+        self.register_property ('task')
+        self.register_property ('native_id')
 
         # info from backend
-        self._attributes_register   ('JobID',                   None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('Tag',                     None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('Executable',              None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('Arguments',               None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('Slots',                   None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('StartTime',               None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('AgentStartTime',          None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('EndQueueTime',            None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self.register_property ('job_id')
+        self.register_property ('tag')
+        self.register_property ('executable')
+        self.register_property ('arguments')
+        self.register_property ('slots')
+        self.register_property ('start_time')
+        self.register_property ('agent_start_time')
+        self.register_property ('end_queue_time')
 
         # info from backend - wishes
-        self._attributes_register   ('Size',                    None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('Resource',                None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('ProcessesPerNode',        None, sa.INT   , sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('WorkingDirectory',        None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('Project',                 None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('Queue',                   None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('WallTimeLimit',           None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('AffinityDatacenterLabel', None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('AffinityMachineLabel',    None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self.register_property ('size')
+        self.register_property ('resource')
+        self.register_property ('processes_per_node')
+        self.register_property ('working_directory')
+        self.register_property ('project')
+        self.register_property ('queue')
+        self.register_property ('wall_time_limit')
+        self.register_property ('affinity_datacenter_label')
+        self.register_property ('affinity_machine_label')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        # initialized essential properties
+        self.id          = uid
+        self.state       = DESCRIBED
+        self.description = descr
+        self.pilot_id    = _pilot_id
+        self.task        = _task
+        self.native_id   = _native_id
 
          
         # FIXME: complete attribute list, dig attributes from description,
@@ -123,7 +105,7 @@ class ComputeUnit (sa.Attributes) :
         self._instance_type = None
         self._unit_info     = None
 
-        self._attributes_set_global_getter (self._get_attribute, flow=self._DOWN)
+        self.register_property_updater (self._update_properties)
 
 
         if  reconnect :
@@ -168,7 +150,7 @@ class ComputeUnit (sa.Attributes) :
             self.native_id = native_id
 
             # refresh unit information and state from the backend
-            self._get_attribute ()
+            self._update_properties ()
 
 
     # --------------------------------------------------------------------------
@@ -238,7 +220,7 @@ class ComputeUnit (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def _get_attribute (self, key=None) :
+    def _update_properties (self, key=None) :
         """
         This method is invoked whenever some attribute is asked for, to give us 
         a chance to update the respective attribute value.
@@ -264,9 +246,9 @@ class ComputeUnit (sa.Attributes) :
                        'affinity_machine_label'   ] :
 
             # this is not a key we know about at this stage -- so simply 
-            # return the currently set value.  Use UP-flow so that the 
-            # attrib interface is not calling getters (duh!).
-            return self._attributes_i_get (key, flow='UP')
+            # return the currently set value.  Use get_property as to
+            # not calling the updater again (duh!).
+            return self.get_property (key)
 
         if  key == 'resource' : return self._resource
         if  key == 'instance' : return self._instance
@@ -300,8 +282,9 @@ class ComputeUnit (sa.Attributes) :
                     # wohoo!
                     return self._unit_info[key]
 
-        # we don't have the requested backend info -- fall back to attribs
-        return self._attributes_i_get (key, flow='UP')
+        # we don't have the requested backend info -- fall back to attribs. 
+        # Use get_property as to not calling the updater again (duh!).
+        return self.get_property (key)
 
 
     # --------------------------------------------------------------------------
@@ -332,8 +315,7 @@ class ComputeUnit (sa.Attributes) :
           # print 'KEY: %s - %s' % (info_key, new_key)
 
             # this will trigger registered callbacks
-            self._attributes_i_set (new_key, self._unit_info[info_key],
-                                    force=True, flow=self._UP)
+            self.set_property (new_key, self._unit_info[info_key])
 
 
     # --------------------------------------------------------------------------
@@ -348,13 +330,6 @@ class ComputeUnit (sa.Attributes) :
     def __repr__ (self) :
 
         return str(self)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def _dump (self) :
-
-        self._attributes_dump ()
 
 
 # ------------------------------------------------------------------------------

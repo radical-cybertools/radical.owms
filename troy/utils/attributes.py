@@ -77,7 +77,7 @@ class Attributes (saga.Attributes) :
                 self.state = self._backend.get_state (self.id)
 
                 # this is equivalent to:
-                self.update_property ('state', self._backend.get_state (self.id))
+                self.set_property ('state', self._backend.get_state (self.id))
                 
 
             # ------------------------------------------------------------------
@@ -87,7 +87,7 @@ class Attributes (saga.Attributes) :
                 # update all properties by backend polling
                 info = self._backend.get_all_info (self.id)
                 for key in info :
-                    self.update_property (key, info[key])
+                    self.set_property (key, info[key])
 
 
     Note: the `_update_properties` method can be made even more efficient by
@@ -106,7 +106,7 @@ class Attributes (saga.Attributes) :
                     for key in info :
                         self.__setattr__ (key, info[key])
 
-    Also note that the the above is very similar to the native Python way to
+    Also note that the above is very similar to the native Python way to
     provide property getters -- but integrates that mechanism with callback
     management.  For more detailed information, see the implementation and
     documentation of the saga.Attributes interface.
@@ -115,18 +115,36 @@ class Attributes (saga.Attributes) :
     # --------------------------------------------------------------------------
     #
     def __init__ (self, inits={}) :
+        """
+        set up the Troy property interface -- allow normal properties (set as
+        extensible), and initialize from a given dictionary (`inits`).  If inits
+        is of any other type than dict, we attempt to cast it to a dict.
+        """
+        
+        # make sure we have a dict for initialization
+        if  not isinstance (inits, dict) :
 
-        # set up attribute interface -- allow normal properties (extensible),
-        # and initialize from a given dictionary
+            # saga.Attributes have an as_dict method
+            if  isinstance (inits, saga.Attributes) :
+                inits = inits.as_dict ()
 
-        saga.Attributes.__init__ (self, inits)
-        self._attributes_extensible  (True)
-        self._attributes_camelcasing (False)  # don't change property cases on the fly
+            # otherwise we attempt a cast
+            else :
+                inits = dict (inits)
+
+        saga.Attributes.__init__ (self, inits) # initialize base class
+        self._attributes_extensible  (True)    # allow non-registered properties
+        self._attributes_camelcasing (False)   # don't change case on the fly
     
 
     # --------------------------------------------------------------------------
     #
     def register_property (self, key) :
+        """
+        Any property registered by this call is eligible for callbacks, and is
+        also eligible for in-access updates -- if a respective updater was
+        registered with `register_property_updater`.
+        """
 
         # register attribute w/o type checking
         self._attributes_register (key)
@@ -134,22 +152,66 @@ class Attributes (saga.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def update_property (self, key, val) :
+    def register_property_updater (self, arg1, arg2=None) :
+        """
+        For a registered property, register a callable which is invoked whenever
+        the property's value is accessed.  That callable can be used to update
+        the property value for that access, i.e. on the fly.
 
-        # force attribute updated, also triggers attached callbacks
-        self._attributes_i_set (key, val, force=True, flow=self._UP)
+        There are two invocation modi for this call:
+
+            self.register_property_updater (key, updater)
+            self.register_property_updater (     updater)
+
+        In the first case, the updater will only be called on access of the
+        property `key`.  In the second case, the updater will be called on *any*
+        access to a registered property on the class.
+
+        Note that frequent property accesses can create a significant number of
+        updater invocations -- implementers should be aware of this, and should
+        consider to cache values in the updater, at least for short periods of
+        time.
+        """
+
+        if  arg2 :
+            # set getter for one specific attribute...
+            self._attributes_set_getter   (arg1, arg2)
+        else :
+            # ... or for all attributes
+            self._attributes_set_global_getter (arg1)
 
 
     # --------------------------------------------------------------------------
     #
-    def register_property_updater (self, key=None, update=None) :
+    def set_property (self, key, val) :
+        """
+        This is equivalent to::
 
-        if  key :
-            # set getter for one specific attribute...
-            self._attributes_set_getter   (key, update)
-        else :
-            # ... or for all attributes
-            self._attributes_set_global_getter (update)
+            self.<key> = val
+
+        but will register the property on the fly, making it eligible for
+        callbacks etc.
+        """
+
+        # set an attribute w/o invoking updaters
+        self._attributes_i_set (key, val, force=True, flow=self._UP)
+        
+
+
+    # --------------------------------------------------------------------------
+    #
+    def get_property (self, key) :
+        """
+        This is equivalent to the access via::
+
+            self.<key>
+
+        but will *not* invoke any registered updater methods.  This is thus safe
+        to use within an updater.
+        """
+
+        # retrieve an attribute w/o invoking updaters
+        return self._attributes_i_get (key, flow=self._UP)
 
 
 # ------------------------------------------------------------------------------

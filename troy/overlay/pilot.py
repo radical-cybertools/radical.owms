@@ -5,9 +5,9 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
-import radical.utils   as ru
-import saga.attributes as sa
+import radical.utils      as ru
 
+import troy.utils         as tu
 from   troy.constants import *
 import troy
 
@@ -18,7 +18,7 @@ Represent a pilot, as element of a troy.Overlay.
 
 # ------------------------------------------------------------------------------
 #
-class Pilot (sa.Attributes) :
+class Pilot (tu.Attributes) :
     """
     """
 
@@ -48,40 +48,44 @@ class Pilot (sa.Attributes) :
                           % type(param))
 
 
-        # set attribute interface properties
-        self._attributes_extensible  (False)
-        self._attributes_camelcasing (True)
+        tu.Attributes.__init__ (self, descr)
 
         # register attributes
-        self._attributes_register     (ID,           pid,               sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     (STATE,        DESCRIBED,         sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
-        self._attributes_register     (DESCRIPTION,  descr,             sa.ANY,    sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('overlay',    _overlay,          sa.ANY,    sa.SCALAR, sa.READONLY)
+        self.register_property ('id')
+        self.register_property ('state')
+        self.register_property ('description')
+        self.register_property ('overlay')
 
         # inspection attributes needed by scheduler
-        self._attributes_register     ('Size',                    None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('Resource',                None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('Units',                   None, sa.ANY,    sa.ANY,    sa.READONLY)
-        self._attributes_register     ('NativeID',                None, sa.STRING, sa.SCALAR, sa.WRITEABLE)  # FIXME
+        self.register_property ('size')
+        self.register_property ('resource')
+        self.register_property ('units')
+        self.register_property ('native_id')
 
         # info from backend
-        self._attributes_register     ('NativeDescription',       None, sa.ANY,    sa.ANY,    sa.READONLY)
-        self._attributes_register     ('StartTime',               None, sa.ANY,    sa.ANY,    sa.READONLY)
-        self._attributes_register     ('LastContact',             None, sa.ANY,    sa.ANY,    sa.READONLY)
-        self._attributes_register     ('EndQueueTime',            None, sa.ANY,    sa.ANY,    sa.READONLY)
-        self._attributes_register     ('ProcessesPerNode',        None, sa.ANY,    sa.ANY,    sa.READONLY)
-        self._attributes_register     ('Slots',                   None, sa.ANY,    sa.ANY,    sa.READONLY)
-        self._attributes_register     ('WorkingDirectory',        None, sa.ANY,    sa.ANY,    sa.READONLY)
-        self._attributes_register     ('ServiceUrl',              None, sa.ANY,    sa.ANY,    sa.READONLY)
+        self.register_property ('native_description')
+        self.register_property ('start_time')
+        self.register_property ('last_contact')
+        self.register_property ('end_queue_time')
+        self.register_property ('processes_per_node')
+        self.register_property ('slots')
+        self.register_property ('working_directory')
+        self.register_property ('service_url')
 
 
         # info from backend - wishes
-        self._attributes_register     ('Project',                 None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('Queue',                   None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('WallTimeLimit',           None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('AffinityDatacenterLabel', None, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register     ('AffinityMachineLabel',    None, sa.STRING, sa.SCALAR, sa.READONLY)
+        self.register_property ('project')
+        self.register_property ('queue')
+        self.register_property ('wall_time_limit')
+        self.register_property ('affinity_datacenter_label')
+        self.register_property ('affinity_machine_label')
          
+        # initialize essential properties
+        self.id = pid
+        self.state = DESCRIBED
+        self.description = descr
+        self.overlay = _overlay
+
         # FIXME: complete attribute list, dig attributes from description,
         # perform sanity checks
 
@@ -91,7 +95,7 @@ class Pilot (sa.Attributes) :
         self._instance_type = None
         self._pilot_info    = None
 
-        self._attributes_set_global_getter (self._get_attribute, flow=self._DOWN)
+        self.register_property_updater (self._update_properties)
 
 
         if  reconnect :
@@ -120,7 +124,7 @@ class Pilot (sa.Attributes) :
             self.native_id = native_id
 
             # refresh pilot information and state from the backend
-            self._get_attribute ()
+            self._update_properties ()
 
 
     # --------------------------------------------------------------------------
@@ -189,7 +193,7 @@ class Pilot (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def _get_attribute (self, key=None) :
+    def _update_properties (self, key=None) :
         """
         This method is invoked whenever some attribute is asked for, to give us 
         a chance to update the respective attribute value.
@@ -223,7 +227,7 @@ class Pilot (sa.Attributes) :
             # this is not a key we know about at this stage -- so simply 
             # return the currently set value.  Use UP-flow so that the 
             # attrib interface is not calling getters (duh!).
-            return self._attributes_i_get (key, flow='UP')
+            return self.get_property (key)
 
         if  key == 'resource' : return self._resource
         if  key == 'instance' : return self._instance
@@ -259,7 +263,7 @@ class Pilot (sa.Attributes) :
 
 
         # we don't have the requested backend info -- fall back to attribs
-        return self._attributes_i_get (key, flow='UP')
+        return self.get_property (key)
 
 
     # --------------------------------------------------------------------------
@@ -291,8 +295,7 @@ class Pilot (sa.Attributes) :
           # print 'KEY: %s - %s' % (info_key, new_key)
 
             # this will trigger registered callbacks
-            self._attributes_i_set (new_key, self._pilot_info[info_key],
-                                    force=True, flow=self._UP)
+            self.set_property (new_key, self._pilot_info[info_key])
 
 
         # also, flatten the description into the pilot properties
@@ -307,8 +310,7 @@ class Pilot (sa.Attributes) :
                 else                    : new_key =        descr_key
 
                 # this will trigger registered callbacks
-                self._attributes_i_set (new_key, description[descr_key],
-                                        force=True, flow=self._UP)
+                self.set_property (new_key, description[descr_key])
 
 
     # --------------------------------------------------------------------------
@@ -323,13 +325,6 @@ class Pilot (sa.Attributes) :
     def __repr__ (self) :
 
         return str(self.description)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def _dump (self) :
-
-        self._attributes_dump ()
 
 
 # ------------------------------------------------------------------------------
