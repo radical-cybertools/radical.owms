@@ -1,7 +1,7 @@
 
 import saga
 
-class Attributes (saga.Attributes) :
+class Properties (saga.Attributes) :
     """
     Several Troy classes benefit from somewhat richer than default python
     properties -- in particular, we want to get notification callbacks on state
@@ -26,13 +26,13 @@ class Attributes (saga.Attributes) :
     For that to work, Troy needs to declare which properties are eligible for
     those callbacks::
 
-        class troy.workload (troy.utils.Attributes) :
+        class troy.workload (troy.utils.Properties) :
 
             self.register_property ('state')
             ...
 
     From that point on, any plugin, or any thread within Troy, can set the
-    workload state attribute, and any application callback registered for that
+    workload state property, and any application callback registered for that
     property will get invoked.  For example, a bigjob dispatcher plugin could
     use::
 
@@ -52,7 +52,7 @@ class Attributes (saga.Attributes) :
     which are eligible for on-demand (or rather: on-access) updates, and also
     what method updates the property/properties::
 
-        class troy.workload (troy.utils.Attributes) :
+        class troy.workload (troy.utils.Properties) :
 
             # ------------------------------------------------------------------
             #
@@ -174,10 +174,10 @@ class Attributes (saga.Attributes) :
         """
 
         if  arg2 :
-            # set getter for one specific attribute...
+            # set getter for one specific property...
             self._attributes_set_getter   (arg1, arg2)
         else :
-            # ... or for all attributes
+            # ... or for all properties
             self._attributes_set_global_getter (arg1)
 
 
@@ -193,7 +193,7 @@ class Attributes (saga.Attributes) :
         callbacks etc.
         """
 
-        # set an attribute w/o invoking updaters
+        # set a property w/o invoking updaters
         self._attributes_i_set (key, val, force=True, flow=self._UP)
         
 
@@ -210,7 +210,7 @@ class Attributes (saga.Attributes) :
         to use within an updater.
         """
 
-        # retrieve an attribute w/o invoking updaters
+        # retrieve a property w/o invoking updaters
         return self._attributes_i_get (key, flow=self._UP)
 
 

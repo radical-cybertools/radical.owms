@@ -12,14 +12,14 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-class TaskDescription (tu.Attributes) :
+class TaskDescription (tu.Properties) :
     """
-    The `TaskDescription` class is a simple container for attributes which
+    The `TaskDescription` class is a simple container for properties which
     describe a :class:`Task`, i.e. a workload element.  `TaskDescription`s are
     submitted to :class:`WorkloadManager` instances on `add_task`, and are
     internally used to create :class:`Task` instances.
 
-    FIXME: description of supported attributes goes here
+    FIXME: description of supported properties goes here
     """
 
 
@@ -27,12 +27,12 @@ class TaskDescription (tu.Attributes) :
     #
     def __init__ (self, descr={}) :
 
-        # register attributes
+        # register properties
         self.register_property ('tag')
         self.register_property ('executable')
         self.register_property ('arguments')
 
-        tu.Attributes.__init__ (self, descr)
+        tu.Properties.__init__ (self, descr)
 
     # --------------------------------------------------------------------------
     #

@@ -12,13 +12,13 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-class OverlayDescription (tu.Attributes) :
+class OverlayDescription (tu.Properties) :
     """
-    The `OverlayDescription` class is a simple container for attributes which
+    The `OverlayDescription` class is a simple container for properties which
     describe a :class:`Overlay`.  `OverlayDescription`s passed to `Overlay`
     instances on construction, to initialize their configuration.
 
-    FIXME: description of supported attributes goes here
+    FIXME: description of supported properties goes here
     """
 
 
@@ -27,9 +27,9 @@ class OverlayDescription (tu.Attributes) :
     def __init__ (self, descr={}) :
 
 
-        tu.Attributes.__init__ (self, descr)
+        tu.Properties.__init__ (self, descr)
 
-        # register attributes
+        # register properties
         self.register_property ('cores')
         self.register_property ('wall_time')
 

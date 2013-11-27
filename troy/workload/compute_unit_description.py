@@ -12,15 +12,15 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-class ComputeUnitDescription (tu.Attributes) :
+class ComputeUnitDescription (tu.Properties) :
     """
-    The `ComputeUnitDescription` class is a simple container for attributes
+    The `ComputeUnitDescription` class is a simple container for properties
     which describe a :class:`ComputeUnit`, i.e. a workload element.
     `ComputeUnitDescription`s are submitted to :class:`WorkloadManager`
     instances on `add_task`, and are internally used to create
     :class:`ComputeUnit` instances.
 
-    FIXME: description of supported attributes goes here
+    FIXME: description of supported properties goes here
     """
 
 
@@ -28,9 +28,9 @@ class ComputeUnitDescription (tu.Attributes) :
     #
     def __init__ (self, descr={}) :
 
-        tu.Attributes.__init__ (self, descr)
+        tu.Properties.__init__ (self, descr)
 
-        # register attributes
+        # register properties
         self.register_property ('executable')
         self.register_property ('arguments')
         # FIXME: complete...

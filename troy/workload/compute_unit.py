@@ -16,7 +16,7 @@ Represent a compute unit, as element of a troy.Task in a troy.Workload.
 
 # ------------------------------------------------------------------------------
 #
-class ComputeUnit (tu.Attributes) :
+class ComputeUnit (tu.Properties) :
     """
     The `ComputeUnit` class represents the smallest element of work to be
     performed on behalf of an application, and is part of a workload managed by
@@ -55,9 +55,9 @@ class ComputeUnit (tu.Attributes) :
                              "description (troy.ComputeUnitDescription), not '%s'" \
                           % type(param))
 
-        tu.Attributes.__init__ (self, descr)
+        tu.Properties.__init__ (self, descr)
 
-        # register attributes
+        # register properties
         self.register_property ('id')
         self.register_property ('state')
         self.register_property ('description')
@@ -95,7 +95,7 @@ class ComputeUnit (tu.Attributes) :
         self.native_id   = _native_id
 
          
-        # FIXME: complete attribute list, dig attributes from description,
+        # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks
 
         self._pilot_id      = None
@@ -305,7 +305,7 @@ class ComputeUnit (tu.Attributes) :
                 }
 
 
-        # now that we have fresh info, lets update all unit attributes
+        # now that we have fresh info, lets update all unit properties
         for info_key in self._unit_info :
 
             if  info_key in keymap : new_key = keymap[info_key]

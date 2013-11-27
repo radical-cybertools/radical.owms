@@ -12,7 +12,7 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-class Task (tu.Attributes) :
+class Task (tu.Properties) :
     """
     The `Task` class represents a element of work to be performed on behalf of
     an application, and is part of a workload managed by Troy.
@@ -25,7 +25,7 @@ class Task (tu.Attributes) :
     As tasks are components of a :class:`Workload`, they are subject to the
     transformations the workload undergoes (see :class:`Workload` documentation
     for details).  During that process, tasks are enriched with additional
-    information, which are kept as additional member attributes::
+    information, which are kept as additional member properties::
 
     FIXME: do we need states for tasks?  Like: DESCRIBED, TRANSLATED, BOUND,
     DISPATCHED, DONE?  Sounds useful on a first glance, but on re-bind etc
@@ -54,9 +54,9 @@ class Task (tu.Attributes) :
         if  not 'tag' in descr :
             raise ValueError ("no 'tag' in TaskDescription")
 
-        tu.Attributes.__init__ (self, descr)
+        tu.Properties.__init__ (self, descr)
 
-        # register attributes
+        # register properties
         self.register_property ('id')
         self.register_property ('state')
         self.register_property ('tag')
@@ -71,7 +71,7 @@ class Task (tu.Attributes) :
         self.description = descr
         self.units       = dict()
 
-        # FIXME: complete attribute list, dig attributes from description,
+        # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks
 
 
