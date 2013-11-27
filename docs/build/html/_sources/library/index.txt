@@ -13,9 +13,8 @@ This is the Troy library reference
    troy.rst
    session.rst
    context.rst
-   attributes.rst
-
-..   planner/index.rst
-..   workload/index.rst
-..   overlay/index.rst
+   attribute.rst
+   planner/index.rst
+   workload/index.rst
+   overlay/index.rst
 
