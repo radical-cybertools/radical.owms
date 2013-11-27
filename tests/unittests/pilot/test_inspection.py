@@ -21,7 +21,7 @@ def test_pilot_inspection () :
     #
 
     overlay_dict = test_conf.overlay_dict
-    overlay      = troy.Overlay ({troy.CORES : 1})
+    overlay      = troy.Overlay ({'cores' : 1})
 
     if  not 'pilots' in overlay_dict :
         assert False, "no pilots in overlay dict" 

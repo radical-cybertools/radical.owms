@@ -147,7 +147,8 @@ class Properties (saga.Attributes) :
         """
 
         # register attribute w/o type checking
-        self._attributes_register (key)
+        self._attributes_register (key, typ    = saga.attributes.ANY, 
+                                        flavor = saga.attributes.ANY)
 
 
     # --------------------------------------------------------------------------
