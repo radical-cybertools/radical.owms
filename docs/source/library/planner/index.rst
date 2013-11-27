@@ -10,7 +10,7 @@ The Troy Planner...
 
 .. #############################################################################
 
-.. autoclass:: saga.planner.Planner
+.. autoclass:: troy.planner.Planner
    :members:
    :inherited-members:
    :undoc-members:
