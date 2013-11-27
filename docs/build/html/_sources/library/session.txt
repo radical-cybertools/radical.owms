@@ -3,10 +3,10 @@ Sessions
 
 .. todo:: Intro to Troy Session
 
-Session -- :mod:`saga.session`
+Session -- :mod:`troy.session`
 ------------------------------
 
-.. automodule:: saga.session
+.. automodule:: troy.session
    :show-inheritance:
    :members: Session
 

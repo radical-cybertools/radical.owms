@@ -40,9 +40,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li><a href="../../index.html">TROY 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -55,6 +52,33 @@
   <div class="section" id="planner">
 <span id="id1"></span><h1>Planner<a class="headerlink" href="#planner" title="Permalink to this headline">¶</a></h1>
 <p>The Troy Planner...</p>
+<dl class="class">
+<dt id="troy.planner.Planner">
+<em class="property">class </em><tt class="descclassname">troy.planner.</tt><tt class="descname">Planner</tt><big>(</big><em>planner='default'</em><big>)</big><a class="headerlink" href="#troy.planner.Planner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>The <cite>Planner</cite> class represents the upper layer, i.e. the application facing
+layer, of Troy, and thus hosts the API that ultimately will be used by end
+users.  That API allows to submit application workloads, and to monitor
+their execution progress.</p>
+<p>Internally, the planner will transform the given workload into an internal
+representation upon which the follow-up transformations of the
+<tt class="xref py py-class docutils literal"><span class="pre">WorkloadManager</span></tt> class will operate.  It will further derive an
+overlay description suitable to run the workload, which downstream will be
+enacted by the <tt class="xref py py-class docutils literal"><span class="pre">OverlayManager</span></tt>.</p>
+<dl class="method">
+<dt id="troy.planner.Planner.derive_overlay">
+<tt class="descname">derive_overlay</tt><big>(</big><em>workload_id</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#troy.planner.Planner.derive_overlay" title="Permalink to this definition">¶</a></dt>
+<dd><p>create overlay plan (description) from workload</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="troy.planner.Planner.expand_workload">
+<tt class="descname">expand_workload</tt><big>(</big><em>workload_id</em><big>)</big><a class="headerlink" href="#troy.planner.Planner.expand_workload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expand cardinality parameters in workload.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -91,9 +115,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li><a href="../../index.html">TROY 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>

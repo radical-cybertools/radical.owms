@@ -40,9 +40,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li><a href="../index.html">TROY 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -56,156 +53,6 @@
 <h1>Attributes and Callbacks<a class="headerlink" href="#attributes-and-callbacks" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="attribute-troy-attributes">
 <h2>Attribute &#8211; <tt class="xref py py-class docutils literal"><span class="pre">troy.Attributes</span></tt><a class="headerlink" href="#attribute-troy-attributes" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="troy.utils.Attributes">
-<em class="property">class </em><tt class="descclassname">troy.utils.</tt><tt class="descname">Attributes</tt><big>(</big><em>inits={}</em><big>)</big><a class="headerlink" href="#troy.utils.Attributes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">saga.attributes.Attributes</span></tt></p>
-<p>Several Troy classes benefit from somewhat richer than default python
-properties &#8211; in particular, we want to get notification callbacks on state
-changes (and similar), and want to be able to refresh properties on the fly,
-i.e. when they are needed.</p>
-<p>Assume we want to allow users to register callback for a task&#8217;s state
-change, which is getting invoked whenever the task&#8217;s <cite>state</cite> property
-changes:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">my_cb</span> <span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="p">:</span>
-    <span class="k">print</span> <span class="s">&#39;state of task </span><span class="si">%s</span><span class="s"> changed to </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
-
-<span class="n">task</span> <span class="o">=</span> <span class="n">workload</span><span class="o">.</span><span class="n">tasks</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-<span class="n">task</span><span class="o">.</span><span class="n">add_callback</span> <span class="p">(</span><span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="n">my_cb</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>For that to work, Troy needs to declare which properties are eligible for
-those callbacks:</p>
-<div class="highlight-python"><pre>class troy.workload (troy.utils.Attributes) :
-
-    self.register_property ('state')
-    ...</pre>
-</div>
-<p>From that point on, any plugin, or any thread within Troy, can set the
-workload state attribute, and any application callback registered for that
-property will get invoked.  For example, a bigjob dispatcher plugin could
-use:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">tasks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">troy</span><span class="o">.</span><span class="n">FAILED</span>
-</pre></div>
-</div>
-<p>that would immediately call the application callback (in the same thread
-context).</p>
-<p>It is costly for Troy to frequently update all possible information from
-remote information sources &#8211; without actually knowing what is needed.  It
-would be more efficient to pull information only when they are actually
-accessed.  For that, Troy needs again to explicitly register properties
-which are eligible for on-demand (or rather: on-access) updates, and also
-what method updates the property/properties:</p>
-<div class="highlight-python"><pre>class troy.workload (troy.utils.Attributes) :
-
-    # ------------------------------------------------------------------
-    #
-    def __init__ (...) :
-
-        # register properties for callback
-        self.register_property ('state')
-        self.register_property ('runtime')
-
-        # set a property updater for the 'state' property
-        self.register_property_updater ('state', self._state_updater)
-
-        # set a property updater for all registered properties
-        self.register_property_updater (self._properties_updater)
-
-
-    # ------------------------------------------------------------------
-    #
-    def _state_updater (self) :
-
-        # update 'state' property by backend polling
-        self.state = self._backend.get_state (self.id)
-
-        # this is equivalent to:
-        self.set_property ('state', self._backend.get_state (self.id))
-        
-
-    # ------------------------------------------------------------------
-    #
-    def _properties_updater (self) :
-
-        # update all properties by backend polling
-        info = self._backend.get_all_info (self.id)
-        for key in info :
-            self.set_property (key, info[key])</pre>
-</div>
-<p>Note: the <cite>_update_properties</cite> method can be made even more efficient by
-caching the resulting info dict - but that optimization is out of scope for
-this part of the documentation.</p>
-<blockquote>
-<div><p># &#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;
-#
-def _properties_updater (self) :</p>
-<blockquote>
-<div><p># update all properties by backend polling
-if  (time.now() - self._info_age &gt; self._cache_ttl) :</p>
-<blockquote>
-<div><p># info cache timed out - -refetch properties
-info = self._backend.get_all_info (self.id)
-self._info_age = time.now()
-for key in info :</p>
-<blockquote>
-<div>self.__setattr__ (key, info[key])</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-<p>Also note that the above is very similar to the native Python way to
-provide property getters &#8211; but integrates that mechanism with callback
-management.  For more detailed information, see the implementation and
-documentation of the saga.Attributes interface.</p>
-<dl class="method">
-<dt id="troy.utils.Attributes.register_property">
-<tt class="descname">register_property</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#troy.utils.Attributes.register_property" title="Permalink to this definition">¶</a></dt>
-<dd><p>Any property registered by this call is eligible for callbacks, and is
-also eligible for in-access updates &#8211; if a respective updater was
-registered with <cite>register_property_updater</cite>.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="troy.utils.Attributes.register_property_updater">
-<tt class="descname">register_property_updater</tt><big>(</big><em>arg1</em>, <em>arg2=None</em><big>)</big><a class="headerlink" href="#troy.utils.Attributes.register_property_updater" title="Permalink to this definition">¶</a></dt>
-<dd><p>For a registered property, register a callable which is invoked whenever
-the property&#8217;s value is accessed.  That callable can be used to update
-the property value for that access, i.e. on the fly.</p>
-<p>There are two invocation modi for this call:</p>
-<blockquote>
-<div>self.register_property_updater (key, updater)
-self.register_property_updater (     updater)</div></blockquote>
-<p>In the first case, the updater will only be called on access of the
-property <cite>key</cite>.  In the second case, the updater will be called on <em>any</em>
-access to a registered property on the class.</p>
-<p>Note that frequent property accesses can create a significant number of
-updater invocations &#8211; implementers should be aware of this, and should
-consider to cache values in the updater, at least for short periods of
-time.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="troy.utils.Attributes.set_property">
-<tt class="descname">set_property</tt><big>(</big><em>key</em>, <em>val</em><big>)</big><a class="headerlink" href="#troy.utils.Attributes.set_property" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is equivalent to:</p>
-<div class="highlight-python"><pre>self.&lt;key&gt; = val</pre>
-</div>
-<p>but will register the property on the fly, making it eligible for
-callbacks etc.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="troy.utils.Attributes.get_property">
-<tt class="descname">get_property</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#troy.utils.Attributes.get_property" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is equivalent to the access via:</p>
-<div class="highlight-python"><pre>self.&lt;key&gt;</pre>
-</div>
-<p>but will <em>not</em> invoke any registered updater methods.  This is thus safe
-to use within an updater.</p>
-</dd></dl>
-
-</dd></dl>
-
 </div>
 </div>
 
@@ -251,9 +98,6 @@ to use within an updater.</p>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li><a href="../index.html">TROY 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
