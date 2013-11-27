@@ -41,8 +41,8 @@ class PLUGIN_CLASS(object):
 
         cf = troy.Configuration()
 
-        cg = cf.get_config('general')
-        finished_job_trace = cg['bundle_finished_job_trace'].get_value()
+        cg = cf.get_config('bundle')
+        finished_job_trace = cg['finished_job_trace'].get_value()
 
         for sect in cf.compute_sections:
             cs = cf.get_config(sect)
