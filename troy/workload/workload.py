@@ -1,24 +1,18 @@
 
+__author__    = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__   = "MIT"
 
-import threading
-import weakref
 
-import radical.utils        as ru
-
-import task                 as tt
-import task_description     as ttd
-
-import relation             as tr
-import relation_description as trd
-
-import troy.utils           as tu
-from   troy.constants       import *
+import radical.utils      as ru
+import troy.utils         as tu
+from   troy.constants import *
 import troy
 
 
 # ------------------------------------------------------------------------------
 #
-@ru.Lockable
+@ru.Lockable  # needed locks for the ru.Registry
 class Workload (tu.Attributes) :
     """
     The `Workload` class represents a workload which is managed by Troy.  It
@@ -170,11 +164,11 @@ class Workload (tu.Attributes) :
         # check type, content and uniqueness for each task
         for d in descr :
 
-            if  not isinstance (d, ttd.TaskDescription) :
+            if  not isinstance (d, troy.TaskDescription) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
             # FIXME: add sanity checks for task syntax / semantics
-            task = tt.Task (d, _manager=self)
+            task = troy.Task (d, _manager=self)
 
             if task.tag in self.tasks :
                 raise ValueError ("Task with tag '%s' already exists" % task.tag)
@@ -214,7 +208,7 @@ class Workload (tu.Attributes) :
         ret = []
         for d in descr :
 
-            if  not isinstance (d, trd.RelationDescription) :
+            if  not isinstance (d, troy.RelationDescription) :
                 raise TypeError ("expected RelationDescription, got %s" % type(d))
 
             if  d in self.relations :
@@ -226,7 +220,7 @@ class Workload (tu.Attributes) :
             if  not d.tail in self.tasks :
                 raise ValueError ("relation tail '%s' no known" % d.tail)
 
-            r = tr.Relation (d)
+            r = troy.Relation (d)
 
             self.relations.append (r)
 

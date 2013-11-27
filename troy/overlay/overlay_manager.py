@@ -4,15 +4,15 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__ = "MIT"
 
 
+import radical.utils      as ru
+import troy.utils         as tu
+from   troy.constants import *
+import troy
+
+
 """
 Manages the pilot-based overlays for TROY.
 """
-
-import threading
-import radical.utils      as ru
-
-import troy
-from   troy.constants import *
 
 
 # -----------------------------------------------------------------------------

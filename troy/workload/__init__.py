@@ -1,4 +1,9 @@
 
+__author__    = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__   = "MIT"
+
+
 from compute_unit_description import ComputeUnitDescription
 from compute_unit             import ComputeUnit
 

@@ -1,11 +1,13 @@
 
+__author__    = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__   = "MIT"
 
-import threading
+
 import radical.utils      as ru
-
+import troy.utils         as tu
 from   troy.constants import *
-
-import troy.overlay.overlay_manager as olm
+import troy
 
 
 # ------------------------------------------------------------------------------
@@ -178,7 +180,7 @@ class WorkloadManager (object) :
         """
 
         workload = self.get_workload (workload_id)
-        overlay  = olm.OverlayManager.get_overlay (overlay_id)
+        overlay  = troy.OverlayManager.get_overlay (overlay_id)
 
         if  not overlay :
             raise ValueError ("binding needs a valid overlay")
@@ -221,7 +223,7 @@ class WorkloadManager (object) :
         """
 
         workload = self.get_workload (workload_id)
-        overlay  = olm.OverlayManager.get_overlay (overlay_id)
+        overlay  = troy.OverlayManager.get_overlay (overlay_id)
 
         # make sure the workload is scheduled, so we can dispatch it.
         # we don't care about overlay state

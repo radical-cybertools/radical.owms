@@ -4,12 +4,11 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
-import weakref
-
-import radical.utils        as ru
-import troy.utils           as tu
-from   troy.constants   import *
+import radical.utils      as ru
+import troy.utils         as tu
+from   troy.constants import *
 import troy
+
 
 """
 Represent a pilot-based overlay that is managed by TROY.
@@ -17,7 +16,7 @@ Represent a pilot-based overlay that is managed by TROY.
 
 # -----------------------------------------------------------------------------
 #
-@ru.Lockable
+@ru.Lockable  # needed locks for the ru.Registry
 class Overlay (tu.Attributes) :
     """
     The `Overlay` class represents a resource overlay which is managed by Troy,
