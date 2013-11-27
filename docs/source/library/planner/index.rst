@@ -13,5 +13,4 @@ The Troy Planner...
 .. autoclass:: troy.planner.Planner
    :members:
    :undoc-members:
-   :show-inheritance:
 
