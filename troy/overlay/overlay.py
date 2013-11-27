@@ -17,7 +17,7 @@ Represent a pilot-based overlay that is managed by TROY.
 # -----------------------------------------------------------------------------
 #
 @ru.Lockable  # needed locks for the ru.Registry
-class Overlay (tu.Attributes) :
+class Overlay (tu.Properties) :
     """
     The `Overlay` class represents a resource overlay which is managed by Troy,
     i.e. in application and user space.  It contains a set of :class:`Pilots`, 
@@ -88,9 +88,9 @@ class Overlay (tu.Attributes) :
         ol_id = ru.generate_id ('ol.')
 
         
-        tu.Attributes.__init__ (self, descr)
+        tu.Properties.__init__ (self, descr)
 
-        # register attributes, initialize state
+        # register properties, initialize state
         self.register_property ('id')
         self.register_property ('state')
         self.register_property ('description')

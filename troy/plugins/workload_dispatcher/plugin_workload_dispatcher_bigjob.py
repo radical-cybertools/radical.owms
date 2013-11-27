@@ -64,7 +64,7 @@ class PLUGIN_CLASS (object) :
                 for key in unit_descr :
 
                     # ignore Troy level keys
-                    if  key in [TAG] :
+                    if  key in ['tag'] :
                         continue
 
                   # if  key in keymap :

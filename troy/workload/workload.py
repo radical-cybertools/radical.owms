@@ -13,7 +13,7 @@ import troy
 # ------------------------------------------------------------------------------
 #
 @ru.Lockable  # needed locks for the ru.Registry
-class Workload (tu.Attributes) :
+class Workload (tu.Properties) :
     """
     The `Workload` class represents a workload which is managed by Troy.  It
     contains a set of :class:`Tasks`, and a set of :class:`Relation`s between
@@ -91,9 +91,9 @@ class Workload (tu.Attributes) :
         
         wl_id = ru.generate_id ('wl.')
 
-        tu.Attributes.__init__ (self)
+        tu.Properties.__init__ (self)
 
-        # register attributes, initialize state
+        # register properties, initialize state
         self.register_property ('id')
         self.register_property ('state')
         self.register_property ('tasks')
@@ -105,7 +105,7 @@ class Workload (tu.Attributes) :
         self.tasks     = dict()
         self.relations = list()
 
-        self._attributes_set_getter ('state', self.get_state)
+        self.register_property_updater ('state', self.get_state)
 
         # initialize private properties
         self._parametrized = False

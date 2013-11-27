@@ -12,7 +12,7 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-class Relation (tu.Attributes) :
+class Relation (tu.Properties) :
     """
     The `Relation` class represents a logical, temporal or spacial dependency
     between two :class:`Task`s, and is part of a workload managed by Troy.
@@ -44,9 +44,9 @@ class Relation (tu.Attributes) :
         if  not 'tail' in descr :
             raise ValueError ("no 'tail' in RelationDescription")
 
-        tu.Attributes.__init__ (self, descr)
+        tu.Properties.__init__ (self, descr)
 
-        # register attributes
+        # register properties
         self.register_property ('id')
         self.register_property ('head')
         self.register_property ('tail')
@@ -58,7 +58,7 @@ class Relation (tu.Attributes) :
         self.tail        = descr.tail
         self.description = descr
 
-        # FIXME: complete attribute list, dig attributes from description,
+        # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks
 
 

@@ -12,14 +12,14 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-class RelationDescription (tu.Attributes) :
+class RelationDescription (tu.Properties) :
     """
-    The `RelationDescription` class is a simple container for attributes which
+    The `RelationDescription` class is a simple container for properties which
     describe a :class:`Relation`, i.e. a workload element.  `RelationDescription`s are
     submitted to :class:`WorkloadManager` instances on `add_relation`, and are
     internally used to create :class:`Relation` instances.
 
-    FIXME: description of supported attributes goes here
+    FIXME: description of supported properties goes here
     """
 
 
@@ -28,10 +28,10 @@ class RelationDescription (tu.Attributes) :
     def __init__ (self, descr={}) :
 
 
-        # register attributes
+        # register properties
         # FIXME
 
-        tu.Attributes.__init__ (self, descr)
+        tu.Properties.__init__ (self, descr)
 
 
 # ------------------------------------------------------------------------------

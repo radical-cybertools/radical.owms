@@ -16,7 +16,7 @@ Represent a pilot, as element of a troy.Overlay.
 
 # ------------------------------------------------------------------------------
 #
-class Pilot (tu.Attributes) :
+class Pilot (tu.Properties) :
     """
     """
 
@@ -46,15 +46,15 @@ class Pilot (tu.Attributes) :
                           % type(param))
 
 
-        tu.Attributes.__init__ (self, descr)
+        tu.Properties.__init__ (self, descr)
 
-        # register attributes
+        # register properties
         self.register_property ('id')
         self.register_property ('state')
         self.register_property ('description')
         self.register_property ('overlay')
 
-        # inspection attributes needed by scheduler
+        # inspection properties needed by scheduler
         self.register_property ('size')
         self.register_property ('resource')
         self.register_property ('units')
@@ -84,7 +84,7 @@ class Pilot (tu.Attributes) :
         self.description = descr
         self.overlay = _overlay
 
-        # FIXME: complete attribute list, dig attributes from description,
+        # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks
 
         self._resource      = None
@@ -284,7 +284,7 @@ class Pilot (tu.Attributes) :
                 }
 
 
-        # now that we have fresh info, lets update all pilot attributes
+        # now that we have fresh info, lets update all pilot properties
         for info_key in self._pilot_info :
 
             if  info_key in keymap : new_key = keymap[info_key]

@@ -1,3 +1,3 @@
 
-from attributes import Attributes
+from properties import Properties
 
