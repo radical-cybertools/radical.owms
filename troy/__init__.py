@@ -44,7 +44,9 @@ import os
 import radical.utils.logger as rul
 
 version=open    (os.path.dirname (os.path.abspath (__file__)) + "/VERSION", 'r').read().strip()
-rul.log_version ('saga', 'saga-python', version)
+rul.getLogger   ('troy').info ('troy            version: %s' % version)
+# rul.log_version ('troy', 'troy', version)
+
 
 _logger = rul.logger.getLogger ('troy')
 
