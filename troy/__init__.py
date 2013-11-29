@@ -5,31 +5,19 @@ __license__   = "MIT"
 
 version = 0.1
 
-# ------------------------------------------------------------------------------
-#
-# provide Troy session and context
-#
-import saga
+"""
+Where does this docstring show up?
+"""
 
-class Session (saga.Session) : pass
-class Context (saga.Context) : pass
-
-
-import radical.utils as ru
-_logger = ru.logger.getLogger ('troy')
 
 # ------------------------------------------------------------------------------
 #
 # the Troy API layer
 #
 from constants  import *
-
-
-# ------------------------------------------------------------------------------
-#
-# and the internal Troy classes -- which are also exposed in Troy.v1
-#
-from config import Configuration
+from config     import Configuration
+from session    import Session
+from session    import Context
 
 from planner    import Planner
 
@@ -49,6 +37,16 @@ from overlay    import OverlayDescription
 from overlay    import OverlayManager
 
 from bundle_wrapper import BundleManager
+
+# ------------------------------------------------------------------------------
+
+import os
+import radical.utils.logger as rul
+
+version=open    (os.path.dirname (os.path.abspath (__file__)) + "/VERSION", 'r').read().strip()
+rul.log_version ('saga', 'saga-python', version)
+
+_logger = rul.logger.getLogger ('troy')
 
 # ------------------------------------------------------------------------------
 
