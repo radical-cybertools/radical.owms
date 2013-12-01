@@ -26,6 +26,13 @@ class PLUGIN_CLASS(object):
 
     # --------------------------------------------------------------------------
     #
+    def init (self):
+
+        troy._logger.info ("init the default planner plugin")
+
+
+    # --------------------------------------------------------------------------
+    #
     def expand_workload(self, workload):
 
         # Do nothing for now
