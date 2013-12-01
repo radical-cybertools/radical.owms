@@ -40,6 +40,7 @@ class Planner(object):
 
         # FIXME: error handling
         self._planner = self._plugin_mgr.load('planner', planner)
+        self._planner.init ()
 
     # --------------------------------------------------------------------------
     #

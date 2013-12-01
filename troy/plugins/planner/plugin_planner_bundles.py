@@ -1,3 +1,4 @@
+
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
@@ -7,9 +8,11 @@ PLUGIN_DESCRIPTION = {
     'description' : 'This is the bundles planner.'
   }
 
+
 from   troy.constants import *
 import troy
-from bundle import BundleManager
+
+from   bundle import BundleManager
 
 
 # ------------------------------------------------------------------------------
@@ -24,6 +27,13 @@ class PLUGIN_CLASS(object):
     def __init__(self):
 
         print "create the bundle planner plugin"
+
+
+    # --------------------------------------------------------------------------
+    #
+    def init(self):
+
+        print "init the bundle planner plugin"
 
         self.init_bundles()
 
