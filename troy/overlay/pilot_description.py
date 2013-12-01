@@ -4,6 +4,7 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
+import os
 import radical.utils      as ru
 import troy.utils         as tu
 from   troy.constants import *
@@ -30,8 +31,9 @@ class PilotDescription (tu.Properties) :
 
         tu.Properties.__init__ (self, descr)
 
-        # register properties
-        self.register_property ('size')
+        # property defaults
+        self.size              = 1
+        self.working_directory = '/tmp/troy.%s/' % os.getuid ()
 
         # FIXME
 

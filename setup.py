@@ -130,6 +130,7 @@ setup_args = {
     'packages': [
         "troy",
         "troy.utils",
+        "troy.application",
         "troy.planner",
         "troy.overlay",
         "troy.workload",
