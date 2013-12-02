@@ -42,7 +42,7 @@ class PLUGIN_CLASS(object):
 
     # --------------------------------------------------------------------------
     #
-    def derive_overlay(self, workload, guard=None):
+    def derive_overlay(self, workload):
 
         ovl_descr = troy.OverlayDescription (
             {
