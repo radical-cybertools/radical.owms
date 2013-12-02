@@ -5,7 +5,7 @@
 Num_Stage = 1
 
 #Definition of 1st Stage:
-Stage_Name = /tmp/troy.1000/Stage_1
+Stage_Name = Stage_1
     Num_Tasks = 4
     Task_Length = uniform 10s
     Input_Source = filesystem

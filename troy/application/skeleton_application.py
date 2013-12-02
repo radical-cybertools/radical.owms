@@ -1,36 +1,24 @@
 
-__author__ = "Matteo Turilli"
+__author__    = "Matteo Turilli"
 __copyright__ = "Copyright 2013, The AIMES Project"
-__license__ = "MIT"
+__license__   = "MIT"
 
 
-"""
-Adapter pattern to translate the workload interface implemented by a 
-skeleton to the one implemented by the AIMES workload manager.
-"""
-
-# FIXME: we can't call this file 'troy/application/skeleton.py', because we
-# import the top-level 'skeleton.py' below -- or try to.  This should be fixed
-# in aimes, to move into a namespace hierarchy like 'aimes/skeleton.py' ...
-
-
-import os
-import skeleton
-import subprocess
+import synapse
 import troy
 
 # ------------------------------------------------------------------------------
 #
-class Skeleton (skeleton.Application) :
+class Synapse (object) :
     """
-    This class uses the aimes skeleton module to create a staged set of tasks
-    according to some skeleton description.  It adds methods to execute the
-    skeleton via BigJob, and translates it into a troy workload.
+    This class interprets a synapse workload description, and executes it via
+    Troy.
     """
 
-    def __init__(self, name, input_file, mode, output_file):
+    def __init__ (self, descr) :
 
-        super (Skeleton, self).__init__ (name, input_file, mode, output_file)
+        self.description = descr
+
 
 
     # --------------------------------------------------------------------------
@@ -41,10 +29,6 @@ class Skeleton (skeleton.Application) :
         a skeleton, and from that create a troy.Workload for each stage -- that
         list of workloads is then returned
         """
-
-        # FIXME: not sure where wd should actually be specified / derived...
-        # But anything is better than $HOME, IMHO...
-        working_directory = '/tmp/troy.%s/' % os.getuid ()
 
         # Generate a skeleton.
         generated = super(Skeleton, self).generate ()
@@ -58,8 +42,7 @@ class Skeleton (skeleton.Application) :
         for skeleton_stage in self.stagelist :
             # FIXME: maybe we should execute the content of the script line by
             # line, for better tracing / error reporting?
-            shell_script = 'cd %s && /bin/sh %s_prepare.sh' % (working_directory, 
-                                                               skeleton_stage.name)
+            shell_script = '/bin/sh %s_prepare.sh' % (skeleton_stage.name)
             print 'executing %s' % shell_script
             subprocess.check_call (shell_script, shell=True)
 
@@ -72,7 +55,6 @@ class Skeleton (skeleton.Application) :
 
         workloads = list()
 
-        print self.stagelist
         for skeleton_stage in self.stagelist:
 
             stage_workload = troy.Workload ()
@@ -89,12 +71,12 @@ class Skeleton (skeleton.Application) :
                 td.tag               = skeleton_task.taskid
                 td.executable        = skeleton_task.executable
                 td.arguments         = skeleton_task.arguments
-                td.working_directory = skeleton_task.working_directory
 
                 stage_workload.add_task (td)
 
 
-            # stage done -- add resulting stage workload
+            # stage done -- add resulting stage workload (register first)
+            troy.WorkloadManager.register_workload (stage_workload)
             workloads.append (stage_workload)
 
         # all stages done
@@ -103,14 +85,14 @@ class Skeleton (skeleton.Application) :
 
     # --------------------------------------------------------------------------
     #
-    def _complete_skeleton_task (self, skeleton_task, working_directory) :
+    def _complete_skeleton_task (self, skeleton_task) :
 
         # FIXME: The pwd use is an hack. Without it, BJ will not
         # find the task.stage.sh script.
-        skeleton_task.executable        = 'pwd; %s.sh'    % (working_directory, skeleton_task.stage)
+        skeleton_task.executable  = 'pwd; %s.sh'    % (skeleton_task.stage)
 
         # duration
-        skeleton_task.arguments = []
+        skeleton_task.arguments   = []
         skeleton_task.arguments.append (skeleton_task.length.strip('s'))
 
         # input files
@@ -124,14 +106,12 @@ class Skeleton (skeleton.Application) :
             
             inputdir = inputdir.strip ('_')    
             
-            skeleton_task.arguments.append ('%s/%s/%s' % (working_directory, 
-                                            inputdir, i.name))
+            skeleton_task.arguments.append ('%s/%s' % (inputdir, i.name))
 
         # output files and size
         for o in skeleton_task.outputlist:
 
-            skeleton_task.arguments.append ("%s/%s/%s" % (working_directory, 
-                                            skeleton_task.outputdir, o.name))
+            skeleton_task.arguments.append ("%s/%s" % (skeleton_task.outputdir, o.name))
 
             # This might be a bug - do we have a size for every output
             # file? If so, the bash script (executable) will not work.

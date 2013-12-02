@@ -33,7 +33,7 @@ class PilotDescription (tu.Properties) :
 
         # property defaults
         self.size              = 1
-        self.working_directory = '/tmp/troy.%s/' % os.getuid ()
+      # self.working_directory = '/tmp/troy.%s/' % os.getuid ()
 
         # FIXME
 
