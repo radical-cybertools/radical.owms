@@ -26,14 +26,14 @@ class PLUGIN_CLASS(object):
     #
     def __init__(self):
 
-        print "create the bundle planner plugin"
+        troy._logger.info ("create the bundle planner plugin")
 
 
     # --------------------------------------------------------------------------
     #
     def init(self):
 
-        print "init the bundle planner plugin"
+        troy._logger.info ("init the planner planner plugin")
 
         self.init_bundles()
 
@@ -45,7 +45,7 @@ class PLUGIN_CLASS(object):
         # bundle_credential members { 'port', 'hostname', 'username',
         #                             'password' 'key_filename', 'h_flag' }
 
-        print 'Initializing Bundle Manager'
+        troy._logger.info('Initializing Bundle Manager')
 
         self.bm = BundleManager()
 
@@ -81,7 +81,6 @@ class PLUGIN_CLASS(object):
         predictions = {}
         for cluster in self.cluster_list:
             predictions[cluster] = self.bm.resource_predict(cluster, resource_request)
-        print predictions
 
         # Find entries that are not -1
         usable = filter(lambda x: x != -1, predictions.values())
@@ -93,8 +92,7 @@ class PLUGIN_CLASS(object):
     def expand_workload(self, workload):
 
         # Do nothing for now
-
-        print "planner  expand wl: expand workload : %s" % workload
+        troy._logger.info("expand workload: %s" %  workload)
 
     # --------------------------------------------------------------------------
     #
@@ -120,7 +118,8 @@ class PLUGIN_CLASS(object):
                 'wall_time' : (1 << 1) + (1 << 3) + (1 << 5)
             })
 
-        print "planner derive ol: derive overlay for workload: %s" % ovl_descr
+        troy._logger.info('planner derive ol: derive overlay for workload: '
+                          '%s' % ovl_descr)
 
         # Check if there is at least one bundle that can satisfy our request
         # TODO: How to communicate back to application?
