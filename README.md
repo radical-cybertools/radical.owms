@@ -16,6 +16,12 @@ of previous installations removed:
 
 pip uninstall troy; rm -rf ./build; pip install .
 
+### Configuration
+
+You need a configuration file in the location "~/.troy.cfg".
+An example is provided in this directory ("dot_troy_example.cfg"), you can copy
+that to "~/.troy.cfg" and customize to your environment.
+
 ### Note to developers:
 
 The development branch is `devel`, all developers should branch off 'devel' when
