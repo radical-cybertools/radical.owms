@@ -34,7 +34,7 @@ class PLUGIN_CLASS (object) :
         troy._logger.info ("create the bigjob overlay_provisioner plugin")
 
         if  not 'COORDINATION_URL' in os.environ :
-            raise RuntimeError ("Cannot use bigjob backend - no CCORDINATION_URL set")
+            raise RuntimeError ("Cannot use bigjob backend - no COORDINATION_URL set")
 
         self._coord = os.environ['COORDINATION_URL']
 
