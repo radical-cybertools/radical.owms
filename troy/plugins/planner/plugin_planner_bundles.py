@@ -70,7 +70,7 @@ class PLUGIN_CLASS(object):
         self.cluster_list = self.bm.get_cluster_list()
 
         if not self.cluster_list:
-            raise RuntimeError ('No clusters available in Bundle Manager')
+            raise RuntimeError ('No clusters available in Bundle Manager. You might want to check your config file.')
 
     # --------------------------------------------------------------------------
     #
