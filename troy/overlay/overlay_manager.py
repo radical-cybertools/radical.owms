@@ -72,6 +72,10 @@ class OverlayManager (object) :
         self._scheduler   = self._plugin_mgr.load ('overlay_scheduler',   scheduler)
         self._provisioner = self._plugin_mgr.load ('overlay_provisioner', provisioner)
 
+        if  not self._provisioner :
+            raise RuntimeError ("Could not load provisioner plugin")
+
+
 
     # --------------------------------------------------------------------------
     #
