@@ -110,6 +110,9 @@ class Workload (tu.Properties) :
         # initialize private properties
         self._parametrized = False
 
+        # register this instance, so that workload can be passed around by id.
+        troy.WorkloadManager.register_workload (self)
+
 
     # --------------------------------------------------------------------------
     #
