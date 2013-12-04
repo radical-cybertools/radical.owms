@@ -162,11 +162,6 @@ class Task (tu.Properties) :
 
         """
 
-        # atomic states are set elsewhere
-        if  self.state in [TRANSLATED, BOUND] :
-          # print "ts -> unchanged %s (early)" % self.state
-            return self.state
-
         # final states are never left
         if  self.state in [DONE, FAILED, CANCELED] :
           # print "ts -> unchanged %s (final)" % self.state
@@ -192,6 +187,12 @@ class Task (tu.Properties) :
 
         elif CANCELED in unit_states :
             self.state = CANCELED
+
+        elif DESCRIBED in unit_states :
+            self.state = TRANSLATED
+
+        elif BOUND in unit_states :
+            self.state = BOUND
 
         elif DISPATCHED in unit_states or \
              PENDING    in unit_states or \

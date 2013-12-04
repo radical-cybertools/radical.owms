@@ -42,14 +42,19 @@ class WorkloadManager (object) :
     def __init__ (self, inspector  = 'default', 
                         translator = 'default',
                         scheduler  = 'round_robin',
-                        dispatcher = 'bigjob') :
+                        dispatcher = 'bigjob', 
+                        session    = None) :
         """
         Create a new workload manager instance.  
 
         Use default plugins if not indicated otherwise
         """
 
+        if  not session :
+            session = troy.Session ()
+
         # initialize state, load plugins
+        self._session     = session
         self._plugin_mgr  = ru.PluginManager ('troy')
 
         # FIXME: error handling
@@ -57,6 +62,16 @@ class WorkloadManager (object) :
         self._translator  = self._plugin_mgr.load  ('workload_translator', translator)
         self._scheduler   = self._plugin_mgr.load  ('workload_scheduler',  scheduler)
         self._dispatcher  = self._plugin_mgr.load  ('workload_dispatcher', dispatcher)
+
+        if  not self._inspector  : raise RuntimeError ("Could not load inspector  plugin")
+        if  not self._translator : raise RuntimeError ("Could not load translator plugin")
+        if  not self._scheduler  : raise RuntimeError ("Could not load scheduler  plugin")
+        if  not self._dispatcher : raise RuntimeError ("Could not load dispatcher plugin")
+
+        self._inspector .init (session.cfg)
+        self._translator.init (session.cfg)
+        self._scheduler .init (session.cfg)
+        self._dispatcher.init (session.cfg)
 
 
     # --------------------------------------------------------------------------
@@ -205,9 +220,6 @@ class WorkloadManager (object) :
         # hand over control over workload (and overlay) to the scheduler plugin,
         # so it can do what it has to do.
         self._scheduler.schedule (workload, overlay)
-
-        # mark workload as 'scheduled'
-        workload.state = BOUND
 
 
     # --------------------------------------------------------------------------

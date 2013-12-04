@@ -25,7 +25,15 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        troy._logger.info ("create the default workload_dispatcher plugin")
+        pass
+
+
+    # --------------------------------------------------------------------------
+    #
+    def init (self, cfg):
+
+        troy._logger.info ("init the default workload dispatcher plugin")
+        self.cfg = cfg
 
 
     # --------------------------------------------------------------------------

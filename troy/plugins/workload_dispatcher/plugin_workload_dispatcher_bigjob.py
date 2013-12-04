@@ -27,7 +27,15 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        troy._logger.info ("create the bigjob workload_dispatcher plugin")
+        pass
+
+
+    # --------------------------------------------------------------------------
+    #
+    def init (self, cfg):
+
+        troy._logger.info ("init the bigjob workload dispatcher plugin")
+        self.cfg = cfg
 
 
     # --------------------------------------------------------------------------
@@ -105,12 +113,12 @@ class PLUGIN_CLASS (object) :
         # translate bj state to troy state
         if  'state' in info :
             # hahaha python switch statement hahahahaha
-            info['state'] =  {"New"    : DESCRIBED, 
-                              "Running": RUNNING, 
-                              "Staging": RUNNING, 
-                              "Failed" : FAILED, 
-                              "Done"   : DONE, 
-                              "Unknown": UNKNOWN}.get (info['state'], UNKNOWN)
+            info['state'] =  {"New"     : DISPATCHED, 
+                              "Running" : RUNNING, 
+                              "Staging" : RUNNING, 
+                              "Failed"  : FAILED, 
+                              "Done"    : DONE, 
+                              "Unknown" : UNKNOWN}.get (info['state'], UNKNOWN)
 
       # print 'unit_get_info: %s' % info
 

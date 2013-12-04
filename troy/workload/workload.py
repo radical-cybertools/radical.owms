@@ -108,7 +108,7 @@ class Workload (tu.Properties) :
         self.register_property_updater ('state', self.get_state)
 
         # initialize private properties
-        self._parametrized = False
+        self.parametrized = False
 
         # register this instance, so that workload can be passed around by id.
         troy.WorkloadManager.register_workload (self)
@@ -271,7 +271,7 @@ class Workload (tu.Properties) :
         """
 
         # atomic states are set elsewhere
-        if  self.state in [DESCRIBED, PLANNED, TRANSLATED, BOUND] :
+        if  self.state in [DESCRIBED, PLANNED] :
             return self.state
 
         # final states are never left
@@ -297,6 +297,15 @@ class Workload (tu.Properties) :
 
         elif CANCELED in task_states :
             self.state = CANCELED
+
+        elif DESCRIBED in task_states :
+            self.state = TRANSLATED
+
+        elif TRANSLATED in task_states :
+            self.state = TRANSLATED
+
+        elif BOUND in task_states :
+            self.state = BOUND
 
         elif DISPATCHED in task_states :
             self.state = DISPATCHED

@@ -21,14 +21,15 @@ class PLUGIN_CLASS(object):
     #
     def __init__(self):
 
-        troy._logger.info ("create the default planner plugin")
+        pass
 
 
     # --------------------------------------------------------------------------
     #
-    def init (self):
+    def init (self, cfg):
 
         troy._logger.info ("init the default planner plugin")
+        self.cfg = cfg
 
 
     # --------------------------------------------------------------------------

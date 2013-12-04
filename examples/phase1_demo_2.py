@@ -42,14 +42,27 @@ if __name__ == '__main__' :
     radical_oldfarts = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner',
                         'Andre Luckow',     'Matteo Turilli']
 
+    # the troy session gives us access to the troy configuration
+    session = troy.Session ()
+    config  = session.cfg.get_config_as_dict ()
+
+    if  'demo2' in config :
+        demo_cfg = config['demo2']
+    else :
+        demo_cfg = dict ()
+
+
     # create overlay and workload managers, with default plugin configuration
     overlay_mgr  = troy.OverlayManager  ()
     workload_mgr = troy.WorkloadManager ()
 
+
     # create planner with bundle / default plugin
-    if 'bundles' in sys.argv :
+    if 'use_bundle' in demo_cfg and demo_cfg['use_bundle'] != 'False' :
+        print 'demo2: use bundle planner'
         planner = troy.Planner ('bundles')
     else :
+        print 'demo2: use default planner'
         planner = troy.Planner ('default')
 
 

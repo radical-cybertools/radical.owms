@@ -26,15 +26,16 @@ class PLUGIN_CLASS(object):
     #
     def __init__(self):
 
-        troy._logger.info ("create the bundle planner plugin")
+        pass
 
 
     # --------------------------------------------------------------------------
     #
-    def init(self):
+    def init(self, cfg):
 
-        troy._logger.info ("init the planner planner plugin")
+        troy._logger.info ("init the bundle planner plugin")
 
+        self.cfg = cfg
         self.init_bundles()
 
 
@@ -49,13 +50,13 @@ class PLUGIN_CLASS(object):
 
         self.bm = BundleManager()
 
-        cf = troy.Configuration()
+        self.cfg = troy.Configuration()
 
-        cg = cf.get_config('bundle')
+        cg = self.cfg.get_config('bundle')
         finished_job_trace = cg['finished_job_trace'].get_value()
 
-        for sect in cf.compute_sections:
-            cs = cf.get_config(sect)
+        for sect in self.cfg.compute_sections:
+            cs = self.cfg.get_config(sect)
 
             cred = { 'port': int(cs['port'].get_value()),
                      'hostname': cs['endpoint'].get_value(),

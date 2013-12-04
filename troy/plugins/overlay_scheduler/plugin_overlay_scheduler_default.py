@@ -26,7 +26,15 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        troy._logger.info ("create the default overlay_scheduler plugin")
+        pass
+
+
+    # --------------------------------------------------------------------------
+    #
+    def init (self, cfg):
+
+        troy._logger.info ("init the default overlay scheduler plugin")
+        self.cfg = cfg
 
 
     # --------------------------------------------------------------------------
