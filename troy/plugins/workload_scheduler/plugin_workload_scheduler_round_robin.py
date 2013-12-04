@@ -28,12 +28,11 @@ class PLUGIN_CLASS (object) :
     def __init__ (self) :
 
         troy._logger.info ("create the round-robin workload_scheduler plugin")
-
+        
 
     # --------------------------------------------------------------------------
     #
     def schedule (self, workload, overlay) :
-
         global _idx
 
         if  not len(overlay.pilots.keys()) :

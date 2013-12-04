@@ -18,11 +18,11 @@ import getpass
 #
 if __name__ == '__main__':
 
-    radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner',
-                   'Andre Luckow',     'Matteo Turilli',     'Melissa Romanus',
-                   'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
-                   'Antons Treikalis', 'Jeffery Rabinowitz', 'Patrick Gray',
-                   'Vishal Shah',      'Radicalobot']
+    radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner']
+#                   'Andre Luckow',     'Matteo Turilli',     'Melissa Romanus',
+#                   'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
+#                   'Antons Treikalis', 'Jeffery Rabinowitz', 'Patrick Gray',
+#                   'Vishal Shah',      'Radicalobot']
 
     # Responsible for application workload
     workload_mgr = troy.WorkloadManager()
@@ -42,8 +42,9 @@ if __name__ == '__main__':
         task_descr            = troy.TaskDescription()
         task_descr.tag        = "%s" % r
 
-        task_descr.executable = '/bin/echo'
-        task_descr.arguments  = ['Hello World, ', r, '!']
+        task_descr.executable = '/bin/sleep'
+        import random
+        task_descr.arguments  = [str(random.randint(0,1))]
 
         task_id = workload.add_task(task_descr)
 
@@ -95,8 +96,28 @@ if __name__ == '__main__':
     else :
         troy._logger.info ("game over -- play again?")
 
+#    for k in workload.tasks.keys():
+#        for t in
+
+    print workload.tasks.keys()
+
+
+    for t_id in workload.tasks.keys():
+        print "t_id", t_id
+        task = workload.tasks[t_id]
+        for u_id in task.units.keys():
+            print "u_id", u_id
+            unit = task.units[u_id]
+            print unit.description
+
+        #print workload.units[t].description
+        
+
+        #print t.tasks
+        #print t.description
+        #for u in t.units:
+        #print j
+        #print j.tasks()
+
     workload_mgr.cancel_workload (workload.id)   # same as workload.cancel ()
     overlay_mgr .cancel_overlay  (overlay_id)
-
-
-
