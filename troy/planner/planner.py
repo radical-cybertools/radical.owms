@@ -62,7 +62,10 @@ class Planner(object):
                              % workload.id)
 
         # derive overlay from workload
-        overlay = self._planner.derive_overlay(workload, **kwargs)
+        try:
+            overlay = self._planner.derive_overlay(workload, **kwargs)
+        except TypeError, ex:
+            raise ValueError("Supplied argument not supported by this plugin: %s" %  ex.message)
 
         # Put the overlay into the system registry so others can access it
         troy.OverlayManager.register_overlay(overlay)
