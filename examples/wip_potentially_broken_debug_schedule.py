@@ -51,9 +51,6 @@ if __name__ == '__main__':
 
             # Tasks are uncoupled so no relationships are specified
 
-        # Register the workload so we can pass it by ID
-        troy.WorkloadManager.register_workload(workload)
-
         # combine or split tasks in te workload
         planner.expand_workload(workload.id)
 

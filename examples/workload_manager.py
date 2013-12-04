@@ -28,8 +28,6 @@ wl.add_task     ([td1, td2])
 wl.add_relation (rel)
 wl._dump ()
 
-troy.WorkloadManager.register_workload(wl)
-
 # # create overlay
 # pd1 = troy.PilotDescription ({troy.RESOURCE : 'local',
 #                               troy.SLOTS    : '1'})
