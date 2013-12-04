@@ -65,7 +65,7 @@ if __name__ == '__main__' :
 
     # Initial description of the overlay based on the workload, and translate the
     # overlay into N pilot descriptions.
-    overlay_id = planner.derive_overlay (workload_1.id, guard=troy.UPPER_LIMIT)
+    overlay_id = planner.derive_overlay (workload_1.id)
     overlay_mgr.translate_overlay       (overlay_id)
 
 
