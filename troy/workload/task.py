@@ -95,10 +95,15 @@ class Task (tu.Properties) :
         cancel all units
         """
 
-        for uid in self.units.keys () :
-            unit = self.units[uid]
-            unit.cancel ()
-            self.state = CANCELED
+        if  self.state in [DISPATCHED] :
+
+            troy._logger.info ('cancel task     %s' % self.id)
+
+            for uid in self.units.keys () :
+
+                unit = self.units[uid]
+                unit.cancel ()
+                self.state = CANCELED
 
 
     # --------------------------------------------------------------------------

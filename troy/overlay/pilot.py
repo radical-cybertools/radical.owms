@@ -143,10 +143,12 @@ class Pilot (tu.Properties) :
         """
 
         if  self.state in [PROVISIONED] :
-            troy._logger.warning ('cancel pilot %s' % self.id)
 
-            if self._provisioner :
+            troy._logger.info ('cancel pilot    %s' % self.id)
+
+            if  self._provisioner :
                 self._provisioner.pilot_cancel (self)
+
             self.state = CANCELED
 
 

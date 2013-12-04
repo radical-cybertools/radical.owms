@@ -169,8 +169,9 @@ class ComputeUnit (tu.Properties) :
         cancel the CU
         """
 
-        if  self.state not in [DONE, FAILED, CANCELED] :
-            troy._logger.warning ('cancel unit %s' % self.id)
+        if  self.state in [PENDING, RUNNING] :
+
+            troy._logger.info ('cancel unit     %s' % self.id)
 
             if  self._dispatcher :
                 self._dispatcher.unit_cancel (self._instance)

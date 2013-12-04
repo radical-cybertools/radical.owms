@@ -106,11 +106,20 @@ if __name__ == '__main__' :
     # --------------------------------------------------------------------------
     # Of course nothing will fail due to TROY's magic robustness and
     # and we therefore just wait until its done!
-    while workload_1.state not in [troy.DONE, troy.FAILED] or \
-          workload_2.state not in [troy.DONE, troy.FAILED] :
-        troy._logger.info  ("workload_1 state: %s)" % workload_1.state)
-        troy._logger.info  ("workload_2 state: %s)" % workload_2.state)
+    state_1 = workload_1.state
+    state_2 = workload_2.state
+
+    while state_1 not in [troy.DONE, troy.FAILED] or \
+          state_2 not in [troy.DONE, troy.FAILED] :
+
+        troy._logger.info  ("workload_1 state: %s)" % state_1)
+        troy._logger.info  ("workload_2 state: %s)" % state_2)
+
+        state_1 = workload_1.state
+        state_2 = workload_2.state
+
         time.sleep (1)
+
 
     # 'analyse' the results
     if workload_1.state == troy.DONE and \
@@ -128,6 +137,7 @@ if __name__ == '__main__' :
     workload_mgr.cancel_workload (workload_1.id)
     workload_mgr.cancel_workload (workload_2.id)
     overlay_mgr .cancel_overlay  (overlay_id)
+
 
     # --------------------------------------------------------------------------
 

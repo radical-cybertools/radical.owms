@@ -132,16 +132,17 @@ class Workload (tu.Properties) :
         """
 
         # don't touch final states
-        if  self.state in [CANCELED, DONE, FAILED] :
-            return
+        if  self.state in [DISPATCHED] :
 
-        # non-final -- cancel all tasks
-        for tid in self.tasks.keys () :
-            task = self.tasks[tid]
-            task.cancel ()
+            troy._logger.info ('cancel workload %s' % self.id)
 
-        # and update state
-        self.state = CANCELED
+            # non-final -- cancel all tasks
+            for tid in self.tasks.keys () :
+                task = self.tasks[tid]
+                task.cancel ()
+
+            # and update state
+            self.state = CANCELED
 
 
     # --------------------------------------------------------------------------
