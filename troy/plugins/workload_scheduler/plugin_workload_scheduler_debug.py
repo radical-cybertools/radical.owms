@@ -77,7 +77,7 @@ class PLUGIN_CLASS (object) :
 
             # print pilot info
             for p_id in overlay.pilots:
-                print p_id, overlay.pilots[p_id].est_begin
+                print "p_id:", p_id, ", estimated wait to begin execution (seconds):", overlay.pilots[p_id].est_begin
 
             task = workload.tasks[t_id]
             for u_id in task.units:
