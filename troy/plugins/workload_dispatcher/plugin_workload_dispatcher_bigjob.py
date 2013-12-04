@@ -94,6 +94,7 @@ class PLUGIN_CLASS (object) :
     #
     def unit_reconnect (self, native_id) :
 
+        troy._logger.debug ("reconnect to bigjob subjob %s" % native_id)
         bj_cu = bigjob.subjob (subjob_url=native_id)
 
         return bj_cu

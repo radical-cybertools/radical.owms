@@ -60,8 +60,6 @@ def test_pilot_inspection () :
         task_description = troy.TaskDescription (task_dict)
         workload.add_task (task_description)
 
-    troy.WorkloadManager.register_workload (workload)
-
 
     workload_mgr = troy.WorkloadManager ()
     workload_mgr.translate_workload(workload.id, overlay.id)
