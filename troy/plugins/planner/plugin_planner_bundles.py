@@ -50,8 +50,6 @@ class PLUGIN_CLASS(object):
 
         self.bm = BundleManager()
 
-        self.cfg = troy.Configuration()
-
         cg = self.cfg.get_config('bundle')
         finished_job_trace = cg['finished_job_trace'].get_value()
 

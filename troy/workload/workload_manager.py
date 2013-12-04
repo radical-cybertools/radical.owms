@@ -41,7 +41,7 @@ class WorkloadManager (object) :
     #
     def __init__ (self, inspector  = 'default', 
                         translator = 'default',
-                        scheduler  = 'round_robin',
+                        scheduler  = 'default',
                         dispatcher = 'bigjob', 
                         session    = None) :
         """

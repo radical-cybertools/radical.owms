@@ -42,19 +42,23 @@ class PLUGIN_CLASS (object) :
     def schedule (self, workload, overlay) :
 
         # schedule to first available pilot
+
+        if  not overlay.pilots.keys() :
+            raise RuntimeError ('no pilots in overlay')
+
+        pilot_id = overlay.pilots.keys()[0]
+        # schedule to first 'next' pilot
         for tid in workload.tasks.keys () :
 
-            t = workload.tasks[tid]
+            task = workload.tasks[tid]
 
-            if  not overlay.pilots.keys() :
-                raise RuntimeError ('no pilots in overlay')
+            for unit_id in task.units :
 
-            target_pid = overlay.pilots.keys()[0]
-            for unit_id in t['units'] :
-                troy._logger.info ("workload schedule : assign unit %-18s to %s" \
-                                % (unit_id, target_pid))
-                t['units'][unit_id]['pilot_id'] = target_pid
-                overlay.pilots[target_pid].assigned_units.append (unit_id)
+                troy._logger.info ("workload schedule : assign unit %-18s to %s" % (unit_id, pilot_id))
+                unit = task.units[unit_id]
+                unit._bind (pilot_id)
+
+                troy._logger.info ("workload schedule : assign unit %-18s to %s" % (unit_id, pilot_id))
         
 
 

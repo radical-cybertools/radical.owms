@@ -46,24 +46,21 @@ if __name__ == '__main__' :
     session = troy.Session ()
     config  = session.cfg.get_config_as_dict ()
 
-    if  'demo2' in config :
-        demo_cfg = config['demo2']
-    else :
-        demo_cfg = dict ()
+    if 'demo2' in config : demo_cfg = config['demo2']
+    else                 : demo_cfg = dict ()
+
+    # get plugin configuration
+    planner_plugin = demo_cfg.get ('planner',            'default')
+    osched_plugin  = demo_cfg.get ('overlay_scheduler',  'default')
+    otrans_plugin  = demo_cfg.get ('overlay_translator', 'default')
+    wsched_plugin  = demo_cfg.get ('workload_scheduler', 'default')
 
 
-    # create overlay and workload managers, with default plugin configuration
-    overlay_mgr  = troy.OverlayManager  ()
-    workload_mgr = troy.WorkloadManager ()
-
-
-    # create planner with bundle / default plugin
-    if 'use_bundle' in demo_cfg and demo_cfg['use_bundle'] != 'False' :
-        print 'demo2: use bundle planner'
-        planner = troy.Planner ('bundles')
-    else :
-        print 'demo2: use default planner'
-        planner = troy.Planner ('default')
+    # create planner, overlay and workload manager, with plugins as above
+    planner      = troy.Planner         (planner    = planner_plugin)
+    overlay_mgr  = troy.OverlayManager  (scheduler  = osched_plugin,
+                                         translator = otrans_plugin)
+    workload_mgr = troy.WorkloadManager (scheduler  = wsched_plugin)
 
 
     # --------------------------------------------------------------------------
