@@ -34,7 +34,7 @@ class PLUGIN_CLASS (object) :
     #
     def schedule (self, workload, overlay) :
         print "########################################"
-        print "# Unit information"
+        print "# (in scheduler) Unit information"
         print "########################################"
         
         for t_id in workload.tasks.keys():
@@ -46,7 +46,7 @@ class PLUGIN_CLASS (object) :
                 print unit.description
 
         print "########################################"
-        print "# Pilot information"
+        print "# (in scheduler) Pilot information"
         print "########################################"
 
         for p_id in overlay.pilots.keys():
@@ -60,7 +60,7 @@ class PLUGIN_CLASS (object) :
                     print unit
 
         print "#########################################"
-        print "# Beginning Scheduling in Debug Scheduler" 
+        print "# (in scheduler) Beginning Scheduling in Debug Scheduler" 
         print "#########################################"
 
         # mark pilots
