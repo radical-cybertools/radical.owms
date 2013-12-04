@@ -27,7 +27,15 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        troy._logger.info ("create the debug workload_scheduler plugin")
+        pass
+
+
+    # --------------------------------------------------------------------------
+    #
+    def init (self, cfg):
+
+        troy._logger.info ("init the debug workload scheduler plugin")
+        self.cfg = cfg
 
 
     # --------------------------------------------------------------------------
