@@ -1,4 +1,5 @@
 
+
 import os
 import saga
 import bigjob
@@ -17,8 +18,6 @@ PLUGIN_DESCRIPTION = {
     'description' : 'this is a scheduler which provisions bigjob pilots.'
   }
 
-_idx = 0
-
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (object) :
@@ -30,8 +29,6 @@ class PLUGIN_CLASS (object) :
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
-
-        pass
 
         if  not 'COORDINATION_URL' in os.environ :
             troy._logger.error ("No COORDINATION_URL set for bigjob backend")
@@ -61,14 +58,10 @@ class PLUGIN_CLASS (object) :
             if  pilot.state not in [BOUND] :
                 raise RuntimeError ("Can only provision pilots in BOUND state (%s)" % pilot.state)
 
-            global _idx
-            
             # FIXME: ceck state
             bj_manager     = bigjob.bigjob (coordination_url=self._coord)
             bj_manager_url = bj_manager.get_url ()
             bj_pilot_url   = bj_manager.start_pilot_job (pilot._resource)
-
-            _idx += 1
 
             pilot._set_instance ('bigjob', self, [bj_pilot_url, bj_manager], bj_manager.get_url ())
 

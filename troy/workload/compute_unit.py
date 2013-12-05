@@ -140,7 +140,8 @@ class ComputeUnit (tu.Properties) :
                         self._instance      = dispatcher.unit_reconnect (native_id)
                         self._instance_type = candidate
                         self._dispatcher    = dispatcher
-                    except :
+                    except Exception as e :
+                        print str(e	)
                         pass
 
             if  not self._instance :

@@ -42,7 +42,7 @@ class WorkloadManager (object) :
     def __init__ (self, inspector  = 'default', 
                         translator = 'default',
                         scheduler  = 'default',
-                        dispatcher = 'bigjob', 
+                        dispatcher = 'default', 
                         session    = None) :
         """
         Create a new workload manager instance.  

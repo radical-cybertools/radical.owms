@@ -23,7 +23,7 @@ class Pilot (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, param, _overlay=None) :
+    def __init__ (self, param, _overlay=None, _instance_type=None) :
         """
         Create a new pilot according to a description, or reconnect to with an ID.
 
@@ -79,10 +79,10 @@ class Pilot (tu.Properties) :
         self.register_property ('affinity_machine_label')
          
         # initialize essential properties
-        self.id = pid
-        self.state = DESCRIBED
-        self.description = descr
-        self.overlay = _overlay
+        self.id             = pid
+        self.state          = DESCRIBED
+        self.description    = descr
+        self.overlay        = _overlay
 
         # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks
@@ -107,14 +107,17 @@ class Pilot (tu.Properties) :
 
             native_id = troy.OverlayManager.pilot_id_to_native_id (pid)
             for candidate in candidates :
-                provisioner = plugin_mgr.load ('overlay_provisioner', candidate)
 
-                try :
-                    self._instance      = provisioner.pilot_reconnect (native_id)
-                    self._instance_type = candidate
-                    self._provisioner   = provisioner
-                except :
-                    pass
+                if _instance_type and candidate == _instance_type :
+
+                  provisioner = plugin_mgr.load ('overlay_provisioner', candidate)
+
+                  try :
+                      self._instance      = provisioner.pilot_reconnect (native_id)
+                      self._instance_type = candidate
+                      self._provisioner   = provisioner
+                  except :
+                      pass
 
             if  not self._instance :
                 raise ValueError ("Could not reconnect to pilot %s" % pid)
@@ -291,8 +294,6 @@ class Pilot (tu.Properties) :
 
             if  info_key in keymap : new_key = keymap[info_key]
             else                   : new_key =        info_key
-
-          # print 'KEY: %s - %s' % (info_key, new_key)
 
             # this will trigger registered callbacks
             self.set_property (new_key, self._pilot_info[info_key])

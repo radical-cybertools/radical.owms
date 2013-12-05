@@ -54,7 +54,7 @@ class OverlayManager (object) :
     def __init__ (self, inspector   = 'default',
                         translator  = 'default',
                         scheduler   = 'default',
-                        provisioner = 'bigjob', 
+                        provisioner = 'default', 
                         session     = None) :
         """
         Create a new overlay manager instance.

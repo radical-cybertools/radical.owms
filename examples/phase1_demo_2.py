@@ -50,17 +50,21 @@ if __name__ == '__main__' :
     else                 : demo_cfg = dict ()
 
     # get plugin configuration
-    planner_plugin = demo_cfg.get ('planner',            'default')
-    osched_plugin  = demo_cfg.get ('overlay_scheduler',  'default')
-    otrans_plugin  = demo_cfg.get ('overlay_translator', 'default')
-    wsched_plugin  = demo_cfg.get ('workload_scheduler', 'default')
+    planner_plugin = demo_cfg.get ('planner',             'default')
+    osched_plugin  = demo_cfg.get ('overlay_scheduler',   'default')
+    otrans_plugin  = demo_cfg.get ('overlay_translator',  'default')
+    oprov_plugin   = demo_cfg.get ('overlay_provisioner', 'default')
+    wsched_plugin  = demo_cfg.get ('workload_scheduler',  'default')
+    wdisp_plugin   = demo_cfg.get ('workload_dispatcher', 'default')
 
 
     # create planner, overlay and workload manager, with plugins as above
-    planner      = troy.Planner         (planner    = planner_plugin)
-    overlay_mgr  = troy.OverlayManager  (scheduler  = osched_plugin,
-                                         translator = otrans_plugin)
-    workload_mgr = troy.WorkloadManager (scheduler  = wsched_plugin)
+    planner      = troy.Planner         (planner     = planner_plugin)
+    overlay_mgr  = troy.OverlayManager  (scheduler   =  osched_plugin,
+                                         translator  =  otrans_plugin, 
+                                         provisioner =   oprov_plugin)
+    workload_mgr = troy.WorkloadManager (scheduler   =  wsched_plugin, 
+                                         dispatcher  =   wdisp_plugin)
 
 
     # --------------------------------------------------------------------------
