@@ -118,7 +118,9 @@ class ComputeUnit (tu.Properties) :
             # need to find the provisioner.  So we cycle through all overlay 
             # provision plugins, and ask them if they know about our ID.
 
-            self._dispatcher, self._instance, self._instance_type, self._state = \
+            self.id,             self.native_id, \
+            self._dispatcher,    self._instance, \
+            self._instance_type, self._state =   \
                     self._instance_cache.get (instance_id = self.id, 
                                               native_id   = self.native_id)
 
@@ -133,7 +135,9 @@ class ComputeUnit (tu.Properties) :
         else :
             self._instance_cache.put (instance_id = self.id, 
                                       native_id   = self.native_id,
-                                      instance    = [self._dispatcher,    
+                                      instance    = [self.id, 
+                                                     self.native_id, 
+                                                     self._dispatcher,    
                                                      self._instance, 
                                                      self._instance_type, 
                                                      self.state])
@@ -196,7 +200,9 @@ class ComputeUnit (tu.Properties) :
         # update cache
         self._instance_cache.put (instance_id = self.id, 
                                   native_id   = self.native_id,
-                                  instance    = [self._dispatcher,    
+                                  instance    = [self.id, 
+                                                 self.native_id, 
+                                                 self._dispatcher,    
                                                  self._instance, 
                                                  self._instance_type, 
                                                  self.state])

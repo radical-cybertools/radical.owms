@@ -28,7 +28,7 @@ class PLUGIN_CLASS (object) :
     def __init__ (self) :
 
         self.description = PLUGIN_DESCRIPTION
-        self.name        = self.description['name']
+        self.name        = "%(name)s_%(type)s" % self.description
 
         raise RuntimeError ("Plugin is disabled")
 
@@ -38,7 +38,8 @@ class PLUGIN_CLASS (object) :
     def init (self, cfg):
 
         troy._logger.info ("init the bigjob workload dispatcher plugin")
-        self.cfg = cfg
+        
+        self.cfg = cfg.as_dict ().get (self.name, {})
 
 
     # --------------------------------------------------------------------------

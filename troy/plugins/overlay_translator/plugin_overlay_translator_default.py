@@ -27,21 +27,16 @@ class PLUGIN_CLASS (object) :
     def __init__ (self) :
 
         self.description = PLUGIN_DESCRIPTION
-        self.name        = self.description['name']
+        self.name        = "%(name)s_%(type)s" % self.description
 
 
     # --------------------------------------------------------------------------
     #
     def init (self, cfg):
 
-        troy._logger.info   ("init the default overlay translator plugin")
+        troy._logger.info   ("init the default overlay translator plugin %s")
 
-        try :
-            self.cfg = cfg.as_dict ()
-            if 'default_overlay_translator' in self.cfg :
-                self.cfg = self.cfg['default_overlay_translator']
-        except :
-            self.cfg = dict()
+        self.cfg = cfg.as_dict ().get (self.name, {})
 
 
 

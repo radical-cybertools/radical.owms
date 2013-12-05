@@ -28,7 +28,7 @@ class PLUGIN_CLASS (object) :
     def __init__ (self) :
 
         self.description = PLUGIN_DESCRIPTION
-        self.name        = self.description['name']
+        self.name        = "%(name)s_%(type)s" % self.description
 
 
     # --------------------------------------------------------------------------
@@ -36,7 +36,8 @@ class PLUGIN_CLASS (object) :
     def init (self, cfg):
 
         troy._logger.info ("init the debug workload scheduler plugin")
-        self.cfg = cfg
+        
+        self.cfg = cfg.as_dict ().get (self.name, {})
 
 
     # --------------------------------------------------------------------------
@@ -63,6 +64,10 @@ class PLUGIN_CLASS (object) :
             pilot = overlay.pilots[p_id]
             print pilot
             if pilot.units:
+                print " -------- pilot %s" % p_id
+                import pprint
+                pprint.pprint (pilot)
+                pprint.pprint (pilot.units)
                 for u_id in pilot.units.keys():
                     print "u_id", u_id
                     unit = pilot.units[u_id]
