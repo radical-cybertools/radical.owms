@@ -25,10 +25,10 @@ if __name__ == '__main__':
                    'Vishal Shah',      'Radicalobot']
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager()
+    workload_mgr = troy.WorkloadManager(dispatcher='bigjob_pilot')
 
     # Responsible for managing the pilot overlay
-    overlay_mgr = troy.OverlayManager()
+    overlay_mgr = troy.OverlayManager(provisioner='bigjob_pilot')
 
     # Planning makes initial mapping of workload to overlay
     #planner = troy.Planner('default')
@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
     # Initial description of the overlay based on the workload
     #overlay_id = planner.derive_overlay(workload.id) # default
-    overlay_id = planner.derive_overlay(workload.id, guard=troy.UPPER_LIMIT)
+    overlay_id = planner.derive_overlay(workload.id)
 
     # Translate 1 workload into N ComputeUnits and N DataUnits
     workload_mgr.translate_workload(workload.id, overlay_id)

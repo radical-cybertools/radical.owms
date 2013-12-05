@@ -36,7 +36,8 @@ class PLUGIN_CLASS(object):
 
         troy._logger.info ("init the bundle planner plugin")
         
-        self.cfg = cfg.as_dict ().get (self.name, {})
+        self.global_cfg = cfg
+        self.cfg        = cfg.as_dict ().get (self.name, {})
 
         self.init_bundles()
 
@@ -52,11 +53,11 @@ class PLUGIN_CLASS(object):
 
         self.bm = BundleManager()
 
-        cg = self.cfg.get_config('bundle')
+        cg = self.global_cfg.get_config('bundle')
         finished_job_trace = cg['finished_job_trace'].get_value()
 
-        for sect in self.cfg.compute_sections:
-            cs = self.cfg.get_config(sect)
+        for sect in self.global_cfg.compute_sections:
+            cs = self.global_cfg.get_config(sect)
 
             cred = { 'port': int(cs['port'].get_value()),
                      'hostname': cs['endpoint'].get_value(),
