@@ -27,7 +27,7 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        pass
+        self.description = PLUGIN_DESCRIPTION
 
 
     # --------------------------------------------------------------------------
@@ -97,8 +97,6 @@ class PLUGIN_CLASS (object) :
         bj_cu = pilot_module.ComputeUnit (cu_url=native_id)
 
         return bj_cu
-
-
 
 
     # --------------------------------------------------------------------------

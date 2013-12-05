@@ -30,6 +30,8 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
+        self.description = PLUGIN_DESCRIPTION
+
         if  not 'COORDINATION_URL' in os.environ :
             troy._logger.error ("No COORDINATION_URL set for bigjob backend")
             troy._logger.info  ("example: export COORDINATION_URL=redis://<pass>@gw68.quarry.iu.teragrid.org:6379")
