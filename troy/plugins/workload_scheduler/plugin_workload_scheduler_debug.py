@@ -102,7 +102,7 @@ class PLUGIN_CLASS (object) :
 
                 # assign task to the soonest available pilot
                 unit._bind(p_optimal)
-                overlay.pilots[p_optimal].est_begin+=int(unit.description.arguments[0])
+                overlay.pilots[p_optimal].est_begin+=int(unit.description._ttc)
                 print "assigning task to pilot:", p_optimal
 
         # # schedule to first 'next' pilot
