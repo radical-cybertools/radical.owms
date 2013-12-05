@@ -79,7 +79,8 @@ class PLUGIN_CLASS (object) :
 
         # mark pilots
         for p_id in overlay.pilots:
-            overlay.pilots[p_id].est_begin=0
+            if not hasattr(overlay.pilots[p_id], 'est_begin'):
+                overlay.pilots[p_id].est_begin=0
 
         pilot = overlay.pilots[p_id]
 
