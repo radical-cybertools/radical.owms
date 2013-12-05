@@ -22,6 +22,7 @@ class PLUGIN_CLASS(object):
     def __init__(self):
 
         self.description = PLUGIN_DESCRIPTION
+        self.name        = self.description['name']
 
 
     # --------------------------------------------------------------------------

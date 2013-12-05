@@ -31,6 +31,16 @@ class PLUGIN_CLASS (object) :
     def __init__ (self) :
 
         self.description = PLUGIN_DESCRIPTION
+        self.name        = self.description['name']
+
+        raise RuntimeError ("Plugin is disabled")
+
+
+    # --------------------------------------------------------------------------
+    #
+    def init (self, cfg):
+
+        troy._logger.info ("init the bigjob overlay provisioner plugin")
 
         if  not 'COORDINATION_URL' in os.environ :
             troy._logger.error ("No COORDINATION_URL set for bigjob backend")
@@ -40,12 +50,6 @@ class PLUGIN_CLASS (object) :
 
         self._coord = os.environ['COORDINATION_URL']
 
-
-    # --------------------------------------------------------------------------
-    #
-    def init (self, cfg):
-
-        troy._logger.info ("init the bigjob overlay provisioner plugin")
         self.cfg = cfg
 
 

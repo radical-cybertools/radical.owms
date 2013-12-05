@@ -27,7 +27,8 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        pass
+        self.description = PLUGIN_DESCRIPTION
+        self.name        = self.description['name']
 
 
     # --------------------------------------------------------------------------

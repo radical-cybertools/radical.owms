@@ -28,6 +28,9 @@ class PLUGIN_CLASS (object) :
     def __init__ (self) :
 
         self.description = PLUGIN_DESCRIPTION
+        self.name        = self.description['name']
+
+        raise RuntimeError ("Plugin is disabled")
 
 
     # --------------------------------------------------------------------------
@@ -55,7 +58,7 @@ class PLUGIN_CLASS (object) :
 
 
                 unit_descr = unit.description
-                pilot_id   = unit['_pilot_id']
+                pilot_id   = unit['pilot_id']
                 pilot      = troy.Pilot (pilot_id, _instance_type='bigjob')
                 troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
                                 % (uid, pilot._get_instance('bigjob')))

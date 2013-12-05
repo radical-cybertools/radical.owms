@@ -28,6 +28,7 @@ class PLUGIN_CLASS (object) :
     def __init__ (self) :
 
         self.description = PLUGIN_DESCRIPTION
+        self.name        = self.description['name']
 
 
     # --------------------------------------------------------------------------
@@ -55,7 +56,7 @@ class PLUGIN_CLASS (object) :
 
 
                 unit_descr = unit.description
-                pilot_id   = unit['_pilot_id']
+                pilot_id   = unit['pilot_id']
                 pilot      = troy.Pilot (pilot_id, _instance_type='bigjob_pilot')
                 troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
                                 % (uid, pilot._get_instance('bigjob_pilot')))
@@ -95,6 +96,7 @@ class PLUGIN_CLASS (object) :
 
         troy._logger.debug ("reconnect to bigjob_pilot subjob %s" % native_id)
         bj_cu = pilot_module.ComputeUnit (cu_url=native_id)
+        troy._logger.debug ("reconnect to bigjob_pilot subjob %s done" % native_id)
 
         return bj_cu
 
