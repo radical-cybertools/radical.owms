@@ -1,9 +1,8 @@
 
 
 import os
-import saga
 import bigjob
-import weakref
+import radical.utils as ru
 
 from   troy.constants import *
 import troy
@@ -25,6 +24,9 @@ class PLUGIN_CLASS (object) :
     This class implements the bigjob overlay provisioner for
     TROY.
     """
+
+    __metaclass__ = ru.Singleton
+
 
     # --------------------------------------------------------------------------
     #
@@ -82,7 +84,7 @@ class PLUGIN_CLASS (object) :
         bj_manager     = bigjob.bigjob (coordination_url=self._coord, 
                                         pilot_url=native_id)
         bj_manager_url = bj_manager.get_url ()
-        bj_pilot_url   = saga.Url (bj_manager_url).path[1:]
+        bj_pilot_url   = ru.Url (bj_manager_url).path[1:]
 
         return [bj_pilot_url, bj_manager]
 

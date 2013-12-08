@@ -1,3 +1,11 @@
+
+
+import radical.utils as ru
+
+from   troy.constants import *
+import troy
+
+
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
@@ -7,8 +15,6 @@ PLUGIN_DESCRIPTION = {
     'description' : 'This is the default planner.'
   }
 
-from   troy.constants import *
-import troy
 
 # ------------------------------------------------------------------------------
 #
@@ -16,6 +22,9 @@ class PLUGIN_CLASS(object):
     """
     This class implements the default planner for TROY.
     """
+
+    __metaclass__ = ru.Singleton
+
 
     # --------------------------------------------------------------------------
     #

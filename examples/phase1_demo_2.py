@@ -91,7 +91,7 @@ if __name__ == '__main__' :
 
     # Schedule pilots on the set of target resources, then instantiate Pilots as
     # scheduled
-    overlay_mgr.schedule_overlay        (overlay_id)
+    overlay_mgr.schedule_overlay   (overlay_id)
     overlay_mgr.provision_overlay  (overlay_id)
 
     # ready to dispatch first workload on the overlay

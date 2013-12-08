@@ -1,6 +1,7 @@
 
 
-import pilot as pilot_module
+import pilot         as pilot_module
+import radical.utils as ru
 
 from   troy.constants import *
 import troy
@@ -22,6 +23,9 @@ class PLUGIN_CLASS (object) :
     """
     This class implements the bigjob_pilot workload dispatcher for TROY.
     """
+
+    __metaclass__ = ru.Singleton
+
 
     # --------------------------------------------------------------------------
     #

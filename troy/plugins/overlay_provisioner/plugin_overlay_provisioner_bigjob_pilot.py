@@ -1,8 +1,7 @@
 
 import os
-import saga
-import pilot as pilot_module
-import weakref
+import pilot         as pilot_module
+import radical.utils as ru
 
 from   troy.constants import *
 import troy
@@ -24,6 +23,9 @@ class PLUGIN_CLASS (object) :
     This class implements the bigjob_pilot overlay provisioner for
     TROY.
     """
+
+    __metaclass__ = ru.Singleton
+
 
     # --------------------------------------------------------------------------
     #

@@ -1,5 +1,6 @@
 
 
+import radical.utils as ru
 
 from   troy.constants import *
 import troy
@@ -23,6 +24,9 @@ class PLUGIN_CLASS (object) :
     This class implements the (empty) round_robin overlay scheduler algorithm for
     TROY.
     """
+
+    __metaclass__ = ru.Singleton
+
 
     # --------------------------------------------------------------------------
     #

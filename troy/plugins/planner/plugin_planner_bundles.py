@@ -1,4 +1,13 @@
 
+
+import radical.utils as ru
+
+from   troy.constants import *
+import troy
+
+from   bundle import BundleManager
+
+
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
@@ -9,18 +18,15 @@ PLUGIN_DESCRIPTION = {
   }
 
 
-from   troy.constants import *
-import troy
-
-from   bundle import BundleManager
-
-
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS(object):
     """
     This class implements the default planner for TROY.
     """
+
+    __metaclass__ = ru.Singleton
+
 
     # --------------------------------------------------------------------------
     #

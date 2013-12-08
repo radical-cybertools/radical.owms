@@ -1,6 +1,7 @@
 
 
 import bigjob
+import radical.utils as ru
 
 from   troy.constants import *
 import troy
@@ -22,6 +23,9 @@ class PLUGIN_CLASS (object) :
     """
     This class implements the bigjob workload dispatcher for TROY.
     """
+
+    __metaclass__ = ru.Singleton
+
 
     # --------------------------------------------------------------------------
     #

@@ -1,8 +1,10 @@
 
 
+import radical.utils as ru
+
 from   troy.constants import *
 import troy
-import time
+
 
 # ------------------------------------------------------------------------------
 #
@@ -22,6 +24,9 @@ class PLUGIN_CLASS (object) :
     This class implements the (trivial) debug workload scheduler algorithm for
     TROY.
     """
+
+    __metaclass__ = ru.Singleton
+
 
     # --------------------------------------------------------------------------
     #
