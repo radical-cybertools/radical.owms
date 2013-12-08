@@ -20,6 +20,7 @@ class Pilot (tu.Properties) :
     """
     """
 
+    _instance_cache = tu.InstanceCache ()
 
     # --------------------------------------------------------------------------
     #
@@ -97,35 +98,30 @@ class Pilot (tu.Properties) :
 
 
         if  reconnect :
-            # we need to get instance and instance type -- but for that we 
-            # need to find the provisioner.  So we cycle through all overlay 
-            # provision plugins, and ask them if they know about our ID.
-            plugin_mgr = ru.PluginManager ('troy')
 
-            # FIXME: error handling
-            candidates = plugin_mgr.list ('overlay_provisioner')
-
-            native_id = troy.OverlayManager.pilot_id_to_native_id (pid)
-            for candidate in candidates :
-
-                if _instance_type and candidate == _instance_type :
-
-                  provisioner = plugin_mgr.load ('overlay_provisioner', candidate)
-
-                  try :
-                      self._instance      = provisioner.pilot_reconnect (native_id)
-                      self._instance_type = candidate
-                      self._provisioner   = provisioner
-                  except :
-                      pass
+            self.id,             self.native_id, \
+            self._provisioner,   self._instance, \
+            self._instance_type, self._state =   \
+                    self._instance_cache.get (instance_id = self.id, 
+                                              native_id   = self.native_id)
 
             if  not self._instance :
-                raise ValueError ("Could not reconnect to pilot %s" % pid)
-
-            self.native_id = native_id
+                raise ValueError ("Could not reconnect to unit %s" % uid)
 
             # refresh pilot information and state from the backend
             self._update_properties ()
+
+
+        # register in cache for later reconnect
+        else :
+            self._instance_cache.put (instance_id = self.id, 
+                                      native_id   = self.native_id,
+                                      instance    = [self.id, 
+                                                     self.native_id, 
+                                                     self._provisioner,    
+                                                     self._instance, 
+                                                     self._instance_type, 
+                                                     self.state])
 
 
     # --------------------------------------------------------------------------
@@ -182,6 +178,15 @@ class Pilot (tu.Properties) :
 
         troy.OverlayManager.pilot_id_to_native_id (self.id, native_id)
 
+        # update cache
+        self._instance_cache.put (instance_id = self.id, 
+                                  native_id   = self.native_id,
+                                  instance    = [self.id, 
+                                                 self.native_id, 
+                                                 self._provisioner,    
+                                                 self._instance, 
+                                                 self._instance_type, 
+                                                 self.state])
 
     # --------------------------------------------------------------------------
     #

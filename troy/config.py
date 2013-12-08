@@ -177,7 +177,7 @@ class Configuration(ruc.Configurable):
                 'category'      : section_name,
                 'name'          : 'h_flag',
                 'type'          : bool,
-                'default'       : 'True',
+                'default'       : True,
                 'valid_options' : '',
                 'documentation' : 'Heterogenerous resource type',
                 'env_variable'  : ''

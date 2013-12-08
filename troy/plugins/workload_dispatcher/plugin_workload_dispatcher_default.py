@@ -52,9 +52,35 @@ class PLUGIN_CLASS (object) :
             t = workload.tasks[tid]
 
             for unit_id in t['units'] :
-                unit_descr = t['units'][unit_id]['description']
-                pilot      = t['units'][unit_id]['pilot']
-                troy._logger.info ('workload dispatch : dispatch %-23s to %s' % (unit_id, pilot.instance))
+                unit       = t['units'][unit_id]
+                unit_descr = unit.description
+                pid            = unit.pilot_id
+                pilot          = troy.Pilot (pid)
+                pilot_instance = pilot._get_instance ('default')
+                unit_instance  = pilot_instance.submit_unit (unit_descr)
+                troy._logger.info ('workload dispatch : dispatch %-23s to %s' % (unit_id, pid))
+
+                unit._set_instance ('default', self, unit_instance, unit_instance.id)
+
+
+    # --------------------------------------------------------------------------
+    #
+    def unit_get_info (self, unit) :
+
+        # find out what we can about the pilot...
+        u = unit._get_instance ('default')
+
+        info = dict()
+
+        # hahaha python switch statement hahahahaha
+        info['state'] =  {"New"      : DISPATCHED, 
+                          "Running"  : RUNNING, 
+                          "Failed"   : FAILED, 
+                          "Done"     : DONE, 
+                          "Canceled" : CANCELED}.get (u.state, UNKNOWN)
+
+        return info
+
 
 
 # ------------------------------------------------------------------------------
