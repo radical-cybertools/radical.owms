@@ -47,5 +47,12 @@ class InstanceCache (object) :
         return self.instance_cache[instance_id]
 
 
+    # --------------------------------------------------------------------------
+    def _dump (self) :
+
+        import pprint
+        pprint.pprint (self.instance_cache)
+
+
 # ------------------------------------------------------------------------------
 

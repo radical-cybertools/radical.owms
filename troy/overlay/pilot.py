@@ -188,6 +188,7 @@ class Pilot (tu.Properties) :
                                                  self._instance_type, 
                                                  self.state])
 
+
     # --------------------------------------------------------------------------
     #
     def _get_instance (self, instance_type) :

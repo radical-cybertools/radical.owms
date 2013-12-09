@@ -1,5 +1,6 @@
 
 
+import os
 import time
 import subprocess
 import radical.utils as ru
@@ -36,6 +37,7 @@ class _Unit (object) :
         self.id     = ru.generate_id ('d.u.')
         self.descr  = descr
         self._state = _NEW
+        self.start  = None
         self.proc   = None
         self.retval = None
 
@@ -55,21 +57,22 @@ class _Unit (object) :
 
         assert (self.state == _NEW)
 
-        exe        =           self.descr['executable']
-        args       = ' '.join (self.descr['arguments'])
-        env_list   =           self.descr['environment']
-        env        = dict()
+        exe          =           self.descr['executable']
+        args         = ' '.join (self.descr['arguments'])
+        env_list     =           self.descr['environment']
+        env          = dict()
 
         for env_entry in env_list :
             key, val = env_entry.split ('=', 1)
             env[key] = val
 
 
-        command    = "%s %s" % (exe, args)
-        self._proc = subprocess.Popen (command, shell=True, env=env, 
+        command      = "%s %s" % (exe, args)
+        self._proc   = subprocess.Popen (command, shell=True, env=env, 
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
-        self.state = _RUNNING
+        self.state   = _RUNNING
+        self.start   = time.time()
 
         troy._logger.debug ("running unit %s (%s)" % (self.id, command))
 
@@ -88,6 +91,9 @@ class _Unit (object) :
                     self._state = _DONE
                 else :
                     self._state = _FAILED
+
+        return self._state
+
 
     def set_state (self, val) :
         self._state = val
@@ -119,12 +125,14 @@ class _Unit (object) :
 #
 class _Pilot (object) :
 
-    def __init__ (self, obj) :
+    def __init__ (self, pilot) :
 
         self.id    = ru.generate_id ('d.p.')
         self.units = dict()
         self.state = _NEW
-        self.obj   = obj
+        self.start = None
+        self.pilot = pilot
+        self.descr = pilot.description
 
         troy._logger.debug ("new     pilot %s" % (self.id))
 
@@ -132,6 +140,7 @@ class _Pilot (object) :
     def run (self) :
 
         self.state = _RUNNING
+        self.start = time.time()
         troy._logger.debug ("run     pilot %s" % (self.id))
 
 
@@ -176,6 +185,7 @@ class PLUGIN_CLASS (object) :
         self.description = PLUGIN_DESCRIPTION
         self.name        = "%(name)s_%(type)s" % self.description
         self.pilots      = dict()
+        self.state       = _NEW
 
 
     # --------------------------------------------------------------------------
@@ -206,9 +216,10 @@ class PLUGIN_CLASS (object) :
                     raise ValueError ("Can only provision to fork://localhost (%s)" % resource)
 
             p = _Pilot (pilot)
+            p.run ()
 
             self.pilots[p.id] = p
-
+        
             pilot._set_instance (instance_type = 'default', 
                                  provisioner   = self, 
                                  instance      = p,
@@ -236,14 +247,28 @@ class PLUGIN_CLASS (object) :
         p = pilot._get_instance ('default')
  
         info  = dict ()
-        units = p.list_units ()
- 
+        info['units'] = dict()
+
+        for unit_id in p.list_units () :
+            unit = troy.ComputeUnit (_native_id=unit_id, _pilot_id=pilot.id)
+            info['units'][unit.id] = unit
+
         # hahaha python switch statement hahahahaha
         info['state'] =  {_NEW      : DESCRIBED, 
                           _RUNNING  : PROVISIONED, 
                           _FAILED   : FAILED, 
                           _CANCELED : CANCELED, 
                           _DONE     : DONE}.get (p.state, UNKNOWN)
+
+        # for inspection compatibility
+        info['native_description'] = p.descr
+        info['start_time']         = p.start
+        info['last_contact']       = time.time ()
+        info['end_queue_time']     = -1
+        info['processes_per_node'] = 1 
+        info['slots']              = 1
+        info['working_directpry']  = os.getcwd ()
+        info['service_url']        = 'fork://localhost' 
  
         return info
  
