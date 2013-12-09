@@ -79,7 +79,21 @@ class PLUGIN_CLASS (object) :
                           "Done"     : DONE, 
                           "Canceled" : CANCELED}.get (u.state, UNKNOWN)
 
+        info['slots']            = 1
+        info['start_time']       = u.start
+        info['agent_start_time'] = -1
+        info['job_id']           = u.id 
+        info['end_queue_time']   = -1 
+
         return info
+
+
+    # --------------------------------------------------------------------------
+    #
+    def unit_cancel (self, u) :
+
+        u.cancel ()
+
 
 
 
