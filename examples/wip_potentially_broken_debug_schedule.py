@@ -19,12 +19,12 @@ import random
 if __name__ == '__main__':
 
     radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner',
-                   'Andre Luckow',     'Matteo Turilli',     'Melissa Romanus']
-#                   'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
-#                   'Antons Treikalis', 'Jeffery Rabinowitz', 'Patrick Gray',
-#                  'Vishal Shah',      'Radicalobot']
+                   'Andre Luckow',     'Matteo Turilli',     'Melissa Romanus'
+                   'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
+                   'Antons Treikalis', 'Jeffery Rabinowitz', 'Patrick Gray',
+                  'Vishal Shah',      'Radicalobot']
 
-    random.seed(0)
+    random.seed(1)
     for i in range(1):
         run_start_time=time.time()
         # Responsible for application workload

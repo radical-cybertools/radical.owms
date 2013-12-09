@@ -59,6 +59,11 @@ class PLUGIN_CLASS (object) :
                 print "u_id", u_id
                 unit = task.units[u_id]
                 print unit.description
+                # this is hacky as all get-out but this IS a WIP... TODO
+                try:
+                    unit.description._ttc = int(unit.description.arguments[0])
+                except:
+                    pass
 
         print "########################################"
         print "# Pilot information"
