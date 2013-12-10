@@ -30,6 +30,10 @@ class PLUGIN_CLASS (object) :
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
+        """
+        invoked when plugin is loaded. Only do sanity checks, no other
+        initialization
+        """
 
         self.description = PLUGIN_DESCRIPTION
         self.name        = "%(name)s_%(type)s" % self.description
@@ -38,6 +42,11 @@ class PLUGIN_CLASS (object) :
     # --------------------------------------------------------------------------
     #
     def init (self, cfg):
+        """
+        invoked by user of plugin, i.e. a overlay manager.  May get invoked
+        multiple times -- plugins are singletons, and thus shared amongst all
+        overlay managers!
+        """
 
         troy._logger.info ("init the bigjob_pilot overlay provisioner plugin")
         
@@ -56,21 +65,32 @@ class PLUGIN_CLASS (object) :
     # --------------------------------------------------------------------------
     #
     def provision (self, overlay) :
+        """
+        provision a given overlay -- inspect that overlay, dig out the pilots
+        and their description, check state, and instantiate them via the backend
+        system.
+        """
 
         # we simply assign all pilots to localhost
         for pid in overlay.pilots.keys() :
+
             pilot = overlay.pilots[pid]
  
+            # only BOUND pilots have a target resource assigned.
             if  pilot.state not in [BOUND] :
                 raise RuntimeError ("Can only provision pilots in BOUND state (%s)" % pilot.state)
 
-            # FIXME: ceck state
-            pilot_descr = pilot_module.PilotComputeDescription ()
+            # translate information into bigjob speak
+            pilot_descr                     = pilot_module.PilotComputeDescription ()
             pilot_descr.service_url         = pilot._resource
             pilot_descr.number_of_processes = pilot.description['size']
 
+            # and create the pilot
             bj_pilot = self.cp_service.create_pilot (pilot_descr)
 
+            # register the backend pilot with the troy pilot instance -- that
+            # instance will decide how long the pilot handle is kept alive, or
+            # when to do a reconnect
             pilot._set_instance (instance_type = 'bigjob_pilot', 
                                  provisioner   = self, 
                                  instance      = bj_pilot, 
@@ -83,6 +103,11 @@ class PLUGIN_CLASS (object) :
     # --------------------------------------------------------------------------
     #
     def pilot_reconnect (self, native_id) :
+        """
+        the pilot lost the instance, and needs to reconnect...
+        This is what is getting called on troy.Pilot._get_instance, if that
+        troy.Pilot doesn't have that instance anymore...
+        """
 
         bj_pilot = pilot_module.PilotCompute (pilot_url=native_id)
 
@@ -92,6 +117,11 @@ class PLUGIN_CLASS (object) :
     # --------------------------------------------------------------------------
     #
     def pilot_get_info (self, pilot) :
+        """
+        pilot inspection: get all possible information for the pilot, and return
+        in a dict.  This dict SHOULD contain 'state' at the very least -- but
+        check the pilot_inspection unit test for more recommended attributes.
+        """
  
  
         # find out what we can about the pilot...
@@ -119,6 +149,9 @@ class PLUGIN_CLASS (object) :
     # --------------------------------------------------------------------------
     #
     def pilot_cancel (self, pilot) :
+        """
+        bye bye bye Junimond, es ist vorbei, bye bye...
+        """
  
         bj_pilot = pilot._get_instance ('bigjob_pilot')
         bj_pilot.cancel ()
