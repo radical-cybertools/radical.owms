@@ -1,16 +1,18 @@
 
+__author__    = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__   = "MIT"
 
-import copy
-import threading
 
-import radical.utils   as ru
-import saga.attributes as sa
-
+import radical.utils      as ru
+import troy.utils         as tu
 from   troy.constants import *
+import troy
+
 
 # ------------------------------------------------------------------------------
 #
-class Relation (sa.Attributes) :
+class Relation (tu.Properties) :
     """
     The `Relation` class represents a logical, temporal or spacial dependency
     between two :class:`Task`s, and is part of a workload managed by Troy.
@@ -34,10 +36,6 @@ class Relation (sa.Attributes) :
         reconnect to the thus identified relation instance.  
         """
 
-        # set attribute interface properties
-        self._attributes_extensible  (False)
-        self._attributes_camelcasing (True)
-    
         # initialize state
         tid   = ru.generate_id ('r.')
 
@@ -46,21 +44,36 @@ class Relation (sa.Attributes) :
         if  not 'tail' in descr :
             raise ValueError ("no 'tail' in RelationDescription")
 
-        # register attributes
-        self._attributes_register   (ID,          tid,        sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   (HEAD,        descr.head, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   (TAIL,        descr.tail, sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   (DESCRIPTION, descr,      sa.ANY,    sa.SCALAR, sa.READONLY)
+        tu.Properties.__init__ (self, descr)
 
-        # FIXME: complete attribute list, dig attributes from description,
+        # register properties
+        self.register_property ('id')
+        self.register_property ('head')
+        self.register_property ('tail')
+        self.register_property ('description')
+
+        # initialize essential properties
+        self.id          = tid
+        self.head        = descr.head
+        self.tail        = descr.tail
+        self.description = descr
+
+        # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks
 
 
     # --------------------------------------------------------------------------
     #
-    def _dump (self) :
+    def __str__ (self) :
 
-        self._attributes_dump ()
+        return '%-7s: %s' % (self.id, self.description)
+
+
+    # --------------------------------------------------------------------------
+    #
+    def __repr__ (self) :
+
+        return str(self)
 
 
 # ------------------------------------------------------------------------------

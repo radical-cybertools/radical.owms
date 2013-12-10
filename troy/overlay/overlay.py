@@ -4,12 +4,11 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
-import radical.utils        as ru
-import saga.attributes      as sa
+import radical.utils      as ru
+import troy.utils         as tu
+from   troy.constants import *
+import troy
 
-import pilot                as tp
-
-from   troy.constants   import *
 
 """
 Represent a pilot-based overlay that is managed by TROY.
@@ -17,8 +16,8 @@ Represent a pilot-based overlay that is managed by TROY.
 
 # -----------------------------------------------------------------------------
 #
-@ru.Lockable
-class Overlay (sa.Attributes) :
+@ru.Lockable  # needed locks for the ru.Registry
+class Overlay (tu.Properties) :
     """
     The `Overlay` class represents a resource overlay which is managed by Troy,
     i.e. in application and user space.  It contains a set of :class:`Pilots`, 
@@ -82,19 +81,26 @@ class Overlay (sa.Attributes) :
         additional id parameter, to reconnect to the thus identified overlay
         instance.
         """
+
+        if  isinstance (descr, dict) :
+            descr = troy.OverlayDescription (descr)
         
         ol_id = ru.generate_id ('ol.')
 
-        # set attribute interface properties
-        self._attributes_extensible  (False)
-        self._attributes_camelcasing (True)
-    
-        # register attributes, initialize state
-        self._attributes_register    (ID,          ol_id,     sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register    (STATE,       DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
-        self._attributes_register    ('error',     None,      sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register    (DESCRIPTION, descr,     sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register    ('pilots',    dict(),    sa.ANY,    sa.ANY,    sa.READONLY)
+        
+        tu.Properties.__init__ (self, descr)
+
+        # register properties, initialize state
+        self.register_property ('id')
+        self.register_property ('state')
+        self.register_property ('description')
+        self.register_property ('pilots')
+
+        # initialize essential properties
+        self.id          = ol_id
+        self.state       = DESCRIBED
+        self.description = descr
+        self.pilots      = dict()
 
 
     # --------------------------------------------------------------------------
@@ -121,9 +127,9 @@ class Overlay (sa.Attributes) :
 
     # --------------------------------------------------------------------------
     #
-    def _add_pilot (self, p) :
+    def _add_pilot (self, p_descr) :
         """
-        Add a pilot to te overlay
+        Add a pilot to the overlay
         """
 
         if  self.state != DESCRIBED :
@@ -131,8 +137,10 @@ class Overlay (sa.Attributes) :
 
         # handle scalar and list uniformly
         # check type, content and uniqueness for each task
-        if  not isinstance (p, tp.Pilot) :
-            raise TypeError ("expected Pilot, got %s" % type(p))
+        if  not isinstance (p_descr, troy.PilotDescription) :
+            raise TypeError ("expected PilotDescription, got %s" % type(p_descr))
+
+        p = troy.Pilot (p_descr, _overlay=self)
 
         self.pilots[p.id] = p
 
@@ -143,13 +151,16 @@ class Overlay (sa.Attributes) :
     #
     def __str__ (self) :
 
-        return str(self.description)
+        import pprint
+        return "%-7s : %s" % (self.id, str(pprint.pformat (self.pilots)))
 
 
     # --------------------------------------------------------------------------
     #
-    def _dump (self) :
+    def __repr__ (self) :
 
-        self._attributes_dump ()
+        return str(self)
+
 
 # ------------------------------------------------------------------------------
+

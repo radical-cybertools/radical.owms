@@ -25,18 +25,27 @@ class Planner(object):
 
     # --------------------------------------------------------------------------
     #
-    def __init__(self, planner='default'):
+    def __init__(self, planner='default', session=None):
         """
         Create a new planner instance for this workload.  
 
         Use the default planner plugin if not indicated otherwise
         """
 
+        if  not session :
+            session = troy.Session ()
+
         # initialize state, load plugins
-        self._plugin_mgr = ru.PluginManager('troy')
+        self._session     = session
+        self._plugin_mgr  = ru.PluginManager('troy')
 
         # FIXME: error handling
         self._planner = self._plugin_mgr.load('planner', planner)
+
+        if  not self._planner : raise RuntimeError ("Could not load planner plugin")
+
+        self._planner.init (session.cfg)
+
 
     # --------------------------------------------------------------------------
     #

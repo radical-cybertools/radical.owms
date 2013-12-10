@@ -28,5 +28,5 @@ def test_workload_create () :
         task_description = troy.TaskDescription (task_dict)
         wl.add_task (task_description)
 
-    wl._dump ()
+  # wl._dump ()
 

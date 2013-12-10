@@ -1,8 +1,9 @@
 
 
-import threading
+import radical.utils as ru
 
 from   troy.constants import *
+import troy
 
 
 # ------------------------------------------------------------------------------
@@ -22,18 +23,31 @@ class PLUGIN_CLASS (object) :
     This class implements the (empty) default workload inspector for TROY.
     """
 
+    __metaclass__ = ru.Singleton
+
+
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
 
-        print "create the default workload_inspector plugin"
+        self.description = PLUGIN_DESCRIPTION
+        self.name        = "%(name)s_%(type)s" % self.description
+
+
+    # --------------------------------------------------------------------------
+    #
+    def init (self, cfg):
+
+        troy._logger.info ("init the default workload inspector plugin")
+        
+        self.cfg = cfg.as_dict ().get (self.name, {})
 
 
     # --------------------------------------------------------------------------
     #
     def inspect (self, workload) :
 
-        print 'workload inspect : inspect workload ;)'
+        troy._logger.info ('workload inspect : inspect workload ;)')
         return workload
 
 

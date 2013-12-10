@@ -1,8 +1,9 @@
 
 
-import threading
+import radical.utils as ru
 
 from   troy.constants import *
+import troy
 
 
 # ------------------------------------------------------------------------------
@@ -22,11 +23,24 @@ class PLUGIN_CLASS (object) :
     This class implements the (empty) default overlay inspector for TROY.
     """
 
+    __metaclass__ = ru.Singleton
+    
+    
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
 
-        print "create the default overlay_inspector plugin"
+        self.description = PLUGIN_DESCRIPTION
+        self.name        = "%(name)s_%(type)s" % self.description
+
+
+    # --------------------------------------------------------------------------
+    #
+    def init (self, cfg):
+
+        troy._logger.info ("init the default overlay inspector plugin")
+        
+        self.cfg = cfg.as_dict ().get (self.name, {})
 
 
     # --------------------------------------------------------------------------

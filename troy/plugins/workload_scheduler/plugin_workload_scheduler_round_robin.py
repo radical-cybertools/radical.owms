@@ -1,6 +1,9 @@
 
 
+import radical.utils as ru
+
 from   troy.constants import *
+import troy
 
 
 # ------------------------------------------------------------------------------
@@ -22,11 +25,24 @@ class PLUGIN_CLASS (object) :
     TROY.
     """
 
+    __metaclass__ = ru.Singleton
+
+
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
 
-        print "create the round-robin workload_scheduler plugin"
+        self.description = PLUGIN_DESCRIPTION
+        self.name        = "%(name)s_%(type)s" % self.description
+
+
+    # --------------------------------------------------------------------------
+    #
+    def init (self, cfg):
+
+        troy._logger.info ("init the round-robin wokload scheduler plugin")
+        
+        self.cfg = cfg.as_dict ().get (self.name, {})
 
 
     # --------------------------------------------------------------------------
@@ -41,20 +57,20 @@ class PLUGIN_CLASS (object) :
         # schedule to first 'next' pilot
         for tid in workload.tasks.keys () :
 
-            t = workload.tasks[tid]
+            task = workload.tasks[tid]
 
-            for unit_id in t['units'] :
+            for unit_id in task.units :
 
-                if  _idx > len(overlay.pilots.keys()) :
-                    _idx = 0
+                if  _idx >= len(overlay.pilots.keys()) :
+                    _idx  = 0
 
-                target_pid = overlay.pilots.keys()[_idx]
+                pilot_id  = overlay.pilots.keys()[_idx]
+                _idx     += 1
 
-                pilot = overlay.pilots[target_pid]
-                print "workload scedule  : assign unit %-18s to %s" % (unit_id, pilot.id)
-                t['units'][unit_id]['pilot'] = pilot
+                unit = task.units[unit_id]
+                unit._bind (pilot_id)
 
-                _idx += 1
+                troy._logger.info ("workload schedule : assign unit %-18s to %s" % (unit_id, pilot_id))
 
 
 # ------------------------------------------------------------------------------

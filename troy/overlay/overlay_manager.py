@@ -4,15 +4,15 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__ = "MIT"
 
 
+import radical.utils      as ru
+import troy.utils         as tu
+from   troy.constants import *
+import troy
+
+
 """
 Manages the pilot-based overlays for TROY.
 """
-
-import threading
-import radical.utils      as ru
-
-import troy
-from   troy.constants import *
 
 
 # -----------------------------------------------------------------------------
@@ -44,12 +44,18 @@ class OverlayManager (object) :
 
     """
 
+
+    # this map is used to translate between troy pilot IDs and native backend
+    # IDs. 
+    _pilot_id_map = dict ()
+
     # --------------------------------------------------------------------------
     #
     def __init__ (self, inspector   = 'default',
                         translator  = 'default',
                         scheduler   = 'default',
-                        provisioner = 'bigjob') :
+                        provisioner = 'default', 
+                        session     = None) :
         """
         Create a new overlay manager instance.
 
@@ -58,14 +64,28 @@ class OverlayManager (object) :
         the pilots of the Overlay managed by the OverlayManager.
         """
 
+        if  not session :
+            session = troy.Session ()
+
         # initialize state, load plugins
-        self._plugin_mgr = ru.PluginManager ('troy')
+        self._session     = session
+        self._plugin_mgr  = ru.PluginManager ('troy')
 
         # FIXME: error handling
         self._inspector   = self._plugin_mgr.load ('overlay_inspector',   inspector)
         self._translator  = self._plugin_mgr.load ('overlay_translator',  translator)
         self._scheduler   = self._plugin_mgr.load ('overlay_scheduler',   scheduler)
         self._provisioner = self._plugin_mgr.load ('overlay_provisioner', provisioner)
+
+        if  not self._inspector   : raise RuntimeError ("Could not load inspector   plugin")
+        if  not self._translator  : raise RuntimeError ("Could not load translator  plugin")
+        if  not self._scheduler   : raise RuntimeError ("Could not load scheduler   plugin")
+        if  not self._provisioner : raise RuntimeError ("Could not load provisioner plugin")
+
+        self._inspector   .init (session.cfg)
+        self._translator  .init (session.cfg)
+        self._scheduler   .init (session.cfg)
+        self._provisioner .init (session.cfg)
 
 
     # --------------------------------------------------------------------------
@@ -80,6 +100,42 @@ class OverlayManager (object) :
     @classmethod
     def unregister_overlay (cls, overlay_id) :
         ru.Registry.unregister (overlay_id)
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def native_id_to_pilot_id (cls, native_id) :
+
+        for troy_id in cls._pilot_id_map :
+            if  native_id == cls._pilot_id_map[troy_id] :
+                return troy_id
+
+        return None
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def pilot_id_to_native_id (cls, pilot_id, native_id=None) :
+
+        # FIXME: this is not threadsafe.
+        # FIXME: load from disk on first call
+
+        if  native_id :
+
+            # register id
+            if  pilot_id in cls._pilot_id_map :
+                raise ValueError ("Cannot register that pilot id -- already known")
+            cls._pilot_id_map[pilot_id] = native_id
+            # FIXME: dump to disk
+
+        else :
+
+            # lookup id
+            if  not pilot_id in cls._pilot_id_map :
+                raise ValueError ("no such pilot known '%s'" % pilot_id)
+            return cls._pilot_id_map[pilot_id]
 
 
     # --------------------------------------------------------------------------

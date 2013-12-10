@@ -1,11 +1,13 @@
 
+__author__    = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__   = "MIT"
 
-import threading
+
 import radical.utils      as ru
-
+import troy.utils         as tu
 from   troy.constants import *
-
-import troy.overlay.overlay_manager as olm
+import troy
 
 
 # ------------------------------------------------------------------------------
@@ -31,20 +33,28 @@ class WorkloadManager (object) :
 
     # FIXME: state checks ignore PLANNED state...
 
+    # this map is used to translate between troy unit IDs and native backend
+    # IDs. 
+    _unit_id_map = dict ()
 
     # --------------------------------------------------------------------------
     #
     def __init__ (self, inspector  = 'default', 
                         translator = 'default',
-                        scheduler  = 'round_robin',
-                        dispatcher = 'bigjob') :
+                        scheduler  = 'default',
+                        dispatcher = 'default', 
+                        session    = None) :
         """
         Create a new workload manager instance.  
 
         Use default plugins if not indicated otherwise
         """
 
+        if  not session :
+            session = troy.Session ()
+
         # initialize state, load plugins
+        self._session     = session
         self._plugin_mgr  = ru.PluginManager ('troy')
 
         # FIXME: error handling
@@ -52,6 +62,16 @@ class WorkloadManager (object) :
         self._translator  = self._plugin_mgr.load  ('workload_translator', translator)
         self._scheduler   = self._plugin_mgr.load  ('workload_scheduler',  scheduler)
         self._dispatcher  = self._plugin_mgr.load  ('workload_dispatcher', dispatcher)
+
+        if  not self._inspector  : raise RuntimeError ("Could not load inspector  plugin")
+        if  not self._translator : raise RuntimeError ("Could not load translator plugin")
+        if  not self._scheduler  : raise RuntimeError ("Could not load scheduler  plugin")
+        if  not self._dispatcher : raise RuntimeError ("Could not load dispatcher plugin")
+
+        self._inspector .init (session.cfg)
+        self._translator.init (session.cfg)
+        self._scheduler .init (session.cfg)
+        self._dispatcher.init (session.cfg)
 
 
     # --------------------------------------------------------------------------
@@ -86,6 +106,44 @@ class WorkloadManager (object) :
         ru.Registry.release (workload_id)
 
         return wl
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def native_id_to_unit_id (cls, native_id) :
+
+        for troy_id in cls._unit_id_map :
+            if  native_id == cls._unit_id_map[troy_id] :
+                return troy_id
+
+        return None
+
+
+    # --------------------------------------------------------------------------
+    #
+    @classmethod
+    def unit_id_to_native_id (cls, unit_id, native_id=None) :
+
+        # FIXME: this is not threadsafe.
+        # FIXME: load from disk on first call
+
+        if  native_id :
+
+            # register id
+            if  unit_id in cls._unit_id_map :
+                raise ValueError ("Cannot register that unit id -- already known")
+            cls._unit_id_map[unit_id] = native_id
+            # FIXME: dump to disk
+
+        else :
+
+            # lookup id
+            if  not unit_id in cls._unit_id_map :
+                import pprint
+                pprint.pprint (cls._unit_id_map)
+                raise ValueError ("no such unit known '%s'" % unit_id)
+            return cls._unit_id_map[unit_id]
 
 
     # --------------------------------------------------------------------------
@@ -137,7 +195,7 @@ class WorkloadManager (object) :
         """
 
         workload = self.get_workload (workload_id)
-        overlay  = olm.OverlayManager.get_overlay (overlay_id)
+        overlay  = troy.OverlayManager.get_overlay (overlay_id)
 
         if  not overlay :
             raise ValueError ("binding needs a valid overlay")
@@ -153,18 +211,15 @@ class WorkloadManager (object) :
                                   "do early binding" % str(overlay.id))
 
         elif bind_mode == LATE : 
-            if  overlay.state != BOUND      and \
-                overlay.state != DISPATCHED :
-                raise ValueError ( "overlay '%s' neither scheduled nor " \
-                                 + "dispateched, cannot do late binding" \
-                                 % overlay.id)
+            if  overlay.state != BOUND   and \
+                overlay.state != PROVISIONED :
+                raise ValueError ( "overlay '%s' neither scheduled nor " % str(overlay.id) \
+                                 + "dispateched, cannot do late binding")
+                                 
 
         # hand over control over workload (and overlay) to the scheduler plugin,
         # so it can do what it has to do.
         self._scheduler.schedule (workload, overlay)
-
-        # mark workload as 'scheduled'
-        workload.state = BOUND
 
 
     # --------------------------------------------------------------------------
@@ -180,7 +235,7 @@ class WorkloadManager (object) :
         """
 
         workload = self.get_workload (workload_id)
-        overlay  = olm.OverlayManager.get_overlay (overlay_id)
+        overlay  = troy.OverlayManager.get_overlay (overlay_id)
 
         # make sure the workload is scheduled, so we can dispatch it.
         # we don't care about overlay state

@@ -1,23 +1,19 @@
 
+__author__    = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__   = "MIT"
 
-import threading
 
-import radical.utils        as ru
-import saga.attributes      as sa
-
-import task                 as tt
-import task_description     as ttd
-
-import relation             as tr
-import relation_description as trd
-
-from   troy.constants       import *
+import radical.utils      as ru
+import troy.utils         as tu
+from   troy.constants import *
+import troy
 
 
 # ------------------------------------------------------------------------------
 #
-@ru.Lockable
-class Workload (sa.Attributes) :
+@ru.Lockable  # needed locks for the ru.Registry
+class Workload (tu.Properties) :
     """
     The `Workload` class represents a workload which is managed by Troy.  It
     contains a set of :class:`Tasks`, and a set of :class:`Relation`s between
@@ -95,19 +91,27 @@ class Workload (sa.Attributes) :
         
         wl_id = ru.generate_id ('wl.')
 
-        # set attribute interface properties
-        self._attributes_extensible  (False)
-        self._attributes_camelcasing (True)
-    
-        # register attributes, initialize state
-        self._attributes_register   (ID,          wl_id,     sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   (STATE,       DESCRIBED, sa.STRING, sa.SCALAR, sa.WRITEABLE) # FIXME
-        self._attributes_register   ('parametrized', False,  sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('error',     None,      sa.STRING, sa.SCALAR, sa.READONLY)
-        self._attributes_register   ('tasks',     dict(),    sa.ANY,    sa.VECTOR, sa.READONLY)
-        self._attributes_register   ('relations', list(),    sa.ANY,    sa.VECTOR, sa.READONLY)
+        tu.Properties.__init__ (self)
 
-        self._attributes_set_getter (STATE, self.get_state)
+        # register properties, initialize state
+        self.register_property ('id')
+        self.register_property ('state')
+        self.register_property ('tasks')
+        self.register_property ('relations')
+
+        # initialize essential properties
+        self.id        = wl_id
+        self.state     = DESCRIBED
+        self.tasks     = dict()
+        self.relations = list()
+
+        self.register_property_updater ('state', self.get_state)
+
+        # initialize private properties
+        self.parametrized = False
+
+        # register this instance, so that workload can be passed around by id.
+        troy.WorkloadManager.register_workload (self)
 
 
     # --------------------------------------------------------------------------
@@ -128,17 +132,17 @@ class Workload (sa.Attributes) :
         """
 
         # don't touch final states
-        if  self.state in [CANCELED, DONE, FAILED] :
-            return
+        if  self.state in [DISPATCHED] :
 
-        # non-final -- cancel all tasks
-        for tid in self.tasks.keys () :
-            task = self.tasks[tid]
-            task.cancel ()
+            troy._logger.info ('cancel workload %s' % self.id)
 
-        # and update state
-        self.state = CANCELED
+            # non-final -- cancel all tasks
+            for tid in self.tasks.keys () :
+                task = self.tasks[tid]
+                task.cancel ()
 
+            # and update state
+            self.state = CANCELED
 
 
     # --------------------------------------------------------------------------
@@ -164,26 +168,23 @@ class Workload (sa.Attributes) :
         # check type, content and uniqueness for each task
         for d in descr :
 
-            if  not isinstance (d, ttd.TaskDescription) :
+            if  not isinstance (d, troy.TaskDescription) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
             # FIXME: add sanity checks for task syntax / semantics
-            t = tt.Task (d)
+            task = troy.Task (d, _manager=self)
 
-            if t.tag in self.tasks :
-                raise ValueError ("Task with tag '%s' already exists" % t.tag)
+            if task.tag in self.tasks :
+                raise ValueError ("Task with tag '%s' already exists" % task.tag)
             
-            self.tasks [d.tag] = t
-
-            ret.append (t.id)
+            self.tasks [d.tag] = task
+            ret.append (task.id)
 
 
         if  bulk :
             return ret
         else :
             return ret[0]
-
-
 
 
     # --------------------------------------------------------------------------
@@ -211,7 +212,7 @@ class Workload (sa.Attributes) :
         ret = []
         for d in descr :
 
-            if  not isinstance (d, trd.RelationDescription) :
+            if  not isinstance (d, troy.RelationDescription) :
                 raise TypeError ("expected RelationDescription, got %s" % type(d))
 
             if  d in self.relations :
@@ -223,7 +224,7 @@ class Workload (sa.Attributes) :
             if  not d.tail in self.tasks :
                 raise ValueError ("relation tail '%s' no known" % d.tail)
 
-            r = tr.Relation (d)
+            r = troy.Relation (d)
 
             self.relations.append (r)
 
@@ -234,7 +235,6 @@ class Workload (sa.Attributes) :
             return ret
         else :
             return ret[0]
-
 
 
     # --------------------------------------------------------------------------
@@ -262,37 +262,53 @@ class Workload (sa.Attributes) :
         have individual and uncorrelated state transitions.  At that point, we
         make the workload state dependent on the tasks states, and define::
 
-                 if any task  is  FAILED   :  workload.state = FAILED
-            else if any task  is  CANCELED :  workload.state = CANCELED
-            else if any task  is  RUNNING  :  workload.state = RUNNING
-            else if all tasks are DONE     :  workload.state = DONE
-            else                           :  workload.state = UNKNOWN
+                 if any task  is  FAILED     :  workload.state = FAILED
+            else if any task  is  CANCELED   :  workload.state = CANCELED
+            else if any task  is  DISPATCHED :  workload.state = DISPATCHED
+            else if all tasks are DONE       :  workload.state = DONE
+            else                             :  workload.state = UNKNOWN
 
         """
 
         # atomic states are set elsewhere
-        if  self.state in [DESCRIBED, PLANNED, TRANSLATED, BOUND] :
+        if  self.state in [DESCRIBED, PLANNED] :
             return self.state
 
         # final states are never left
         if  self.state in [DONE, FAILED, CANCELED] :
             return self.state
         
-        # only DISPATCHED and RUNNING are left -- state depends on task states
+        # if there are no tasks, then there was no further state transition
+        if  not len(self.tasks) :
+            return self.state
+        
+        # state depends on task states
         task_states = []
         for tid in self.tasks.keys () :
             task = self.tasks[tid]
             task_states.append (task.state)
           # print 'ts: %s' % task.state
 
-        if FAILED in task_states :
+        if UNKNOWN in task_states :
+            self.state = UNKNOWN
+
+        elif FAILED in task_states :
             self.state = FAILED
 
         elif CANCELED in task_states :
             self.state = CANCELED
 
-        elif RUNNING in task_states :
-            self.state = RUNNING
+        elif DESCRIBED in task_states :
+            self.state = TRANSLATED
+
+        elif TRANSLATED in task_states :
+            self.state = TRANSLATED
+
+        elif BOUND in task_states :
+            self.state = BOUND
+
+        elif DISPATCHED in task_states :
+            self.state = DISPATCHED
 
         else :
             self.state = DONE
@@ -300,7 +316,7 @@ class Workload (sa.Attributes) :
                 if s != DONE :
                     self.state = UNKNOWN
 
-      # print 'wl: %s' % self.state
+        troy._logger.debug ('wl   state %-6s: %-10s %s' % (self.id, self.state, str(task_states)))
         return self.state
 
 
@@ -309,14 +325,15 @@ class Workload (sa.Attributes) :
     def __str__ (self) :
 
         import pprint
-        return str(pprint.pformat ([self.tasks, self.relations]))
+        return "%-7s : %s" % (self.id, str(pprint.pformat ([self.tasks, self.relations])))
 
 
     # --------------------------------------------------------------------------
     #
-    def _dump (self) :
+    def __repr__ (self) :
 
-        self._attributes_dump ()
+        return str(self)
+
 
 # ------------------------------------------------------------------------------
 

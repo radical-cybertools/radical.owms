@@ -12,6 +12,7 @@ __license__   = "MIT"
 
 import time
 import troy
+import getpass
 
 # ------------------------------------------------------------------------------
 #
@@ -21,17 +22,17 @@ if __name__ == '__main__':
                    'Andre Luckow',     'Matteo Turilli',     'Melissa Romanus',
                    'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
                    'Antons Treikalis', 'Jeffery Rabinowitz', 'Patrick Gray',
-                   'Vishal Shah']
-    radicalists = ['Tom']
+                   'Vishal Shah',      'Radicalobot']
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager()
+    workload_mgr = troy.WorkloadManager(dispatcher='bigjob_pilot')
 
     # Responsible for managing the pilot overlay
-    overlay_mgr = troy.OverlayManager()
+    overlay_mgr = troy.OverlayManager(provisioner='bigjob_pilot')
 
     # Planning makes initial mapping of workload to overlay
-    planner = troy.Planner()
+    #planner = troy.Planner('default')
+    planner = troy.Planner('bundles')
 
     # TROY data structure that holds the tasks and their relations
     workload = troy.Workload()
@@ -40,6 +41,7 @@ if __name__ == '__main__':
     for r in radicalists:
         task_descr            = troy.TaskDescription()
         task_descr.tag        = "%s" % r
+
         task_descr.executable = '/bin/echo'
         task_descr.arguments  = ['Hello World, ', r, '!']
 
@@ -47,13 +49,11 @@ if __name__ == '__main__':
 
         # Tasks are uncoupled so no relationships are specified
 
-    # Register the workload so we can pass it by ID
-    troy.WorkloadManager.register_workload(workload)
-
     # combine or split tasks in te workload
     planner.expand_workload(workload.id)
 
     # Initial description of the overlay based on the workload
+    #overlay_id = planner.derive_overlay(workload.id) # default
     overlay_id = planner.derive_overlay(workload.id)
 
     # Translate 1 workload into N ComputeUnits and N DataUnits
@@ -79,16 +79,21 @@ if __name__ == '__main__':
     # Of course nothing will fail due to TROY's magic robustness and
     # and we therefore just wait until its done!
     while workload.state not in [troy.DONE, troy.FAILED]:
-        print "whats up, buddy? (workload state: %s)" % workload.state
+        troy._logger.info ("whats up, buddy? (workload state: %s)" % workload.state)
         time.sleep(1)
 
-    print "ok, buddy, lets see what you got (workload state: %s)" % workload.state
+    if 'merzky' in getpass.getuser():
+        troy._logger.info ("ok, German Skripter, lets see what you got (workload state: %s)" % workload.state)
+    else:
+        troy._logger.info ("ok, buddy, lets see what you got (workload state: %s)" % workload.state)
 
     if workload.state == troy.DONE :
-        print "game over"
+        troy._logger.info ("game over")
     else :
-        print "game over -- play again?"
+        troy._logger.info ("game over -- play again?")
 
     workload_mgr.cancel_workload (workload.id)   # same as workload.cancel ()
     overlay_mgr .cancel_overlay  (overlay_id)
+
+
 

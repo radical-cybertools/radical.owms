@@ -15,7 +15,7 @@ class TestConfig (rut.TestConfig):
     # 
     def __init__ (self, cfg_file):
 
-        # initialize configuration.  We only use the 'saga.tests' category from
+        # initialize configuration.  We only use the 'troy.tests' category from
         # the config file.
         rut.TestConfig.__init__ (self, cfg_file, 'troy.tests')
 

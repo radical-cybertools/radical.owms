@@ -1,22 +1,25 @@
 
+__author__    = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__   = "MIT"
 
-import radical.utils   as ru
-import saga.attributes as sa
 
-import troy
+import radical.utils      as ru
+import troy.utils         as tu
 from   troy.constants import *
+import troy
 
 
 # ------------------------------------------------------------------------------
 #
-class TaskDescription (sa.Attributes) :
+class TaskDescription (tu.Properties) :
     """
-    The `TaskDescription` class is a simple container for attributes which
+    The `TaskDescription` class is a simple container for properties which
     describe a :class:`Task`, i.e. a workload element.  `TaskDescription`s are
     submitted to :class:`WorkloadManager` instances on `add_task`, and are
     internally used to create :class:`Task` instances.
 
-    FIXME: description of supported attributes goes here
+    FIXME: description of supported properties goes here
     """
 
 
@@ -24,16 +27,12 @@ class TaskDescription (sa.Attributes) :
     #
     def __init__ (self, descr={}) :
 
-        # set attribute interface properties
-        self._attributes_extensible  (False)
-        self._attributes_camelcasing (True)
+        # register properties
+        self.register_property ('tag')
+        self.register_property ('executable')
+        self.register_property ('arguments')
 
-        # register attributes
-        self._attributes_register    (TAG,        None, sa.STRING, sa.SCALAR, sa.WRITEABLE)
-        self._attributes_register    (EXECUTABLE, None, sa.STRING, sa.SCALAR, sa.WRITEABLE)
-        self._attributes_register    (ARGUMENTS,  None, sa.STRING, sa.VECTOR, sa.WRITEABLE)
-
-        sa.Attributes.__init__ (self, descr)
+        tu.Properties.__init__ (self, descr)
 
     # --------------------------------------------------------------------------
     #
@@ -47,13 +46,6 @@ class TaskDescription (sa.Attributes) :
     def __repr__ (self) :
 
         return self.description
-
-
-    # --------------------------------------------------------------------------
-    #
-    def _dump (self) :
-
-        self._attributes_dump ()
 
 
 # ------------------------------------------------------------------------------

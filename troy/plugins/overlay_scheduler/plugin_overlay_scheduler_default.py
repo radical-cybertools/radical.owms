@@ -1,6 +1,9 @@
 
 
+import radical.utils as ru
+
 from   troy.constants import *
+import troy
 
 
 # ------------------------------------------------------------------------------
@@ -21,11 +24,24 @@ class PLUGIN_CLASS (object) :
     TROY.
     """
 
+    __metaclass__ = ru.Singleton
+
+
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
 
-        print "create the default overlay_scheduler plugin"
+        self.description = PLUGIN_DESCRIPTION
+        self.name        = "%(name)s_%(type)s" % self.description
+
+
+    # --------------------------------------------------------------------------
+    #
+    def init (self, cfg):
+
+        troy._logger.info ("init the default overlay scheduler plugin")
+        
+        self.cfg = cfg.as_dict ().get (self.name, {})
 
 
     # --------------------------------------------------------------------------
@@ -34,9 +50,11 @@ class PLUGIN_CLASS (object) :
 
         # we simply assign all pilots to localhost
         for pid in overlay.pilots.keys() :
+
             pilot = overlay.pilots[pid]
-            print 'overlay  schedule : schedule pilot %s to localhost' % pilot.id
-            pilot._bind ('ssh://localhost')
+            pilot._bind ('fork://localhost')
+
+            troy._logger.info ('overlay  schedule : schedule pilot %s to localhost' % pilot.id)
 
 
 # ------------------------------------------------------------------------------

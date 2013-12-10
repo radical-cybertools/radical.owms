@@ -21,7 +21,7 @@ def test_derive_overlay():
 
     wl = troy.Workload()
     planner = troy.Planner()
-    pprint.pprint(wl_dict)
+  # pprint.pprint(wl_dict)
 
     if not 'tasks' in wl_dict:
         assert False, "no tasks in workload dict"
@@ -36,8 +36,6 @@ def test_derive_overlay():
     for relation_dict in wl_dict['relations']:
         relation_description = troy.RelationDescription(relation_dict)
         wl.add_relation(relation_description)
-
-    troy.WorkloadManager.register_workload(wl)
 
     overlay_id = planner.derive_overlay(wl.id)
 
