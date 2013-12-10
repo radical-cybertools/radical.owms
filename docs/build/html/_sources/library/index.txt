@@ -10,7 +10,6 @@ This is the Troy library reference
 .. toctree::
    :numbered:
 
-   troy.rst
    session.rst
    context.rst
    attribute.rst
