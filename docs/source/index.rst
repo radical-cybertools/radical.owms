@@ -27,9 +27,11 @@ Contents:
 
    troy.rst
    cookbook.rst
+   cookbook.rst
    library/index.rst
    tutorial/index.rst
    developers/index.rst
+
 
 
 ##################
