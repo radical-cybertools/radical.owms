@@ -106,7 +106,7 @@ class Pilot (tu.Properties) :
                                               native_id   = self.native_id)
 
             if  not self._instance :
-                raise ValueError ("Could not reconnect to unit %s" % uid)
+                raise ValueError ("Could not reconnect to unit %s (%s)" % (self.id, self.native_id))
 
             # refresh pilot information and state from the backend
             self._update_properties ()

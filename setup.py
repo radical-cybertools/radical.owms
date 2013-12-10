@@ -158,21 +158,21 @@ setup_args = {
         "troy.bundle_wrapper",
     ],
     'scripts'          : [],
-    'package_data'     : {'' : ['*.sh', 'VERSION']},
+    'package_data'     : {'' : ['VERSION']},
     'cmdclass'         : {
         'test'         : our_test,
     },
     'install_requires' : ['saga-python', 'radical.utils', 'bigjob', 'paramiko'],
     'tests_require'    : ['nose'],
     'zip_safe'         : False,
-    'build_sphinx'     : {
-        'source-dir'   : 'docs/',
-        'build-dir'    : 'docs/build',
-        'all_files'    : 1,
-    },
-    'upload_sphinx'    : {
-        'upload-dir'   : 'docs/build/html',
-    }
+#   'build_sphinx'     : {
+#       'source-dir'   : 'docs/',
+#       'build-dir'    : 'docs/build',
+#       'all_files'    : 1,
+#   },
+#   'upload_sphinx'    : {
+#       'upload-dir'   : 'docs/build/html',
+#   }
 }
 
 #-----------------------------------------------------------------------------

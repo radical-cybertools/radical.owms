@@ -133,7 +133,7 @@ class Properties (saga.Attributes) :
 
             # saga.Attributes have an as_dict method
             if  isinstance (inits, saga.Attributes) :
-                inits = inits.as_dict ()
+                inits = saga.Attributes.as_dict (inits)
 
             # otherwise we attempt a cast
             else :

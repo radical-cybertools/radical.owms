@@ -42,7 +42,7 @@ class InstanceCache (object) :
             instance_id = self.nativeid_cache[native_id]
 
         if  not instance_id in self.instance_cache :
-            return none
+            return None
 
         return self.instance_cache[instance_id]
 
