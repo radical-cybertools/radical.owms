@@ -118,19 +118,19 @@ setup_args = {
     'classifiers'      : [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
-        'Environment          :: Console',                    
-        'License              :: OSI Approved :: MIT',
+        'Environment :: Console',                    
+        'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.5',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        'Topic                :: Utilities',
+        'Topic :: Utilities',
         'Topic :: System :: Distributed Computing',
         'Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX',
-        'Operating System     :: Unix',
+        'Operating System :: Unix',
     ],
     'packages': [
         "troy",
@@ -165,6 +165,14 @@ setup_args = {
     'install_requires' : ['saga-python', 'radical.utils', 'bigjob', 'paramiko'],
     'tests_require'    : ['nose'],
     'zip_safe'         : False,
+    'build_sphinx'     : {
+        'source-dir'   : 'docs/',
+        'build-dir'    : 'docs/build',
+        'all_files'    : 1,
+    },
+    'upload_sphinx'    : {
+        'upload-dir'   : 'docs/build/html',
+    }
 }
 
 #-----------------------------------------------------------------------------
