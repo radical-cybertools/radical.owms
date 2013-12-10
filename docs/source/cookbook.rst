@@ -29,8 +29,8 @@ Installing pip...............done.
 
 
 # these two don't install cleanly via pip on india, so use easy_install
-(ve)[merzky@i136 ~]$ easy_install apache-libcloud
-(ve)[merzky@i136 ~]$ easy_install threadpool
+(ve)[merzky@i136 ~]$ easy_install apache-libcloud threadpool
+...
 
 # we need radical.utils from master branch
 (ve)[merzky@i136 ~]$ pip install git+git://github.com/saga-project/radical.utils.git@master
@@ -47,8 +47,36 @@ Resolving deltas: 100% (1467/1467), done.
 
 # now install
 (ve)[merzky@i136 ~]$ pip install --upgrade troy/
+...
 
+
+# ready to run the demo -- set verbosity to see things happening:
+(ve)[merzky@i136 ~]$ export TROY_VERBOSE=DEBUG
+(ve)[merzky@i136 ~]$ python troy/examples/phase1_demo_2.py 
 
 
 ```
 
+
+Caveats:
+--------
+
+```
+# If a 'pip install' command complains about 
+#     Permission denied: '/tmp/pip-build/....'
+# then add the following flag to the pip command line:
+#     --build=/tmp/pip-build-`id -un`
+# which will then use the respective temp dir.  You may want to clean that dir
+# up after installation.
+
+
+# If a 'pip install' command complains about 
+#     CompressionError: bz2 module is not available
+# then use 'easy_install' for that specific module.
+
+# If after one of the above problems, 'pip install' complains about
+#     pkg_resources.DistributionNotFound: setuptools==2.0
+# then you are screwed -- pip corrupted your virtualenv.
+# Remove everything and start over from fresh...
+
+```
