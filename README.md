@@ -1,6 +1,14 @@
 
 # Tired of Resource OverlaYs
 
+### Pointers
+
+* home page:     http://saga-project.github.io/troy/
+* documentation: http://saga-project.github.io/troy/docs/build/html/
+* wiki pages:    https://github.com/saga-project/troy/wiki/
+* issue tracker: https://github.com/saga-project/troy/issues/
+
+
 ### Installation Notes
 
 At this stage, the devel branches of saga-python, radical.utils, and bigjob should
