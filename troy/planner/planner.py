@@ -1,13 +1,10 @@
 
-__author__    = "TROY Development Team"
-__copyright__ = "Copyright 2013, RADICAL"
-__license__   = "MIT"
 
+import threading
+import radical.utils as ru
 
-import radical.utils      as ru
-import troy.utils         as tu
-from   troy.constants import *
 import troy
+from   troy.constants import *
 
 
 # ------------------------------------------------------------------------------
@@ -28,22 +25,31 @@ class Planner(object):
 
     # --------------------------------------------------------------------------
     #
-    def __init__(self, planner='default'):
+    def __init__(self, planner='default', session=None):
         """
-        Create a new planner instance for this workload.
+        Create a new planner instance for this workload.  
 
         Use the default planner plugin if not indicated otherwise
         """
 
+        if  not session :
+            session = troy.Session ()
+
         # initialize state, load plugins
-        self._plugin_mgr = ru.PluginManager('troy')
+        self._session     = session
+        self._plugin_mgr  = ru.PluginManager('troy')
 
         # FIXME: error handling
         self._planner = self._plugin_mgr.load('planner', planner)
 
+        if  not self._planner : raise RuntimeError ("Could not load planner plugin")
+
+        self._planner.init (session.cfg)
+
+
     # --------------------------------------------------------------------------
     #
-    def derive_overlay(self, workload_id, **kwargs):
+    def derive_overlay(self, workload_id):
         """
         create overlay plan (description) from workload
         """
@@ -56,12 +62,12 @@ class Planner(object):
         if workload.state not in [PLANNED, DESCRIBED]:
             raise ValueError("workload '%s' not in DESCRIBED or PLANNED "
                              "state" % workload.id)
-        elif workload.state is DESCRIBED and workload._parametrized:
+        elif workload.state is DESCRIBED and workload.parametrized:
             raise ValueError("Parametrized workload '%s' not PLANNED yet."
                              % workload.id)
 
         # derive overlay from workload
-        overlay = self._planner.derive_overlay(workload, **kwargs)
+        overlay = self._planner.derive_overlay(workload)
 
         # Put the overlay into the system registry so others can access it
         troy.OverlayManager.register_overlay(overlay)

@@ -1,6 +1,13 @@
 
+__author__    = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__   = "MIT"
+
+
 import saga
 
+
+# ------------------------------------------------------------------------------
 class Properties (saga.Attributes) :
     """
     Several Troy classes benefit from somewhat richer than default python
@@ -147,7 +154,8 @@ class Properties (saga.Attributes) :
         """
 
         # register attribute w/o type checking
-        self._attributes_register (key)
+        self._attributes_register (key, typ    = saga.attributes.ANY, 
+                                        flavor = saga.attributes.ANY)
 
 
     # --------------------------------------------------------------------------

@@ -37,8 +37,6 @@ def test_expand_workload():
         relation_description = troy.RelationDescription(relation_dict)
         wl.add_relation(relation_description)
 
-    troy.WorkloadManager.register_workload(wl)
-
     if not wl.state is troy.DESCRIBED:
         assert False, "Workload state != DESCRIBED"
 

@@ -1,6 +1,26 @@
 
 # Tired of Resource OverlaYs
 
+### Installation Notes
+
+At this stage, the devel branches of saga-python, radical.utils, and bigjob should
+be used with TROY.  (If these are not manually installed, the
+TROY installer may pull in non-devel versions.)
+
+To set up the TROY environment, use 
+
+pip install .
+
+Or, to make extra-sure TROY is installed correctly with all trace
+of previous installations removed:
+
+pip uninstall troy; rm -rf ./build; pip install .
+
+### Configuration
+
+You need a configuration file in the location "~/.troy.cfg".
+An example is provided in this directory ("dot_troy_example.cfg"), you can copy
+that to "~/.troy.cfg" and customize to your environment.
 
 ### Note to developers:
 
@@ -11,7 +31,7 @@ only merged into devel after coordinating with the other developers.
 Releases are tagged on the `master` branch -- only the release manager will merge
 from `devel` to `master`, to prepare for a release.
 
-An usual workflow should look like:
+An usual development workflow should look like:
 
 ```
 git clone git@github.com:saga-project/troy.git # get repostory
