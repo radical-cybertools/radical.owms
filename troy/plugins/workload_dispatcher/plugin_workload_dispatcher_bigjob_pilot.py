@@ -37,7 +37,6 @@ class PLUGIN_CLASS (object) :
 
         self.description = PLUGIN_DESCRIPTION
         self.name        = "%(name)s_%(type)s" % self.description
-        self.cfg         = cfg.as_dict ().get (self.name, {})
 
 
     # --------------------------------------------------------------------------
