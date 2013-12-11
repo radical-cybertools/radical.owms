@@ -4,10 +4,16 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
-"""
-    Demo application for 1 feb 2014
-    - Bag of Task (BoT)
+PLUGIN_PLANNER              = 'default'
+PLUGIN_OVERLAY_SCHEDULER    = 'default'
+PLUGIN_OVERLAY_TRANSLATOR   = 'default'
+PLUGIN_OVERLAY_PROVISIONER  = 'default'
+PLUGIN_WORKLOAD_SCHEDULER   = 'default'
+PLUGIN_WORKLOAD_DISPATCHER  = 'default'
 
+
+"""
+  Demo application for 1 feb 2014 - Bag of Task (BoT)
 """
 
 import sys
@@ -42,29 +48,14 @@ if __name__ == '__main__' :
     radical_oldfarts = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner',
                         'Andre Luckow',     'Matteo Turilli']
 
-    # the troy session gives us access to the troy configuration
-    session = troy.Session ()
-    config  = session.cfg.get_config_as_dict ()
 
-    if 'demo2' in config : demo_cfg = config['demo2']
-    else                 : demo_cfg = dict ()
-
-    # get plugin configuration
-    planner_plugin = demo_cfg.get ('planner',             'default')
-    osched_plugin  = demo_cfg.get ('overlay_scheduler',   'default')
-    otrans_plugin  = demo_cfg.get ('overlay_translator',  'default')
-    oprov_plugin   = demo_cfg.get ('overlay_provisioner', 'default')
-    wsched_plugin  = demo_cfg.get ('workload_scheduler',  'default')
-    wdisp_plugin   = demo_cfg.get ('workload_dispatcher', 'default')
-
-
-    # create planner, overlay and workload manager, with plugins as above
-    planner      = troy.Planner         (planner     = planner_plugin)
-    overlay_mgr  = troy.OverlayManager  (scheduler   =  osched_plugin,
-                                         translator  =  otrans_plugin, 
-                                         provisioner =   oprov_plugin)
-    workload_mgr = troy.WorkloadManager (scheduler   =  wsched_plugin, 
-                                         dispatcher  =   wdisp_plugin)
+    # create planner, overlay and workload manager, with plugins as configured
+    planner      = troy.Planner         (planner     = PLUGIN_PLANNER            )
+    overlay_mgr  = troy.OverlayManager  (scheduler   = PLUGIN_OVERLAY_SCHEDULER  ,
+                                         translator  = PLUGIN_OVERLAY_TRANSLATOR , 
+                                         provisioner = PLUGIN_OVERLAY_PROVISIONER)
+    workload_mgr = troy.WorkloadManager (scheduler   = PLUGIN_WORKLOAD_SCHEDULER , 
+                                         dispatcher  = PLUGIN_WORKLOAD_DISPATCHER)
 
 
     # --------------------------------------------------------------------------
