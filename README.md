@@ -27,7 +27,7 @@ pip uninstall troy; rm -rf ./build; pip install .
 ### Configuration
 
 You need a configuration file in the location "~/.troy.cfg".
-An example is provided in this directory ("dot_troy_example.cfg"), you can copy
+An example is provided in `examples/troy.cfg`, you can copy
 that to "~/.troy.cfg" and customize to your environment.
 
 ### Note to developers:
