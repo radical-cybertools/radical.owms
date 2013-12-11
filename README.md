@@ -24,11 +24,17 @@ of previous installations removed:
 
 pip uninstall troy; rm -rf ./build; pip install .
 
+
 ### Configuration
 
-You need a configuration file in the location "~/.troy.cfg".
+You can use a configuration file in the location "~/.troy.cfg".
 An example is provided in `examples/troy.cfg`, you can copy
 that to "~/.troy.cfg" and customize to your environment.
+
+Available configuration options are explained in more detailed 
+in the Troy library documentation, and apply mostly to the Troy 
+plugins.
+
 
 ### Note to developers:
 
