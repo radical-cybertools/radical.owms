@@ -13,7 +13,7 @@ PLUGIN_WORKLOAD_DISPATCHER  = 'default'
 
 
 """
-  Demo application for 1 feb 2014 - Bag of Task (BoT)
+Demo application for 1 feb 2014 - Bag of Task (BoT)
 """
 
 import sys
