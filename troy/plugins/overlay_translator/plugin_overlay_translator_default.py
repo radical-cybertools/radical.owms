@@ -18,7 +18,7 @@ PLUGIN_DESCRIPTION = {
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (object) :
+class PLUGIN_CLASS (troy.PluginBase):
     """
     This class implements the (stupid) default overlay translator algorithm for
     TROY.
@@ -31,18 +31,7 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
-
-
-    # --------------------------------------------------------------------------
-    #
-    def init (self, cfg):
-
-        troy._logger.info   ("init the default overlay translator plugin %s")
-
-        self.cfg = cfg.as_dict ().get (self.name, {})
-
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
 
     # --------------------------------------------------------------------------

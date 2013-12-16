@@ -18,7 +18,7 @@ PLUGIN_DESCRIPTION = {
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (object) :
+class PLUGIN_CLASS (troy.PluginBase):
     """
     This class implements the bigjob_pilot overlay provisioner for
     TROY.
@@ -35,8 +35,7 @@ class PLUGIN_CLASS (object) :
         initialization
         """
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
 
     # --------------------------------------------------------------------------
@@ -47,10 +46,6 @@ class PLUGIN_CLASS (object) :
         multiple times -- plugins are singletons, and thus shared amongst all
         overlay managers!
         """
-
-        troy._logger.info ("init the bigjob_pilot overlay provisioner plugin")
-        
-        self.cfg = cfg.as_dict ().get (self.name, {})
 
         if  not 'COORDINATION_URL' in os.environ :
             troy._logger.error ("No COORDINATION_URL set for bigjob_pilot backend")

@@ -19,7 +19,7 @@ _idx = 0
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (object) :
+class PLUGIN_CLASS (troy.PluginBase):
     """
     This class implements the (empty) round_robin overlay scheduler algorithm for
     TROY.
@@ -32,17 +32,12 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
 
     # --------------------------------------------------------------------------
     #
     def init (self, cfg):
-
-        troy._logger.info ("init the round_robin overlay scheduler plugin")
-        
-        self.cfg = cfg.as_dict ().get (self.name, {})
 
         if 'resources'    in self.cfg :
             self.resources = self.cfg['resources'].split (',')

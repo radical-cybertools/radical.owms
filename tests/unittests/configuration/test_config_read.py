@@ -21,7 +21,7 @@ def test_config_read():
 
     configurable  =  troy.Configuration ()
     config        =  configurable.get_config ('general')
-    lucky         =  config['i_feel_lucky'].get_value ()
+    loglever      =  config['log_level'].get_value ()
 
-    assert (lucky == 'yes'), "Don't feeling lucky apparently!"
+    assert (loglevel == '42'), "%s != 42" % (loglevel)
 

@@ -19,7 +19,7 @@ PLUGIN_DESCRIPTION = {
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (object) :
+class PLUGIN_CLASS (troy.PluginBase):
     """
     This class implements the bigjob_pilot workload dispatcher for TROY.
     """
@@ -35,22 +35,7 @@ class PLUGIN_CLASS (object) :
         initialization
         """
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
-
-
-    # --------------------------------------------------------------------------
-    #
-    def init (self, cfg):
-        """
-        invoked by user of plugin, i.e. a workload manager.  May get invoked
-        multiple times -- plugins are singletons, and thus shared amongst all
-        workload managers!
-        """
-
-        troy._logger.info ("init the bigjob_pilot workload dispatcher plugin")
-        
-        self.cfg = cfg.as_dict ().get (self.name, {})
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
 
     # --------------------------------------------------------------------------

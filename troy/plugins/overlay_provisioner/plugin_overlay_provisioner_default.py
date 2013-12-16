@@ -168,7 +168,7 @@ class _Pilot (object) :
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (object) :
+class PLUGIN_CLASS (troy.PluginBase):
     """
     This class implements the defaul overlay provisioner for TROY.  It simply
     assumes that the application is its own pilot, and does not create a new
@@ -182,19 +182,10 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
-        self.pilots      = dict()
-        self.state       = _NEW
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
-
-    # --------------------------------------------------------------------------
-    #
-    def init (self, cfg):
-
-        troy._logger.info ("init the default overlay provisioner plugin")
-        
-        self.cfg = cfg.as_dict ().get (self.name, {})
+        self.pilots = dict()
+        self.state  = _NEW
 
 
     # --------------------------------------------------------------------------

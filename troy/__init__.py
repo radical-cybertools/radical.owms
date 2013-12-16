@@ -36,19 +36,20 @@ from overlay    import Overlay
 from overlay    import OverlayDescription
 from overlay    import OverlayManager
 
+# internal helper classes, exposed for plugin developers
 from bundle_wrapper import BundleManager
+from plugin_base    import PluginBase
 
 # ------------------------------------------------------------------------------
 
 import os
 import radical.utils.logger as rul
 
-version=open    (os.path.dirname (os.path.abspath (__file__)) + "/VERSION", 'r').read().strip()
-rul.getLogger   ('troy').info ('troy            version: %s' % version)
-# rul.log_version ('troy', 'troy', version)
+version = open (os.path.dirname (os.path.abspath (__file__)) + "/VERSION", 'r').read().strip()
+_logger = rul.logger.getLogger  ('troy')
 
+_logger.info ('troy            version: %s' % version)
 
-_logger = rul.logger.getLogger ('troy')
 
 # ------------------------------------------------------------------------------
 

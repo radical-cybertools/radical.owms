@@ -9,10 +9,10 @@ import troy
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
-    'type'        : 'workload_translator', 
-    'name'        : 'default', 
+    'type'        : 'workload_transformer', 
+    'name'        : 'synapse', 
     'version'     : '0.1',
-    'description' : 'this is an empty translator which basically does nothing.'
+    'description' : 'transforms a workload for profiling or emulation.'
   }
 
 
@@ -20,7 +20,7 @@ PLUGIN_DESCRIPTION = {
 #
 class PLUGIN_CLASS (troy.PluginBase):
     """
-    This class implements the (empty) default workload translator for TROY.
+    This class implements the synapse workload transformer for TROY.
     """
 
     __metaclass__ = ru.Singleton

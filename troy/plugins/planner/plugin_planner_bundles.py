@@ -20,7 +20,7 @@ PLUGIN_DESCRIPTION = {
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS(object):
+class PLUGIN_CLASS (troy.PluginBase):
     """
     This class implements the default planner for TROY.
     """
@@ -32,19 +32,14 @@ class PLUGIN_CLASS(object):
     #
     def __init__(self):
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
 
     # --------------------------------------------------------------------------
     #
-    def init(self, cfg):
+    def init(self, session):
 
-        troy._logger.info ("init the bundle planner plugin")
-        
-        self.global_cfg = cfg
-        self.cfg        = cfg.as_dict ().get (self.name, {})
-
+        troy._logger.debug ("init plugin %s (bundles)" % self.name)
         self.init_bundles()
 
 

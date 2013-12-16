@@ -44,7 +44,7 @@ class Planner(object):
 
         if  not self._planner : raise RuntimeError ("Could not load planner plugin")
 
-        self._planner.init (session.cfg)
+        self._planner.init_plugin (session)
 
 
     # --------------------------------------------------------------------------

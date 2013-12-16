@@ -68,10 +68,10 @@ class WorkloadManager (object) :
         if  not self._scheduler  : raise RuntimeError ("Could not load scheduler  plugin")
         if  not self._dispatcher : raise RuntimeError ("Could not load dispatcher plugin")
 
-        self._inspector .init (session.cfg)
-        self._translator.init (session.cfg)
-        self._scheduler .init (session.cfg)
-        self._dispatcher.init (session.cfg)
+        self._inspector .init_plugin (session)
+        self._translator.init_plugin (session)
+        self._scheduler .init_plugin (session)
+        self._dispatcher.init_plugin (session)
 
 
     # --------------------------------------------------------------------------
