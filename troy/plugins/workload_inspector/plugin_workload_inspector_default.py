@@ -15,6 +15,7 @@ PLUGIN_DESCRIPTION = {
     'description' : 'this is an empty inspector which basically does nothing.'
   }
 
+print "init? %s" % (PLUGIN_DESCRIPTION)
 
 # ------------------------------------------------------------------------------
 #
