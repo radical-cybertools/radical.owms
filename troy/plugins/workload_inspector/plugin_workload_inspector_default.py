@@ -15,7 +15,6 @@ PLUGIN_DESCRIPTION = {
     'description' : 'this is an empty inspector which basically does nothing.'
   }
 
-print "init? %s" % (PLUGIN_DESCRIPTION)
 
 # ------------------------------------------------------------------------------
 #
@@ -31,7 +30,6 @@ class PLUGIN_CLASS (troy.PluginBase):
     #
     def __init__ (self) :
 
-        print "init! %s %s" % (self, PLUGIN_DESCRIPTION)
         troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
 

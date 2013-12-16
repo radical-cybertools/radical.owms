@@ -14,14 +14,12 @@ class PluginBase (object) :
         self.description = description
         self.name        = "%(name)s_%(type)s" % self.description
 
-        print "pb init: %s %s: %s " % (self.name, self, description)
-
 
     # --------------------------------------------------------------------------
     #
     def init_plugin (self, session):
 
-        troy._logger.info ("init plugin %s plugin (%s)" % (self.name, self))
+        troy._logger.info ("init plugin %s" % (self.name))
         
         self.session    = session
         self.global_cfg = session.cfg

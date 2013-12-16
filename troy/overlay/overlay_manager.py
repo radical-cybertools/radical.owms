@@ -82,15 +82,10 @@ class OverlayManager (object) :
         if  not self._scheduler   : raise RuntimeError ("Could not load scheduler   plugin")
         if  not self._provisioner : raise RuntimeError ("Could not load provisioner plugin")
 
-        print "inspector  : %s" % str(self._inspector   )
-        print "translator : %s" % str(self._translator  )
-        print "scheduler  : %s" % str(self._scheduler   )
-        print "provisioner: %s" % str(self._provisioner )
-
-        self._inspector   .init_plugin (session)
-        self._translator  .init_plugin (session)
-        self._scheduler   .init_plugin (session)
-        self._provisioner .init_plugin (session)
+        self._inspector  .init_plugin (session)
+        self._translator .init_plugin (session)
+        self._scheduler  .init_plugin (session)
+        self._provisioner.init_plugin (session)
 
 
     # --------------------------------------------------------------------------
