@@ -37,8 +37,6 @@ def test_derive_overlay():
         relation_description = troy.RelationDescription(relation_dict)
         wl.add_relation(relation_description)
 
-    troy.WorkloadManager.register_workload(wl)
-
     overlay_id = planner.derive_overlay(wl.id)
 
     overlay = troy.OverlayManager.get_overlay(overlay_id)

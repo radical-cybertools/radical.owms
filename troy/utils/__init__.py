@@ -1,3 +1,4 @@
 
-from properties import Properties
+from properties     import Properties
+from instance_cache import InstanceCache
 

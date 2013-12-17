@@ -1,5 +1,7 @@
 
 
+import radical.utils as ru
+
 from   troy.constants import *
 import troy
 
@@ -23,11 +25,24 @@ class PLUGIN_CLASS (object) :
     TROY.
     """
 
+    __metaclass__ = ru.Singleton
+
+
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
 
-        troy._logger.info ("create the round-robin workload_scheduler plugin")
+        self.description = PLUGIN_DESCRIPTION
+        self.name        = "%(name)s_%(type)s" % self.description
+
+
+    # --------------------------------------------------------------------------
+    #
+    def init (self, cfg):
+
+        troy._logger.info ("init the round-robin wokload scheduler plugin")
+        
+        self.cfg = cfg.as_dict ().get (self.name, {})
 
 
     # --------------------------------------------------------------------------

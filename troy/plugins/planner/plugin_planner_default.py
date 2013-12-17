@@ -1,3 +1,11 @@
+
+
+import radical.utils as ru
+
+from   troy.constants import *
+import troy
+
+
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
@@ -7,8 +15,6 @@ PLUGIN_DESCRIPTION = {
     'description' : 'This is the default planner.'
   }
 
-from   troy.constants import *
-import troy
 
 # ------------------------------------------------------------------------------
 #
@@ -17,18 +23,24 @@ class PLUGIN_CLASS(object):
     This class implements the default planner for TROY.
     """
 
+    __metaclass__ = ru.Singleton
+
+
     # --------------------------------------------------------------------------
     #
     def __init__(self):
 
-        troy._logger.info ("create the default planner plugin")
+        self.description = PLUGIN_DESCRIPTION
+        self.name        = "%(name)s_%(type)s" % self.description
 
 
     # --------------------------------------------------------------------------
     #
-    def init (self):
+    def init (self, cfg):
 
         troy._logger.info ("init the default planner plugin")
+        
+        self.cfg = cfg.as_dict ().get (self.name, {})
 
 
     # --------------------------------------------------------------------------
@@ -42,7 +54,7 @@ class PLUGIN_CLASS(object):
 
     # --------------------------------------------------------------------------
     #
-    def derive_overlay(self, workload, guard=None):
+    def derive_overlay(self, workload):
 
         ovl_descr = troy.OverlayDescription (
             {

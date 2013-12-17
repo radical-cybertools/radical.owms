@@ -1,4 +1,13 @@
 
+
+import radical.utils as ru
+
+from   troy.constants import *
+import troy
+
+from   bundle import BundleManager
+
+
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
@@ -9,12 +18,6 @@ PLUGIN_DESCRIPTION = {
   }
 
 
-from   troy.constants import *
-import troy
-
-from   bundle import BundleManager
-
-
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS(object):
@@ -22,18 +25,25 @@ class PLUGIN_CLASS(object):
     This class implements the default planner for TROY.
     """
 
+    __metaclass__ = ru.Singleton
+
+
     # --------------------------------------------------------------------------
     #
     def __init__(self):
 
-        troy._logger.info ("create the bundle planner plugin")
+        self.description = PLUGIN_DESCRIPTION
+        self.name        = "%(name)s_%(type)s" % self.description
 
 
     # --------------------------------------------------------------------------
     #
-    def init(self):
+    def init(self, cfg):
 
-        troy._logger.info ("init the planner planner plugin")
+        troy._logger.info ("init the bundle planner plugin")
+        
+        self.global_cfg = cfg
+        self.cfg        = cfg.as_dict ().get (self.name, {})
 
         self.init_bundles()
 
@@ -49,13 +59,11 @@ class PLUGIN_CLASS(object):
 
         self.bm = BundleManager()
 
-        cf = troy.Configuration()
-
-        cg = cf.get_config('bundle')
+        cg = self.global_cfg.get_config('bundle')
         finished_job_trace = cg['finished_job_trace'].get_value()
 
-        for sect in cf.compute_sections:
-            cs = cf.get_config(sect)
+        for sect in self.global_cfg.compute_sections:
+            cs = self.global_cfg.get_config(sect)
 
             cred = { 'port': int(cs['port'].get_value()),
                      'hostname': cs['endpoint'].get_value(),

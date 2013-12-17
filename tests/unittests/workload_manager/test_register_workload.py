@@ -18,7 +18,6 @@ def test_workload_create () :
     wl1  = troy.Workload ()
     wlid = wl1.id
 
-    troy.WorkloadManager.register_workload  (wl1)
     wl2 = troy.WorkloadManager.get_workload (wlid)
 
     assert wl1 == wl2, "%s == %s" % (wl1, wl2)

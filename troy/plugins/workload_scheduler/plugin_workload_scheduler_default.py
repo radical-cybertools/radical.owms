@@ -1,5 +1,7 @@
 
 
+import radical.utils as ru
+
 from   troy.constants import *
 import troy
 
@@ -22,11 +24,24 @@ class PLUGIN_CLASS (object) :
     TROY.
     """
 
+    __metaclass__ = ru.Singleton
+
+
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
 
-        troy._logger.info ("create the default workload_scheduler plugin")
+        self.description = PLUGIN_DESCRIPTION
+        self.name        = "%(name)s_%(type)s" % self.description
+
+
+    # --------------------------------------------------------------------------
+    #
+    def init (self, cfg):
+
+        troy._logger.info ("init the default wokload scheduler plugin")
+        
+        self.cfg = cfg.as_dict ().get (self.name, {})
 
 
     # --------------------------------------------------------------------------
@@ -34,19 +49,23 @@ class PLUGIN_CLASS (object) :
     def schedule (self, workload, overlay) :
 
         # schedule to first available pilot
+
+        if  not overlay.pilots.keys() :
+            raise RuntimeError ('no pilots in overlay')
+
+        pilot_id = overlay.pilots.keys()[0]
+        # schedule to first 'next' pilot
         for tid in workload.tasks.keys () :
 
-            t = workload.tasks[tid]
+            task = workload.tasks[tid]
 
-            if  not overlay.pilots.keys() :
-                raise RuntimeError ('no pilots in overlay')
+            for unit_id in task.units :
 
-            target_pid = overlay.pilots.keys()[0]
-            for unit_id in t['units'] :
-                troy._logger.info ("workload schedule : assign unit %-18s to %s" \
-                                % (unit_id, target_pid))
-                t['units'][unit_id]['pilot_id'] = target_pid
-                overlay.pilots[target_pid].assigned_units.append (unit_id)
+                troy._logger.info ("workload schedule : assign unit %-18s to %s" % (unit_id, pilot_id))
+                unit = task.units[unit_id]
+                unit._bind (pilot_id)
+
+                troy._logger.info ("workload schedule : assign unit %-18s to %s" % (unit_id, pilot_id))
         
 
 
