@@ -162,7 +162,12 @@ setup_args = {
     'cmdclass'         : {
         'test'         : our_test,
     },
-    'install_requires' : ['saga-python', 'radical.utils', 'bigjob', 'paramiko'],
+    'install_requires' : ['saga-python', 'radical.utils'],
+    'extras_require'   : {
+        'sinon'        :  ["sinon"],
+        'bigjob'       :  ["bigjob"],
+        'bundles'      :  ["paramico"]
+    },
     'tests_require'    : ['nose'],
     'zip_safe'         : False,
 #   'build_sphinx'     : {
