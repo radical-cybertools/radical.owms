@@ -132,7 +132,7 @@ setup_args = {
         'Operating System :: POSIX',
         'Operating System :: Unix',
     ],
-    'packages': [
+    'packages'         : [
         "troy",
         "troy.utils",
         "troy.planner",
@@ -182,7 +182,7 @@ setup_args = {
 
 #-----------------------------------------------------------------------------
 
-setup(**setup_args)
+setup (**setup_args)
 
 #-----------------------------------------------------------------------------
 
