@@ -42,7 +42,8 @@ class Planner(object):
         # FIXME: error handling
         self._planner = self._plugin_mgr.load('planner', planner)
 
-        if  not self._planner : raise RuntimeError ("Could not load planner plugin")
+        if  not self._planner : 
+            raise RuntimeError ("Could not load planner plugin")
 
         self._planner.init_plugin (session)
 

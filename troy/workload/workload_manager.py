@@ -78,7 +78,18 @@ class WorkloadManager (object) :
     #
     @classmethod
     def register_workload (cls, workload) :
-        ru.Registry.register (workload)
+
+        if  isinstance (workload, list) :
+            workloads =  workload
+        else :
+            workloads = [workload]
+
+        for workload in workloads :
+
+            if  not isinstance (workload, troy.Workload) :
+                raise TypeError ('expected troy.Workload instance, not %s' % type(workload))
+
+            ru.Registry.register (workload)
 
 
     # --------------------------------------------------------------------------

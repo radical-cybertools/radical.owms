@@ -77,5 +77,5 @@ git push origin                        # sync with github
 git branch -d feature/world_domination # remove feature branch
 ```
 
-If unsure about anything, as Andre ;)
+If unsure about anything, ask Andre ;)
 

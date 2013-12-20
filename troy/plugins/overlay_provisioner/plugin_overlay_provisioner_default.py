@@ -57,24 +57,26 @@ class _Unit (object) :
 
         assert (self.state == _NEW)
 
-        exe          =           self.descr['executable']
-        args         = ' '.join (self.descr['arguments'])
-        env_list     =           self.descr['environment']
-        env          = dict()
+        env = dict()
 
-        for env_entry in env_list :
+        for key in os.environ.keys() :
+            env[key] = os.environ[key]
+
+        for env_entry in self.descr['environment'] :
             key, val = env_entry.split ('=', 1)
             env[key] = val
 
 
-        command      = "%s %s" % (exe, args)
-        self._proc   = subprocess.Popen (command, shell=True, env=env, 
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
+        command = [self.descr['executable']] + self.descr['arguments']
+
+        troy._logger.debug ("running unit %s (%s)" % (self.id, command))
+
+        self._proc   = subprocess.Popen (command, env=env,
+                                         stdout=subprocess.PIPE,
+                                         stderr=subprocess.PIPE)
         self.state   = _RUNNING
         self.start   = time.time()
 
-        troy._logger.debug ("running unit %s (%s)" % (self.id, command))
 
 
     def get_state (self) :
@@ -91,6 +93,12 @@ class _Unit (object) :
                     self._state = _DONE
                 else :
                     self._state = _FAILED
+
+                out, err = self._proc.communicate()
+                troy._logger.debug ("unit finished: %s" % self.id)
+                troy._logger.debug ("     exitcode: %s" % self.retval)
+                troy._logger.debug ("     output  : %s" % out)
+                troy._logger.debug ("     error   : %s" % err)
 
         return self._state
 

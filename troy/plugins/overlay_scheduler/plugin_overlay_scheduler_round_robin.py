@@ -15,7 +15,7 @@ PLUGIN_DESCRIPTION = {
     'description' : 'this is an empty scheduler which basically does nothing.'
   }
 
-_idx = 0
+_idx  = 0
 
 # ------------------------------------------------------------------------------
 #
@@ -41,8 +41,10 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         if 'resources'    in self.cfg :
             self.resources = self.cfg['resources'].split (',')
+            troy._logger.debug ("round_robin over %s" % self.resources )
         else :
             self.resources = ['fork://localhost']
+            troy._logger.debug ("round_robin on localhost only")
 
 
     # --------------------------------------------------------------------------

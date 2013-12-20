@@ -80,6 +80,14 @@ class PLUGIN_CLASS (troy.PluginBase):
             pilot_descr.service_url         = pilot._resource
             pilot_descr.number_of_processes = pilot.description['size']
 
+            if  'futuregrid' in pilot._resource :
+                # FIXME: uh oh...
+                pilot_descr.working_directory = '/N/u/merzky/agent/' 
+
+            if  'localhost' in pilot._resource :
+                # FIXME: uh oh...
+                pilot_descr.working_directory = '%s/bj_agent' % os.environ['HOME']
+
             # and create the pilot
             bj_pilot = self.cp_service.create_pilot (pilot_descr)
 
