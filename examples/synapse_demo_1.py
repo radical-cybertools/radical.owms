@@ -19,29 +19,25 @@ import synapse
 
 import troy
 
-app_num  = 4
-app_size = 1024
-app_id   = 'mongodb://localhost:27017/synapse_mandelbrot/1'
-app_id   = 'mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/synapse_mandelbrot/1'
-coord    = 'redis://localhost/'
-coord    = 'redis://%s@gw68.quarry.iu.teragrid.org:6379' % os.environ['REDIS_PASSWORD']
+app_num   = 4
+app_size  = 100
+app_depth = 100000
+app_id    = 'mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/synapse_mandelbrot/1'
+bj_coord  = 'redis://%s@gw68.quarry.iu.teragrid.org:6379' % os.environ['REDIS_PASSWORD']
 
-os.environ['COORDINATION_URL'] = coord
+# app_id    = 'mongodb://localhost:27017/synapse_mandelbrot/1'
+# bj_coord  = 'redis://localhost/'
 
-MODE = synapse.NOTHING
-# MODE = synapse.PROFILE
-# MODE = synapse.EMULATE
+os.environ['COORDINATION_URL'] = bj_coord
 
 # ------------------------------------------------------------------------------
-def synapsify (td) :
+def synapsify (td, mode) :
 
     # re-create command line, ...
     command = "%s %s" % (td.executable, ' '.join(td.arguments))
 
     # ... apply synapsification mode, ...
-    print 'command in : %s' % command
-    command = synapse.synapsify (command, MODE)
-    print 'command out: %s' % command
+    command = synapse.synapsify (command, mode)
 
 
     # ... then nicely split the resulting command line, and ...
@@ -63,6 +59,9 @@ if __name__ == '__main__' :
     workers on india.
     """
 
+    start = time.time ()
+    mode  = None # synapse.PROFILE
+
     # troy managers for master
     m_planner      = troy.Planner         (planner     = 'default'     )
     m_overlay_mgr  = troy.OverlayManager  (scheduler   = 'default'     ,
@@ -72,12 +71,20 @@ if __name__ == '__main__' :
                                            dispatcher  = 'default'     )
 
     # troy managers for workers
-    w_planner      = troy.Planner         (planner     = 'default')
-    w_overlay_mgr  = troy.OverlayManager  (scheduler   = 'default',
-                                           translator  = 'default',
-                                           provisioner = 'default')
-    w_workload_mgr = troy.WorkloadManager (scheduler   = 'default',
-                                           dispatcher  = 'default')
+    w_planner      = troy.Planner         (planner     = 'default'     )
+    w_overlay_mgr  = troy.OverlayManager  (scheduler   = 'default'     ,
+                                           translator  = 'default'     ,
+                                           provisioner = 'default'     )
+    w_workload_mgr = troy.WorkloadManager (scheduler   = 'default'     ,
+                                           dispatcher  = 'default'     )
+
+  # # troy managers for workers
+  # w_planner      = troy.Planner         (planner     = 'default'     )
+  # w_overlay_mgr  = troy.OverlayManager  (scheduler   = 'round_robin' ,
+  #                                        translator  = 'default'     ,
+  #                                        provisioner = 'bigjob_pilot')
+  # w_workload_mgr = troy.WorkloadManager (scheduler   = 'round_robin' ,
+  #                                        dispatcher  = 'bigjob_pilot')
 
 
     # --------------------------------------------------------------------------
@@ -87,10 +94,11 @@ if __name__ == '__main__' :
 
     td = troy.TaskDescription ({'tag'       : 'master',
                                 'executable': 'mandelbrot_master.py',
-                                'arguments' : ['--master_id=%s'   % app_id,
-                                               '--num_workers=%s' % app_num,
-                                               '--mb_size=%s'     % app_size]})
-    m_workload.add_task (synapsify (td))
+                                'arguments' : ['--master_id=%s' % app_id,
+                                               '-n=%s'          % app_num,
+                                               '-s=%s'          % app_size,
+                                               '-d=%s'          % app_depth]})
+    m_workload.add_task (synapsify (td, mode))
 
     m_overlay_id = m_planner.derive_overlay (m_workload_id)
     m_overlay_mgr.translate_overlay         (m_overlay_id)
@@ -113,7 +121,8 @@ if __name__ == '__main__' :
     while troy.RUNNING not in [m_unit.state for m_unit in m_units] :
         time.sleep (1)
         troy._logger.info  ("wait for master to come up")
-        print m_workload.state
+
+    m_workload.state
 
 
     # --------------------------------------------------------------------------
@@ -125,8 +134,11 @@ if __name__ == '__main__' :
         td = troy.TaskDescription ({'tag'       : 'worker_%d' % i,
                                     'executable': 'mandelbrot_worker.py',
                                     'arguments' : ['--master_id=%s'   % app_id,
+                                                   '-n=%s'            % app_num,
+                                                   '-s=%s'            % app_size,
+                                                   '-d=%s'            % app_depth, 
                                                    '--worker_id=%d'   % i]})
-        w_workload.add_task (synapsify (td))
+        w_workload.add_task (synapsify (td, mode))
 
     w_overlay_id = w_planner.derive_overlay (w_workload_id)
     w_overlay_mgr.translate_overlay         (w_overlay_id)
@@ -159,6 +171,12 @@ if __name__ == '__main__' :
     w_workload_mgr.cancel_workload (w_workload_id)
     m_overlay_mgr .cancel_overlay  (m_overlay_id)
     w_overlay_mgr .cancel_overlay  (w_overlay_id)
+
+
+    # --------------------------------------------------------------------------
+
+    print "ttc: %.2f (%s %s %s %s)" % (time.time() - start, 
+                                       MODE, app_size, app_depth, app_num)
 
 
     # --------------------------------------------------------------------------
