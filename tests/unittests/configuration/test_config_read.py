@@ -19,9 +19,9 @@ def test_config_read():
 
     os.environ ['TROY_CONFIG'] = "%s/troy.cfg" % os.path.dirname (__file__)
 
-    configurable  =  troy.Configuration ()
-    config        =  configurable.get_config ('general')
-    loglever      =  config['log_level'].get_value ()
+    configurable = troy.Configuration ()
+    config       = configurable.get_config ('general')
+    outdir       = config['output_directory'].get_value ()
 
-    assert (loglevel == '42'), "%s != 42" % (loglevel)
+    assert (outdir == '/Users/mark/agent'), "%s != DEBUG" % (loglevel)
 
