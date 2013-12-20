@@ -4,21 +4,34 @@ __copyright__ = "Copyright 2013, The AIMES Project"
 __license__   = "MIT"
 
 
-import synapse
+"""
+Adapter pattern to translate the workload interface implemented by a 
+skeleton to the one implemented by the AIMES workload manager.
+"""
+
+# FIXME: we can't call this file 'troy/application/skeleton.py', because we
+# import the top-level 'skeleton.py' below -- or try to.  This should be fixed
+# in aimes, to move into a namespace hierarchy like 'aimes/skeleton.py' ...
+
+
+import os
+import skeleton
+import subprocess
+
 import troy
 
 # ------------------------------------------------------------------------------
 #
-class Synapse (object) :
+class Skeleton (skeleton.Application) :
     """
-    This class interprets a synapse workload description, and executes it via
-    Troy.
+    This class uses the aimes skeleton module to create a staged set of tasks
+    according to some skeleton description.  It adds methods to execute the
+    skeleton via BigJob, and translates it into a troy workload.
     """
 
-    def __init__ (self, descr) :
+    def __init__ (self, name, input_file, mode) :
 
-        self.description = descr
-
+        super (Skeleton, self).__init__ (name, input_file, mode, ofile=None)
 
 
     # --------------------------------------------------------------------------

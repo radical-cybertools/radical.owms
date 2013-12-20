@@ -54,7 +54,8 @@ class OverlayManager (object) :
     def __init__ (self, inspector   = 'default',
                         translator  = 'default',
                         scheduler   = 'default',
-                        provisioner = 'bigjob') :
+                        provisioner = 'default', 
+                        session     = None) :
         """
         Create a new overlay manager instance.
 
@@ -63,14 +64,28 @@ class OverlayManager (object) :
         the pilots of the Overlay managed by the OverlayManager.
         """
 
+        if  not session :
+            session = troy.Session ()
+
         # initialize state, load plugins
-        self._plugin_mgr = ru.PluginManager ('troy')
+        self._session     = session
+        self._plugin_mgr  = ru.PluginManager ('troy')
 
         # FIXME: error handling
         self._inspector   = self._plugin_mgr.load ('overlay_inspector',   inspector)
         self._translator  = self._plugin_mgr.load ('overlay_translator',  translator)
         self._scheduler   = self._plugin_mgr.load ('overlay_scheduler',   scheduler)
         self._provisioner = self._plugin_mgr.load ('overlay_provisioner', provisioner)
+
+        if  not self._inspector   : raise RuntimeError ("Could not load inspector   plugin")
+        if  not self._translator  : raise RuntimeError ("Could not load translator  plugin")
+        if  not self._scheduler   : raise RuntimeError ("Could not load scheduler   plugin")
+        if  not self._provisioner : raise RuntimeError ("Could not load provisioner plugin")
+
+        self._inspector   .init (session.cfg)
+        self._translator  .init (session.cfg)
+        self._scheduler   .init (session.cfg)
+        self._provisioner .init (session.cfg)
 
 
     # --------------------------------------------------------------------------

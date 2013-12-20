@@ -1,27 +1,14 @@
-include *.py
-
-#include all tests
-recursive-include tests *
-
-include troy/*.py
-include troy/application/*.py
-include troy/utils/*.py
-include troy/planner/*.py
-include troy/workload/*.py
-include troy/plugins/planner/*.py
-include troy/plugins/overlay_scheduler/*.py
-include troy/plugins/workload_translator/*.py
-include troy/plugins/workload_scheduler/*.py
-include troy/plugins/workload_dispatcher/*.py
-include examples/*.py
-include troy/external/*.py
-include troy/external/bundle/*.py
-include troy/external/bundle/src/*.py
-include troy/external/bundle/src/bundle/*.py
-include troy/external/bundle/src/bundle/impl/*.py
-include troy/external/bundle/src/bundle/api/*.py
-include troy/external/bundle/src/bundle/example/*.py
-include troy/bundle_wrapper/*.py
 
 include MANIFEST.in 
+include README.md 
+include LICENSE.md 
+include CHANGES.md 
+include VERSION
+
+recursive-include tests *
+recursive-include troy  *
+
+include examples/*.py
+include examples/*.cfg
+
 

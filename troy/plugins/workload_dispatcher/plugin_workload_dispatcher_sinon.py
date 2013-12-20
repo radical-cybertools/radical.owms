@@ -1,19 +1,21 @@
 
 
-import bigjob
+import sinon         as sinon
 import radical.utils as ru
 
 from   troy.constants import *
 import troy
 
+DBURL  = 'mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/'
+FGCONF = 'https://raw.github.com/saga-project/saga-pilot/master/configs/futuregrid.json'
 
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'workload_dispatcher', 
-    'name'        : 'bigjob', 
+    'name'        : 'sinon_pilot', 
     'version'     : '0.1',
-    'description' : 'this is a dispatcher which submits to bigjob pilots.'
+    'description' : 'this is a dispatcher which submits to sinon pilots.'
   }
 
 
@@ -21,7 +23,7 @@ PLUGIN_DESCRIPTION = {
 #
 class PLUGIN_CLASS (object) :
     """
-    This class implements the bigjob workload dispatcher for TROY.
+    This class implements the sinon_pilot workload dispatcher for TROY.
     """
 
     __metaclass__ = ru.Singleton
@@ -34,14 +36,12 @@ class PLUGIN_CLASS (object) :
         self.description = PLUGIN_DESCRIPTION
         self.name        = "%(name)s_%(type)s" % self.description
 
-        raise RuntimeError ("Plugin is disabled")
-
 
     # --------------------------------------------------------------------------
     #
     def init (self, cfg):
 
-        troy._logger.info ("init the bigjob workload dispatcher plugin")
+        troy._logger.info ("init the sinon_pilot workload dispatcher plugin")
         
         self.cfg = cfg.as_dict ().get (self.name, {})
 
@@ -64,19 +64,16 @@ class PLUGIN_CLASS (object) :
 
                 unit_descr = unit.description
                 pilot_id   = unit['pilot_id']
-                pilot      = troy.Pilot (pilot_id, _instance_type='bigjob')
+                pilot      = troy.Pilot (pilot_id, _instance_type='sinon_pilot')
                 troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
-                                % (uid, pilot._get_instance('bigjob')))
+                                % (uid, pilot._get_instance('sinon_pilot')))
                 
-                # FIXME: sanity check for pilot type
-                bj_pilot_url, bj_manager = pilot._get_instance ('bigjob')
-
-                # we need to map some task description keys to bigjob
+                # we need to map some task description keys to bigjob_pilot
                 # description keys
                 keymap = { 'executable' : 'Executable' ,
                            'arguments'  : 'Arguments'  }
 
-                bj_cu_descr = bigjob.description ()
+                sinon_cu_descr = sinon.ComputeUnitDescription ()
                 for key in unit_descr :
 
                     # ignore Troy level keys
@@ -87,27 +84,27 @@ class PLUGIN_CLASS (object) :
                   #     key = keymap[key]
 
                   # if  key not in keymap :
-                  #     raise RuntimeError ("key '%s' is not supported by bigjob backend" % key)
+                  #     raise RuntimeError ("key '%s' is not supported by
+                  #     bigjob_pilot backend" % key)
 
-                    bj_cu_descr.set_attribute (key, unit_descr[key])
+                    sinon_cu_descr[key] = unit_descr[key]
 
-                bj_cu = bigjob.subjob ()
-                bj_cu.submit_job (bj_pilot_url, bj_cu_descr)
-                bj_cu_url = bj_cu.get_url ()
+                # FIXME: sanity check for pilot type
+                sinon_pilot  = pilot._get_instance ('sinon_pilot')
+                sinon_cu     = sinon_pilot.submit_units (sinon_cu_descr)
 
-                unit._set_instance ('bigjob', self, bj_cu, bj_cu_url)
+                unit._set_instance ('sinon_pilot', self, sinon_cu, sinon_cu.uid)
 
 
     # --------------------------------------------------------------------------
     #
     def unit_reconnect (self, native_id) :
 
-        troy._logger.debug ("reconnect to bigjob subjob %s" % native_id)
-        bj_cu = bigjob.subjob (subjob_url=native_id)
+        troy._logger.debug ("reconnect to sinon_pilot subjob %s" % native_id)
+        bj_cu = pilot_module.ComputeUnit (cu_url=native_id)
+        troy._logger.debug ("reconnect to bigjob_pilot subjob %s done" % native_id)
 
         return bj_cu
-
-
 
 
     # --------------------------------------------------------------------------
@@ -115,7 +112,7 @@ class PLUGIN_CLASS (object) :
     def unit_get_info (self, unit) :
 
         # find out what we can about the pilot...
-        bj_cu = unit._get_instance ('bigjob')
+        bj_cu = unit._get_instance ('bigjob_pilot')
 
         info = bj_cu.get_details ()
 

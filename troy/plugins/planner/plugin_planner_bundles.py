@@ -1,4 +1,13 @@
 
+
+import radical.utils as ru
+
+from   troy.constants import *
+import troy
+
+from   bundle import BundleManager
+
+
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
@@ -9,12 +18,6 @@ PLUGIN_DESCRIPTION = {
   }
 
 
-from   troy.constants import *
-import troy
-
-from   bundle import BundleManager
-
-
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS(object):
@@ -22,11 +25,25 @@ class PLUGIN_CLASS(object):
     This class implements the default planner for TROY.
     """
 
+    __metaclass__ = ru.Singleton
+
+
     # --------------------------------------------------------------------------
     #
     def __init__(self):
 
-        print "create the bundle planner plugin"
+        self.description = PLUGIN_DESCRIPTION
+        self.name        = "%(name)s_%(type)s" % self.description
+
+
+    # --------------------------------------------------------------------------
+    #
+    def init(self, cfg):
+
+        troy._logger.info ("init the bundle planner plugin")
+        
+        self.global_cfg = cfg
+        self.cfg        = cfg.as_dict ().get (self.name, {})
 
 
     # --------------------------------------------------------------------------
@@ -45,17 +62,15 @@ class PLUGIN_CLASS(object):
         # bundle_credential members { 'port', 'hostname', 'username',
         #                             'password' 'key_filename', 'h_flag' }
 
-        print 'Initializing Bundle Manager'
+        troy._logger.info('Initializing Bundle Manager')
 
         self.bm = BundleManager()
 
-        cf = troy.Configuration()
-
-        cg = cf.get_config('bundle')
+        cg = self.global_cfg.get_config('bundle')
         finished_job_trace = cg['finished_job_trace'].get_value()
 
-        for sect in cf.compute_sections:
-            cs = cf.get_config(sect)
+        for sect in self.global_cfg.compute_sections:
+            cs = self.global_cfg.get_config(sect)
 
             cred = { 'port': int(cs['port'].get_value()),
                      'hostname': cs['endpoint'].get_value(),
@@ -70,7 +85,7 @@ class PLUGIN_CLASS(object):
         self.cluster_list = self.bm.get_cluster_list()
 
         if not self.cluster_list:
-            raise RuntimeError ('No clusters available in Bundle Manager')
+            raise RuntimeError ('No clusters available in Bundle Manager. You might want to check your config file.')
 
     # --------------------------------------------------------------------------
     #
@@ -81,7 +96,6 @@ class PLUGIN_CLASS(object):
         predictions = {}
         for cluster in self.cluster_list:
             predictions[cluster] = self.bm.resource_predict(cluster, resource_request)
-        print predictions
 
         # Find entries that are not -1
         usable = filter(lambda x: x != -1, predictions.values())
@@ -93,8 +107,7 @@ class PLUGIN_CLASS(object):
     def expand_workload(self, workload):
 
         # Do nothing for now
-
-        print "planner  expand wl: expand workload : %s" % workload
+        troy._logger.info("expand workload: %s" %  workload)
 
     # --------------------------------------------------------------------------
     #
@@ -120,7 +133,8 @@ class PLUGIN_CLASS(object):
                 'wall_time' : (1 << 1) + (1 << 3) + (1 << 5)
             })
 
-        print "planner derive ol: derive overlay for workload: %s" % ovl_descr
+        troy._logger.info('planner derive ol: derive overlay for workload: '
+                          '%s' % ovl_descr)
 
         # Check if there is at least one bundle that can satisfy our request
         # TODO: How to communicate back to application?

@@ -10,17 +10,18 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'overlay_scheduler', 
-    'name'        : 'default', 
+    'name'        : 'round_robin', 
     'version'     : '0.1',
     'description' : 'this is an empty scheduler which basically does nothing.'
   }
 
+_idx  = 0
 
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (object) :
     """
-    This class implements the (empty) default overlay scheduler algorithm for
+    This class implements the (empty) round_robin overlay scheduler algorithm for
     TROY.
     """
 
@@ -32,29 +33,43 @@ class PLUGIN_CLASS (object) :
     def __init__ (self) :
 
         self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
+        self.name        = "%(name)s_%(type)s" % PLUGIN_DESCRIPTION
 
 
     # --------------------------------------------------------------------------
     #
     def init (self, cfg):
 
-        troy._logger.info ("init the default overlay scheduler plugin")
+        troy._logger.info ("init the round_robin overlay scheduler plugin")
         
         self.cfg = cfg.as_dict ().get (self.name, {})
+
+        if 'resources'    in self.cfg :
+            self.resources = self.cfg['resources'].split (',')
+            troy._logger.debug ("round_robin over %s" % self.resources )
+        else :
+            self.resources = ['fork://localhost']
+            troy._logger.debug ("round_robin on localhost only")
 
 
     # --------------------------------------------------------------------------
     #
     def schedule (self, overlay) :
 
-        # we simply assign all pilots to localhost
+        global _idx
+
         for pid in overlay.pilots.keys() :
 
-            pilot = overlay.pilots[pid]
-            pilot._bind ('fork://localhost')
+            if  _idx >= len(self.resources) :
+                _idx  = 0
 
-            troy._logger.info ('overlay  schedule : schedule pilot %s to localhost' % pilot.id)
+            resource  = self.resources[_idx]
+            _idx     += 1
+
+            pilot = overlay.pilots[pid]
+            pilot._bind (resource)
+
+            troy._logger.info ('overlay  schedule : schedule pilot %s to %s' % (resource, pilot.id))
 
 
 # ------------------------------------------------------------------------------

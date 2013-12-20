@@ -20,10 +20,11 @@ class Pilot (tu.Properties) :
     """
     """
 
+    _instance_cache = tu.InstanceCache ()
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, param, _overlay=None) :
+    def __init__ (self, param, _overlay=None, _instance_type=None) :
         """
         Create a new pilot according to a description, or reconnect to with an ID.
 
@@ -79,10 +80,10 @@ class Pilot (tu.Properties) :
         self.register_property ('affinity_machine_label')
          
         # initialize essential properties
-        self.id = pid
-        self.state = DESCRIBED
-        self.description = descr
-        self.overlay = _overlay
+        self.id             = pid
+        self.state          = DESCRIBED
+        self.description    = descr
+        self.overlay        = _overlay
 
         # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks
@@ -97,32 +98,30 @@ class Pilot (tu.Properties) :
 
 
         if  reconnect :
-            # we need to get instance and instance type -- but for that we 
-            # need to find the provisioner.  So we cycle through all overlay 
-            # provision plugins, and ask them if they know about our ID.
-            plugin_mgr = ru.PluginManager ('troy')
 
-            # FIXME: error handling
-            candidates = plugin_mgr.list ('overlay_provisioner')
-
-            native_id = troy.OverlayManager.pilot_id_to_native_id (pid)
-            for candidate in candidates :
-                provisioner = plugin_mgr.load ('overlay_provisioner', candidate)
-
-                try :
-                    self._instance      = provisioner.pilot_reconnect (native_id)
-                    self._instance_type = candidate
-                    self._provisioner   = provisioner
-                except :
-                    pass
+            self.id,             self.native_id, \
+            self._provisioner,   self._instance, \
+            self._instance_type, self._state =   \
+                    self._instance_cache.get (instance_id = self.id, 
+                                              native_id   = self.native_id)
 
             if  not self._instance :
-                raise ValueError ("Could not reconnect to pilot %s" % pid)
-
-            self.native_id = native_id
+                raise ValueError ("Could not reconnect to unit %s (%s)" % (self.id, self.native_id))
 
             # refresh pilot information and state from the backend
             self._update_properties ()
+
+
+        # register in cache for later reconnect
+        else :
+            self._instance_cache.put (instance_id = self.id, 
+                                      native_id   = self.native_id,
+                                      instance    = [self.id, 
+                                                     self.native_id, 
+                                                     self._provisioner,    
+                                                     self._instance, 
+                                                     self._instance_type, 
+                                                     self.state])
 
 
     # --------------------------------------------------------------------------
@@ -143,10 +142,12 @@ class Pilot (tu.Properties) :
         """
 
         if  self.state in [PROVISIONED] :
-            troy._logger.warning ('cancel pilot %s' % self.id)
 
-            if self._provisioner :
+            troy._logger.info ('cancel pilot    %s' % self.id)
+
+            if  self._provisioner :
                 self._provisioner.pilot_cancel (self)
+
             self.state = CANCELED
 
 
@@ -176,6 +177,16 @@ class Pilot (tu.Properties) :
         self.state          = PROVISIONED
 
         troy.OverlayManager.pilot_id_to_native_id (self.id, native_id)
+
+        # update cache
+        self._instance_cache.put (instance_id = self.id, 
+                                  native_id   = self.native_id,
+                                  instance    = [self.id, 
+                                                 self.native_id, 
+                                                 self._provisioner,    
+                                                 self._instance, 
+                                                 self._instance_type, 
+                                                 self.state])
 
 
     # --------------------------------------------------------------------------
@@ -289,8 +300,6 @@ class Pilot (tu.Properties) :
 
             if  info_key in keymap : new_key = keymap[info_key]
             else                   : new_key =        info_key
-
-          # print 'KEY: %s - %s' % (info_key, new_key)
 
             # this will trigger registered callbacks
             self.set_property (new_key, self._pilot_info[info_key])
