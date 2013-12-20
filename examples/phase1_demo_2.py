@@ -78,7 +78,6 @@ if __name__ == '__main__' :
     # to specific pilots (which are not yet running, thus early binding)
     planner.expand_workload         (workload_1.id)
     workload_mgr.translate_workload (workload_1.id, overlay_id)
-    workload_mgr.transform_workload (workload_1.id, overlay_id, 'synapse', 'profile')
     workload_mgr.bind_workload      (workload_1.id, overlay_id, bind_mode=troy.EARLY)
 
     # Schedule pilots on the set of target resources, then instantiate Pilots as
