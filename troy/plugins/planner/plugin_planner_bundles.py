@@ -45,13 +45,6 @@ class PLUGIN_CLASS(object):
         self.global_cfg = cfg
         self.cfg        = cfg.as_dict ().get (self.name, {})
 
-
-    # --------------------------------------------------------------------------
-    #
-    def init(self):
-
-        print "init the bundle planner plugin"
-
         self.init_bundles()
 
 
