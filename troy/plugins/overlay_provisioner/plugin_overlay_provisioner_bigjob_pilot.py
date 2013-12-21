@@ -20,8 +20,7 @@ PLUGIN_DESCRIPTION = {
 #
 class PLUGIN_CLASS (troy.PluginBase):
     """
-    This class implements the bigjob_pilot overlay provisioner for
-    TROY.
+    This class implements the bigjob_pilot overlay provisioner for TROY.
     """
 
     __metaclass__ = ru.Singleton
@@ -40,7 +39,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
     # --------------------------------------------------------------------------
     #
-    def init (self, cfg):
+    def init (self):
         """
         invoked by user of plugin, i.e. a overlay manager.  May get invoked
         multiple times -- plugins are singletons, and thus shared amongst all
@@ -137,6 +136,10 @@ class PLUGIN_CLASS (troy.PluginBase):
         for bj_unit in bj_units :
             unit = troy.ComputeUnit (_native_id=bj_unit.get_url (), _pilot_id=pilot.id)
             info['units'][unit.id] = unit
+
+        if  'description' in info :
+            # what the fuck?
+            info['description'] = eval(info['description'])
  
         # translate bj state to troy state
         # hahaha python switch statement hahahahaha

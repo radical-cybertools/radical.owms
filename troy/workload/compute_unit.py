@@ -165,7 +165,7 @@ class ComputeUnit (tu.Properties) :
             troy._logger.info ('cancel unit     %s' % self.id)
 
             if  self._dispatcher :
-                self._dispatcher.unit_cancel (self._instance)
+                self._dispatcher.unit_cancel (self)
 
             self.state = CANCELED
 

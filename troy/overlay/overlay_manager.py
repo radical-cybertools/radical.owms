@@ -51,8 +51,7 @@ class OverlayManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, inspector   = 'default',
-                        translator  = 'default',
+    def __init__ (self, translator  = 'default',
                         scheduler   = 'default',
                         provisioner = 'default', 
                         session     = None) :
@@ -72,17 +71,14 @@ class OverlayManager (object) :
         self._plugin_mgr  = ru.PluginManager ('troy')
 
         # FIXME: error handling
-        self._inspector   = self._plugin_mgr.load ('overlay_inspector',   inspector)
         self._translator  = self._plugin_mgr.load ('overlay_translator',  translator)
         self._scheduler   = self._plugin_mgr.load ('overlay_scheduler',   scheduler)
         self._provisioner = self._plugin_mgr.load ('overlay_provisioner', provisioner)
 
-        if  not self._inspector   : raise RuntimeError ("Could not load inspector   plugin")
         if  not self._translator  : raise RuntimeError ("Could not load translator  plugin")
         if  not self._scheduler   : raise RuntimeError ("Could not load scheduler   plugin")
         if  not self._provisioner : raise RuntimeError ("Could not load provisioner plugin")
 
-        self._inspector  .init_plugin (session)
         self._translator .init_plugin (session)
         self._scheduler  .init_plugin (session)
         self._provisioner.init_plugin (session)

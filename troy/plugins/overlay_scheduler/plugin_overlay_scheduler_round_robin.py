@@ -37,7 +37,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
     # --------------------------------------------------------------------------
     #
-    def init (self, cfg):
+    def init (self):
 
         if 'resources'    in self.cfg :
             self.resources = self.cfg['resources'].split (',')

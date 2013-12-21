@@ -13,7 +13,7 @@ FGCONF = 'https://raw.github.com/saga-project/saga-pilot/master/configs/futuregr
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'workload_dispatcher', 
-    'name'        : 'sinon_pilot', 
+    'name'        : 'sinon', 
     'version'     : '0.1',
     'description' : 'this is a dispatcher which submits to sinon pilots.'
   }
@@ -21,9 +21,9 @@ PLUGIN_DESCRIPTION = {
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (object) :
+class PLUGIN_CLASS (troy.PluginBase):
     """
-    This class implements the sinon_pilot workload dispatcher for TROY.
+    This class implements the sinon workload dispatcher for TROY.
     """
 
     __metaclass__ = ru.Singleton
@@ -32,23 +32,35 @@ class PLUGIN_CLASS (object) :
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
+        """
+        invoked when plugin is loaded. Only do sanity checks, no other
+        initialization
+        """
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
 
     # --------------------------------------------------------------------------
     #
-    def init (self, cfg):
+    def init (self):
+        """
+        invoked by user of plugin, i.e. a overlay manager.  May get invoked
+        multiple times -- plugins are singletons, and thus shared amongst all
+        overlay managers!
+        """
 
-        troy._logger.info ("init the sinon_pilot workload dispatcher plugin")
+        troy._logger.info ("init the sinon workload dispatcher plugin")
         
-        self.cfg = cfg.as_dict ().get (self.name, {})
+        self._sinon  = sinon.Session (database_url = DBURL)
 
 
     # --------------------------------------------------------------------------
     #
     def dispatch (self, workload, overlay) :
+        """
+        Dispatch a given workload: examine all tasks in the WL to find the
+        defined CUs, and dispatch them to the pilot system.  
+        """
 
         for tid in workload.tasks.keys () :
 
@@ -58,21 +70,24 @@ class PLUGIN_CLASS (object) :
 
                 unit = task.units[uid]
 
+                # sanity check for CU state -- only in BOUND state we can 
+                # rely on a pilot being assigned to the CU.
                 if  unit.state not in [BOUND] :
                     raise RuntimeError ("Can only dispatch units in BOUND state (%s)" % unit.state)
 
 
+                # get the unit description, and the target pilot ID
                 unit_descr = unit.description
                 pilot_id   = unit['pilot_id']
-                pilot      = troy.Pilot (pilot_id, _instance_type='sinon_pilot')
-                troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
-                                % (uid, pilot._get_instance('sinon_pilot')))
-                
-                # we need to map some task description keys to bigjob_pilot
-                # description keys
-                keymap = { 'executable' : 'Executable' ,
-                           'arguments'  : 'Arguments'  }
 
+                # reconnect to the given pilot -- this is likely to pull the
+                # instance from a cache, so should not cost too much.
+                pilot      = troy.Pilot (pilot_id, _instance_type='sinon')
+                troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
+                                % (uid, pilot._get_instance('sinon')[1]))
+                
+                # translate our information into bigjob speak, and dispatch
+                # a cu for the CU
                 sinon_cu_descr = sinon.ComputeUnitDescription ()
                 for key in unit_descr :
 
@@ -80,51 +95,72 @@ class PLUGIN_CLASS (object) :
                     if  key in ['tag'] :
                         continue
 
-                  # if  key in keymap :
-                  #     key = keymap[key]
-
-                  # if  key not in keymap :
-                  #     raise RuntimeError ("key '%s' is not supported by
-                  #     bigjob_pilot backend" % key)
-
                     sinon_cu_descr[key] = unit_descr[key]
 
                 # FIXME: sanity check for pilot type
-                sinon_pilot  = pilot._get_instance ('sinon_pilot')
-                sinon_cu     = sinon_pilot.submit_units (sinon_cu_descr)
+                [sinon_um, sinon_pm, sinon_pilot] = pilot._get_instance ('sinon')
+                sinon_cu = sinon_um.submit_units (sinon_cu_descr)
 
-                unit._set_instance ('sinon_pilot', self, sinon_cu, sinon_cu.uid)
+                # attach the backend instance to the unit, for later state
+                # checks etc. We leave it up to the unit to decide if it wants
+                # to cache the instance, or just the ID and then later
+                # reconnect.
+                unit._set_instance ('sinon', self, 
+                                    instance  = [sinon_um,     sinon_cu],
+                                    native_id = [sinon_um.uid, sinon_cu.uid])
 
 
     # --------------------------------------------------------------------------
     #
     def unit_reconnect (self, native_id) :
+        """
+        the unit lost the instance, and needs to reconnect...
+        This is what is getting called on troy.Unit._get_instance, if that
+        troy.Unit doesn't have that instance anymore...
+        """
 
-        troy._logger.debug ("reconnect to sinon_pilot subjob %s" % native_id)
-        bj_cu = pilot_module.ComputeUnit (cu_url=native_id)
-        troy._logger.debug ("reconnect to bigjob_pilot subjob %s done" % native_id)
+        troy._logger.debug ("reconnect to sinon cu %s" % native_id)
+        sinon_um_id = native_id[0]
+        sinon_cu_id = native_id[1]
 
-        return bj_cu
+        sinon_um    = self._sinon.get_unit_managers (sinon_um_id)
+        sinon_cu    = sinon_um.get_units (sinon_cu_id)
+
+        return [sinon_um, sinon_cu]
 
 
     # --------------------------------------------------------------------------
     #
     def unit_get_info (self, unit) :
+        """
+        unit inspection: get all possible information for the unit, and return
+        in a dict.  This dict SHOULD contain 'state' at the very least -- but
+        check the pilot_inspection unit test for more recommended attributes.
+        """
 
         # find out what we can about the pilot...
-        bj_cu = unit._get_instance ('bigjob_pilot')
+        [sinon_um, sinon_cu] = unit._get_instance ('sinon')
 
-        info = bj_cu.get_details ()
+        info = {'uid'              : sinon_cu.uid,
+                'description'      : sinon_cu.description,
+                'state'            : sinon_cu.state,
+                'state_details'    : sinon_cu.state_details,
+                'execution_details': sinon_cu.execution_details,
+                'submission_time'  : sinon_cu.submission_time,
+                'start_time'       : sinon_cu.start_time,
+                'stop_time'        : sinon_cu.stop_time}
 
-        # translate bj state to troy state
+
+        # translate sinon state to troy state
         if  'state' in info :
             # hahaha python switch statement hahahahaha
-            info['state'] =  {"New"     : DISPATCHED, 
-                              "Running" : RUNNING, 
-                              "Staging" : RUNNING, 
-                              "Failed"  : FAILED, 
-                              "Done"    : DONE, 
-                              "Unknown" : UNKNOWN}.get (info['state'], UNKNOWN)
+            info['state'] =  {sinon.states.PENDING  : PENDING, 
+                              sinon.states.RUNNING  : RUNNING, 
+                              sinon.states.ACTIVE   : RUNNING, 
+                              sinon.states.DONE     : DONE, 
+                              sinon.states.CANCELED : CANCELED, 
+                              sinon.states.FAILED   : FAILED, 
+                              sinon.states.UNKNOWN  : UNKNOWN}.get (info['state'], UNKNOWN)
 
       # print 'unit_get_info: %s' % info
 
@@ -133,9 +169,13 @@ class PLUGIN_CLASS (object) :
 
     # --------------------------------------------------------------------------
     #
-    def unit_cancel (self, sj) :
+    def unit_cancel (self, unit) :
+        """
+        bye bye bye Junimond, es ist vorbei, bye bye...
+        """
 
-        sj.cancel ()
+        [sinon_um, sinon_cu] = unit._get_instance ('sinon')
+        sinon_cu.cancel ()
 
 
 # ------------------------------------------------------------------------------

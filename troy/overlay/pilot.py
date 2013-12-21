@@ -308,8 +308,7 @@ class Pilot (tu.Properties) :
         # also, flatten the description into the pilot properties
         if  'description' in self._pilot_info :
 
-            # WHAT.THE.FUCK ...
-            description = eval(self._pilot_info['description']) 
+            description = self._pilot_info['description']
 
             for descr_key in description : 
 

@@ -7,9 +7,9 @@ __license__   = "MIT"
 PLUGIN_PLANNER              = 'default'
 PLUGIN_OVERLAY_SCHEDULER    = 'default'
 PLUGIN_OVERLAY_TRANSLATOR   = 'default'
-PLUGIN_OVERLAY_PROVISIONER  = 'default'
+PLUGIN_OVERLAY_PROVISIONER  = 'sinon'
 PLUGIN_WORKLOAD_SCHEDULER   = 'default'
-PLUGIN_WORKLOAD_DISPATCHER  = 'default'
+PLUGIN_WORKLOAD_DISPATCHER  = 'sinon'
 
 
 """

@@ -26,8 +26,8 @@ class InstanceCache (object) :
     # --------------------------------------------------------------------------
     def put (self, instance, instance_id, native_id) :
 
-        self.instance_cache[instance_id] = instance
-        self.nativeid_cache[native_id]   = instance_id
+        self.instance_cache[str(instance_id)] = instance
+        self.nativeid_cache[str(native_id)]   = instance_id
 
 
     # --------------------------------------------------------------------------
@@ -37,14 +37,14 @@ class InstanceCache (object) :
             return None
 
         if  not instance_id :
-            if  not native_id in self.nativeid_cache :
+            if  not str(native_id) in self.nativeid_cache :
                 return None
-            instance_id = self.nativeid_cache[native_id]
+            instance_id = self.nativeid_cache[str(native_id)]
 
-        if  not instance_id in self.instance_cache :
+        if  not str(instance_id) in self.instance_cache :
             return None
 
-        return self.instance_cache[instance_id]
+        return self.instance_cache[str(instance_id)]
 
 
     # --------------------------------------------------------------------------
