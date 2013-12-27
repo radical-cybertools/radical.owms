@@ -140,6 +140,7 @@ setup_args = {
         "troy.overlay",
         "troy.workload",
         "troy.plugins",
+        "troy.plugins.strategy",
         "troy.plugins.planner",
         "troy.plugins.overlay_inspector",
         "troy.plugins.overlay_translator",

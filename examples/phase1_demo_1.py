@@ -53,7 +53,6 @@ if __name__ == '__main__':
     planner.expand_workload(workload.id)
 
     # Initial description of the overlay based on the workload
-    #overlay_id = planner.derive_overlay(workload.id) # default
     overlay_id = planner.derive_overlay(workload.id)
 
     # Translate 1 workload into N ComputeUnits and N DataUnits
@@ -74,7 +73,7 @@ if __name__ == '__main__':
     overlay_mgr.provision_overlay(overlay_id)
 
     # Execute the ComputeUnits on the Pilots
-    workload_mgr.dispatch_workload(workload.id, overlay_id)
+    workload_mgr.dispatch_workload (workload.id, overlay_id)
 
     # Of course nothing will fail due to TROY's magic robustness and
     # and we therefore just wait until its done!

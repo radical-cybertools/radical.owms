@@ -322,6 +322,15 @@ class Workload (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
+    def wait (self) :
+
+        while self.state not in [troy.DONE, troy.FAILED, troy.CANCELED]:
+            troy._logger.info ("waiting for workload (state: %s)" % self.state)
+            time.sleep(1)
+
+
+    # --------------------------------------------------------------------------
+    #
     def __str__ (self) :
 
         import pprint

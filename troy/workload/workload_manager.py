@@ -159,7 +159,8 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def translate_workload (self, workload_id, overlay=None) :
+    def translate_workload (self, workload_id, overlay_id=None) :
+        # FIXME: is empty overlay valid?
         """
         Translate the referenced workload, i.e. transform its tasks into
         ComputeUnit and DataUnit descriptions.
@@ -171,17 +172,27 @@ class WorkloadManager (object) :
         """
 
         workload = self.get_workload (workload_id)
+        overlay  = troy.OverlayManager.get_overlay (overlay_id)
 
         # make sure the workflow is 'fresh', so we can translate it
         if  workload.state not in [DESCRIBED, PLANNED] :
             raise ValueError ("workload '%s' not in DESCRIBED nor PLANNED state" % workload.id)
 
         # hand over control over workload to the translator plugin, so it can do
-        # what it has to do.
-        self._translator.translate (workload, overlay)
+        # what it has to do.  That plugin *may* return a set of workloads, in
+        # the case it splitted them up.  If not, we return the original workload
+        # as single element in a set
+        sub_workload_ids = self._translator.translate (workload, overlay)
 
         # mark workload as 'translated'
-        workload.state = TRANSLATED
+        workload.state   = TRANSLATED
+
+        if  sub_workload_ids :
+            return sub_workload_ids
+        else :
+            return [workload.id]
+
+
 
 
     # --------------------------------------------------------------------------
