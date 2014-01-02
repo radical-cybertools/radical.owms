@@ -77,8 +77,9 @@ class PLUGIN_CLASS (troy.PluginBase):
 
     # --------------------------------------------------------------------------
     #
-    def unit_cancel (self, u) :
+    def unit_cancel (self, unit) :
 
+        u = unit._get_instance ('default')
         u.cancel ()
 
 

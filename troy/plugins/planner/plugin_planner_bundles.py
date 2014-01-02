@@ -34,7 +34,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
     # --------------------------------------------------------------------------
     #
-    def init(self, session):
+    def init(self):
 
         troy._logger.debug ("init plugin %s (bundles)" % self.name)
         self.init_bundles()

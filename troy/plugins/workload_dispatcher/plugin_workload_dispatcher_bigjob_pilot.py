@@ -99,8 +99,8 @@ class PLUGIN_CLASS (troy.PluginBase):
         troy.Unit doesn't have that instance anymore...
         """
 
-        bj_cu = pilot_module.ComputeUnit (cu_url=native_id)
         troy._logger.debug ("reconnect to bigjob_pilot subjob %s" % native_id)
+        bj_cu = pilot_module.ComputeUnit (cu_url=native_id)
 
         return bj_cu
 
@@ -136,11 +136,12 @@ class PLUGIN_CLASS (troy.PluginBase):
 
     # --------------------------------------------------------------------------
     #
-    def unit_cancel (self, sj) :
+    def unit_cancel (self, unit) :
         """
         bye bye bye Junimond, es ist vorbei, bye bye...
         """
 
+        sj = unit._get_instance ('bigjob_pilot')
         sj.cancel ()
 
 

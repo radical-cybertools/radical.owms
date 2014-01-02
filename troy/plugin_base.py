@@ -25,14 +25,14 @@ class PluginBase (object) :
         self.global_cfg = session.cfg
         self.cfg        = session.cfg.as_dict ().get (self.name, {})
 
-        # init() calls the plugin initializer -- if that does not exist, the
-        # init() method from below is called as a fallback
-        self.init (session)
+        # call plugin.init() as plugin initializer -- if that does not exist,
+        # the init() method from below is called as a fallback
+        self.init ()
 
 
     # --------------------------------------------------------------------------
     #
-    def init (self, session):
+    def init (self):
 
       # troy._logger.debug ("init plugin %s (fallback)" % self.name)
         pass

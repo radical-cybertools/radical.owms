@@ -121,12 +121,10 @@ class OverlayManager (object) :
         self._scheduler   = self._plugin_mgr.load ('overlay_scheduler',   plugins['scheduler'  ])
         self._provisioner = self._plugin_mgr.load ('overlay_provisioner', plugins['provisioner'])
 
-        if  not self._inspector   : raise RuntimeError ("Could not load inspector   plugin")
         if  not self._translator  : raise RuntimeError ("Could not load translator  plugin")
         if  not self._scheduler   : raise RuntimeError ("Could not load scheduler   plugin")
         if  not self._provisioner : raise RuntimeError ("Could not load provisioner plugin")
 
-        self._inspector  .init_plugin (session)
         self._translator .init_plugin (session)
         self._scheduler  .init_plugin (session)
         self._provisioner.init_plugin (session)
