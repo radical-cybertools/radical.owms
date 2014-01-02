@@ -13,7 +13,7 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'overlay_provisioner', 
-    'name'        : 'default', 
+    'name'        : 'local', 
     'version'     : '0.1',
     'description' : 'this is a scheduler which provisions no pilots.'
   }

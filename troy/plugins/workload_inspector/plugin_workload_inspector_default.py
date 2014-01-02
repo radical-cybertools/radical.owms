@@ -10,7 +10,7 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'workload_inspector', 
-    'name'        : 'default', 
+    'name'        : 'reflect', 
     'version'     : '0.1',
     'description' : 'this is an empty inspector which basically does nothing.'
   }
@@ -19,9 +19,6 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
-    """
-    This class implements the (empty) default workload inspector for TROY.
-    """
 
     __metaclass__ = ru.Singleton
 

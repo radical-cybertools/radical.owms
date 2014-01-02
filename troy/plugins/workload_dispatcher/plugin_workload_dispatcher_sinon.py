@@ -1,6 +1,6 @@
 
 
-import sinon         as sinon
+import sinon
 import radical.utils as ru
 
 from   troy.constants import *
@@ -22,9 +22,6 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (object) :
-    """
-    This class implements the sinon_pilot workload dispatcher for TROY.
-    """
 
     __metaclass__ = ru.Singleton
 
@@ -101,7 +98,7 @@ class PLUGIN_CLASS (object) :
     def unit_reconnect (self, native_id) :
 
         troy._logger.debug ("reconnect to sinon_pilot subjob %s" % native_id)
-        bj_cu = pilot_module.ComputeUnit (cu_url=native_id)
+        bj_cu = sinon.ComputeUnit (cu_url=native_id)
         troy._logger.debug ("reconnect to bigjob_pilot subjob %s done" % native_id)
 
         return bj_cu

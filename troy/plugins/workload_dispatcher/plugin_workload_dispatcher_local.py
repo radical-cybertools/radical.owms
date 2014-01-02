@@ -10,18 +10,15 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'workload_dispatcher', 
-    'name'        : 'default', 
+    'name'        : 'local', 
     'version'     : '0.1',
-    'description' : 'this is an empty dispatcher which basically does nothing.'
+    'description' : 'this is a simple dispatcher which forks CUs locally.'
   }
 
 
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
-    """
-    This class implements the (empty) default workload dispatcher for TROY.
-    """
 
     __metaclass__ = ru.Singleton
 

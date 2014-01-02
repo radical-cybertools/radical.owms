@@ -1,4 +1,5 @@
 
+
 import os
 import sinon         
 import radical.utils as ru
@@ -6,8 +7,10 @@ import radical.utils as ru
 from   troy.constants import *
 import troy
 
+
 DBURL  = 'mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/'
 FGCONF = 'https://raw.github.com/saga-project/saga-pilot/master/configs/futuregrid.json'
+
 
 # ------------------------------------------------------------------------------
 #
@@ -21,9 +24,6 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (object) :
-    """
-    This class implements the sinon_pilot overlay provisioner forTROY.
-    """
 
     __metaclass__ = ru.Singleton
 

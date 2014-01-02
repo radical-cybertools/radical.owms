@@ -20,10 +20,6 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (object) :
-    """
-    This class implements the bigjob overlay provisioner for
-    TROY.
-    """
 
     __metaclass__ = ru.Singleton
 

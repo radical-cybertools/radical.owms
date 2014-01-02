@@ -25,16 +25,16 @@ if __name__ == '__main__':
                    'Vishal Shah',      'Radicalobot']
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (dispatcher='default')
+    workload_mgr = troy.WorkloadManager (dispatcher='local')
 
     # Responsible for managing the pilot overlay
-    overlay_mgr = troy.OverlayManager (provisioner='default')
+    overlay_mgr = troy.OverlayManager (provisioner=troy.AUTOMATIC)
 
     # Planning makes initial mapping of workload to overlay
-    planner = troy.Planner ('default')
+    planner = troy.Planner (planner=troy.AUTOMATIC)
 
     # TROY data structure that holds the tasks and their relations
-    workload = troy.Workload()
+    workload = workload_mgr.create_workload ()
 
     # Create a task for every radicalist
     for r in radicalists:

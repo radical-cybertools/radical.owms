@@ -1,4 +1,5 @@
 
+
 import os
 import pilot         as pilot_module
 import radical.utils as ru
@@ -19,10 +20,6 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
-    """
-    This class implements the bigjob_pilot overlay provisioner for
-    TROY.
-    """
 
     __metaclass__ = ru.Singleton
 

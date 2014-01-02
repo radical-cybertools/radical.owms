@@ -20,10 +20,6 @@ _idx  = 0
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
-    """
-    This class implements the (empty) round_robin overlay scheduler algorithm for
-    TROY.
-    """
 
     __metaclass__ = ru.Singleton
 

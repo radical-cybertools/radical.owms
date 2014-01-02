@@ -20,9 +20,6 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
-    """
-    This class implements the bigjob_pilot workload dispatcher for TROY.
-    """
 
     __metaclass__ = ru.Singleton
 

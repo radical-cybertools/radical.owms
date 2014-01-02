@@ -10,19 +10,15 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'overlay_scheduler', 
-    'name'        : 'default', 
+    'name'        : 'local', 
     'version'     : '0.1',
-    'description' : 'this is an empty scheduler which basically does nothing.'
+    'description' : 'this is a scheduler which assigns al pilots to localhost.'
   }
 
 
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
-    """
-    This class implements the (empty) default overlay scheduler algorithm for
-    TROY.
-    """
 
     __metaclass__ = ru.Singleton
 

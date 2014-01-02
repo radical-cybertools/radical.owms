@@ -10,7 +10,7 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'strategy', 
-    'name'        : 'default', 
+    'name'        : 'basic', 
     'version'     : '0.1',
     'description' : 'this is the basic troy strategy for executing workloads.'
   }
@@ -19,9 +19,6 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
-    """
-    This class implements the simple default Troy execution strategy.
-    """
 
     __metaclass__ = ru.Singleton
 
@@ -43,15 +40,21 @@ class PLUGIN_CLASS (troy.PluginBase):
         concurrently, etc.
         """
 
+        # first, we set the 'AUTO' plugins to the troy defaults.  The managers
+        # would do that anyways, but we want to explicitly make this part of the
+        # stratey.
+
         troy._logger.info ('troy default strategy : strategize workload %s!' % workload_id)
         workload = workload_mgr.get_workload (workload_id)
-
 
         # combine or split tasks in te workload
         planner.expand_workload (workload.id)
 
         # Initial description of the overlay based on the workload
-        overlay_id = planner.derive_overlay (workload.id)
+        overlay_descr = planner.derive_overlay (workload.id)
+
+        # create an overlay based on that description
+        overlay_id = overlay_mgr.create_overlay (overlay_descr)
 
         # Translate 1 Overlay description into N Pilot Descriptions
         overlay_mgr.translate_overlay (overlay_id)

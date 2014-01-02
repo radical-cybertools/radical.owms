@@ -78,7 +78,7 @@ class Workload (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self) :
+    def __init__ (self, descr=None, workload_mgr=None) :
         """
         Create a new workload instance.
 
@@ -88,6 +88,11 @@ class Workload (tu.Properties) :
         additional id parameter, to reconnect to the thus identified workload
         instances.  
         """
+
+        # workload description is actually not used, yet.  Oh well...
+        if  not descr :
+            descr = dict ()
+
         
         wl_id = ru.generate_id ('wl.')
 
@@ -98,12 +103,14 @@ class Workload (tu.Properties) :
         self.register_property ('state')
         self.register_property ('tasks')
         self.register_property ('relations')
+        self.register_property ('manager')
 
         # initialize essential properties
         self.id        = wl_id
         self.state     = DESCRIBED
         self.tasks     = dict()
         self.relations = list()
+        self.manager   = workload_mgr
 
         self.register_property_updater ('state', self.get_state)
 
@@ -172,7 +179,7 @@ class Workload (tu.Properties) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
             # FIXME: add sanity checks for task syntax / semantics
-            task = troy.Task (d, _manager=self)
+            task = troy.Task (d)
 
             if task.tag in self.tasks :
                 raise ValueError ("Task with tag '%s' already exists" % task.tag)

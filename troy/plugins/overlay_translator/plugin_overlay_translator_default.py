@@ -5,14 +5,16 @@ import radical.utils as ru
 from   troy.constants import *
 import troy
 
+_DEFAULT_PILOT_SIZE = 8
 
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
-    'type'        : 'overlay_translator', 
-    'name'        : 'default', 
-    'version'     : '0.1',
-    'description' : 'this is an empty trabslator which is stupid.'
+    'type'          : 'overlay_translator', 
+    'name'          : 'max_pilot_size', 
+    'version'       : '0.1',
+    'description'   : 'this translator creates n pilots of maximal size.',
+    'configuration' : [('pilot size', 'INT, size of each pilot (default: %d)' % _DEFAULT_PILOT_SIZE )]
   }
 
 
@@ -20,8 +22,9 @@ PLUGIN_DESCRIPTION = {
 #
 class PLUGIN_CLASS (troy.PluginBase):
     """
-    This class implements the (stupid) default overlay translator algorithm for
-    TROY.
+    This class implements the default overlay translator algorithm for
+    TROY, which splits the requested overlay size over N pilots of configured
+    size n.
     """
 
     __metaclass__ = ru.Singleton
@@ -43,7 +46,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         if 'pilot_size' in self.cfg :
             pilot_size = int(self.cfg['pilot_size'])
         else :
-            pilot_size = 8
+            pilot_size = _DEFAULT_PILOT_SIZE
 
         pilot_cnt = 0
         while (pilot_cnt * pilot_size) < overlay.description.cores :

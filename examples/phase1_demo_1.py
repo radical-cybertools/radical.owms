@@ -28,14 +28,15 @@ if __name__ == '__main__':
     workload_mgr = troy.WorkloadManager(dispatcher='bigjob_pilot')
 
     # Responsible for managing the pilot overlay
-    overlay_mgr = troy.OverlayManager(provisioner='bigjob_pilot')
+    overlay_mgr = troy.OverlayManager(provisioner=troy.AUTOMATIC)
 
     # Planning makes initial mapping of workload to overlay
     #planner = troy.Planner('default')
     planner = troy.Planner('bundles')
 
     # TROY data structure that holds the tasks and their relations
-    workload = troy.Workload()
+    workload_id = workload_mgr.create_workload ()
+    workload    = workload_mgr.get_workload    (workload_id)
 
     # Create a task for every radicalist
     for r in radicalists:

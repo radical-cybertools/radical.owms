@@ -16,6 +16,15 @@ __license__   = "MIT"
 
 # ------------------------------------------------------------------------------
 #
+# Plugin selection wildcards
+#
+DEFAULT      = 'default'     # use default plugin as configured by Troy
+AUTO         = 'auto'        # leave plugin selection to current Troy strategy
+AUTOMATIC    =  AUTO         # alias
+
+
+# ------------------------------------------------------------------------------
+#
 # workload states
 #
 DESCRIBED    = 'Described'   # tasks known

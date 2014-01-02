@@ -4,12 +4,11 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
-PLUGIN_PLANNER              = 'default'
-PLUGIN_OVERLAY_SCHEDULER    = 'default'
-PLUGIN_OVERLAY_TRANSLATOR   = 'default'
-PLUGIN_OVERLAY_PROVISIONER  = 'default'
-PLUGIN_WORKLOAD_SCHEDULER   = 'default'
-PLUGIN_WORKLOAD_DISPATCHER  = 'default'
+PLUGIN_PLANNER              = troy.AUTOMATIC
+PLUGIN_OVERLAY_SCHEDULER    = troy.AUTOMATIC
+PLUGIN_OVERLAY_TRANSLATOR   = troy.AUTOMATIC
+PLUGIN_WORKLOAD_SCHEDULER   = troy.AUTOMATIC
+PLUGIN_WORKLOAD_DISPATCHER  = troy.AUTOMATIC
 
 
 """
@@ -51,17 +50,17 @@ if __name__ == '__main__' :
 
     # create planner, overlay and workload manager, with plugins as configured
     planner      = troy.Planner         (planner     = PLUGIN_PLANNER            )
-    overlay_mgr  = troy.OverlayManager  (scheduler   = PLUGIN_OVERLAY_SCHEDULER  ,
-                                         translator  = PLUGIN_OVERLAY_TRANSLATOR , 
-                                         provisioner = PLUGIN_OVERLAY_PROVISIONER)
     workload_mgr = troy.WorkloadManager (scheduler   = PLUGIN_WORKLOAD_SCHEDULER , 
                                          dispatcher  = PLUGIN_WORKLOAD_DISPATCHER)
+    overlay_mgr  = troy.OverlayManager  (scheduler   = PLUGIN_OVERLAY_SCHEDULER  ,
+                                         translator  = PLUGIN_OVERLAY_TRANSLATOR )
 
 
     # --------------------------------------------------------------------------
     # Create the student workload first.  Makes sense, amiright?
     # Create two task for every radical student.  They love getting more tasks!
-    workload_1 = troy.Workload ()
+    workload_id_1 = workload_mgr.create_workload ()
+    workload_1    = workload_mgr.get_workload    (workload_id_1)
 
     for r in radical_students :
         workload_1.add_task (create_task_description (r+'_1', 'student       '))
@@ -70,15 +69,18 @@ if __name__ == '__main__' :
 
     # Initial description of the overlay based on the workload, and translate the
     # overlay into N pilot descriptions.
-    overlay_id = planner.derive_overlay (workload_1.id)
-    overlay_mgr.translate_overlay       (overlay_id)
+    overlay_descr = planner.derive_overlay     (workload_id_1)
+    overlay_id    = overlay_mgr.create_overlay (overlay_descr)
+
+    # make sure the overlay is properly represented by pilots
+    overlay_mgr.translate_overlay   (overlay_id)
 
 
     # Translate 1 workload into N tasks and then M ComputeUnits, and bind them 
     # to specific pilots (which are not yet running, thus early binding)
-    planner.expand_workload         (workload_1.id)
-    workload_mgr.translate_workload (workload_1.id, overlay_id)
-    workload_mgr.bind_workload      (workload_1.id, overlay_id, bind_mode=troy.EARLY)
+    planner.expand_workload         (workload_id_1)
+    workload_mgr.translate_workload (workload_id_1, overlay_id)
+    workload_mgr.bind_workload      (workload_id_1, overlay_id, bind_mode=troy.EARLY)
 
     # Schedule pilots on the set of target resources, then instantiate Pilots as
     # scheduled
@@ -86,14 +88,15 @@ if __name__ == '__main__' :
     overlay_mgr.provision_overlay  (overlay_id)
 
     # ready to dispatch first workload on the overlay
-    workload_mgr.dispatch_workload (workload_1.id, overlay_id)
+    workload_mgr.dispatch_workload (workload_id_1, overlay_id)
 
 
     # --------------------------------------------------------------------------
     # Now take care of the oldfart workload -- not so many tasks for the old
     # people, and we lazily reuse the same overlay -- which is running, so,
     # late binding in this case.
-    workload_2 = troy.Workload ()
+    workload_id_2 = workload_mgr.create_workload ()
+    workload_2    = workload_mgr.get_workload    (workload_id_2)
 
     for r in radical_oldfarts :
         workload_2.add_task (create_task_description (r, 'oldfart       '))
@@ -102,10 +105,10 @@ if __name__ == '__main__' :
     # Translate expand, translate and bind workload again, and immediately
     # dispatch it, too.  We could have used
     # different plugins here...
-    planner.expand_workload         (workload_2.id)
-    workload_mgr.translate_workload (workload_2.id, overlay_id)
-    workload_mgr.bind_workload      (workload_2.id, overlay_id, bind_mode=troy.LATE)
-    workload_mgr.dispatch_workload  (workload_2.id, overlay_id)
+    planner.expand_workload         (workload_id_2)
+    workload_mgr.translate_workload (workload_id_2, overlay_id)
+    workload_mgr.bind_workload      (workload_id_2, overlay_id, bind_mode=troy.LATE)
+    workload_mgr.dispatch_workload  (workload_id_2, overlay_id)
 
 
     # --------------------------------------------------------------------------
@@ -139,8 +142,8 @@ if __name__ == '__main__' :
 
     # --------------------------------------------------------------------------
     # We are done -- clean up
-    workload_mgr.cancel_workload (workload_1.id)
-    workload_mgr.cancel_workload (workload_2.id)
+    workload_mgr.cancel_workload (workload_id_1)
+    workload_mgr.cancel_workload (workload_id_2)
     overlay_mgr .cancel_overlay  (overlay_id)
 
 

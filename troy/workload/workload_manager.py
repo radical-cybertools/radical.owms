@@ -39,10 +39,10 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, inspector  = 'default', 
-                        translator = 'default',
-                        scheduler  = 'default',
-                        dispatcher = 'default', 
+    def __init__ (self, inspector  = AUTOMATIC, 
+                        translator = AUTOMATIC,
+                        scheduler  = AUTOMATIC,
+                        dispatcher = AUTOMATIC, 
                         session    = None) :
         """
         Create a new workload manager instance.  
@@ -50,18 +50,59 @@ class WorkloadManager (object) :
         Use default plugins if not indicated otherwise
         """
 
-        if  not session :
-            session = troy.Session ()
+        if  session :
+            self._session = session
+        else:
+            self._session = troy.Session ()
 
-        # initialize state, load plugins
-        self._session     = session
-        self._plugin_mgr  = ru.PluginManager ('troy')
+
+        # We leave actual plugin initialization for later, in case a strategy
+        # wants to alter / complete the plugin selection
+
+        self.plugins = dict ()
+        self.plugins['inspector' ] = inspector
+        self.plugins['translator'] = translator
+        self.plugins['scheduler' ] = scheduler
+        self.plugins['dispatcher'] = dispatcher
+
+        self._plugin_mgr = None
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _init_plugins (self, overlay=None, workload=None) :
+
+        if  self._plugin_mgr :
+            # we don't allow changes once plugins are loaded and used, for state
+            # consistency
+            return
+
+        # for each plugin set to 'AUTOMATIC', do the clever thing
+
+        if  self.plugins['inspector' ]  == AUTOMATIC :
+            self.plugins['inspector' ]  =  'reflect'
+        if  self.plugins['translator']  == AUTOMATIC :
+            self.plugins['translator']  =  'direct'
+        if  self.plugins['scheduler' ]  == AUTOMATIC :
+            self.plugins['scheduler' ]  =  'first'
+
+        # if AUTOMATIC, try to match the dispatcher plugin with the overlay
+        # provisioner plugin
+        if  self.plugins['dispatcher']  == AUTOMATIC :
+            if  overlay :
+                self.plugins['dispatcher']  =  overlay.plugins['provisioner']
+        if  self.plugins['dispatcher']  == AUTOMATIC :
+            self.plugins['dispatcher']  =  'local'
+
+
+        # load plugins
+        self._plugin_mgr = ru.PluginManager ('troy')
 
         # FIXME: error handling
-        self._inspector   = self._plugin_mgr.load  ('workload_inspector',  inspector)
-        self._translator  = self._plugin_mgr.load  ('workload_translator', translator)
-        self._scheduler   = self._plugin_mgr.load  ('workload_scheduler',  scheduler)
-        self._dispatcher  = self._plugin_mgr.load  ('workload_dispatcher', dispatcher)
+        self._inspector  = self._plugin_mgr.load  ('workload_inspector',  plugins['inspector' ])
+        self._translator = self._plugin_mgr.load  ('workload_translator', plugins['translator'])
+        self._scheduler  = self._plugin_mgr.load  ('workload_scheduler',  plugins['scheduler' ])
+        self._dispatcher = self._plugin_mgr.load  ('workload_dispatcher', plugins['dispatcher'])
 
         if  not self._inspector  : raise RuntimeError ("Could not load inspector  plugin")
         if  not self._translator : raise RuntimeError ("Could not load translator plugin")
@@ -159,6 +200,14 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
+    def create_workload (self) :
+
+        workload = troy.Workload (workload_mgr=self)
+        return workload.id
+
+
+    # --------------------------------------------------------------------------
+    #
     def translate_workload (self, workload_id, overlay_id=None) :
         # FIXME: is empty overlay valid?
         """
@@ -171,12 +220,16 @@ class WorkloadManager (object) :
         translator changes and/or annotates the given workload.
         """
 
+
         workload = self.get_workload (workload_id)
         overlay  = troy.OverlayManager.get_overlay (overlay_id)
 
         # make sure the workflow is 'fresh', so we can translate it
         if  workload.state not in [DESCRIBED, PLANNED] :
             raise ValueError ("workload '%s' not in DESCRIBED nor PLANNED state" % workload.id)
+
+        # make sure manager is initialized
+        self._init_plugins (overlay, workload)
 
         # hand over control over workload to the translator plugin, so it can do
         # what it has to do.  That plugin *may* return a set of workloads, in
@@ -213,7 +266,6 @@ class WorkloadManager (object) :
         in the case of late binding.  Partially dispatched overlays will not be
         usable in either case -- for those, the binding parameter must be left
         unspecified (i.e. `None`).
-        
         """
 
         workload = self.get_workload (workload_id)
@@ -238,6 +290,8 @@ class WorkloadManager (object) :
                 raise ValueError ( "overlay '%s' neither scheduled nor " % str(overlay.id) \
                                  + "dispateched, cannot do late binding")
                                  
+        # make sure manager is initialized
+        self._init_plugins (overlay, workload)
 
         # hand over control over workload (and overlay) to the scheduler plugin,
         # so it can do what it has to do.
@@ -263,6 +317,9 @@ class WorkloadManager (object) :
         # we don't care about overlay state
         if  workload.state != BOUND :
             raise ValueError ("workload '%s' not in BOUND state" % workload.id)
+
+        # make sure manager is initialized
+        self._init_plugins (overlay, workload)
 
         # hand over control over workload to the dispatcher plugin, so it can do
         # what it has to do.

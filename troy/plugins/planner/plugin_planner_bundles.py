@@ -21,9 +21,6 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
-    """
-    This class implements the default planner for TROY.
-    """
 
     __metaclass__ = ru.Singleton
 

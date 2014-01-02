@@ -10,7 +10,7 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'workload_scheduler', 
-    'name'        : 'debug', 
+    'name'        : 'ttc_load_balancing', 
     'version'     : '0.01',
     'description' : 'debug scheduler, throws out tons of info'
   }
@@ -20,10 +20,6 @@ _idx = 0
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
-    """
-    This class implements the (trivial) debug workload scheduler algorithm for
-    TROY.
-    """
 
     __metaclass__ = ru.Singleton
 

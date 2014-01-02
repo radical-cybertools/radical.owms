@@ -24,8 +24,10 @@ class OverlayDescription (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, descr={}) :
+    def __init__ (self, descr=None) :
 
+        if  not descr :
+            descr = dict()
 
         tu.Properties.__init__ (self, descr)
 
