@@ -21,14 +21,7 @@ PLUGIN_DESCRIPTION = {
 
 # ------------------------------------------------------------------------------
 #
-<<<<<<< HEAD
-class PLUGIN_CLASS (object) :
-=======
 class PLUGIN_CLASS (troy.PluginBase):
-    """
-    This class implements the sinon workload dispatcher for TROY.
-    """
->>>>>>> feature/sinon-adaptor
 
     __metaclass__ = ru.Singleton
 
@@ -127,14 +120,8 @@ class PLUGIN_CLASS (troy.PluginBase):
         sinon_um_id = native_id[0]
         sinon_cu_id = native_id[1]
 
-<<<<<<< HEAD
-        troy._logger.debug ("reconnect to sinon_pilot subjob %s" % native_id)
-        bj_cu = sinon.ComputeUnit (cu_url=native_id)
-        troy._logger.debug ("reconnect to bigjob_pilot subjob %s done" % native_id)
-=======
         sinon_um    = self._sinon.get_unit_managers (sinon_um_id)
         sinon_cu    = sinon_um.get_units (sinon_cu_id)
->>>>>>> feature/sinon-adaptor
 
         return [sinon_um, sinon_cu]
 

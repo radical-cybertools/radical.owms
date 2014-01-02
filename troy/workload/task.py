@@ -62,7 +62,7 @@ class Task (tu.Properties) :
         self.register_property ('tag')
         self.register_property ('description')
         self.register_property ('units')
-         
+
         # initialize essential properties
         self.id          = tid
         self.state       = DESCRIBED
@@ -72,7 +72,6 @@ class Task (tu.Properties) :
 
         # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks
-
 
         self.register_property_updater ('state', self.get_state)
 

@@ -32,6 +32,7 @@ class OverlayDescription (tu.Properties) :
         tu.Properties.__init__ (self, descr)
 
         # register properties
+        self.register_property ('workload_id')  # descr was derived from this
         self.register_property ('cores')
         self.register_property ('wall_time')
 

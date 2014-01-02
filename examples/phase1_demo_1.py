@@ -25,14 +25,14 @@ if __name__ == '__main__':
                    'Vishal Shah',      'Radicalobot']
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager(dispatcher='bigjob_pilot')
+    workload_mgr = troy.WorkloadManager (dispatcher='local')
 
     # Responsible for managing the pilot overlay
-    overlay_mgr = troy.OverlayManager(provisioner=troy.AUTOMATIC)
+    overlay_mgr = troy.OverlayManager (provisioner=troy.AUTOMATIC)
 
     # Planning makes initial mapping of workload to overlay
-    #planner = troy.Planner('default')
-    planner = troy.Planner('bundles')
+    planner = troy.Planner('maxcores')
+    #planner = troy.Planner('bundles')
 
     # TROY data structure that holds the tasks and their relations
     workload_id = workload_mgr.create_workload ()
@@ -51,20 +51,23 @@ if __name__ == '__main__':
         # Tasks are uncoupled so no relationships are specified
 
     # combine or split tasks in te workload
-    planner.expand_workload(workload.id)
+    planner.expand_workload(workload_id)
 
     # Initial description of the overlay based on the workload
-    overlay_id = planner.derive_overlay(workload.id)
+    overlay_descr = planner.derive_overlay (workload_id)
+
+    # get overlay for that description
+    overlay_id = overlay_mgr.create_overlay (overlay_descr)
 
     # Translate 1 workload into N ComputeUnits and N DataUnits
-    workload_mgr.translate_workload(workload.id, overlay_id)
+    workload_mgr.translate_workload(workload_id, overlay_id)
 
     # Translate 1 Overlay description into N Pilot Descriptions
     overlay_mgr.translate_overlay(overlay_id)
 
     # Schedule the workload onto the overlay
     # Early binding assumes the overlay is not yet scheduled.
-    workload_mgr.bind_workload (workload.id, overlay_id,
+    workload_mgr.bind_workload (workload_id, overlay_id,
                                 bind_mode=troy.EARLY)
 
     # Decide which resources to use for constructing the overlay
@@ -74,7 +77,7 @@ if __name__ == '__main__':
     overlay_mgr.provision_overlay(overlay_id)
 
     # Execute the ComputeUnits on the Pilots
-    workload_mgr.dispatch_workload (workload.id, overlay_id)
+    workload_mgr.dispatch_workload (workload_id, overlay_id)
 
     # Of course nothing will fail due to TROY's magic robustness and
     # and we therefore just wait until its done!
@@ -92,7 +95,7 @@ if __name__ == '__main__':
     else :
         troy._logger.info ("game over -- play again?")
 
-    workload_mgr.cancel_workload (workload.id)   # same as workload.cancel ()
+    workload_mgr.cancel_workload (workload_id)   # same as workload.cancel ()
     overlay_mgr .cancel_overlay  (overlay_id)
 
 

@@ -106,6 +106,9 @@ class Overlay (tu.Properties) :
         self.pilots      = dict()
         self.manager     = overlay_mgr
 
+        # register this instance, so that overlay can be passed around by id.
+        troy.OverlayManager.register_overlay (self)
+
 
     # --------------------------------------------------------------------------
     #

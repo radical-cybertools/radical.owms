@@ -34,7 +34,8 @@ if __name__ == '__main__':
     planner = troy.Planner (planner=troy.AUTOMATIC)
 
     # TROY data structure that holds the tasks and their relations
-    workload = workload_mgr.create_workload ()
+    workload_id = workload_mgr.create_workload ()
+    workload    = workload_mgr.get_workload    (workload_id)
 
     # Create a task for every radicalist
     for r in radicalists:
@@ -46,7 +47,7 @@ if __name__ == '__main__':
         task_id = workload.add_task (task_descr)
 
     # execute the workload with the given execution strategy
-    troy.execute_workload (workload.id, planner, overlay_mgr, workload_mgr, strategy='default')
+    troy.execute_workload (workload_id, planner, overlay_mgr, workload_mgr, strategy='basic')
 
     # Wohooo!  Magic has happened!
 

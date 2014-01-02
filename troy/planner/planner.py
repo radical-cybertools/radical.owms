@@ -54,9 +54,11 @@ class Planner(object):
             # consistency
             return
 
+      # troy._logger.debug ("initializing planner (%s)" % self.plugins)
+
         # for each plugin set to 'AUTOMATIC', do the clever thing
         if  self.plugins['planner' ]  == AUTOMATIC :
-            self.plugins['planner' ]  =  'default'
+            self.plugins['planner' ]  = 'maxcores'
 
 
         # load plugins
@@ -66,13 +68,14 @@ class Planner(object):
         if  not self._planner : 
             raise RuntimeError ("Could not load planner plugin")
 
-        self._planner.init_plugin (self.session)
+        self._planner.init_plugin (self._session)
 
+        troy._logger.info ("initialized  planner (%s)" % self.plugins)
 
 
     # --------------------------------------------------------------------------
     #
-    def derive_overlay(self, workload_id):
+    def derive_overlay (self, workload_id):
         """
         create overlay plan (description) from workload
         """
@@ -82,7 +85,7 @@ class Planner(object):
 
         # Workload doesn't need to be PLANNED, but if it is only DESCRIBED,
         # it can't be parametrized.
-        if workload.state not in [PLANNED, DESCRIBED]:
+        if  workload.state not in [PLANNED, DESCRIBED]:
             raise ValueError("workload '%s' not in DESCRIBED or PLANNED "
                              "state" % workload.id)
         elif workload.state is DESCRIBED and workload.parametrized:
@@ -93,13 +96,13 @@ class Planner(object):
         self._init_plugins (workload)
 
         # derive overlay from workload
-        overlay = self._planner.derive_overlay (workload)
+        overlay_descr = self._planner.derive_overlay (workload)
 
-        # Put the overlay into the system registry so others can access it
-        troy.OverlayManager.register_overlay (overlay)
+        # mark the origin of the overlay description
+        overlay_descr['workload_id'] = workload_id
 
         # Only pass the ID back
-        return overlay.id
+        return overlay_descr
 
     # --------------------------------------------------------------------------
     #

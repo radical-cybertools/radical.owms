@@ -4,6 +4,8 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
+import time
+
 import radical.utils      as ru
 import troy.utils         as tu
 from   troy.constants import *

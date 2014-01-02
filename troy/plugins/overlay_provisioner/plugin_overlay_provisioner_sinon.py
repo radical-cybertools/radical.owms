@@ -118,7 +118,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         sinon_um       = self._sinon.get_unit_managers  (sinon_um_id)
         sinon_pm       = self._sinon.get_pilot_managers (sinon_pm_id)
-        sinon_pilot    = sinon_pm.get_pilots              (sinon_pilot_id)
+        sinon_pilot    = sinon_pm.get_pilots            (sinon_pilot_id)
 
         return [sinon_um, sinon_pm, sinon_pilot]
     

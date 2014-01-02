@@ -32,6 +32,7 @@ class TaskDescription (tu.Properties) :
         self.tag               = None
         self.executable        = None
         self.arguments         = list()
+        self.cores             = 1
       # self.working_directory = '/tmp/troy.%s/' % os.getuid ()
 
         tu.Properties.__init__ (self, descr)

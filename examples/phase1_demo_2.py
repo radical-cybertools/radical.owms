@@ -4,13 +4,6 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
-PLUGIN_PLANNER              = troy.AUTOMATIC
-PLUGIN_OVERLAY_SCHEDULER    = troy.AUTOMATIC
-PLUGIN_OVERLAY_TRANSLATOR   = troy.AUTOMATIC
-PLUGIN_WORKLOAD_SCHEDULER   = troy.AUTOMATIC
-PLUGIN_WORKLOAD_DISPATCHER  = troy.AUTOMATIC # 'sinon'
-
-
 """
 Demo application for 1 feb 2014 - Bag of Task (BoT)
 """
@@ -19,6 +12,14 @@ import sys
 import time
 import troy
 import getpass
+
+
+PLUGIN_PLANNER              = troy.AUTOMATIC
+PLUGIN_OVERLAY_SCHEDULER    = troy.AUTOMATIC
+PLUGIN_OVERLAY_TRANSLATOR   = troy.AUTOMATIC
+PLUGIN_WORKLOAD_SCHEDULER   = troy.AUTOMATIC
+PLUGIN_WORKLOAD_DISPATCHER  = troy.AUTOMATIC # 'sinon'
+
 
 # ------------------------------------------------------------------------------
 def create_task_description (r, msg) :
