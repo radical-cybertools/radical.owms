@@ -27,7 +27,7 @@ if __name__ == '__main__':
 
     os.chdir ("/tmp/troy_demo/")
 
-    # create a data stager for the workload
+    # create a data stager for all workloads
     stager = troy.DataStager ()
 
     radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner',
@@ -41,17 +41,18 @@ if __name__ == '__main__':
     for r in radicalists :
         
         fnames[r] = r.replace(' ', '_').lower()
-        tmp       = open ("/tmp/troy_demo/%s.in" % fnames[r], "w")
+        tmp       = open ("%s.in" % fnames[r], "w")
         tmp.write   ("%s\n" % r)
         tmp.close   ()
 
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (dispatcher='bigjob_pilot', 
-                                         stager=stager)
+    workload_mgr = troy.WorkloadManager (dispatcher = 'bigjob_pilot', 
+                                         stager     = stager)  # this is actually the default
 
     # Responsible for managing the pilot overlay
-    overlay_mgr = troy.OverlayManager (provisioner=troy.AUTOMATIC)
+    overlay_mgr = troy.OverlayManager (scheduler   = 'round_robin', 
+                                       provisioner = troy.AUTOMATIC)
 
     # Planning makes initial mapping of workload to overlay
     planner = troy.Planner (planner=troy.AUTOMATIC)
@@ -69,7 +70,7 @@ if __name__ == '__main__':
 
         task_descr.inputs            = [fin]
         task_descr.outputs           = [fout]
-        task_descr.working_directory = "/tmp/troy_demo/tasks/%s/" % fnames[r]
+        task_descr.working_directory = "/N/u/merzky/troy_demo/tasks/%s/" % fnames[r]
 
         print task_descr
 

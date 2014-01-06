@@ -77,6 +77,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             pilot_descr                     = pilot_module.PilotComputeDescription ()
             pilot_descr.service_url         = pilot.resource
             pilot_descr.number_of_processes = pilot.description['size']
+            pilot_descr.walltime            = pilot.description['wall_time']
 
             if  'futuregrid' in pilot.resource :
                 # FIXME: uh oh...

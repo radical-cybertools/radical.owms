@@ -154,7 +154,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
     # --------------------------------------------------------------------------
     #
-    def stage_file_in (self, src, tgt) :
+    def stage_file_in (self, src, resource, tgt) :
         """
         src file element can contain wildcards.  
         tgt can not contain wildcards -- but must be a directory URL.
@@ -165,20 +165,20 @@ class PLUGIN_CLASS (troy.PluginBase):
             src = "%s/%s" % (os.getcwd(), src)
 
         src_url = saga.Url ("file://localhost/%s" % src)
-        tgt_url = saga.Url (tgt)
-        
-        if  not tgt_url.schema : tgt_url.schema = 'file'
-        if  not tgt_url.host   : tgt_url.host   = 'localhost'
+        tgt_url = saga.Url ("%s/%s" % (resource, tgt))
+
+        if  tgt_url.schema.endswith ('+ssh') :
+            tgt_url.schema = 'ssh'
         
         print 'copy %s -> %s' % (src_url, tgt_url)
 
         tgt_dir = saga.filesystem.Directory (tgt_url, saga.filesystem.CREATE_PARENTS)
-        tgt_dir.copy (src_url, '.')
+        tgt_dir.copy (src_url, tgt_url.path)
 
 
     # --------------------------------------------------------------------------
     #
-    def stage_file_out (self, srcdir, src) :
+    def stage_file_out (self, resource, srcdir, src) :
         """
         src file element can contain wildcards.  
         tgt can not contain wildcards -- but it can be a directory URL (and, in
@@ -186,15 +186,15 @@ class PLUGIN_CLASS (troy.PluginBase):
         """
 
         tgt_url     = saga.Url ("file://localhost/%s" % os.getcwd())
-        src_dir_url = saga.Url (srcdir)
+        src_dir_url = saga.Url ("%s/%s" % (resource, srcdir))
 
-        if  not src_dir_url.schema : src_dir_url.schema = 'file'
-        if  not src_dir_url.host   : src_dir_url.host   = 'localhost'
+        if  src_dir_url.schema.endswith ('+ssh') :
+            src_dir_url.schema = 'ssh'
         
-        print 'copy %s/%s -> %s' % (src_dir_url, src, tgt_url)
+        print 'copy %s / %s -> %s' % (src_dir_url, src, tgt_url)
 
         src_dir = saga.filesystem.Directory (src_dir_url, saga.filesystem.CREATE_PARENTS)
-        src_dir.copy (src, tgt_url)
+        src_dir.copy ("%s/%s" % (src_dir_url.path, src), tgt_url)
 
 
 
