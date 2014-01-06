@@ -38,7 +38,7 @@ class Task (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, descr) :
+    def __init__ (self, descr, _workload=None) :
         """
         Create a new workload element, aka Task, according to the description..
 
@@ -62,6 +62,7 @@ class Task (tu.Properties) :
         self.register_property ('tag')
         self.register_property ('description')
         self.register_property ('units')
+        self.register_property ('workload')
 
         # initialize essential properties
         self.id          = tid
@@ -69,6 +70,7 @@ class Task (tu.Properties) :
         self.tag         = descr.tag
         self.description = descr
         self.units       = dict()
+        self.workload    = _workload
 
         # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks

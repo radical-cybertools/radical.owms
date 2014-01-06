@@ -29,6 +29,7 @@ from workload   import RelationDescription
 from workload   import Relation
 from workload   import Workload
 from workload   import WorkloadManager
+from workload   import DataStager
 
 from overlay    import Pilot            # should be private
 from overlay    import PilotDescription # should be private

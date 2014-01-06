@@ -181,7 +181,7 @@ class Workload (tu.Properties) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
             # FIXME: add sanity checks for task syntax / semantics
-            task = troy.Task (d)
+            task = troy.Task (d, _workload=self)
 
             if task.tag in self.tasks :
                 raise ValueError ("Task with tag '%s' already exists" % task.tag)

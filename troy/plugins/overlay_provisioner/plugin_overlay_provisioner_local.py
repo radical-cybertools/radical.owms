@@ -53,6 +53,7 @@ class _Unit (object) :
         troy._logger.debug ("new     unit %s" % (self.id))
 
 
+
     def run (self) :
 
         assert (self.state == _NEW)
@@ -66,12 +67,14 @@ class _Unit (object) :
             key, val = env_entry.split ('=', 1)
             env[key] = val
 
-
-        command = [self.descr['executable']] + self.descr['arguments']
+        pwd     = self.descr.get ('working_directory', '.')
+        command = "cd %s ; %s %s" % (pwd, self.descr['executable'], 
+                                     ' '.join (self.descr['arguments'])) 
 
         troy._logger.debug ("running unit %s (%s)" % (self.id, command))
 
-        self._proc   = subprocess.Popen (command, env=env,
+        self._proc   = subprocess.Popen ([command], env=env,
+                                         shell=True,
                                          stdout=subprocess.PIPE,
                                          stderr=subprocess.PIPE)
         self.state   = _RUNNING

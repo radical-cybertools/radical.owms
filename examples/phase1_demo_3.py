@@ -10,6 +10,7 @@ __license__   = "MIT"
 
 """
 
+import os
 import time
 import troy
 import getpass
@@ -18,14 +19,36 @@ import getpass
 #
 if __name__ == '__main__':
 
+    # set up local pwd
+    try :
+        os.mkdir ("/tmp/troy_demo/")
+    except :
+        pass # might exist
+
+    os.chdir ("/tmp/troy_demo/")
+
+    # create a data stager for the workload
+    stager = troy.DataStager ()
+
     radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner',
                    'Andre Luckow',     'Matteo Turilli',     'Melissa Romanus',
                    'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
                    'Antons Treikalis', 'Jeffery Rabinowitz', 'Patrick Gray',
                    'Vishal Shah',      'Radicalobot']
 
+    fnames = dict ()
+    # prepare task input files for each task
+    for r in radicalists :
+        
+        fnames[r] = r.replace(' ', '_').lower()
+        tmp       = open ("/tmp/troy_demo/%s.in" % fnames[r], "w")
+        tmp.write   ("%s\n" % r)
+        tmp.close   ()
+
+
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (dispatcher='local')
+    workload_mgr = troy.WorkloadManager (dispatcher='local', 
+                                         stager=stager)
 
     # Responsible for managing the pilot overlay
     overlay_mgr = troy.OverlayManager (provisioner=troy.AUTOMATIC)
@@ -33,18 +56,27 @@ if __name__ == '__main__':
     # Planning makes initial mapping of workload to overlay
     planner = troy.Planner (planner=troy.AUTOMATIC)
 
-    # TROY data structure that holds the tasks and their relations
-    workload_id = workload_mgr.create_workload ()
-    workload    = workload_mgr.get_workload    (workload_id)
-
     # Create a task for every radicalist
+    task_descriptions = list()
     for r in radicalists:
-        task_descr            = troy.TaskDescription()
-        task_descr.tag        = "%s" % r
-        task_descr.executable = '/bin/echo'
-        task_descr.arguments  = ['Hello World, ', r, '!']
+        fin  = fnames[r] + '.in'
+        fout = fnames[r] + '.out'
 
-        task_id = workload.add_task (task_descr)
+        task_descr                   = troy.TaskDescription()
+        task_descr.tag               = "%s" % r
+        task_descr.executable        = '/bin/cp'
+        task_descr.arguments         = [fin, fout]
+
+        task_descr.inputs            = [fin]
+        task_descr.outputs           = [fout]
+        task_descr.working_directory = "/tmp/troy_demo/tasks/%s/" % fnames[r]
+
+        print task_descr
+
+        task_descriptions.append (task_descr)
+
+
+    workload_id = workload_mgr.create_workload (task_descriptions)
 
     # execute the workload with the given execution strategy
     troy.execute_workload (workload_id, planner, overlay_mgr, workload_mgr, strategy='basic')

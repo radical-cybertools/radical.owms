@@ -43,6 +43,7 @@ class WorkloadManager (object) :
                         translator = AUTOMATIC,
                         scheduler  = AUTOMATIC,
                         dispatcher = AUTOMATIC, 
+                        stager     = None,
                         session    = None) :
         """
         Create a new workload manager instance.  
@@ -54,6 +55,11 @@ class WorkloadManager (object) :
             self._session = session
         else:
             self._session = troy.Session ()
+
+        if  stager :
+            self._stager = stager
+        else :
+            self._stager = troy.DataStager (self._session)
 
 
         # We leave actual plugin initialization for later, in case a strategy
@@ -196,9 +202,16 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def create_workload (self) :
+    def create_workload (self, task_descriptions=None) :
 
         workload = troy.Workload (workload_mgr=self)
+
+        if  task_descriptions :
+            if  not isinstance (task_descriptions, list) :
+                task_descriptions = [task_descriptions]
+
+            for task_descr in task_descriptions :
+                workload.add_task (task_descr)
 
         return workload.id
 
@@ -317,6 +330,11 @@ class WorkloadManager (object) :
 
         # make sure manager is initialized
         self._init_plugins ()
+
+      # # we don't really know if the dispatcher plugin will perform the
+      # # stage-in operations in time - so we trigger it manually here.
+      # # Eventually, this should get a new task state (same for stage-out)
+      # self._stager.stage_in_workload (workload)
 
         # hand over control over workload to the dispatcher plugin, so it can do
         # what it has to do.

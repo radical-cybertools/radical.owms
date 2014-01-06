@@ -1,5 +1,8 @@
 
 
+import os
+import saga
+
 import radical.utils as ru
 
 from   troy.constants import *
@@ -34,13 +37,26 @@ class PLUGIN_CLASS (troy.PluginBase):
     #
     def dispatch (self, workload, overlay) :
 
+      # # stage-in for workload
+      # workload.manager._stager.stage_in_workload (workload)
+
         for tid in workload.tasks.keys () :
 
-            t = workload.tasks[tid]
+            task = workload.tasks[tid]
 
-            for unit_id in t['units'] :
-                unit       = t['units'][unit_id]
-                unit_descr = unit.description
+          # # stage-in for task
+          # workload.manager._stager.stage_in_task (task)
+
+            for unit_id in task['units'] :
+                unit     = task['units'][unit_id]
+
+              # # stage-in for unit
+              # workload.manager._stager.stage_in_unit (unit)
+
+                if  not unit.staged_in and task.description.inputs :
+                    raise RuntimeError ("cannot dispatch %s - stage-in not done" % unit.id)
+
+                unit_descr     = unit.description
                 pid            = unit.pilot_id
                 pilot          = troy.Pilot (pid)
                 pilot_instance = pilot._get_instance ('default')
@@ -81,6 +97,53 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         u = unit._get_instance ('default')
         u.cancel ()
+
+
+    # --------------------------------------------------------------------------
+    #
+    def stage_file_in (self, src, tgt) :
+        """
+        src file element can contain wildcards.  
+        tgt can not contain wildcards -- but must be a directory URL.
+        """
+
+        # make sure the src path is absolute
+        if  src[0] != '/' :
+            src = "%s/%s" % (os.getcwd(), src)
+
+        src_url = saga.Url ("file://localhost/%s" % src)
+        tgt_url = saga.Url (tgt)
+        
+        if  not tgt_url.schema : tgt_url.schema = 'file'
+        if  not tgt_url.host   : tgt_url.host   = 'localhost'
+        
+        print 'copy %s -> %s' % (src_url, tgt_url)
+
+        tgt_dir = saga.filesystem.Directory (tgt_url, saga.filesystem.CREATE_PARENTS)
+        tgt_dir.copy (src_url, '.')
+
+
+    # --------------------------------------------------------------------------
+    #
+    def stage_file_out (self, srcdir, src) :
+        """
+        src file element can contain wildcards.  
+        tgt can not contain wildcards -- but it can be a directory URL (and, in
+        fact, is interpreted as such if src contains wildcard chars).
+        """
+
+        tgt_url     = saga.Url ("file://localhost/%s" % os.getcwd())
+        src_dir_url = saga.Url (srcdir)
+
+        if  not src_dir_url.schema : src_dir_url.schema = 'file'
+        if  not src_dir_url.host   : src_dir_url.host   = 'localhost'
+        
+        print 'copy %s/%s -> %s' % (src_dir_url, src, tgt_url)
+
+        src_dir = saga.filesystem.Directory (src_dir_url, saga.filesystem.CREATE_PARENTS)
+        src_dir.copy (src, tgt_url)
+
+
 
 
 

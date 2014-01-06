@@ -93,12 +93,13 @@ class ComputeUnit (tu.Properties) :
         self.register_property ('affinity_machine_label')
 
         # initialized essential properties
-        self.id          = uid
-        self.native_id   = native_id
-        self.state       = DESCRIBED
-        self.description = descr
-        self.pilot_id    = _pilot_id
-        self.task        = _task
+        self.id                = uid
+        self.native_id         = native_id
+        self.state             = DESCRIBED
+        self.description       = descr
+        self.pilot_id          = _pilot_id
+        self.task              = _task
+        self.working_directory = None  # can only stage-in once wd is known
 
          
         # FIXME: complete attribute list, dig properties from description,
@@ -108,6 +109,11 @@ class ComputeUnit (tu.Properties) :
         self._instance      = None
         self._instance_type = None
         self._unit_info     = None
+
+        # flag success of stage-in / stage-out
+        self.staged_in      = False
+        self.staged_out     = False
+
 
         self.register_property_updater (self._update_properties)
 
@@ -251,7 +257,6 @@ class ComputeUnit (tu.Properties) :
             # not calling the updater again (duh!).
             return self.get_property (key)
 
-        if  key == 'resource' : return self._resource
         if  key == 'instance' : return self._instance
 
         # check if the info were available via the original description

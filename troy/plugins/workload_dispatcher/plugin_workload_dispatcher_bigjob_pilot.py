@@ -51,6 +51,11 @@ class PLUGIN_CLASS (troy.PluginBase):
 
                 unit = task.units[uid]
 
+              # # stage-in for unit.  For that to work, we have to make sure to
+              # # set the working_directory for the unit (if that was not set
+              # # explicitly before)
+              # workload.manager._stager.stage_in_unit (unit)
+
                 # sanity check for CU state -- only in BOUND state we can 
                 # rely on a pilot being assigned to the CU.
                 if  unit.state not in [BOUND] :

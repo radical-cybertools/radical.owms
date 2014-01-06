@@ -84,11 +84,11 @@ class Pilot (tu.Properties) :
         self.state          = DESCRIBED
         self.description    = descr
         self.overlay        = _overlay
+        self.resource       = None
 
         # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks
 
-        self._resource      = None
         self._provisioner   = None
         self._instance      = None
         self._instance_type = None
@@ -101,9 +101,9 @@ class Pilot (tu.Properties) :
 
             self.id,             self.native_id, \
             self._provisioner,   self._instance, \
-            self._instance_type, self._state =   \
-                    self._instance_cache.get (instance_id = self.id, 
-                                              native_id   = self.native_id)
+            self._instance_type, self._state,    \
+            self.resource = self._instance_cache.get (instance_id = self.id, 
+                                                      native_id   = self.native_id)
 
             if  not self._instance :
                 raise ValueError ("Could not reconnect to unit %s (%s)" % (self.id, self.native_id))
@@ -121,7 +121,8 @@ class Pilot (tu.Properties) :
                                                      self._provisioner,    
                                                      self._instance, 
                                                      self._instance_type, 
-                                                     self.state])
+                                                     self.state, 
+                                                     self.resource])
 
 
     # --------------------------------------------------------------------------
@@ -157,10 +158,22 @@ class Pilot (tu.Properties) :
 
         if  self.state not in [DESCRIBED] :
             raise RuntimeError ("Can only bind pilots in DESCRIBED state (%s)" % self.state)
-            
-        self._resource = resource
-        self.state     = BOUND
 
+        print " ------------ binding pilot: %s" % resource
+            
+        self.resource = resource
+        self.state    = BOUND
+
+        # update cache
+        self._instance_cache.put (instance_id = self.id, 
+                                  native_id   = self.native_id,
+                                  instance    = [self.id, 
+                                                 self.native_id, 
+                                                 self._provisioner,    
+                                                 self._instance, 
+                                                 self._instance_type, 
+                                                 self.state, 
+                                                 self.resource])
 
     # --------------------------------------------------------------------------
     #
@@ -186,7 +199,8 @@ class Pilot (tu.Properties) :
                                                  self._provisioner,    
                                                  self._instance, 
                                                  self._instance_type, 
-                                                 self.state])
+                                                 self.state, 
+                                                 self.resource])
 
 
     # --------------------------------------------------------------------------
@@ -238,7 +252,7 @@ class Pilot (tu.Properties) :
             # attrib interface is not calling getters (duh!).
             return self.get_property (key)
 
-        if  key == 'resource' : return self._resource
+        if  key == 'resource' : return self.resource
         if  key == 'instance' : return self._instance
 
         # check if the info were available via the original description

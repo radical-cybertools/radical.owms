@@ -84,6 +84,11 @@ class PLUGIN_CLASS (troy.PluginBase):
                                         bind_mode=troy.LATE)
             workload.state = sub_workload.state
 
+            # both the overlay and the workload are now scheduled/bound -- we
+            # can expect the unit working directories to be createable, at the
+            # least, and can thus trigger stage-in for the workload.
+            workload_mgr._stager.stage_in_workload (sub_workload)
+
             # Execute the ComputeUnits on the Pilots
             workload_mgr.dispatch_workload (sub_workload.id, overlay_id)
             workload.state = sub_workload.state
@@ -98,6 +103,9 @@ class PLUGIN_CLASS (troy.PluginBase):
             else :
                 troy._logger.error ("sub-workload failed - abort")
                 raise RuntimeError ("sub-workload failed - abort")
+
+            # once the workload is done, we stage data out...
+            workload_mgr._stager.stage_out_workload (sub_workload)
 
 
         troy._logger.info ("all sub-workloads done")
