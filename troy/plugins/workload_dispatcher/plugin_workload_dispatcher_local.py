@@ -144,9 +144,5 @@ class PLUGIN_CLASS (troy.PluginBase):
         src_dir.copy (src, tgt_url)
 
 
-
-
-
-
 # ------------------------------------------------------------------------------
 

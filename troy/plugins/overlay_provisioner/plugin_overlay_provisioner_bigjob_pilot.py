@@ -1,6 +1,7 @@
 
 
 import os
+
 import pilot         as pilot_module
 import radical.utils as ru
 
@@ -74,14 +75,14 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             # translate information into bigjob speak
             pilot_descr                     = pilot_module.PilotComputeDescription ()
-            pilot_descr.service_url         = pilot._resource
+            pilot_descr.service_url         = pilot.resource
             pilot_descr.number_of_processes = pilot.description['size']
 
-            if  'futuregrid' in pilot._resource :
+            if  'futuregrid' in pilot.resource :
                 # FIXME: uh oh...
                 pilot_descr.working_directory = '/N/u/merzky/agent/' 
 
-            if  'localhost' in pilot._resource :
+            if  'localhost' in pilot.resource :
                 # FIXME: uh oh...
                 pilot_descr.working_directory = '%s/bj_agent' % os.environ['HOME']
 

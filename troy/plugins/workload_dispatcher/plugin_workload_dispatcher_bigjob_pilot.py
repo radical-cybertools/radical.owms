@@ -1,4 +1,6 @@
 
+import os
+import saga
 
 import pilot         as pilot_module
 import radical.utils as ru
@@ -148,6 +150,52 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         sj = unit._get_instance ('bigjob_pilot')
         sj.cancel ()
+
+
+    # --------------------------------------------------------------------------
+    #
+    def stage_file_in (self, src, tgt) :
+        """
+        src file element can contain wildcards.  
+        tgt can not contain wildcards -- but must be a directory URL.
+        """
+
+        # make sure the src path is absolute
+        if  src[0] != '/' :
+            src = "%s/%s" % (os.getcwd(), src)
+
+        src_url = saga.Url ("file://localhost/%s" % src)
+        tgt_url = saga.Url (tgt)
+        
+        if  not tgt_url.schema : tgt_url.schema = 'file'
+        if  not tgt_url.host   : tgt_url.host   = 'localhost'
+        
+        print 'copy %s -> %s' % (src_url, tgt_url)
+
+        tgt_dir = saga.filesystem.Directory (tgt_url, saga.filesystem.CREATE_PARENTS)
+        tgt_dir.copy (src_url, '.')
+
+
+    # --------------------------------------------------------------------------
+    #
+    def stage_file_out (self, srcdir, src) :
+        """
+        src file element can contain wildcards.  
+        tgt can not contain wildcards -- but it can be a directory URL (and, in
+        fact, is interpreted as such if src contains wildcard chars).
+        """
+
+        tgt_url     = saga.Url ("file://localhost/%s" % os.getcwd())
+        src_dir_url = saga.Url (srcdir)
+
+        if  not src_dir_url.schema : src_dir_url.schema = 'file'
+        if  not src_dir_url.host   : src_dir_url.host   = 'localhost'
+        
+        print 'copy %s/%s -> %s' % (src_dir_url, src, tgt_url)
+
+        src_dir = saga.filesystem.Directory (src_dir_url, saga.filesystem.CREATE_PARENTS)
+        src_dir.copy (src, tgt_url)
+
 
 
 # ------------------------------------------------------------------------------

@@ -65,7 +65,7 @@ class PLUGIN_CLASS (object) :
             # FIXME: ceck state
             bj_manager     = bigjob.bigjob (coordination_url=self._coord)
             bj_manager_url = bj_manager.get_url ()
-            bj_pilot_url   = bj_manager.start_pilot_job (pilot._resource)
+            bj_pilot_url   = bj_manager.start_pilot_job (pilot.resource)
 
             pilot._set_instance ('bigjob', self, [bj_pilot_url, bj_manager], bj_manager.get_url ())
 

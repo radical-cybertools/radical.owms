@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (dispatcher='local', 
+    workload_mgr = troy.WorkloadManager (dispatcher='bigjob_pilot', 
                                          stager=stager)
 
     # Responsible for managing the pilot overlay

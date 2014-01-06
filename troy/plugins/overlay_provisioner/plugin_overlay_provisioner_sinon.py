@@ -80,7 +80,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             # translate information into sinon speak
             sinon_pilot_descr          = sinon.ComputePilotDescription()
-            sinon_pilot_descr.resource = saga.Url (troy_pilot._resource).host
+            sinon_pilot_descr.resource = saga.Url (troy_pilot.resource).host
             sinon_pilot_descr.cores    = troy_pilot.description['size']
 
             sinon_pilot_descr.run_time          = 0  # FIXME
