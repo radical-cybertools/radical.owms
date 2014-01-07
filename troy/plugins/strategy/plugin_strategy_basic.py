@@ -1,6 +1,6 @@
 
 
-import radical.utils as ru
+import radical.utils      as ru
 
 from   troy.constants import *
 import troy
@@ -112,7 +112,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         troy._logger.info ("all partition done (%s)" % workload.state)
 
-        overlay_mgr .cancel_overlay (overlay_id)
+        overlay_mgr.cancel_overlay (overlay_id)
 
 
 # ------------------------------------------------------------------------------

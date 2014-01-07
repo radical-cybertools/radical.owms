@@ -54,7 +54,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         else :
 
             # task concurrency in %
-            concurrency = int(self.cfg.get ('concurrency', 100))
+            concurrency  = int(self.cfg.get ('concurrency', 100))
 
             # count tasks / concurrent tasks / sequential tasks in workload
             n_tasks      = len(workload.tasks)
@@ -71,11 +71,11 @@ class PLUGIN_CLASS (troy.PluginBase):
 
 
             # then create concurrent partitions
-            tids = workload.tasks.keys ()
+            task_ids = workload.tasks.keys ()
             c_partition = troy.Workload ()
 
             for n in range (0, n_concurrent) :
-                c_partition.tasks[tids[n]] = workload.tasks[tids[n]]
+                c_partition.tasks[task_ids[n]] = workload.tasks[task_ids[n]]
 
             workload.partitions.append (c_partition.id)
 
@@ -84,7 +84,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             # tasks
             for n in range (n_concurrent, n_tasks) :
                 s_partition = troy.Workload ()
-                s_partition.tasks[tids[n]] = workload.tasks[tids[n]]
+                s_partition.tasks[task_ids[n]] = workload.tasks[task_ids[n]]
                 workload.partitions.append (s_partition.id)
 
 
@@ -93,14 +93,14 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         # plan the overlay large enough to hold the first, concurrent partition.
         cores          = 0
-        c_partition_id = workload.partitions[0]
+        c_partition_id = workload.partitions[0] # max 1
         c_partition    = troy.WorkloadManager.get_workload (c_partition_id)
 
         for tid in c_partition.tasks :
             cores += c_partition.tasks[tid].cores
 
         ovl_descr = troy.OverlayDescription ({'cores'     : cores, 
-                                              'wall_time' : (1 << 1) + (1 << 3) + (1 << 5)})
+                                              'wall_time' : 1}) # FIXME: use task description
 
         troy._logger.info ("planner  derive ol: derive overlay for workload: %s" % ovl_descr)
 

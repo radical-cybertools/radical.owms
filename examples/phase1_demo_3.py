@@ -51,8 +51,8 @@ if __name__ == '__main__':
                                          stager     = stager)  # this is actually the default
 
     # Responsible for managing the pilot overlay
-    overlay_mgr = troy.OverlayManager (scheduler   = 'round_robin', 
-                                       provisioner = troy.AUTOMATIC)
+    overlay_mgr = troy.OverlayManager (scheduler    = 'round_robin', 
+                                       provisioner  = troy.AUTOMATIC)
 
     # Planning makes initial mapping of workload to overlay
     planner = troy.Planner (planner='concurrency')
