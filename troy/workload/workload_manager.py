@@ -242,20 +242,15 @@ class WorkloadManager (object) :
         self._init_plugins ()
 
         # hand over control over workload to the translator plugin, so it can do
-        # what it has to do.  That plugin *may* return a set of workloads, in
-        # the case it splitted them up.  If not, we return the original workload
-        # as single element in a set
-        sub_workload_ids = self._translator.translate (workload, overlay)
+        # what it has to do.
+        self._translator.translate (workload, overlay)
 
         # mark workload as 'translated'
-        workload.state   = TRANSLATED
+        workload.state = TRANSLATED
 
-        if  sub_workload_ids :
-            return sub_workload_ids
-        else :
-            return [workload.id]
-
-
+        for partition_id in workload.partitions :
+            partition = self.get_workload (partition_id)
+            partition.state = TRANSLATED
 
 
     # --------------------------------------------------------------------------
@@ -342,6 +337,10 @@ class WorkloadManager (object) :
 
         # mark workload as 'scheduled'
         workload.state = DISPATCHED
+
+        for partition_id in workload.partitions :
+            partition = self.get_workload (partition_id)
+            partition.state = DISPATCHED
 
 
     # --------------------------------------------------------------------------

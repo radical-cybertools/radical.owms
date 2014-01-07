@@ -66,52 +66,53 @@ class PLUGIN_CLASS (troy.PluginBase):
         overlay_mgr.provision_overlay (overlay_id)
 
         # Translate /split workload into ComputeUnits etc
-        sub_workload_ids = workload_mgr.translate_workload (workload.id, overlay_id)
+        workload_mgr.translate_workload (workload.id, overlay_id)
 
 
-        for sub_workload_id in sub_workload_ids :
+        # this strategy honors workload partitions, and will execute one
+        # partition after the other.
+        for partition_id in workload.partitions :
 
-            troy._logger.info  ("running sub-workload %s" % sub_workload_id)
-            sub_workload   = troy.WorkloadManager.get_workload (sub_workload_id)
+            troy._logger.info  ("running workload partition %s" % partition_id)
+            partition = troy.WorkloadManager.get_workload (partition_id)
 
             # throughout this loop, we reflect the workload state as the state
-            # of the current sub_workload.  This only works because troy does
+            # of the current partition.  This only works because troy does
             # not enforce a workload state model...
-            workload.state = sub_workload.state
+            workload.state = partition.state
 
-            # Schedule the sub_workload onto the overlay
-            workload_mgr.bind_workload (sub_workload.id, overlay_id,
+            # Schedule the partition onto the overlay
+            workload_mgr.bind_workload (partition.id, overlay_id,
                                         bind_mode=troy.LATE)
-            workload.state = sub_workload.state
+            workload.state = partition.state
 
             # both the overlay and the workload are now scheduled/bound -- we
             # can expect the unit working directories to be createable, at the
             # least, and can thus trigger stage-in for the workload.
-            workload_mgr._stager.stage_in_workload (sub_workload)
+            workload_mgr._stager.stage_in_workload (partition)
 
             # Execute the ComputeUnits on the Pilots
-            workload_mgr.dispatch_workload (sub_workload.id, overlay_id)
-            workload.state = sub_workload.state
+            workload_mgr.dispatch_workload (partition.id, overlay_id)
+            workload.state = partition.state
 
             # Of course nothing will fail due to TROY's magic robustness and
             # and we therefore just wait until its done!
-            sub_workload.wait ()
-            workload.state = sub_workload.state
+            partition.wait ()
+            workload.state = partition.state
 
-            if sub_workload.state == troy.DONE :
-                troy._logger.info  ("sub-workload done")
+            if partition.state == troy.DONE :
+                troy._logger.info  ("partition done")
             else :
-                troy._logger.error ("sub-workload failed - abort")
-                raise RuntimeError ("sub-workload failed - abort")
+                troy._logger.error ("partition failed - abort")
+                raise RuntimeError ("partition failed - abort")
 
             # once the workload is done, we stage data out...
-            workload_mgr._stager.stage_out_workload (sub_workload)
+            workload_mgr._stager.stage_out_workload (partition)
 
 
-        troy._logger.info ("all sub-workloads done")
+        troy._logger.info ("all partition done (%s)" % workload.state)
 
-
-        overlay_mgr .cancel_overlay  (overlay_id)
+        overlay_mgr .cancel_overlay (overlay_id)
 
 
 # ------------------------------------------------------------------------------

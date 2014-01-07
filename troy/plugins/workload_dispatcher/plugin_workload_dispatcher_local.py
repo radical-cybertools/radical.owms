@@ -101,47 +101,51 @@ class PLUGIN_CLASS (troy.PluginBase):
 
     # --------------------------------------------------------------------------
     #
-    def stage_file_in (self, src, tgt) :
+    def stage_file_in (self, src, resource, tgt) :
         """
         src file element can contain wildcards.  
         tgt can not contain wildcards -- but must be a directory URL.
         """
 
+        # make sure we stay on localhost
+        resource_url = saga.Url (resource)
+        if  resource_url.host != 'localhost' :
+            raise ValueError ("can only stage files on local resource, not %s" % resource_url.host)
+
         # make sure the src path is absolute
         if  src[0] != '/' :
             src = "%s/%s" % (os.getcwd(), src)
 
-        src_url = saga.Url ("file://localhost/%s" % src)
-        tgt_url = saga.Url (tgt)
-        
-        if  not tgt_url.schema : tgt_url.schema = 'file'
-        if  not tgt_url.host   : tgt_url.host   = 'localhost'
-        
-        print 'copy %s -> %s' % (src_url, tgt_url)
+        print 'copy %s -> %s' % (src, tgt)
 
-        tgt_dir = saga.filesystem.Directory (tgt_url, saga.filesystem.CREATE_PARENTS)
-        tgt_dir.copy (src_url, '.')
+        os.popen ("mkdir -p %s" % (os.path.dirname (tgt)))
+        os.popen ("cp %s %s" % (src, tgt))
 
 
     # --------------------------------------------------------------------------
     #
-    def stage_file_out (self, srcdir, src) :
+    def stage_file_out (self, resource, src_dir, src) :
         """
         src file element can contain wildcards.  
-        tgt can not contain wildcards -- but it can be a directory URL (and, in
-        fact, is interpreted as such if src contains wildcard chars).
+        tgt can not contain wildcards, but must be a directory.
         """
 
-        tgt_url     = saga.Url ("file://localhost/%s" % os.getcwd())
-        src_dir_url = saga.Url (srcdir)
+        # make sure we stay on localhost
+        resource_url = saga.Url (resource)
+        if  resource_url.host != 'localhost' :
+            raise ValueError ("can only stage files on local resource, not %s" % resource_url.host)
 
-        if  not src_dir_url.schema : src_dir_url.schema = 'file'
-        if  not src_dir_url.host   : src_dir_url.host   = 'localhost'
-        
-        print 'copy %s/%s -> %s' % (src_dir_url, src, tgt_url)
+        # make sure the src path is absolute
+        if  src_dir[0] != '/' :
+            src_dir = "%s/%s" % (os.getcwd(), src_dir)
 
-        src_dir = saga.filesystem.Directory (src_dir_url, saga.filesystem.CREATE_PARENTS)
-        src_dir.copy (src, tgt_url)
+        tgt = os.getcwd()
+
+        print 'copy %s / %s -> %s' % (src_dir, src, tgt)
+
+        os.popen ("cp %s/%s %s" % (src_dir, src, tgt))
+
+
 
 
 # ------------------------------------------------------------------------------

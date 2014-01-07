@@ -68,6 +68,10 @@ class _Unit (object) :
             env[key] = val
 
         pwd     = self.descr.get ('working_directory', '.')
+        try :
+            os.makedirs (pwd)
+        except :
+            pass
         command = "cd %s ; %s %s" % (pwd, self.descr['executable'], 
                                      ' '.join (self.descr['arguments'])) 
 

@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (dispatcher = 'bigjob_pilot', 
+    workload_mgr = troy.WorkloadManager (dispatcher = 'local', 
                                          stager     = stager)  # this is actually the default
 
     # Responsible for managing the pilot overlay
@@ -55,7 +55,7 @@ if __name__ == '__main__':
                                        provisioner = troy.AUTOMATIC)
 
     # Planning makes initial mapping of workload to overlay
-    planner = troy.Planner (planner=troy.AUTOMATIC)
+    planner = troy.Planner (planner='concurrency')
 
     # Create a task for every radicalist
     task_descriptions = list()
@@ -70,7 +70,8 @@ if __name__ == '__main__':
 
         task_descr.inputs            = [fin]
         task_descr.outputs           = [fout]
-        task_descr.working_directory = "/N/u/merzky/troy_demo/tasks/%s/" % fnames[r]
+      # task_descr.working_directory = "/N/u/merzky/troy_demo/tasks/%s/" % fnames[r]
+        task_descr.working_directory = "/tmp/troy_demo/tasks/%s/" % fnames[r]
 
         print task_descr
 

@@ -63,8 +63,8 @@ class DataStager (object) :
             raise RuntimeError ("no working directory defined for %s - cannot stage-in" % unit.id)
 
         for fin in unit.inputs :
-            unit.task.workload.manager._dispatcher.stage_file_in (fin, pilot.resource, unit.working_directory)
             print "staging_in %s to %s / %s" % (fin, pilot.resource, unit.working_directory)
+            unit.task.workload.manager._dispatcher.stage_file_in (fin, pilot.resource, unit.working_directory)
             unit.staged_in = True
         return
 

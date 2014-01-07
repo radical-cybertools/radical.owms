@@ -75,7 +75,42 @@ class Workload (tu.Properties) :
     a newly `DESCRIBED` task is added to a `SCHEDULED` workload.   Those
     feedback loops are considered out-of-scope for Troy at this point, so that
     state transitions are considered irreversible.  
+
+    Workload Partitions
+    -------------------
+
+    A Troy Planner (or in fact any other algorithm in Troy) can partition
+    a workload.  Workload Partitions are sub-workloads which have to run
+    sequentially -- i.e. partition[0] has to be completed before partition[1]
+    can start.  Task dependencies provide boundaries to the possible
+    partitioning schemes, but partitions can also be defined in the absence of
+    task dependencies, for example to ensure efficient usage of certain overlay
+    structures.
+
+    A troy workload maintains a set of partitions, and any algorithm, in
+    particular the troy.strategy and the workload.dispatcher plugins, may or may
+    not honor the defined partitions -- the plugin documentation should document
+    if partitions are honored or not.
+
+    Partitions are provided as `workload.partitions`, which is a list of
+    partition IDs, which can be translated to `troy.Workload` instances via
+    `troy.WorkloadManager.get_workload (workload.partitions[0])` etc.  That list
+    will contain at least one partition, the original workload itself --
+    algorithms can thus transparently operate over partitioned and unpartitioned
+    workloads.  It is guaranteed that the union of all partitions is equivalent
+    to the complete original workload, i.e. that it contains all tasks of the
+    workload.  The partitions and the original workload share their tasks, i.e.
+    when a task is run and enters `DONE` state in a partition, it is also in
+    `DONE` state in the original workload, and vice versa.  Partition states
+    follow the rules for workload states above.  The overall workload state is
+    not affected by the partitioning of the workload.
+
+    Note that partitions may create garbage collection cycles -- this will be
+    changed in future versions of Troy.
     """
+
+    # FIXME: if the original workload gets, for example, BOUND, then all
+    # partitions should be marked as BOUND.
 
 
     # --------------------------------------------------------------------------
@@ -105,14 +140,19 @@ class Workload (tu.Properties) :
         self.register_property ('state')
         self.register_property ('tasks')
         self.register_property ('relations')
+        self.register_property ('partitions')
         self.register_property ('manager')
 
         # initialize essential properties
-        self.id        = wl_id
-        self.state     = DESCRIBED
-        self.tasks     = dict()
-        self.relations = list()
-        self.manager   = workload_mgr
+        self.id         = wl_id
+        self.state      = DESCRIBED
+        self.tasks      = dict()
+        self.relations  = list()
+        self.partitions = list()
+        self.manager    = workload_mgr
+
+        # initialize partitions
+        self.partitions = [self.id]
 
         self.register_property_updater ('state', self.get_state)
 
