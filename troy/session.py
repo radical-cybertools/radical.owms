@@ -12,9 +12,10 @@ import troy
 #
 class Session (saga.Session) : 
 
-    def __init__ (self, default=True) :
+    def __init__ (self, cfg={}, default=True) :
 
         self.cfg      = troy.Configuration ()
+        self.user_cfg = cfg
         self._apitype = 'saga.Session'
 
         saga.Session.__init__ (self, default)

@@ -55,6 +55,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             # task concurrency in %
             concurrency  = int(self.cfg.get ('concurrency', 100))
+            troy._logger.info ("planner uses concurrency of %d%%" % concurrency)
 
             # count tasks / concurrent tasks / sequential tasks in workload
             n_tasks      = len(workload.tasks)

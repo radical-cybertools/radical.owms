@@ -38,7 +38,6 @@ class Planner(object):
         else:
             self._session = troy.Session ()
 
-
         self.plugins = dict ()
         self.plugins['planner' ] = planner
 

@@ -14,7 +14,7 @@ import troy
 import getpass
 
 
-PLUGIN_PLANNER              = troy.AUTOMATIC
+PLUGIN_PLANNER              = 'concurrency'
 PLUGIN_OVERLAY_SCHEDULER    = troy.AUTOMATIC
 PLUGIN_OVERLAY_TRANSLATOR   = troy.AUTOMATIC
 PLUGIN_WORKLOAD_SCHEDULER   = troy.AUTOMATIC
@@ -48,13 +48,18 @@ if __name__ == '__main__' :
     radical_oldfarts = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner',
                         'Andre Luckow',     'Matteo Turilli']
 
+    # create a session with custom config options
+    session = troy.Session ({'concurrency_planner' : {'concurrency' : '80'}})
 
     # create planner, overlay and workload manager, with plugins as configured
-    planner      = troy.Planner         (planner     = PLUGIN_PLANNER            )
+    planner      = troy.Planner         (planner     = PLUGIN_PLANNER            ,
+                                         session     = session                   )
     workload_mgr = troy.WorkloadManager (scheduler   = PLUGIN_WORKLOAD_SCHEDULER , 
-                                         dispatcher  = PLUGIN_WORKLOAD_DISPATCHER)
+                                         dispatcher  = PLUGIN_WORKLOAD_DISPATCHER,
+                                         session     = session                   )
     overlay_mgr  = troy.OverlayManager  (scheduler   = PLUGIN_OVERLAY_SCHEDULER  ,
-                                         translator  = PLUGIN_OVERLAY_TRANSLATOR )
+                                         translator  = PLUGIN_OVERLAY_TRANSLATOR ,
+                                         session     = session                   )
 
 
     # --------------------------------------------------------------------------

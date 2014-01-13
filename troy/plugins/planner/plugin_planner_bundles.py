@@ -51,11 +51,11 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         self.bm = BundleManager()
 
-        cg = self.global_cfg.get_config('bundle')
+        cg = self.session.cfg.get_config('bundle')
         finished_job_trace = cg['finished_job_trace'].get_value()
 
-        for sect in self.global_cfg.compute_sections:
-            cs = self.global_cfg.get_config(sect)
+        for sect in self.session.cfg.compute_sections:
+            cs = self.session.cfg.get_config(sect)
 
             cred = { 'port': int(cs['port'].get_value()),
                      'hostname': cs['endpoint'].get_value(),
