@@ -45,8 +45,10 @@ import troy
 # '-A',   '--application-generator',    choices=['skeleton', 'abstract-application'], default='skeleton',         metavar='application_generator'
 # '-sm',  '--skeleton-mode',            choices=['Shell', 'Swift', 'DAX'],            default='Shell',            metavar='skeleton_mode'
 # '-so',  '--skeleton-output-file',                                                                               metavar='skeleton_output_file',
-# '-wt',  '--workload-pattern',            choices=['HOBOT', 'HEBOT'],                default='HOBOT',            metavar='workload_pattern',
+# '-wc',  '--workload-count',                                                         default=1,                  metavar='workload_count',
+# '-wp',  '--workload-pattern',         choices=['HOBOT', 'HEBOT'],                   default='HOBOT',            metavar='workload_pattern',
 # '-wld', '--workload-local-directory',                                               default=sys.prefix+'.',     metavar='workload_local_directory',
+# '-wrd', '--workload-remote-directory',                                                                          metavar='workload_remote_directory',
 # '-td',  '--task-duration',                                                          default=0,                  metavar='task_duration',
 # '-tc',  '--task-count',                                                             default=1,                  metavar='task_count',
 # '-tis', '--task-input-file-size',                                                   default=1048576,            metavar='task_input_file_size',
@@ -61,6 +63,9 @@ import troy
 
 def main(args):
 
+    workloads         = []
+    task_descriptions = []
+
     # Check whether the requested application generator, pilot system and
     # skeleton modes are implemented.
     if not args.application_generator in ['skeleton', 'file']:
@@ -73,17 +78,36 @@ def main(args):
         raise Exception("Pilot system \'%s\' is not supported." % args.pilot_system)
 
     # Generate a workload to execute by means of an overlay.
-    workload = Workload(args.workload_pattern, args.workload_local_directory, 
-        args.task_duration, args.task_count, args.task_input_file_size)
+    for w in range(args.workload_count):
+        workloads[w] = Workload(args.workload_pattern, 
+            args.workload_local_directory, args.task_duration, 
+            args.task_count, args.task_input_file_size)
 
     # Translate the workload into TROY internal workload description. 
     # NOTE: This is missing in TROY at the moment. We need a plugin for each
     #       workload.
-    for t in workload.tasks:
-        pass
+    for w in workloads:
+        for t in w.tasks:
+            fin  = t.input_file
+            fout = t.output_file
+
+            task_description             = troy.TaskDescription()
+            task_descr.tag               = "%s" % t.name
+            # TODO
+            task_descr.executable        = t.executable
+            task_descr.inputs            = [t.input_file]
+            task_descr.outputs           = [t.output_file]
+
+            if args.troy_workload_dispatcher == 'local':
+                task_descr.working_directory = args.workload_local_directory+"/"+t.name
+            elif args.troy_workload_dispatcher == 'remote':
+                task_descr.working_directory = args.workload_remote_directory+"/"+t.name
+
+            task_descriptions.add(task_description)
+
+            print task_description
 
     # Select the requested execution strategy.
-
     sys.exit(0)
 
 
@@ -110,7 +134,8 @@ class Workload(object):
             tasks[t] = Task(t_name, local_directory, self.task_duration, 
                 self.task_if_size)
 
-            tasks[t].write_input_file() 
+            tasks[t].write_input_file()
+            tasks[t].write_executable()
 
 
 
@@ -124,13 +149,34 @@ class Task(object):
         self.input_file      = name+'.input'
         self.input_file_size = if_size
         self.output_file     = name+'.output'
+        self.executable      = None
  
 
     def write_input_files(self):
         
         subprocess.call(["dd", "if=/dev/zero", 
-            "of="local_directory+'/'+self.input_file, 
+            "of="+self.local_directory+'/'+self.input_file, 
             "bs="+self.input_file_size, "count=1"])
+
+
+    def write_executable(self):
+
+        self.executable = open ("%s/%s.sh" % 
+            (self.local_directory, self.name), "w")
+
+        self.executable.write("#!/bin/bash\n\n")
+
+        self.executable.write("date\n")
+        self.executable.write("whoami\n")
+        self.executable.write("pwd\n\n")
+
+        self.executable.write("sleep %s\n\n" % self.duration)
+        
+        self.executable.write("dd if=/dev/zero of=%s/%s bs=%s count=1\n" % 
+            (self.local_directory, self.output_file, self.output_file_size))
+        
+        self.executable.close()
+
 
 
 
@@ -479,8 +525,8 @@ if __name__ == '__main__':
         '-pc', '--pilot-count',
         default = 1,
         metavar = 'pilot_count',
-        help    = 'The amount of pilots to be used to execute the given \
-        workload. Default file located at. Default: 1.
+        help    = 'The number of pilots to be used to execute the given \
+        workload. Default file located at. Default: 1.'
     )
 
     parser.add_argument(
@@ -519,7 +565,14 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
-        '-wt', '--workload-type',
+        '-wc', '--workload-count',
+        default = 1,
+        metavar = 'workload_count',
+        help    = 'The number of workloads to be executed. Default: 1.'
+    )    
+
+    parser.add_argument(
+        '-wp', '--workload-pattern',
         choices = ['HOBOT', 'HEBOT'], default='HOBOT',
         metavar = 'workload_pattern',
         help    = 'The type of workload produced by the application \
@@ -530,8 +583,14 @@ if __name__ == '__main__':
         '-wld', '--workload-local-directory',
         default = sys.prefix+'.',
         metavar = 'workload_local_directory',
-        help    = 'The working directory of the workload. Default: owms.py \
-        execution directory.'
+        help    = 'The local working directory of the workload. Default: \
+        owms.py execution directory.'
+    )
+
+    parser.add_argument(
+        '-wrd', '--workload-remote-directory',
+        metavar = 'workload_remote_directory',
+        help    = 'The remote working directory of the workload.'
     )
 
     parser.add_argument(
@@ -546,8 +605,14 @@ if __name__ == '__main__':
         '-tis', '--task-input-file-size',
         default = 1048576, #1MB in bytes
         metavar = 'task_input_files_size',
-        help    = 'The time taken by each task to execute. Tasks are \
-        homogeneous so they all take the same time to execute.'
+        help    = 'The size in bytes of the input file for all the tasks.'
+    )
+
+    parser.add_argument(
+        '-tis', '--task-output-file-size',
+        default = 1048576, #1MB in bytes
+        metavar = 'task_output_files_size',
+        help    = 'The size in bytes of the output file for all the tasks.'
     )
 
     parser.add_argument(
@@ -604,12 +669,12 @@ if __name__ == '__main__':
 
     # The description of the workload to be executed is the only mandatory
     # positional argument.
-    parser.add_argument(
-        'workload_description',
-        metavar = 'workload_description',
-        help    = 'The description of the application workload to execute. By \
-        default a skeleton description.'
-    )
+    # parser.add_argument(
+    #     'workload_description',
+    #     metavar = 'workload_description',
+    #     help    = 'The description of the application workload to execute. By \
+    #     default a skeleton description.'
+    # )
 
     # Print help message if no arguments are passed. Better than the default 
     # error message.
