@@ -10,9 +10,9 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'planner',
-    'name'        : 'concurrency',
+    'name'        : 'concurrent',
     'version'     : '0.1',
-    'description' : 'This is the concurrency planner, plans the overlay ' \
+    'description' : 'This is the concurrent planner, plans the overlay ' \
                     'for concurrent workload partitions'
   }
 

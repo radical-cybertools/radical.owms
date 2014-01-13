@@ -534,7 +534,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-ep', '--troy-planner',
-        choices = ['concurrency', ], default='concurrency',
+        choices = ['concurrent', ], default='concurrent',
         metavar = 'troy_planner',
         help    = 'The planner used by TROY. Default: concurrent'
     )

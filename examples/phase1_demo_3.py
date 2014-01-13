@@ -55,7 +55,7 @@ if __name__ == '__main__':
                                        provisioner  = troy.AUTOMATIC)
 
     # Planning makes initial mapping of workload to overlay
-    planner = troy.Planner (planner='concurrency')
+    planner = troy.Planner (planner='concurrent')
 
     # Create a task for every radicalist
     task_descriptions = list()
