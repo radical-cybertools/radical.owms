@@ -141,7 +141,7 @@ class Workload(object):
 
 class Task(object):
 
-    def __init__(self, name, local_directory, duration, if_size):
+    def __init__(self, name, local_directory, duration, if_size, of_size):
 
         self.name            = name
         self.local_directory = local_directory
@@ -149,6 +149,8 @@ class Task(object):
         self.input_file      = name+'.input'
         self.input_file_size = if_size
         self.output_file     = name+'.output'
+        #TODO
+        self.output_file_size = of_size
         self.executable      = None
  
 
