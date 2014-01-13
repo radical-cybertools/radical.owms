@@ -15,6 +15,8 @@ pilots.
 Assumptions:
 
 TODOs:
+. Move the workload/task classes to a dedicated tool/module.
+. Generalize TROY instantiation, workload translation and execution to methods.
 
 """
 
@@ -66,9 +68,16 @@ import troy
 #==============================================================================
 def main(args):
 
+    # AIMES workload variables.
     working_directory = None
-    workloads         = []
+    aimes_workloads   = []
+    
+    # TROY variables.
+    planner           = None
+    workload_manager  = None
+    overlay_manager   = None
     task_descriptions = []
+
 
     # Check whether the requested application generator, pilot system and
     # skeleton modes are implemented.
@@ -86,7 +95,6 @@ def main(args):
     # Execution mode affects both execution environment and strategy.
     if args.execution_mode == 'local':
         working_directory = args.workload_local_directory
-        # TODO: set the strategy to local.
 
     elif args.execution_mode == 'remote':
         working_directory = args.workload_remote_directory
@@ -104,16 +112,18 @@ def main(args):
 
         w.create_tasks()
 
-        workloads.append(w)
+        aimes_workloads.append(w)
 
     # Translate the workload(s) into TROY internal workload description. 
     # NOTE: This is missing in TROY at the moment. We need a plugin for each
     #       workload.
-    for w in workloads:
+    for w in aimes_workloads:
         for t in w.tasks:
 
+            tag = t.workload.name+'-'+t.name
+
             task_description                   = troy.TaskDescription()
-            task_description.tag               = "%s" % t.name
+            task_description.tag               = "%s" % tag
             task_description.executable        = t.executable
             task_description.inputs            = [t.input_file]
             task_description.outputs           = [t.output_file]
@@ -123,7 +133,34 @@ def main(args):
 
             print task_description
 
-    # Select the requested execution strategy.
+    # Instantiate TROY planner, data stager, and managers.
+    # TODO: Note that the provisioner has a funny name (AUTOMATIC?). We need to
+    # use args.troy_overlay_rovisioner with a set of plausible names. We will 
+    # take care of consistency checks (what scheduler goes with what 
+    # provisioner) after parsing the CL arguments.
+    planner          = troy.Planner(planner = args.troy_planner)
+    data_stager      = troy.DataStager ()
+    workload_manager = troy.WorkloadManager(dispatcher = args.troy_workload_dispatcher, stager = data_stager)
+    overlay_manager  = troy.OverlayManager(scheduler = args.troy_overlay_scheduler, provisioner = troy.AUTOMATIC)
+
+    # Questions: 
+    # - How do I set the degree of concurrency for the planner?
+    # - Can I use 1 workload manager for multiple workloads? (I think so)
+    # - Do I have a tag in a troy task description to store the name of the 
+    #   workload to which that task belongs?
+    # - Can we change the name of the planner from 'concurrency' to 
+    #   'concurrent'?
+    # - How do we use bundles?
+
+    # The following is 'quick and dirty' while waiting to answer to the 
+    # questions above.
+    workload_id = workload_manager.create_workload(task_descriptions)
+    troy.execute_workload(workload_id, planner, overlay_manager, workload_manager, strategy='basic')
+
+
+
+
+
 
 #==============================================================================
 class Workload(object):
@@ -177,7 +214,7 @@ class Task(object):
 
     def write_input_file(self):
         
-        self.input_file = self.workload.name+'_'+self.name+'.input'
+        self.input_file = self.workload.name+'-'+self.name+'.input'
 
         subprocess.call(["dd", "if=/dev/zero", 
             "of="+self.working_directory+'/'+self.input_file, 
@@ -187,8 +224,8 @@ class Task(object):
 
     def write_executable(self):
 
-        self.executable_name = self.workload.name+'_'+self.name+'.sh'
-        self.output_file     = self.workload.name+'_'+self.name+'.output'
+        self.executable_name = self.workload.name+'-'+self.name+'.sh'
+        self.output_file     = self.workload.name+'-'+self.name+'.output'
 
         self.executable = open("%s/%s" % 
             (self.working_directory, self.executable_name), "w")
@@ -497,7 +534,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-ep', '--troy-planner',
-        choices = ['concurrent', ], default='concurrent',
+        choices = ['concurrency', ], default='concurrency',
         metavar = 'troy_planner',
         help    = 'The planner used by TROY. Default: concurrent'
     )
@@ -519,7 +556,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-eos', '--troy-overlay-scheduler',
-        choices = ['roundrobin'], default='roundrobin',
+        choices = ['round_robin'], default='round_robin',
         metavar = 'troy_overlay_scheduler',
         help    = 'The algorithm used to schedule the overlay on the targeted \
         resources. Default: roundrobin'
@@ -703,8 +740,8 @@ if __name__ == '__main__':
     # parser.add_argument(
     #     'workload_description',
     #     metavar = 'workload_description',
-    #     help    = 'The description of the application workload to execute. By \
-    #     default a skeleton description.'
+    #     help    = 'The description of the application workload to execute. \
+    #     By default a skeleton description.'
     # )
 
     # Print help message if no arguments are passed. Better than the default 
@@ -737,7 +774,6 @@ if __name__ == '__main__':
         if not args.workload_remote_directory:
             raise Exception("Please specify the remote directory for the"
                 "workload execution with the flag -wrd. Use full path only.")
-
 
     # print "DEBUG: args %s" % args
     # print "DEBUG: sys.prefix %s" % sys.prefix
