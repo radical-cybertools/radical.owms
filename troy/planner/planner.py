@@ -1,10 +1,11 @@
 
 
 import threading
-import radical.utils as ru
 
-import troy
+import radical.utils  as ru
+import troy.utils     as tu
 from   troy.constants import *
+import troy
 
 
 # ------------------------------------------------------------------------------
@@ -74,6 +75,7 @@ class Planner(object):
 
     # --------------------------------------------------------------------------
     #
+    @tu.timeit
     def derive_overlay (self, workload_id):
         """
         create overlay plan (description) from workload
@@ -105,6 +107,7 @@ class Planner(object):
 
     # --------------------------------------------------------------------------
     #
+    @tu.timeit
     def expand_workload(self, workload_id):
         """
         Expand cardinality parameters in workload.

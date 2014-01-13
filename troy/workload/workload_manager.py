@@ -218,6 +218,7 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
+    @tu.timeit
     def translate_workload (self, workload_id, overlay_id=None) :
         # FIXME: is empty overlay valid?
         """
@@ -255,6 +256,7 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
+    @tu.timeit
     def bind_workload (self, workload_id, overlay_id, bind_mode=None) :
         """
         bind (schedule) the referenced workload, i.e. assign its components to
@@ -305,6 +307,7 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
+    @tu.timeit
     def dispatch_workload (self, workload_id, overlay_id) :
         """
         schedule the referenced workload, i.e. submit its Units to the
@@ -345,6 +348,7 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
+    @tu.timeit
     def cancel_workload (self, workload_id) :
         """
         cancel the referenced workload, i.e. all its tasks

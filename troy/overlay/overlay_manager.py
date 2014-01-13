@@ -231,6 +231,7 @@ class OverlayManager (object) :
 
     # --------------------------------------------------------------------------
     #
+    @tu.timeit
     def translate_overlay(self, overlay_id):
         """
         Inspect backend resources, and select suitable resources for the
@@ -259,6 +260,7 @@ class OverlayManager (object) :
 
     # --------------------------------------------------------------------------
     #
+    @tu.timeit
     def schedule_overlay (self, overlay_id) :
         """
         Inspect backend resources, and select suitable resources for the
@@ -287,6 +289,7 @@ class OverlayManager (object) :
 
     # --------------------------------------------------------------------------
     #
+    @tu.timeit
     def provision_overlay (self, overlay_id) :
         """
         Create pilot instances for each pilot described in the overlay.
@@ -314,6 +317,7 @@ class OverlayManager (object) :
 
     # --------------------------------------------------------------------------
     #
+    @tu.timeit
     def cancel_overlay (self, overlay_id) :
         """
         cancel the referenced overlay, i.e. all its pilots
