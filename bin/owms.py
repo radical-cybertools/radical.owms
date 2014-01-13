@@ -92,9 +92,10 @@ def main(args):
         working_directory = args.workload_remote_directory
 
     # Generate the workload(s) to be executed by means of an overlay.
-    for _ in range(args.workload_count):
+    for counter in range(args.workload_count):
 
-        w = Workload(args.workload_pattern, 
+        w = Workload(counter, 
+                args.workload_pattern, 
                 working_directory, 
                 args.task_duration, 
                 args.task_count, 
@@ -109,21 +110,16 @@ def main(args):
     # NOTE: This is missing in TROY at the moment. We need a plugin for each
     #       workload.
     for w in workloads:
-
-        print w
-
         for t in w.tasks:
 
-            print t
+            task_description                   = troy.TaskDescription()
+            task_description.tag               = "%s" % t.name
+            task_description.executable        = t.executable
+            task_description.inputs            = [t.input_file]
+            task_description.outputs           = [t.output_file]
+            task_description.working_directory = working_directory+"/"+t.name
 
-            task_description             = troy.TaskDescription()
-            task_descr.tag               = "%s" % t.name
-            task_descr.executable        = t.executable
-            task_descr.inputs            = [t.input_file]
-            task_descr.outputs           = [t.output_file]
-            task_descr.working_directory = args.working_directory+"/"+t.name
-
-            task_descriptions.add(task_description)
+            task_descriptions.append(task_description)
 
             print task_description
 
@@ -132,9 +128,11 @@ def main(args):
 #==============================================================================
 class Workload(object):
 
-    def __init__(self, pattern, directory, task_duration, task_count, 
+    def __init__(self, counter, pattern, directory, task_duration, task_count, 
         task_input_file_size, task_output_file_size):
         
+        self.name          = pattern.lower()+'_'+str(counter)
+        self.counter       = counter
         self.pattern       = pattern
         self.directory     = directory
         self.task_duration = task_duration
@@ -149,10 +147,8 @@ class Workload(object):
 
         for task_number in range(self.task_count):
 
-            task_name = self.pattern.lower()+'_task_'+str(task_number)
-
-            task      = Task(task_name, self.directory, self.task_duration, 
-                        self.task_if_size, self.task_of_size)
+            task = Task(self, task_number, self.directory, 
+                self.task_duration, self.task_if_size, self.task_of_size)
 
             task.write_input_file()
             task.write_executable()
@@ -163,22 +159,25 @@ class Workload(object):
 #==============================================================================
 class Task(object):
 
-    def __init__(self, name, working_directory, duration, if_size, of_size):
+    def __init__(self, workload, counter, working_directory, duration, if_size, 
+        of_size):
 
-        self.name              = name
+        self.name              = 'task_'+str(counter)
         self.working_directory = working_directory
         self.duration          = duration
-        self.input_file        = name+'.input'
         self.input_file_size   = if_size
-        self.output_file       = name+'.output'
         self.output_file_size  = of_size
-        self.executable        = None
+
+        self.workload          = workload
+
+        self.input_file        = None
+        self.output_file       = None
+        self.executable_name   = None
  
 
     def write_input_file(self):
         
-        print type(self.working_directory)
-        print type(self.input_file)
+        self.input_file = self.workload.name+'_'+self.name+'.input'
 
         subprocess.call(["dd", "if=/dev/zero", 
             "of="+self.working_directory+'/'+self.input_file, 
@@ -188,8 +187,11 @@ class Task(object):
 
     def write_executable(self):
 
-        self.executable = open ("%s/%s.sh" % 
-            (self.working_directory, self.name), "w")
+        self.executable_name = self.workload.name+'_'+self.name+'.sh'
+        self.output_file     = self.workload.name+'_'+self.name+'.output'
+
+        self.executable = open("%s/%s" % 
+            (self.working_directory, self.executable_name), "w")
 
         self.executable.write("#!/bin/bash\n\n")
 
@@ -200,13 +202,14 @@ class Task(object):
 
         self.executable.write("sleep %s\n\n" % self.duration)
         
-        self.executable.write("cp %s /dev/null" % self.input_file)
+        self.executable.write("cp %s /dev/null\n" % self.input_file)
 
         self.executable.write("dd if=/dev/zero of=%s bs=%s count=1\n" % 
             (self.output_file, self.output_file_size))
         
         self.executable.close()
 
+        os.chmod(self.working_directory+"/"+self.executable_name, 0755)
 
 
 #==============================================================================
@@ -609,7 +612,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-wld', '--workload-local-directory',
-        default = sys.prefix+'.',
+        default = os.getcwd(),
         metavar = 'workload_local_directory',
         help    = 'The local working directory of the workload. Default: \
         owms.py execution directory.'
