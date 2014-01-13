@@ -63,6 +63,7 @@ import troy
 # TODO: Delete and add an option task_description flag.
 # 'workload_description', metavar='workload_description',
 
+#==============================================================================
 def main(args):
 
     working_directory = None
@@ -90,22 +91,30 @@ def main(args):
     elif args.execution_mode == 'remote':
         working_directory = args.workload_remote_directory
 
-
     # Generate the workload(s) to be executed by means of an overlay.
-    for w in range(args.workload_count):
+    for _ in range(args.workload_count):
 
-        workloads[w] = Workload(args.workload_pattern, 
-            args.working_directory, 
-            args.task_duration, 
-            args.task_count, 
-            args.task_input_file_size, 
-            args.task_output_file_size)
+        w = Workload(args.workload_pattern, 
+                working_directory, 
+                args.task_duration, 
+                args.task_count, 
+                args.task_input_file_size, 
+                args.task_output_file_size)
+
+        w.create_tasks()
+
+        workloads.append(w)
 
     # Translate the workload(s) into TROY internal workload description. 
     # NOTE: This is missing in TROY at the moment. We need a plugin for each
     #       workload.
     for w in workloads:
+
+        print w
+
         for t in w.tasks:
+
+            print t
 
             task_description             = troy.TaskDescription()
             task_descr.tag               = "%s" % t.name
@@ -119,17 +128,15 @@ def main(args):
             print task_description
 
     # Select the requested execution strategy.
-    sys.exit(0)
 
-
+#==============================================================================
 class Workload(object):
 
     def __init__(self, pattern, directory, task_duration, task_count, 
         task_input_file_size, task_output_file_size):
         
-        self.pattern       = workload_pattern
+        self.pattern       = pattern
         self.directory     = directory
-        self.description   = description
         self.task_duration = task_duration
         self.task_count    = task_count
         self.task_if_size  = task_input_file_size
@@ -140,17 +147,20 @@ class Workload(object):
 
     def create_tasks(self):
 
-        for t in range(self.task_count):
+        for task_number in range(self.task_count):
 
-            t_name   = self.description.lower()+'_task_'+str(t)
-            tasks[t] = Task(t_name, directory, self.task_duration, 
-                self.task_if_size, self.task_of_size)
+            task_name = self.pattern.lower()+'_task_'+str(task_number)
 
-            tasks[t].write_input_file()
-            tasks[t].write_executable()
+            task      = Task(task_name, self.directory, self.task_duration, 
+                        self.task_if_size, self.task_of_size)
+
+            task.write_input_file()
+            task.write_executable()
+
+            self.tasks.append(task)
 
 
-
+#==============================================================================
 class Task(object):
 
     def __init__(self, name, working_directory, duration, if_size, of_size):
@@ -165,11 +175,14 @@ class Task(object):
         self.executable        = None
  
 
-    def write_input_files(self):
+    def write_input_file(self):
         
+        print type(self.working_directory)
+        print type(self.input_file)
+
         subprocess.call(["dd", "if=/dev/zero", 
             "of="+self.working_directory+'/'+self.input_file, 
-            "bs="+self.input_file_size, 
+            "bs="+str(self.input_file_size), 
             "count=1"])
 
 
@@ -693,9 +706,9 @@ if __name__ == '__main__':
 
     # Print help message if no arguments are passed. Better than the default 
     # error message.
-    if len(sys.argv) == 1:
-        parser.print_help()
-        sys.exit(1)
+    # if len(sys.argv) == 1:
+    #     parser.print_help()
+    #     sys.exit(1)
 
     args = parser.parse_args()
 
@@ -716,6 +729,11 @@ if __name__ == '__main__':
 
     if args.binding_order == 'WR' and args.concurrency == 0:
         args.number_of_cores = 1
+
+    if args.execution_mode == 'remote':
+        if not args.workload_remote_directory:
+            raise Exception("Please specify the remote directory for the"
+                "workload execution with the flag -wrd. Use full path only.")
 
 
     # print "DEBUG: args %s" % args
