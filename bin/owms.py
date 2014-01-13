@@ -30,7 +30,8 @@ import troy
 
 # Configuration parameters owms.py
 
-# '-bo',  '--binding-order',            choices= ['RW', 'WR'],                        default='WR',               metavar='binding_order',
+# '-m',   '--execution-mode',           choices=['remote', 'local'],                  default='remote',           metavar='execution_mode',
+# '-bo',  '--binding-order',            choices=['RW', 'WR'],                         default='WR',               metavar='binding_order',
 # '-cc',  '--concurrency',                                                            default=100,                metavar='concurrency',
 # '-E',   '--execution-manager',        choices=['TROY', 'manual'],                   default='TROY',             metavar='execution_manager',
 # '-ep',  '--troy-planner',             choices=['concurrent', ],                     default='concurrent',       metavar='troy_planner',
@@ -52,6 +53,7 @@ import troy
 # '-td',  '--task-duration',                                                          default=0,                  metavar='task_duration',
 # '-tc',  '--task-count',                                                             default=1,                  metavar='task_count',
 # '-tis', '--task-input-file-size',                                                   default=1048576,            metavar='task_input_file_size',
+# '-tos', '--task-output-file-size',                                                  default=1048576,            metavar='task_output_files_size',
 # '-I',   '--information-system',       choices=['bundles'],                          default='bundles',          metavar='information_system'
 # '-b',   '--bundle-config',                                                          default='etc/bundle.conf',  metavar='bundle_config'
 # '-c',   '--coordination-password',                                                                              metavar='coordination_password'
@@ -63,45 +65,54 @@ import troy
 
 def main(args):
 
+    working_directory = None
     workloads         = []
     task_descriptions = []
 
     # Check whether the requested application generator, pilot system and
     # skeleton modes are implemented.
     if not args.application_generator in ['skeleton', 'file']:
-        raise Exception("Application generator \'%s\' not supported." % args.application_generator)
+        raise Exception("Application generator \'%s\' not supported." % 
+            args.application_generator)
 
     if args.skeleton_mode != 'Shell':
         raise Exception("%s is not supported." % args.skeleton_mode)
 
     if not args.pilot_system in ['BigJob', 'SagaPilot']:
-        raise Exception("Pilot system \'%s\' is not supported." % args.pilot_system)
+        raise Exception("Pilot system \'%s\' is not supported." % 
+            args.pilot_system)
 
-    # Generate a workload to execute by means of an overlay.
+    # Execution mode affects both execution environment and strategy.
+    if args.execution_mode == 'local':
+        working_directory = args.workload_local_directory
+        # TODO: set the strategy to local.
+
+    elif args.execution_mode == 'remote':
+        working_directory = args.workload_remote_directory
+
+
+    # Generate the workload(s) to be executed by means of an overlay.
     for w in range(args.workload_count):
-        workloads[w] = Workload(args.workload_pattern, 
-            args.workload_local_directory, args.task_duration, 
-            args.task_count, args.task_input_file_size)
 
-    # Translate the workload into TROY internal workload description. 
+        workloads[w] = Workload(args.workload_pattern, 
+            args.working_directory, 
+            args.task_duration, 
+            args.task_count, 
+            args.task_input_file_size, 
+            args.task_output_file_size)
+
+    # Translate the workload(s) into TROY internal workload description. 
     # NOTE: This is missing in TROY at the moment. We need a plugin for each
     #       workload.
     for w in workloads:
         for t in w.tasks:
-            fin  = t.input_file
-            fout = t.output_file
 
             task_description             = troy.TaskDescription()
             task_descr.tag               = "%s" % t.name
-            # TODO
             task_descr.executable        = t.executable
             task_descr.inputs            = [t.input_file]
             task_descr.outputs           = [t.output_file]
-
-            if args.troy_workload_dispatcher == 'local':
-                task_descr.working_directory = args.workload_local_directory+"/"+t.name
-            elif args.troy_workload_dispatcher == 'remote':
-                task_descr.working_directory = args.workload_remote_directory+"/"+t.name
+            task_descr.working_directory = args.working_directory+"/"+t.name
 
             task_descriptions.add(task_description)
 
@@ -113,15 +124,16 @@ def main(args):
 
 class Workload(object):
 
-    def __init__(self, pattern, local_directory, task_duration, task_count, 
-        task_input_file_size):
+    def __init__(self, pattern, directory, task_duration, task_count, 
+        task_input_file_size, task_output_file_size):
         
         self.pattern       = workload_pattern
-        self.local_dir     = local_directory
+        self.directory     = directory
         self.description   = description
         self.task_duration = task_duration
         self.task_count    = task_count
         self.task_if_size  = task_input_file_size
+        self.task_of_size  = task_output_file_size
 
         self.tasks         = []
 
@@ -131,8 +143,8 @@ class Workload(object):
         for t in range(self.task_count):
 
             t_name   = self.description.lower()+'_task_'+str(t)
-            tasks[t] = Task(t_name, local_directory, self.task_duration, 
-                self.task_if_size)
+            tasks[t] = Task(t_name, directory, self.task_duration, 
+                self.task_if_size, self.task_of_size)
 
             tasks[t].write_input_file()
             tasks[t].write_executable()
@@ -141,44 +153,46 @@ class Workload(object):
 
 class Task(object):
 
-    def __init__(self, name, local_directory, duration, if_size, of_size):
+    def __init__(self, name, working_directory, duration, if_size, of_size):
 
-        self.name            = name
-        self.local_directory = local_directory
-        self.duration        = duration
-        self.input_file      = name+'.input'
-        self.input_file_size = if_size
-        self.output_file     = name+'.output'
-        #TODO
-        self.output_file_size = of_size
-        self.executable      = None
+        self.name              = name
+        self.working_directory = working_directory
+        self.duration          = duration
+        self.input_file        = name+'.input'
+        self.input_file_size   = if_size
+        self.output_file       = name+'.output'
+        self.output_file_size  = of_size
+        self.executable        = None
  
 
     def write_input_files(self):
         
         subprocess.call(["dd", "if=/dev/zero", 
-            "of="+self.local_directory+'/'+self.input_file, 
-            "bs="+self.input_file_size, "count=1"])
+            "of="+self.working_directory+'/'+self.input_file, 
+            "bs="+self.input_file_size, 
+            "count=1"])
 
 
     def write_executable(self):
 
         self.executable = open ("%s/%s.sh" % 
-            (self.local_directory, self.name), "w")
+            (self.working_directory, self.name), "w")
 
         self.executable.write("#!/bin/bash\n\n")
 
         self.executable.write("date\n")
+        self.executable.write("echo $0\n")
         self.executable.write("whoami\n")
         self.executable.write("pwd\n\n")
 
         self.executable.write("sleep %s\n\n" % self.duration)
         
-        self.executable.write("dd if=/dev/zero of=%s/%s bs=%s count=1\n" % 
-            (self.local_directory, self.output_file, self.output_file_size))
+        self.executable.write("cp %s /dev/null" % self.input_file)
+
+        self.executable.write("dd if=/dev/zero of=%s bs=%s count=1\n" % 
+            (self.output_file, self.output_file_size))
         
         self.executable.close()
-
 
 
 
@@ -427,14 +441,13 @@ if __name__ == '__main__':
 
     # -------------------------------------------------------------------------
     # Nestor
-    # Replaced by --troy-dispatcher
-    # parser.add_argument(
-    #     '-m', '--execution-mode',
-    #     choices = ['remote', 'local'], default='remote',
-    #     metavar = 'execution_mode',
-    #     help    = 'The execution mode: On localhost (local) or on remote \
-    #     resources (remote). Default: remote.'
-    # )
+    parser.add_argument(
+        '-m', '--execution-mode',
+        choices = ['remote', 'local'], default='remote',
+        metavar = 'execution_mode',
+        help    = 'The execution mode: On localhost (local) or on remote \
+        resources (remote). Default: remote.'
+    )
 
     parser.add_argument(
         '-bo', '--binding-order',
@@ -611,7 +624,7 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
-        '-tis', '--task-output-file-size',
+        '-tos', '--task-output-file-size',
         default = 1048576, #1MB in bytes
         metavar = 'task_output_files_size',
         help    = 'The size in bytes of the output file for all the tasks.'
