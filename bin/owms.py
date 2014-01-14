@@ -102,6 +102,8 @@ def main(args):
     # Generate the workload(s) to be executed by means of an overlay.
     for counter in range(args.workload_count):
 
+        print type(args.task_count)
+
         w = Workload(counter, 
                 args.workload_pattern, 
                 working_directory, 
@@ -132,14 +134,14 @@ def main(args):
 
             task_descriptions.append(task_description)
 
-            print task_description
-
     # Instantiate TROY planner, data stager, and managers.
     # TODO: Note that the provisioner has a funny name (AUTOMATIC?). We need to
     # use args.troy_overlay_rovisioner with a set of plausible names. We will 
     # take care of consistency checks (what scheduler goes with what 
     # provisioner) after parsing the CL arguments.
-    planner          = troy.Planner(planner = args.troy_planner)
+    session = troy.Session({'concurrency_planner' : {'concurrency' : args.concurrency}})
+
+    planner          = troy.Planner(planner = args.troy_planner, session = session)
     data_stager      = troy.DataStager ()
     workload_manager = troy.WorkloadManager(dispatcher = args.troy_workload_dispatcher, stager = data_stager)
     overlay_manager  = troy.OverlayManager(scheduler = args.troy_overlay_scheduler, provisioner = args.troy_overlay_provisioner)
@@ -240,7 +242,7 @@ class Task(object):
 
         self.executable.write("sleep %s\n\n" % self.duration)
         
-        self.executable.write("cp %s /dev/null\n" % self.input_file)
+        self.executable.write("cat %s > /dev/null\n" % self.input_file)
 
         self.executable.write("dd if=/dev/zero of=%s bs=%s count=1\n" % 
             (self.output_file, self.output_file_size))
@@ -595,6 +597,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-pc', '--pilot-count',
         default = 1,
+        type = int,
         metavar = 'pilot_count',
         help    = 'The number of pilots to be used to execute the given \
         workload. Default file located at. Default: 1.'
@@ -603,6 +606,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-pcc', '--pilot-core-count',
         default = 8,
+        type = int,
         metavar = 'pilot_core_count',
         help    = 'The number of cores that each pilot of the framework \
         should bind. This option is honored only when selecting RW as \
@@ -638,6 +642,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-wc', '--workload-count',
         default = 1,
+        type = int,
         metavar = 'workload_count',
         help    = 'The number of workloads to be executed. Default: 1.'
     )    
@@ -667,6 +672,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-td', '--task-duration',
         default = 0,
+        type = int,
         metavar = 'task_duration',
         help    = 'The time taken by each task to execute. Tasks are \
         homogeneous so they all take the same time to execute.'
@@ -675,6 +681,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-tis', '--task-input-file-size',
         default = 1048576, #1MB in bytes
+        type = int,
         metavar = 'task_input_files_size',
         help    = 'The size in bytes of the input file for all the tasks.'
     )
@@ -682,6 +689,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-tos', '--task-output-file-size',
         default = 1048576, #1MB in bytes
+        type = int,
         metavar = 'task_output_files_size',
         help    = 'The size in bytes of the output file for all the tasks.'
     )
@@ -689,6 +697,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-tc', '--task-count',
         default = 1,
+        type = int,
         metavar = 'task_count',
         help    = 'The number of tasks for the given workload.'
     )
