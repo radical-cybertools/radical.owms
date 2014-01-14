@@ -124,10 +124,11 @@ def main(args):
 
             task_description                   = troy.TaskDescription()
             task_description.tag               = "%s" % tag
-            task_description.executable        = t.executable
+            task_description.executable        = '/bin/sh'
+            task_description.arguments         = [tag+'.sh']
             task_description.inputs            = [t.input_file]
             task_description.outputs           = [t.output_file]
-            task_description.working_directory = working_directory+"/"+t.name
+            task_description.working_directory = working_directory
 
             task_descriptions.append(task_description)
 
@@ -141,7 +142,7 @@ def main(args):
     planner          = troy.Planner(planner = args.troy_planner)
     data_stager      = troy.DataStager ()
     workload_manager = troy.WorkloadManager(dispatcher = args.troy_workload_dispatcher, stager = data_stager)
-    overlay_manager  = troy.OverlayManager(scheduler = args.troy_overlay_scheduler, provisioner = troy.AUTOMATIC)
+    overlay_manager  = troy.OverlayManager(scheduler = args.troy_overlay_scheduler, provisioner = args.troy_overlay_provisioner)
 
     # Questions: 
     # - How do I set the degree of concurrency for the planner?
@@ -534,14 +535,16 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-ep', '--troy-planner',
-        choices = ['concurrent', ], default='concurrent',
+        choices = ['concurrent', 'bundles', 'maxcores'], 
+        default = 'concurrent',
         metavar = 'troy_planner',
         help    = 'The planner used by TROY. Default: concurrent'
     )
 
     parser.add_argument(
         '-ews', '--troy-workload-scheduler',
-        choices = ['roundrobin', 'loadbalance'], default='roundrobin',
+        choices = ['first', 'round_robin', 'ttc_load_balancing'], 
+        default = 'round_robin',
         metavar = 'troy_overlay_scheduler',
         help    = 'The algorithm used to schedule the overlay on the targeted \
         resources. Default: roundrobin'
@@ -549,14 +552,14 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-ewd', '--troy-workload-dispatcher',
-        choices = ['local', 'remote'], default='TROY',
+        choices = ['local', 'bigjob', 'sinon'], default='bigjob',
         metavar = 'troy_workload_dispatcher',
         help    = 'The dispatcher used by TROY. Default: local'
     )
 
     parser.add_argument(
         '-eos', '--troy-overlay-scheduler',
-        choices = ['round_robin'], default='round_robin',
+        choices = ['round_robin', 'local'], default='round_robin',
         metavar = 'troy_overlay_scheduler',
         help    = 'The algorithm used to schedule the overlay on the targeted \
         resources. Default: roundrobin'
@@ -564,10 +567,10 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-eop', '--troy-overlay-provisioner',
-        choices = [''], default='',
+        choices = ['local', 'bigjob', 'sinon'], default='bigjob',
         metavar = 'troy_overlay_provisioner',
         help    = 'The provisioner of the overlay on the targeted \
-        resources. Default: '
+        resources. Default: local'
     )
 
 
@@ -770,10 +773,15 @@ if __name__ == '__main__':
     if args.binding_order == 'WR' and args.concurrency == 0:
         args.number_of_cores = 1
 
+    if args.execution_mode == 'local':
+        args.troy_workload_dispatcher = 'local'
+        args.troy_overlay_provisioner = 'local'
+
     if args.execution_mode == 'remote':
         if not args.workload_remote_directory:
-            raise Exception("Please specify the remote directory for the"
+            raise Exception("Please specify the remote directory for the "
                 "workload execution with the flag -wrd. Use full path only.")
+
 
     # print "DEBUG: args %s" % args
     # print "DEBUG: sys.prefix %s" % sys.prefix
