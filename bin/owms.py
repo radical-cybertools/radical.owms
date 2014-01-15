@@ -137,10 +137,10 @@ def main(args):
     # use args.troy_overlay_rovisioner with a set of plausible names. We will 
     # take care of consistency checks (what scheduler goes with what 
     # provisioner) after parsing the CL arguments.
-    session = troy.Session({'concurrent_planner'  : {
+    session = troy.Session({'planner_concurrent'  : {
                                     'concurrency' : args.concurrency
                                 },
-                                'round_robin_overlay_scheduler' : {
+                                'overlay_scheduler_round_robin' : {
                                     'resources' : 'xyz://host.net,abc://host.net'
                                 }
                             })

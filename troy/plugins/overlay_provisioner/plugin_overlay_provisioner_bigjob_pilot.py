@@ -45,13 +45,20 @@ class PLUGIN_CLASS (troy.PluginBase):
         overlay managers!
         """
 
-        if  not 'COORDINATION_URL' in os.environ :
+        self._coord = None
+
+        if  'COORDINATION_URL' in os.environ :
+            self._coord = os.environ['COORDINATION_URL'] 
+
+        elif 'coordination_url' in self.cfg :
+            self._coord = self.cfg['coordination_url']
+
+        else :
             troy._logger.error ("No COORDINATION_URL set for bigjob_pilot backend")
             troy._logger.info  ("example: export COORDINATION_URL=redis://<pass>@gw68.quarry.iu.teragrid.org:6379")
             troy._logger.info  ("Contact Radica@Ritgers for the redis password")
-            raise RuntimeError ("Cannot use bigjob_pilot backend - no COORDINATION_URL set -- see debug log for details")
+            raise RuntimeError ("Cannot use bigjob_pilot backend - no COORDINATION_URL -- see debug log for details")
 
-        self._coord     = os.environ['COORDINATION_URL'] 
         self.cp_service = pilot_module.PilotComputeService (self._coord)
 
 
