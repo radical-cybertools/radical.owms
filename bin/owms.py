@@ -122,33 +122,53 @@ def main(args):
             task_description.arguments         = [tag+'.sh']
             task_description.inputs            = [t.input_file]
             task_description.outputs           = [t.output_file]
-            task_description.working_directory = working_directory
+
+            if args.remote_working_directory:
+                task_description.working_directory = args.remote_working_directory
+                print "OWMS DEBUG: task_description.working_directory: %s" % args.remote_working_directory
+            else:
+                task_description.working_directory = args.local_working_directory
+                print "OWMS DEBUG: task_description.working_directory: %s" % args.local_working_directory
 
             task_descriptions.append(task_description)
+
+    # Create a session for TROY.
+    session = troy.Session(
+        {
+            'planner_concurrent': {
+                'concurrency': args.concurrency
+            },
+            'overlay_scheduler_round_robin': {
+                'resources': 'pbs+ssh://india.futuregrid.org/, \
+                              pbs+ssh://sierra.futuregrid.org/'
+            },
+            'workload_dispatcher_bigjob_pilot': {
+                'coordination_url ': args.bigjob_coordination_endpoint
+            },
+            'overlay_provisioner_bigjob_pilot': {
+                'coordination_url': args.bigjob_coordination_endpoint
+            },
+            'workload_dispatcher_sinon': {
+                'coordination_url': args.sinon_coordination_endpoint
+            },
+            'overlay_provisioner_sinon': {
+                'coordination_url': args.sinon_coordination_endpoint
+            }
+        })
+
+
+    # Manage credentials.
+    # TODO: set it to args.protocol (default ssh).
+    c1 = troy.Context ('ssh')
+    # TODO: Set it to args.username.
+    c1.user_id = 'mturilli'
+    session.add_context (c1)
 
     # Instantiate TROY planner, data stager, and managers.
     # TODO: Note that the provisioner has a funny name (AUTOMATIC?). We need to
     # use args.troy_overlay_rovisioner with a set of plausible names. We will 
     # take care of consistency checks (what scheduler goes with what 
     # provisioner) after parsing the CL arguments.
-    session = troy.Session(
-        {
-            'concurrent_planner': {
-                'concurrency': args.concurrency
-            },
-            'round_robin_overlay_scheduler': {
-                'resources': 'pbs+ssh://india.futuregrid.org/, \
-                              pbs+ssh://sierra.futuregrid.org/'
-            }
-            'workload_dispatcher_bigjob_pilot': {
-                'coordination_url ': 'redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379'
-            }
-            'overlay_provisioner_bigjob_pilot': {
-                'coordination_url': 'redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379'
-            }
-        })
-
-
     data_stager      = troy.DataStager ()
     planner          = troy.Planner(planner = args.troy_planner, 
                                     session = session)
@@ -609,10 +629,16 @@ if __name__ == '__main__':
     # Pilot
     parser.add_argument(
         '-P', '--pilot-system',
-        choices = ['BigJob', 'SagaPilot'], default='BigJob',
+        choices = ['BigJob', 'sinon'], default='BigJob',
         metavar = 'pilot_system',
         help    = 'The type of pilot system used to execute the given \
         workload. Default: BigJob.'
+    )
+
+    parser.add_argument(
+        '-sce', '--sinon-coordination-endpoint',
+        metavar = 'sinon_coordination_endpoint',
+        help    = 'The Sinon coordination URL. Location of the mongdb server.'
     )
 
     parser.add_argument(
@@ -621,6 +647,13 @@ if __name__ == '__main__':
         metavar = 'bigjob_config',
         help    = 'The BigJob configuration file. Default file located at \
         <virtualenv>/etc/bigjob.conf.'
+    )
+
+    parser.add_argument(
+        '-bce', '--bigjob-coordination-endpoint',
+        metavar = 'bigjob_coordination_endpoint',
+        help    = 'The BigJob coordination endpoint. Location of the redis \
+        server.'
     )
 
     parser.add_argument(
