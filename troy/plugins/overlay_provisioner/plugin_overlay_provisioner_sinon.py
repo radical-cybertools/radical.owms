@@ -98,7 +98,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             import getpass
             local_user_id = getpass.getuser()
-            sinon_pilot_descr.working_directory = "/tmp/sinon/%s" % local_user_id  # FIXME
+            sinon_pilot_descr.working_directory = "/tmp/sinon-%s" % local_user_id  # FIXME
 
             sinon_um    = sinon.UnitManager  (session   = self._sinon, 
                                               scheduler = 'direct_submission')
