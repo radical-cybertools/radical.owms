@@ -92,19 +92,13 @@ def main(args):
         raise Exception("Pilot system \'%s\' is not supported." % 
             args.pilot_system)
 
-    # Execution mode affects both execution environment and strategy.
-    if args.execution_mode == 'local':
-        working_directory = args.workload_local_directory
-
-    elif args.execution_mode == 'remote':
-        working_directory = args.workload_remote_directory
-
     # Generate the workload(s) to be executed by means of an overlay.
     for counter in range(args.workload_count):
 
         w = Workload(counter, 
                 args.workload_pattern, 
-                working_directory, 
+                args.local_working_directory,
+                args.workload_directory,
                 args.task_duration, 
                 args.task_count, 
                 args.task_input_file_size, 
@@ -137,13 +131,22 @@ def main(args):
     # use args.troy_overlay_rovisioner with a set of plausible names. We will 
     # take care of consistency checks (what scheduler goes with what 
     # provisioner) after parsing the CL arguments.
-    session = troy.Session({'concurrent_planner'  : {
-                                    'concurrency' : args.concurrency
-                                },
-                                'round_robin_overlay_scheduler' : {
-                                    'resources' : 'xyz://host.net,abc://host.net'
-                                }
-                            })
+    session = troy.Session(
+        {
+            'concurrent_planner': {
+                'concurrency': args.concurrency
+            },
+            'round_robin_overlay_scheduler': {
+                'resources': 'pbs+ssh://india.futuregrid.org/, \
+                              pbs+ssh://sierra.futuregrid.org/'
+            }
+            'workload_dispatcher_bigjob_pilot': {
+                'coordination_url ': 'redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379'
+            }
+            'overlay_provisioner_bigjob_pilot': {
+                'coordination_url': 'redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379'
+            }
+        })
 
 
 
@@ -175,27 +178,30 @@ def main(args):
 #==============================================================================
 class Workload(object):
 
-    def __init__(self, counter, pattern, directory, task_duration, task_count, 
+    def __init__(self, counter, pattern, local_working_directory, 
+        workload_directory, task_duration, task_count, 
         task_input_file_size, task_output_file_size):
         
-        self.name          = pattern.lower()+'_'+str(counter)
-        self.counter       = counter
-        self.pattern       = pattern
-        self.directory     = directory
-        self.task_duration = task_duration
-        self.task_count    = task_count
-        self.task_if_size  = task_input_file_size
-        self.task_of_size  = task_output_file_size
+        self.name               = pattern.lower()+'_'+str(counter)
+        self.counter            = counter
+        self.pattern            = pattern
+        self.local_directory    = local_working_directory
+        self.workload_directory = workload_directory
+        self.task_duration      = task_duration
+        self.task_count         = task_count
+        self.task_if_size       = task_input_file_size
+        self.task_of_size       = task_output_file_size
 
-        self.tasks         = []
+        self.tasks              = []
 
 
     def create_tasks(self):
 
         for task_number in range(self.task_count):
 
-            task = Task(self, task_number, self.directory, 
-                self.task_duration, self.task_if_size, self.task_of_size)
+            task = Task(self, task_number, self.local_directory, 
+                self.workload_directory, self.task_duration, self.task_if_size, 
+                self.task_of_size)
 
             task.write_input_file()
             task.write_executable()
@@ -206,20 +212,22 @@ class Workload(object):
 #==============================================================================
 class Task(object):
 
-    def __init__(self, workload, counter, working_directory, duration, if_size, 
-        of_size):
+    def __init__(self, workload, counter, local_directory, workload_directory, 
+        duration, if_size, of_size):
 
-        self.name              = 'task_'+str(counter)
-        self.working_directory = working_directory
-        self.duration          = duration
-        self.input_file_size   = if_size
-        self.output_file_size  = of_size
+        self.name               = 'task_'+str(counter)
+        self.local_directory    = local_directory
+        self.workload_directory = workload_directory
+        self.duration           = duration
+        self.input_file_size    = if_size
+        self.output_file_size   = of_size
 
-        self.workload          = workload
+        self.workload           = workload
 
-        self.input_file        = None
-        self.output_file       = None
-        self.executable_name   = None
+        self.working_directory  = None
+        self.input_file         = None
+        self.output_file        = None
+        self.executable_name    = None
  
 
     def write_input_file(self):
@@ -227,8 +235,8 @@ class Task(object):
         self.input_file = self.workload.name+'-'+self.name+'.input'
 
         subprocess.call(["dd", "if=/dev/zero", 
-            "of="+self.working_directory+'/'+self.input_file, 
-            "bs="+str(self.input_file_size), 
+            "of="+self.local_directory+'/'+self.input_file, 
+            "bs="+str(self.input_file_size),
             "count=1"])
 
 
@@ -238,7 +246,7 @@ class Task(object):
         self.output_file     = self.workload.name+'-'+self.name+'.output'
 
         self.executable = open("%s/%s" % 
-            (self.working_directory, self.executable_name), "w")
+            (self.local_directory, self.executable_name), "w")
 
         self.executable.write("#!/bin/bash\n\n")
 
@@ -256,7 +264,7 @@ class Task(object):
         
         self.executable.close()
 
-        os.chmod(self.working_directory+"/"+self.executable_name, 0755)
+        os.chmod(self.local_directory+"/"+self.executable_name, 0755)
 
 
 #==============================================================================
@@ -531,6 +539,21 @@ if __name__ == '__main__':
         a pilot with #cores = #tasks. Default: 100.'
     )
 
+    parser.add_argument(
+        '-lwd', '--local-working-directory',
+        default = os.getcwd(),
+        metavar = 'local_working_directory',
+        help    = 'The working directory on the machine on which owms.py is \
+        executed. Default: owms.py execution directory.'
+    )
+
+    parser.add_argument(
+        '-rwd', '--remote-working-directory',
+        metavar = 'remote_working_directory',
+        help    = 'The working directory on the remote resource(s).'
+    )
+
+
 
     # -------------------------------------------------------------------------
     # Execution manager
@@ -561,7 +584,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-ewd', '--troy-workload-dispatcher',
-        choices = ['local', 'bigjob', 'sinon'], default='bigjob',
+        choices = ['local', 'bigjob_pilot', 'sinon'], default='bigjob_pilot',
         metavar = 'troy_workload_dispatcher',
         help    = 'The dispatcher used by TROY. Default: local'
     )
@@ -576,7 +599,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-eop', '--troy-overlay-provisioner',
-        choices = ['local', 'bigjob', 'sinon'], default='bigjob',
+        choices = ['local', 'bigjob_pilot', 'sinon'], default='bigjob_pilot',
         metavar = 'troy_overlay_provisioner',
         help    = 'The provisioner of the overlay on the targeted \
         resources. Default: local'
@@ -663,17 +686,11 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
-        '-wld', '--workload-local-directory',
+        '-wld', '--workload-directory',
         default = os.getcwd(),
-        metavar = 'workload_local_directory',
-        help    = 'The local working directory of the workload. Default: \
+        metavar = 'workload_directory',
+        help    = 'The working directory of the workload. Default: \
         owms.py execution directory.'
-    )
-
-    parser.add_argument(
-        '-wrd', '--workload-remote-directory',
-        metavar = 'workload_remote_directory',
-        help    = 'The remote working directory of the workload.'
     )
 
     parser.add_argument(
@@ -793,8 +810,11 @@ if __name__ == '__main__':
         args.troy_workload_dispatcher = 'local'
         args.troy_overlay_provisioner = 'local'
 
+    if args.execution_mode == 'local':
+        args.remote_working_directory = None
+
     if args.execution_mode == 'remote':
-        if not args.workload_remote_directory:
+        if not args.remote_working_directory:
             raise Exception("Please specify the remote directory for the "
                 "workload execution with the flag -wrd. Use full path only.")
 
