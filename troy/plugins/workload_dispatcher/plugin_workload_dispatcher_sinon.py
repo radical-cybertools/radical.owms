@@ -1,5 +1,6 @@
 
 
+import os
 import sinon
 import radical.utils as ru
 
