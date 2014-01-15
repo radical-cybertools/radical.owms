@@ -3,13 +3,6 @@ __author__    = "TROY Development Team"
 __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
-version = 0.1
-
-"""
-Where does this docstring show up?
-"""
-
-
 # ------------------------------------------------------------------------------
 #
 # the Troy API layer
@@ -49,8 +42,12 @@ import os
 import radical.utils.logger as rul
 
 version = open (os.path.dirname (os.path.abspath (__file__)) + "/VERSION", 'r').read().strip()
-_logger = rul.logger.getLogger  ('troy')
+"""
+Please always note the Troy version when opening tickets or asking for support
+on the Troy mailing lists!
+"""
 
+_logger = rul.logger.getLogger  ('troy')
 _logger.info ('troy            version: %s' % version)
 
 

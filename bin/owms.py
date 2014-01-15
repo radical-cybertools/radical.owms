@@ -137,7 +137,7 @@ def main(args):
     # use args.troy_overlay_rovisioner with a set of plausible names. We will 
     # take care of consistency checks (what scheduler goes with what 
     # provisioner) after parsing the CL arguments.
-    session          = troy.Session({'concurrency_planner': {'concurrency': args.concurrency}})
+    session = troy.Session({'concurrent_planner' : {'concurrency' : args.concurrency}})
     data_stager      = troy.DataStager ()
 
     planner          = troy.Planner(planner = args.troy_planner, session = session)

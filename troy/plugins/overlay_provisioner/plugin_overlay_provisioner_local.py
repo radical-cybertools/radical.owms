@@ -72,6 +72,7 @@ class _Unit (object) :
             os.makedirs (pwd)
         except :
             pass
+
         command = "cd %s ; %s %s" % (pwd, self.descr['executable'], 
                                      ' '.join (self.descr['arguments'])) 
 
