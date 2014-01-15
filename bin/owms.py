@@ -102,8 +102,6 @@ def main(args):
     # Generate the workload(s) to be executed by means of an overlay.
     for counter in range(args.workload_count):
 
-        print type(args.task_count)
-
         w = Workload(counter, 
                 args.workload_pattern, 
                 working_directory, 
@@ -139,10 +137,10 @@ def main(args):
     # use args.troy_overlay_rovisioner with a set of plausible names. We will 
     # take care of consistency checks (what scheduler goes with what 
     # provisioner) after parsing the CL arguments.
-    session = troy.Session({'concurrency_planner' : {'concurrency' : args.concurrency}})
+    session          = troy.Session({'concurrency_planner': {'concurrency': args.concurrency}})
+    data_stager      = troy.DataStager ()
 
     planner          = troy.Planner(planner = args.troy_planner, session = session)
-    data_stager      = troy.DataStager ()
     workload_manager = troy.WorkloadManager(dispatcher = args.troy_workload_dispatcher, stager = data_stager)
     overlay_manager  = troy.OverlayManager(scheduler = args.troy_overlay_scheduler, provisioner = args.troy_overlay_provisioner)
 
@@ -159,10 +157,6 @@ def main(args):
     # questions above.
     workload_id = workload_manager.create_workload(task_descriptions)
     troy.execute_workload(workload_id, planner, overlay_manager, workload_manager, strategy='basic')
-
-
-
-
 
 
 #==============================================================================
