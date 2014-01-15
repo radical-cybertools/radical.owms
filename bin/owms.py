@@ -143,8 +143,7 @@ def main(args):
             #                   pbs+ssh://sierra.futuregrid.org/'
             # },
             'overlay_scheduler_round_robin': {
-                'resources': 'futuregrid.INDIA, \
-                              futuregrid.SIERRA'
+                'resources': 'futuregrid.INDIA,futuregrid.SIERRA'
             },            
             'workload_dispatcher_bigjob_pilot': {
                 'coordination_url ': args.bigjob_coordination_endpoint

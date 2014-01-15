@@ -106,6 +106,12 @@ class PLUGIN_CLASS (troy.PluginBase):
                                               resource_configurations = FGCONF)
             sinon_pilot = sinon_pm.submit_pilots (sinon_pilot_descr)
 
+            # once the pilot is submitted, we keep the actual submission url as
+            # resource identifier
+            troy_pilot.resource = sinon_pilot.description['resource']
+
+
+
             sinon_um.add_pilots (sinon_pilot)
 
             troy_pilot._set_instance (instance_type = 'sinon', 
