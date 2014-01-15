@@ -9,7 +9,6 @@ from   troy.constants import *
 import troy
 
 
-DBURL  = 'mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/'
 FGCONF = 'https://raw.github.com/saga-project/saga-pilot/master/configs/futuregrid.json'
 
 
@@ -50,9 +49,21 @@ class PLUGIN_CLASS (troy.PluginBase):
         overlay managers!
         """
 
-        troy._logger.info ("init the sinon overlay provisioner plugin")
-        
-        self._sinon  = sinon.Session (database_url = DBURL)
+        self._coord = None
+
+        if  'COORDINATION_URL' in os.environ :
+            self._coord = os.environ['COORDINATION_URL'] 
+
+        elif 'coordination_url' in self.cfg :
+            self._coord = self.cfg['coordination_url']
+
+        else :
+            troy._logger.error ("No COORDINATION_URL set for sinon backend")
+            troy._logger.info  ("example: export COORDINATION_URL=redis://<pass>@gw68.quarry.iu.teragrid.org:6379")
+            troy._logger.info  ("Contact Radica@Ritgers for the redis password")
+            raise RuntimeError ("Cannot use sinon backend - no COORDINATION_URL -- see debug log for details")
+
+        self._sinon  = sinon.Session (database_url = self._coord)
 
 
     # --------------------------------------------------------------------------
