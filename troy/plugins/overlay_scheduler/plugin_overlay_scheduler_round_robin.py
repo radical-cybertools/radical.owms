@@ -42,8 +42,6 @@ class PLUGIN_CLASS (troy.PluginBase):
             self.resources = ['fork://localhost']
             troy._logger.debug ("round_robin on localhost only")
 
-        sys.exit()
-
 
     # --------------------------------------------------------------------------
     #
