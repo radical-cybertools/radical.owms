@@ -137,12 +137,25 @@ def main(args):
     # use args.troy_overlay_rovisioner with a set of plausible names. We will 
     # take care of consistency checks (what scheduler goes with what 
     # provisioner) after parsing the CL arguments.
-    session = troy.Session({'concurrent_planner' : {'concurrency' : args.concurrency}})
+    session = troy.Session({'concurrent_planner'  : {
+                                    'concurrency' : args.concurrency
+                                },
+                                'round_robin_overlay_scheduler' : {
+                                    'resources' : 'xyz://host.net,abc://host.net'
+                                }
+                            })
+
+
 
     data_stager      = troy.DataStager ()
-    planner          = troy.Planner(planner = args.troy_planner, session = session)
-    workload_manager = troy.WorkloadManager(dispatcher = args.troy_workload_dispatcher, stager = data_stager)
-    overlay_manager  = troy.OverlayManager(scheduler = args.troy_overlay_scheduler, provisioner = args.troy_overlay_provisioner)
+    planner          = troy.Planner(planner = args.troy_planner, 
+                                    session = session)
+    workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher, 
+                                            stager      = data_stager,
+                                            session     = session)
+    overlay_manager  = troy.OverlayManager (scheduler   = args.troy_overlay_scheduler, 
+                                            provisioner = args.troy_overlay_provisioner,
+                                            session     = session)
 
     # Questions: 
     # - How do I set the degree of concurrency for the planner?
