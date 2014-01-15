@@ -149,7 +149,6 @@ def main(args):
         })
 
 
-
     data_stager      = troy.DataStager ()
     planner          = troy.Planner(planner = args.troy_planner, 
                                     session = session)

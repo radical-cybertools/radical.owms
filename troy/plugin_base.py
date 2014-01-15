@@ -12,7 +12,7 @@ class PluginBase (object) :
     def __init__ (self, description) :
 
         self.description = description
-        self.name        = "%(name)s_%(type)s" % self.description
+        self.name        = "%(type)s_%(name)s" % self.description
 
 
     # --------------------------------------------------------------------------

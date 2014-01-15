@@ -18,7 +18,7 @@ PLUGIN_PLANNER              = 'concurrent'
 PLUGIN_OVERLAY_SCHEDULER    = troy.AUTOMATIC
 PLUGIN_OVERLAY_TRANSLATOR   = troy.AUTOMATIC
 PLUGIN_WORKLOAD_SCHEDULER   = troy.AUTOMATIC
-PLUGIN_WORKLOAD_DISPATCHER  = troy.AUTOMATIC # 'sinon'
+PLUGIN_WORKLOAD_DISPATCHER  = 'bigjob_pilot' # troy.AUTOMATIC # 'sinon'
 
 
 # ------------------------------------------------------------------------------
