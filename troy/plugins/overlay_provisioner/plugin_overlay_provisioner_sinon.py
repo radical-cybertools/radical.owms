@@ -94,8 +94,11 @@ class PLUGIN_CLASS (troy.PluginBase):
             sinon_pilot_descr.resource = troy_pilot.resource
             sinon_pilot_descr.cores    = troy_pilot.description['size']
 
-            sinon_pilot_descr.run_time          = 0  # FIXME
-            sinon_pilot_descr.working_directory = "/tmp/sinon"  # FIXME
+            sinon_pilot_descr.run_time = 0  # FIXME
+
+            import getpass
+            local_user_id = getpass.getuser()
+            sinon_pilot_descr.working_directory = "/tmp/sinon/%s" % local_user_id  # FIXME
 
             sinon_um    = sinon.UnitManager  (session   = self._sinon, 
                                               scheduler = 'direct_submission')

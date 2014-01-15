@@ -165,7 +165,7 @@ def main(args):
     # TODO: set it to args.protocol (default ssh).
     c1 = troy.Context ('ssh')
     # TODO: Set it to args.username.
-    c1.user_id = 'mturilli'
+    c1.user_id = 'merzky'
     session.add_context (c1)
 
     # Instantiate TROY planner, data stager, and managers.
