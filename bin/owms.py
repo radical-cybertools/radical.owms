@@ -88,7 +88,7 @@ def main(args):
     if args.skeleton_mode != 'Shell':
         raise Exception("%s is not supported." % args.skeleton_mode)
 
-    if not args.pilot_system in ['BigJob', 'SagaPilot']:
+    if not args.pilot_system in ['bigjob', 'sinon']:
         raise Exception("Pilot system \'%s\' is not supported." % 
             args.pilot_system)
 
@@ -138,10 +138,14 @@ def main(args):
             'planner_concurrent': {
                 'concurrency': args.concurrency
             },
+            # 'overlay_scheduler_round_robin': {
+            #     'resources': 'pbs+ssh://india.futuregrid.org/, \
+            #                   pbs+ssh://sierra.futuregrid.org/'
+            # },
             'overlay_scheduler_round_robin': {
-                'resources': 'pbs+ssh://india.futuregrid.org/, \
-                              pbs+ssh://sierra.futuregrid.org/'
-            },
+                'resources': 'futuregrid.INDIA, \
+                              futuregrid.SIERRA'
+            },            
             'workload_dispatcher_bigjob_pilot': {
                 'coordination_url ': args.bigjob_coordination_endpoint
             },
@@ -629,7 +633,7 @@ if __name__ == '__main__':
     # Pilot
     parser.add_argument(
         '-P', '--pilot-system',
-        choices = ['BigJob', 'sinon'], default='BigJob',
+        choices = ['bigjob', 'sinon'], default='bigjob',
         metavar = 'pilot_system',
         help    = 'The type of pilot system used to execute the given \
         workload. Default: BigJob.'
@@ -841,6 +845,14 @@ if __name__ == '__main__':
     if args.execution_mode == 'local':
         args.troy_workload_dispatcher = 'local'
         args.troy_overlay_provisioner = 'local'
+
+    if args.pilot_system == 'sinon':
+        args.troy_workload_dispatcher = 'sinon'
+        args.troy_overlay_provisioner = 'sinon'
+
+    if args.pilot_system == 'bigjob':
+        args.troy_workload_dispatcher = 'bigjob'
+        args.troy_overlay_provisioner = 'bigjob'
 
     if args.execution_mode == 'local':
         args.remote_working_directory = None
