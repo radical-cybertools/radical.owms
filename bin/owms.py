@@ -138,8 +138,8 @@ def main(args):
     # take care of consistency checks (what scheduler goes with what 
     # provisioner) after parsing the CL arguments.
     session = troy.Session({'concurrent_planner' : {'concurrency' : args.concurrency}})
-    data_stager      = troy.DataStager ()
 
+    data_stager      = troy.DataStager ()
     planner          = troy.Planner(planner = args.troy_planner, session = session)
     workload_manager = troy.WorkloadManager(dispatcher = args.troy_workload_dispatcher, stager = data_stager)
     overlay_manager  = troy.OverlayManager(scheduler = args.troy_overlay_scheduler, provisioner = args.troy_overlay_provisioner)
