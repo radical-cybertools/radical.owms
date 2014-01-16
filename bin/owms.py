@@ -138,13 +138,6 @@ def main(args):
             'planner_concurrent': {
                 'concurrency': args.concurrency
             },
-            # 'overlay_scheduler_round_robin': {
-            #     'resources': 'pbs+ssh://india.futuregrid.org/, \
-            #                   pbs+ssh://sierra.futuregrid.org/'
-            # },
-            'overlay_scheduler_round_robin': {
-                'resources': 'futuregrid.INDIA,futuregrid.SIERRA'
-            },            
             'workload_dispatcher_bigjob_pilot': {
                 'coordination_url ': args.bigjob_coordination_endpoint
             },
@@ -159,12 +152,25 @@ def main(args):
             }
         })
 
+    # Add resources to the session.
+    if args.pilot_system == 'bigjob':
+
+        session.user_cfg['overlay_scheduler_round_robin'] = {
+            'resources': 'pbs+ssh://india.futuregrid.org/,\
+                          pbs+ssh://sierra.futuregrid.org/'
+        }
+
+    elif args.pilot_system == 'sinon':
+
+        session.user_cfg['overlay_scheduler_round_robin'] = {
+            'resources': 'futuregrid.INDIA,futuregrid.SIERRA'
+        }
+
 
     # Manage credentials.
     # TODO: set it to args.protocol (default ssh).
     c1 = troy.Context ('ssh')
-    # TODO: Set it to args.username.
-    c1.user_id = 'merzky'
+    c1.user_id = args.ssh_user_name
     session.add_context (c1)
 
     # Instantiate TROY planner, data stager, and managers.
