@@ -108,7 +108,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             else :
                 pilot_descr.working_directory = "/home/%s/agent" % local_user_id
 
-            pilot_descr.queue     = 'interactive'
+            # FIXME: HACK
             pilot_descr.run_time = 100
           
             sinon_um    = sinon.UnitManager  (session   = self._sinon, 

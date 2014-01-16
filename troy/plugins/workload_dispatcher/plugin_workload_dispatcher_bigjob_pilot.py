@@ -170,7 +170,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         if  tgt_url.schema.endswith ('+ssh') :
             tgt_url.schema = 'ssh'
         
-        print 'copy %s -> %s' % (src_url, tgt_url)
+      # print 'copy %s -> %s' % (src_url, tgt_url)
 
         tgt_dir = saga.filesystem.Directory (tgt_url, saga.filesystem.CREATE_PARENTS)
         tgt_dir.copy (src_url, tgt_url.path)
@@ -191,7 +191,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         if  src_dir_url.schema.endswith ('+ssh') :
             src_dir_url.schema = 'ssh'
         
-        print 'copy %s / %s -> %s' % (src_dir_url, src, tgt_url)
+      # print 'copy %s / %s -> %s' % (src_dir_url, src, tgt_url)
 
         src_dir = saga.filesystem.Directory (src_dir_url, saga.filesystem.CREATE_PARENTS)
         src_dir.copy ("%s/%s" % (src_dir_url.path, src), tgt_url)

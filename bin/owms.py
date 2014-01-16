@@ -135,7 +135,7 @@ def main(args):
 
             task_descriptions.append(task_description)
 
-            print task_description.as_dict ()
+          # print task_description.as_dict ()
 
     # Create a session for TROY.
     session = troy.Session(
@@ -861,8 +861,8 @@ if __name__ == '__main__':
         args.troy_overlay_provisioner = 'sinon'
 
     if args.pilot_system == 'bigjob':
-        args.troy_workload_dispatcher = 'bigjob'
-        args.troy_overlay_provisioner = 'bigjob'
+        args.troy_workload_dispatcher = 'bigjob_pilot'
+        args.troy_overlay_provisioner = 'bigjob_pilot'
 
     if args.execution_mode == 'local':
         args.remote_working_directory = None

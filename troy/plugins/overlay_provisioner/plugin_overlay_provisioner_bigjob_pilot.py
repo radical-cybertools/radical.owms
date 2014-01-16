@@ -86,6 +86,11 @@ class PLUGIN_CLASS (troy.PluginBase):
             pilot_descr.number_of_processes = troy_pilot.description['size']
             pilot_descr.walltime            = troy_pilot.description['wall_time']
 
+            # FIXME: HACK
+            pilot_descr.queue               = 'interactive'
+            pilot_descr.walltime            = 300
+            print pilot_descr
+
             # FIXME: HACKER-HOOK
             # set working directory to something which is known to work on all
             # target hosts.

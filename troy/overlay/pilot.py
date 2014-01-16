@@ -159,7 +159,7 @@ class Pilot (tu.Properties) :
         if  self.state not in [DESCRIBED] :
             raise RuntimeError ("Can only bind pilots in DESCRIBED state (%s)" % self.state)
 
-        print " ------------ binding pilot: %s" % resource
+      # print " ------------ binding pilot: %s" % resource
             
         self.resource = resource
         self.state    = BOUND
