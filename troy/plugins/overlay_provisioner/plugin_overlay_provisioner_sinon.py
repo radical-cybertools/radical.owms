@@ -90,21 +90,32 @@ class PLUGIN_CLASS (troy.PluginBase):
                 raise RuntimeError ("Can only provision BOUND pilots (%s)" % troy_pilot.state)
 
             # translate information into sinon speak
-            sinon_pilot_descr          = sinon.ComputePilotDescription()
-            sinon_pilot_descr.resource = troy_pilot.resource
-            sinon_pilot_descr.cores    = troy_pilot.description['size']
+            pilot_descr          = sinon.ComputePilotDescription()
+            pilot_descr.resource = troy_pilot.resource
+            pilot_descr.cores    = troy_pilot.description['size']
 
-            sinon_pilot_descr.run_time = 0  # FIXME
+            pilot_descr.run_time = 0  # FIXME
 
+            # FIXME: HACKER-HOOK
+            # set working directory to something which is known to work on all
+            # target hosts.
             import getpass
             local_user_id = getpass.getuser()
-            sinon_pilot_descr.working_directory = "/tmp/sinon-%s" % local_user_id  # FIXME
+            if  'futuregrid' in troy_pilot.resource :
+                pilot_descr.working_directory = "/N/u/%s/agent" % local_user_id
+            elif  'localhost' in troy_pilot.resource :
+                pilot_descr.working_directory = '%s/agent' % os.environ['HOME']
+            else :
+                pilot_descr.working_directory = "/home/%s/agent" % local_user_id
 
+            pilot_descr.queue     = 'interactive'
+            pilot_descr.run_time = 100
+          
             sinon_um    = sinon.UnitManager  (session   = self._sinon, 
                                               scheduler = 'direct_submission')
             sinon_pm    = sinon.PilotManager (session   = self._sinon, 
                                               resource_configurations = FGCONF)
-            sinon_pilot = sinon_pm.submit_pilots (sinon_pilot_descr)
+            sinon_pilot = sinon_pm.submit_pilots (pilot_descr)
 
             # once the pilot is submitted, we keep the actual submission url as
             # resource identifier

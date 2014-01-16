@@ -74,25 +74,29 @@ class PLUGIN_CLASS (troy.PluginBase):
         # we simply assign all pilots to localhost
         for pid in overlay.pilots.keys() :
 
-            pilot = overlay.pilots[pid]
+            troy_pilot = overlay.pilots[pid]
  
             # only BOUND pilots have a target resource assigned.
-            if  pilot.state not in [BOUND] :
-                raise RuntimeError ("Can only provision pilots in BOUND state (%s)" % pilot.state)
+            if  troy_pilot.state not in [BOUND] :
+                raise RuntimeError ("Can only provision pilots in BOUND state (%s)" % troy_pilot.state)
 
             # translate information into bigjob speak
             pilot_descr                     = pilot_module.PilotComputeDescription ()
-            pilot_descr.service_url         = pilot.resource
-            pilot_descr.number_of_processes = pilot.description['size']
-            pilot_descr.walltime            = pilot.description['wall_time']
+            pilot_descr.service_url         = troy_pilot.resource
+            pilot_descr.number_of_processes = troy_pilot.description['size']
+            pilot_descr.walltime            = troy_pilot.description['wall_time']
 
-          # if  'futuregrid' in pilot.resource :
-          #     # FIXME: uh oh...
-          #     pilot_descr.working_directory = '/N/u/merzky/agent/' 
-          #
-          # if  'localhost' in pilot.resource :
-          #     # FIXME: uh oh...
-          #     pilot_descr.working_directory = '%s/bj_agent' % os.environ['HOME']
+            # FIXME: HACKER-HOOK
+            # set working directory to something which is known to work on all
+            # target hosts.
+            import getpass
+            local_user_id = getpass.getuser()
+            if  'futuregrid' in troy_pilot.resource :
+                pilot_descr.working_directory = "/N/u/%s/agent" % local_user_id
+            elif  'localhost' in troy_pilot.resource :
+                pilot_descr.working_directory = '%s/agent' % os.environ['HOME']
+            else :
+                pilot_descr.working_directory = "/home/%s/agent" % local_user_id
 
             # and create the pilot
             bj_pilot = self.cp_service.create_pilot (pilot_descr)
@@ -100,13 +104,13 @@ class PLUGIN_CLASS (troy.PluginBase):
             # register the backend pilot with the troy pilot instance -- that
             # instance will decide how long the pilot handle is kept alive, or
             # when to do a reconnect
-            pilot._set_instance (instance_type = 'bigjob_pilot', 
-                                 provisioner   = self, 
-                                 instance      = bj_pilot, 
-                                 native_id     = bj_pilot.get_url ())
+            troy_pilot._set_instance (instance_type = 'bigjob_pilot', 
+                                      provisioner   = self, 
+                                      instance      = bj_pilot, 
+                                      native_id     = bj_pilot.get_url ())
 
             troy._logger.info ('overlay  provision: provision pilot  %s : %s ' \
-                            % (pilot, pilot._get_instance ('bigjob_pilot')))
+                            % (troy_pilot, troy_pilot._get_instance ('bigjob_pilot')))
 
 
     # --------------------------------------------------------------------------

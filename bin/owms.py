@@ -117,12 +117,6 @@ def main(args):
             tag = t.workload.name+'-'+t.name
 
             task_description                   = troy.TaskDescription()
-            task_description.tag               = "%s" % tag
-            task_description.executable        = '/bin/sh'
-            task_description.arguments         = [tag+'.sh']
-            task_description.inputs            = [t.input_file]
-            task_description.outputs           = [t.output_file]
-
             if args.remote_working_directory:
                 task_description.working_directory = args.remote_working_directory
                 print "OWMS DEBUG: task_description.working_directory: %s" % args.remote_working_directory
@@ -130,7 +124,18 @@ def main(args):
                 task_description.working_directory = args.local_working_directory
                 print "OWMS DEBUG: task_description.working_directory: %s" % args.local_working_directory
 
+            task_description.tag               = "%s" % tag
+            task_description.executable        = '/bin/sh'
+            task_description.arguments         = ['-c', '\"cd %s; sh ./%s.sh\"' %
+                                                  (task_description.working_directory, 
+                                                   tag
+                                                  )]
+            task_description.inputs            = [t.input_file, t.executable_name]
+            task_description.outputs           = [t.output_file]
+
             task_descriptions.append(task_description)
+
+            print task_description.as_dict ()
 
     # Create a session for TROY.
     session = troy.Session(
