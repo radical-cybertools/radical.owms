@@ -101,7 +101,10 @@ class PLUGIN_CLASS (troy.PluginBase):
                 for key in unit_descr :
 
                     # ignore Troy level keys
-                    if  key in ['tag'] :
+                    # FIXME: this should be a positive filter, not a negative
+                    # one, to shield against evolving troy...
+                    if  key in ['tag', 'inputs', 'outputs', 'stdin', 'stdout',
+                                'working_directory'] :
                         continue
 
                     sinon_cu_descr[key] = unit_descr[key]
@@ -200,7 +203,11 @@ class PLUGIN_CLASS (troy.PluginBase):
             src = "%s/%s" % (os.getcwd(), src)
 
         src_url = saga.Url ("file://localhost/%s" % src)
-        tgt_url = saga.Url ("%s/%s" % (resource, tgt))
+
+        if  tgt[0] != '/' : 
+            tgt_url = saga.Url ("%s/%s" % (resource, tgt))
+        else :
+            tgt_url = saga.Url ("%s%s"  % (resource, tgt))
 
         if  tgt_url.schema.endswith ('+ssh') :
             tgt_url.schema = 'ssh'
@@ -220,7 +227,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         fact, is interpreted as such if src contains wildcard chars).
         """
 
-        tgt_url     = saga.Url ("file://localhost/%s" % os.getcwd())
+        tgt_url     = saga.Url ("file://localhost%s" % os.getcwd())
         src_dir_url = saga.Url ("%s/%s" % (resource, srcdir))
 
         if  src_dir_url.schema.endswith ('+ssh') :
