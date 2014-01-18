@@ -198,11 +198,22 @@ class PLUGIN_CLASS (troy.PluginBase):
         tgt can not contain wildcards -- but must be a directory URL.
         """
 
+        # HACK
+        if  resource == 'futuregrid.INDIA' :
+            resource =  'ssh://india.futuregrid.org'
+        if  resource == 'futuregrid.SIERRA' :
+            resource =  'ssh://sierra.futuregrid.org'
+
+        # HACK
+        while resource [-1] == '/' :
+            resource = resource [0:-1]
+
+
         # make sure the src path is absolute
         if  src[0] != '/' :
             src = "%s/%s" % (os.getcwd(), src)
 
-        src_url = saga.Url ("file://localhost/%s" % src)
+        src_url = saga.Url ("file://localhost%s" % src)
 
         if  tgt[0] != '/' : 
             tgt_url = saga.Url ("%s/%s" % (resource, tgt))
@@ -212,7 +223,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         if  tgt_url.schema.endswith ('+ssh') :
             tgt_url.schema = 'ssh'
         
-      # print 'copy %s -> %s' % (src_url, tgt_url)
+        troy._logger.debug ('copy %s -> %s' % (src_url, tgt_url))
 
         tgt_dir = saga.filesystem.Directory (tgt_url, saga.filesystem.CREATE_PARENTS)
         tgt_dir.copy (src_url, tgt_url.path)
@@ -227,6 +238,17 @@ class PLUGIN_CLASS (troy.PluginBase):
         fact, is interpreted as such if src contains wildcard chars).
         """
 
+        # HACK
+        if  resource == 'futuregrid.INDIA' :
+            resource =  'ssh://india.futuregrid.org'
+        if  resource == 'futuregrid.SIERRA' :
+            resource =  'ssh://sierra.futuregrid.org'
+
+        # HACK
+        while resource [-1] == '/' :
+            resource = resource [0:-1]
+
+
         tgt_url     = saga.Url ("file://localhost%s" % os.getcwd())
 
         if  srcdir[0] == '/' :
@@ -237,7 +259,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         if  src_dir_url.schema.endswith ('+ssh') :
             src_dir_url.schema = 'ssh'
         
-      # print 'copy %s / %s -> %s' % (src_dir_url, src, tgt_url)
+        troy._logger.debug ('copy %s / %s -> %s' % (src_dir_url, src, tgt_url))
 
         src_dir = saga.filesystem.Directory (src_dir_url, saga.filesystem.CREATE_PARENTS)
         src_dir.copy ("%s/%s" % (src_dir_url.path, src), tgt_url)

@@ -161,14 +161,15 @@ def main(args):
     if args.pilot_system == 'bigjob':
 
         session.user_cfg['overlay_scheduler_round_robin'] = {
-            'resources': 'pbs+ssh://india.futuregrid.org/,\
-                          pbs+ssh://sierra.futuregrid.org/'
+          # 'resources': 'pbs+ssh://india.futuregrid.org/,pbs+ssh://sierra.futuregrid.org/'
+            'resources': 'pbs+ssh://india.futuregrid.org/'
         }
 
     elif args.pilot_system == 'sinon':
 
         session.user_cfg['overlay_scheduler_round_robin'] = {
-            'resources': 'futuregrid.INDIA,futuregrid.SIERRA'
+          # 'resources': 'futuregrid.INDIA,futuregrid.SIERRA'
+            'resources': 'futuregrid.INDIA'
         }
 
 
