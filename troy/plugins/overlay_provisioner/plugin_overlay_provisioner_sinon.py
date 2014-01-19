@@ -51,11 +51,11 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         self._coord = None
 
-        if  'COORDINATION_URL' in os.environ :
-            self._coord = os.environ['COORDINATION_URL'] 
-
-        elif 'coordination_url' in self.cfg :
+        if  'coordination_url' in self.cfg :
             self._coord = self.cfg['coordination_url']
+
+        elif 'COORDINATION_URL' in os.environ :
+            self._coord = os.environ['COORDINATION_URL'] 
 
         else :
             troy._logger.error ("No COORDINATION_URL set for sinon backend")
