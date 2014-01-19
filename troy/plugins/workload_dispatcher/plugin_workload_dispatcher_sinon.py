@@ -3,8 +3,8 @@
 import os
 import saga
 import sinon
-import radical.utils as ru
 
+import radical.utils as ru
 from   troy.constants import *
 import troy
 
@@ -35,6 +35,10 @@ class PLUGIN_CLASS (troy.PluginBase):
         """
 
         troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
+
+
+        # cache saga dirs for file staging
+        self._dir_cache = dict()
 
 
     # --------------------------------------------------------------------------
@@ -78,6 +82,11 @@ class PLUGIN_CLASS (troy.PluginBase):
             for uid in task.units.keys () :
 
                 unit = task.units[uid]
+
+              # # stage-in for unit.  For that to work, we have to make sure to
+              # # set the working_directory for the unit (if that was not set
+              # # explicitly before)
+              # workload.manager._stager.stage_in_unit (unit)
 
                 # sanity check for CU state -- only in BOUND state we can 
                 # rely on a pilot being assigned to the CU.
