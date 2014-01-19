@@ -109,7 +109,9 @@ class PLUGIN_CLASS (troy.PluginBase):
                 pilot_descr.working_directory = "/home/%s/agent" % local_user_id
 
             # FIXME: HACK
-            pilot_descr.run_time = 100
+            pilot_descr.run_time = 300
+            pilot_descr.queue    = self.cfg.get ('queue', None)
+            print pilot_descr
           
             sinon_um    = sinon.UnitManager  (session   = self._sinon, 
                                               scheduler = 'direct_submission')

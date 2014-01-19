@@ -126,10 +126,7 @@ def main(args):
 
             task_description.tag               = "%s" % tag
             task_description.executable        = '/bin/sh'
-            task_description.arguments         = ['-c', '\"cd %s; sh ./%s.sh\"' %
-                                                  (task_description.working_directory, 
-                                                   tag
-                                                  )]
+            task_description.arguments         = ['%s.sh' % tag]
             task_description.inputs            = [t.input_file, t.executable_name]
             task_description.outputs           = [t.output_file]
 
@@ -147,13 +144,15 @@ def main(args):
                 'coordination_url ': args.bigjob_coordination_endpoint
             },
             'overlay_provisioner_bigjob_pilot': {
-                'coordination_url': args.bigjob_coordination_endpoint
+                'coordination_url': args.bigjob_coordination_endpoint,
+                'queue'           : 'batch'
             },
             'workload_dispatcher_sinon': {
                 'coordination_url': args.sinon_coordination_endpoint
             },
             'overlay_provisioner_sinon': {
-                'coordination_url': args.sinon_coordination_endpoint
+                'coordination_url': args.sinon_coordination_endpoint,
+                'queue'           : 'batch'
             }
         })
 

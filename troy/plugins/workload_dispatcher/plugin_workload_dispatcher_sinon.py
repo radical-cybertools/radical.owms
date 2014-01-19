@@ -103,11 +103,14 @@ class PLUGIN_CLASS (troy.PluginBase):
                     # ignore Troy level keys
                     # FIXME: this should be a positive filter, not a negative
                     # one, to shield against evolving troy...
-                    if  key in ['tag', 'inputs', 'outputs', 'stdin', 'stdout',
-                                'working_directory'] :
+                    if  key in ['tag', 'inputs', 'outputs', 'stdin', 'stdout'] :
                         continue
 
-                    sinon_cu_descr[key] = unit_descr[key]
+                    elif key in ['working_directory', 'inputs', 'outputs', 'stdin', 'stdout'] :
+                        sinon_cu_descr['working_directory_priv'] = unit_descr[key]
+
+                    else :
+                        sinon_cu_descr[key] = unit_descr[key]
 
                 # FIXME: sanity check for pilot type
                 [sinon_um, sinon_pm, sinon_pilot] = pilot._get_instance ('sinon')

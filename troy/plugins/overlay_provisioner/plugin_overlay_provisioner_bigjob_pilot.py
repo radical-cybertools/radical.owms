@@ -87,7 +87,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             pilot_descr.walltime            = troy_pilot.description['wall_time']
 
             # FIXME: HACK
-            pilot_descr.queue               = 'interactive'
+            pilot_descr.queue               = self.cfg.get ('queue', None)
             pilot_descr.walltime            = 300
             print pilot_descr
 
