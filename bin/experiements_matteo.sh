@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PS1=' $'
+
 ##################################################################
 # adjust these vars
 export ROOT=`pwd`
@@ -25,7 +27,7 @@ source ve/bin/activate
 ###############################################################################
 echo -n "(re)install all packages? [Y/n] "
 read answer
-if [ $answer = 'n' ]; then
+if [ "$answer" = "n" ]; then
     echo 'skip install'
 else
     echo 'install packages'
@@ -75,7 +77,7 @@ fi # install
 ###############################################################################
 echo -n "run sinon experiment? [Y/n] "
 read answer
-if [ $answer = 'n' ]; then
+if [ "$answer" = 'n' ]; then
     echo 'skip sinon experiment'
 else
     echo 'run  sinon experiment'
@@ -88,7 +90,7 @@ fi
 ###############################################################################
 echo -n "run bigjob experiment? [Y/n] "
 read answer
-if [ $answer = 'n' ]; then
+if [ "$answer" = 'n' ]; then
     echo 'skip bigjob experiment'
 else
     echo 'run  bigjob experiment'
