@@ -38,6 +38,8 @@ class PLUGIN_CLASS (object) :
     #
     def init (self, cfg):
 
+
+        self.cfg    = cfg.as_dict ().get (self.name, {})
         self._coord = None
 
         if  'COORDINATION_URL' in os.environ :
@@ -52,7 +54,6 @@ class PLUGIN_CLASS (object) :
             troy._logger.info  ("Contact Radica@Ritgers for the redis password")
             raise RuntimeError ("Cannot use bigjob_pilot backend - no COORDINATION_URL -- see debug log for details")
 
-        self.cfg = cfg.as_dict ().get (self.name, {})
 
 
     # --------------------------------------------------------------------------
