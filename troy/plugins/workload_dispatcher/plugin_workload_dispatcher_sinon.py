@@ -228,7 +228,15 @@ class PLUGIN_CLASS (troy.PluginBase):
         
         troy._logger.debug ('copy %s -> %s' % (src_url, tgt_url))
 
-        tgt_dir = saga.filesystem.Directory (tgt_url, saga.filesystem.CREATE_PARENTS)
+        if  str(resource) in self._dir_cache :
+            tgt_dir = self._dir_cache[str(resource)]
+            tgt_dir.change_dir (tgt_url.path)
+            troy._logger.warning ('use cache for %s' % resource)
+        else :
+            tgt_dir = saga.filesystem.Directory (tgt_url, saga.filesystem.CREATE_PARENTS)
+            self._dir_cache[str(resource)] = tgt_dir
+            troy._logger.warning ('new cache for %s' % resource)
+
         tgt_dir.copy (src_url, tgt_url.path)
 
 
@@ -264,7 +272,15 @@ class PLUGIN_CLASS (troy.PluginBase):
         
         troy._logger.debug ('copy %s / %s -> %s' % (src_dir_url, src, tgt_url))
 
-        src_dir = saga.filesystem.Directory (src_dir_url, saga.filesystem.CREATE_PARENTS)
+        if  str(resource) in self._dir_cache :
+            src_dir = self._dir_cache[str(resource)]
+            src_dir.change_dir (src_dir_url.path)
+            troy._logger.warning ('use cache for %s' % resource)
+        else :
+            src_dir = saga.filesystem.Directory (src_dir_url, saga.filesystem.CREATE_PARENTS)
+            self._dir_cache[str(resource)] = src_dir
+            troy._logger.warning ('new cache for %s' % resource)
+
         src_dir.copy ("%s/%s" % (src_dir_url.path, src), tgt_url)
 
 

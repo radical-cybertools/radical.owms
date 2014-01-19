@@ -163,18 +163,27 @@ class PLUGIN_CLASS (troy.PluginBase):
         tgt can not contain wildcards -- but must be a directory URL.
         """
 
+        # HACK
+        while resource [-1] == '/' :
+            resource = resource [0:-1]
+
+
         # make sure the src path is absolute
         if  src[0] != '/' :
             src = "%s/%s" % (os.getcwd(), src)
 
-        src_url = saga.Url ("file://localhost/%s" % src)
-        tgt_url = saga.Url ("%s/%s" % (resource, tgt))
+        src_url = saga.Url ("file://localhost%s" % src)
+
+        if  tgt[0] != '/' : 
+            tgt_url = saga.Url ("%s/%s" % (resource, tgt))
+        else :
+            tgt_url = saga.Url ("%s%s"  % (resource, tgt))
 
         if  tgt_url.schema.endswith ('+ssh') :
             tgt_url.schema = 'ssh'
         
-      # print 'copy %s -> %s' % (src_url, tgt_url)
-      #
+        troy._logger.debug ('copy %s -> %s' % (src_url, tgt_url))
+
         if  str(resource) in self._dir_cache :
             tgt_dir = self._dir_cache[str(resource)]
             tgt_dir.change_dir (tgt_url.path)
@@ -196,13 +205,22 @@ class PLUGIN_CLASS (troy.PluginBase):
         fact, is interpreted as such if src contains wildcard chars).
         """
 
-        tgt_url     = saga.Url ("file://localhost/%s" % os.getcwd())
-        src_dir_url = saga.Url ("%s/%s" % (resource, srcdir))
+        # HACK
+        while resource [-1] == '/' :
+            resource = resource [0:-1]
+
+
+        tgt_url     = saga.Url ("file://localhost%s" % os.getcwd())
+
+        if  srcdir[0] == '/' :
+            src_dir_url = saga.Url ("%s%s"  % (resource, srcdir))
+        else :
+            src_dir_url = saga.Url ("%s/%s" % (resource, srcdir))
 
         if  src_dir_url.schema.endswith ('+ssh') :
             src_dir_url.schema = 'ssh'
 
-      # print 'copy %s / %s -> %s' % (src_dir_url, src, tgt_url)
+        troy._logger.debug ('copy %s / %s -> %s' % (src_dir_url, src, tgt_url))
 
         if  str(resource) in self._dir_cache :
             src_dir = self._dir_cache[str(resource)]
