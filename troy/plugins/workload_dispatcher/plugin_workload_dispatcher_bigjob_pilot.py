@@ -186,7 +186,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         if  str(resource) in self._dir_cache :
             tgt_dir = self._dir_cache[str(resource)]
-            tgt_dir.change_dir (tgt_url.path)
+            tgt_dir.change_dir   (tgt_url.path, saga.filesystem.CREATE_PARENTS)
             troy._logger.warning ('use cache for %s' % resource)
         else :
             tgt_dir = saga.filesystem.Directory (tgt_url, saga.filesystem.CREATE_PARENTS)
@@ -224,7 +224,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         if  str(resource) in self._dir_cache :
             src_dir = self._dir_cache[str(resource)]
-            src_dir.change_dir (src_dir_url.path)
+            src_dir.change_dir   (src_dir_url.path, saga.filesystem.CREATE_PARENTS)
             troy._logger.warning ('use cache for %s' % resource)
         else :
             src_dir = saga.filesystem.Directory (src_dir_url, saga.filesystem.CREATE_PARENTS)
