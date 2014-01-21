@@ -42,6 +42,7 @@ else
     cd   troy
     git  checkout devel
     git  pull
+    yes  | pip  uninstall troy
     pip  install .
     
     cd   $ROOT
@@ -49,6 +50,7 @@ else
     cd   bigjob/
     git  checkout develop
     git  pull
+    yes  | pip  uninstall bigjob
     pip  install .
     
     cd   $ROOT
@@ -56,6 +58,7 @@ else
     cd   saga-pilot/
     git  checkout devel
     git  pull
+    yes  | pip  uninstall saga-pilot
     pip  install .
     
     cd   $ROOT
@@ -63,6 +66,7 @@ else
     cd   saga-python/
     git  checkout devel
     git  pull
+    yes  | pip  uninstall saga-python
     pip  install .
     
     cd   $ROOT
@@ -70,6 +74,7 @@ else
     cd   radical.utils/
     git  checkout devel
     git  pull
+    yes  | pip  uninstall radical.utils
     pip  install .
 fi # install
 
