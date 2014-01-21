@@ -10,7 +10,7 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'strategy', 
-    'name'        : 'basic', 
+    'name'        : 'basic_late_binding', 
     'version'     : '0.1',
     'description' : 'this is the basic troy strategy for executing workloads.'
   }
