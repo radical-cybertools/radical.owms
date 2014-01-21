@@ -78,6 +78,12 @@ class PLUGIN_CLASS (troy.PluginBase):
         for partition_id in workload.partitions[:1] :
 
             troy._logger.info  ("dispatch workload partition 0 (%s)" % partition_id)
+            partition = troy.WorkloadManager.get_workload (partition_id)
+
+            # throughout this loop, we reflect the workload state as the state
+            # of the current partition.  This only works because troy does
+            # not enforce a workload state model...
+            workload.state = partition.state
 
             # throughout this loop, we reflect the workload state as the state
             # of the current partition.  This only works because troy does

@@ -49,7 +49,7 @@ if __name__ == '__main__':
     # Manage credentials.
     # TODO: set it to args.protocol (default ssh).
     c1 = troy.Context ('ssh')
-    c1.user_id = 'marksant'
+    c1.user_id = 'merzky'
     session.add_context (c1)
 
     # create a data stager for all workloads
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
         task_descr.inputs            = ['topol.tpr']
         task_descr.outputs           = ['state.cpt', 'confout.gro', 'ener.edr', 'traj.trr', 'md.log']
-        task_descr.working_directory = "/N/u/marksant/troy_demo/tasks/%d/" % n
+        task_descr.working_directory = "/N/u/merzky/troy_demo/tasks/%d/" % n
 
         print task_descr
 
