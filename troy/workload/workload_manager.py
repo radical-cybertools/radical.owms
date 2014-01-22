@@ -43,7 +43,6 @@ class WorkloadManager (object) :
                         translator = AUTOMATIC,
                         scheduler  = AUTOMATIC,
                         dispatcher = AUTOMATIC, 
-                        stager     = None,
                         session    = None) :
         """
         Create a new workload manager instance.  
@@ -56,10 +55,7 @@ class WorkloadManager (object) :
         else:
             self._session = troy.Session ()
 
-        if  stager :
-            self._stager = stager
-        else :
-            self._stager = troy.DataStager (self._session)
+        self._stager = None
 
 
         # We leave actual plugin initialization for later, in case a strategy
@@ -332,7 +328,7 @@ class WorkloadManager (object) :
       # # we don't really know if the dispatcher plugin will perform the
       # # stage-in operations in time - so we trigger it manually here.
       # # Eventually, this should get a new task state (same for stage-out)
-      # self._stager.stage_in_workload (workload)
+      # self.stage_in_workload (workload)
 
         # hand over control over workload to the dispatcher plugin, so it can do
         # what it has to do.
@@ -356,6 +352,36 @@ class WorkloadManager (object) :
 
         workload = self.get_workload (workload_id)
         workload.cancel ()
+
+
+    # --------------------------------------------------------------------------
+    #
+    @tu.timeit
+    def stage_in_workload (self, workload_id) :
+        """
+        trigger stage-in for all workload tasks
+        """
+
+        if  not self._stager :
+            self._stager = troy.DataStager (self._session)
+
+        workload = self.get_workload (workload_id)
+        self._stager.stage_in_workload (workload)
+
+
+    # --------------------------------------------------------------------------
+    #
+    @tu.timeit
+    def stage_out_workload (self, workload_id) :
+        """
+        trigger stage-out for all workload tasks
+        """
+
+        if  not self._stager :
+            self._stager = troy.DataStager (self._session)
+
+        workload = self.get_workload (workload_id)
+        self._stager.stage_out_workload (workload)
 
 
 # ------------------------------------------------------------------------------

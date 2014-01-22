@@ -179,25 +179,16 @@ def main(args):
     c1.user_id = args.ssh_user_name
     session.add_context (c1)
     
-    # Enable data staging if the given workload requires it.
-    # if args.data_staging:
-    #     print "OWMS DEBUG: ERROR data_staging is set! value = %s" % args.data_staging
-    #     data_stager = troy.DataStager()
-    data_stager = troy.DataStager()
-
     # Instantiate TROY planner and managers.
     planner = troy.Planner(planner = args.troy_planner, session = session)
     
-    # stager = None seems to set a stager anyway.
     # if args.data_staging:
     #     workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher, 
-    #                                             stager      = data_stager,
     #                                             session     = session)
     # else:
     #     workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher, 
     #                                             session     = session)
     workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher, 
-                                            stager      = data_stager,
                                             session     = session)
 
 
