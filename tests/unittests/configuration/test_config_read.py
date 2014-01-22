@@ -4,7 +4,7 @@ __copyright__ = "Copyright 2013, RADICAL @ Rutgers"
 __license__   = "MIT"
 
 
-import pprint
+import os
 import radical.utils.testing as rut
 
 import troy
@@ -17,12 +17,11 @@ def test_config_read():
     test configuration reading
     """
 
-    cf = troy.Configuration()
+    os.environ ['TROY_CONFIG'] = "%s/troy.cfg" % os.path.dirname (__file__)
 
-    general = cf.get_config ('general')
-    lucky = general['i_feel_lucky'].get_value ()
-    assert lucky == 'yes', 'Dont feeling lucky apparently!'
+    configurable = troy.Configuration ()
+    config       = configurable.get_config ('general')
+    outdir       = config['output_directory'].get_value ()
 
-
-
+    assert (outdir == '/Users/mark/agent'), "%s != DEBUG" % (loglevel)
 

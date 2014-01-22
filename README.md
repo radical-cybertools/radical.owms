@@ -1,6 +1,14 @@
 
 # Tired of Resource OverlaYs
 
+### Pointers
+
+* home page:     http://saga-project.github.io/troy/
+* documentation: http://saga-project.github.io/troy/docs/build/html/
+* wiki pages:    https://github.com/saga-project/troy/wiki/
+* issue tracker: https://github.com/saga-project/troy/issues/
+
+
 ### Installation Notes
 
 At this stage, the devel branches of saga-python, radical.utils, and bigjob should
@@ -15,6 +23,18 @@ Or, to make extra-sure TROY is installed correctly with all trace
 of previous installations removed:
 
 pip uninstall troy; rm -rf ./build; pip install .
+
+
+### Configuration
+
+You can use a configuration file in the location "~/.troy.cfg".
+An example is provided in `examples/troy.cfg`, you can copy
+that to "~/.troy.cfg" and customize to your environment.
+
+Available configuration options are explained in more detailed 
+in the Troy library documentation, and apply mostly to the Troy 
+plugins.
+
 
 ### Note to developers:
 
@@ -57,5 +77,5 @@ git push origin                        # sync with github
 git branch -d feature/world_domination # remove feature branch
 ```
 
-If unsure about anything, as Andre ;)
+If unsure about anything, ask Andre ;)
 

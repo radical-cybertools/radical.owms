@@ -1,6 +1,13 @@
 
+__author__    = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__   = "MIT"
+
+
 import saga
 
+
+# ------------------------------------------------------------------------------
 class Properties (saga.Attributes) :
     """
     Several Troy classes benefit from somewhat richer than default python
@@ -126,7 +133,7 @@ class Properties (saga.Attributes) :
 
             # saga.Attributes have an as_dict method
             if  isinstance (inits, saga.Attributes) :
-                inits = inits.as_dict ()
+                inits = saga.Attributes.as_dict (inits)
 
             # otherwise we attempt a cast
             else :

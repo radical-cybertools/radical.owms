@@ -1,11 +1,9 @@
 
-__author__    = "TROY Development Team"
-__copyright__ = "Copyright 2013, RADICAL"
-__license__   = "MIT"
 
+import threading
 
-import radical.utils      as ru
-import troy.utils         as tu
+import radical.utils  as ru
+import troy.utils     as tu
 from   troy.constants import *
 import troy
 
@@ -28,23 +26,57 @@ class Planner(object):
 
     # --------------------------------------------------------------------------
     #
-    def __init__(self, planner='default'):
+    def __init__(self, planner = AUTOMATIC, 
+                       session = None):
         """
-        Create a new planner instance for this workload.
+        Create a new planner instance for this workload.  
 
         Use the default planner plugin if not indicated otherwise
         """
 
-        # initialize state, load plugins
-        self._plugin_mgr = ru.PluginManager('troy')
+        if  session :
+            self._session = session
+        else:
+            self._session = troy.Session ()
 
-        # FIXME: error handling
-        self._planner = self._plugin_mgr.load('planner', planner)
-        self._planner.init ()
+        self.plugins = dict ()
+        self.plugins['planner' ] = planner
+
+        self._plugin_mgr = None
+
 
     # --------------------------------------------------------------------------
     #
-    def derive_overlay(self, workload_id, **kwargs):
+    def _init_plugins (self, workload=None) :
+
+        if  self._plugin_mgr :
+            # we don't allow changes once plugins are loaded and used, for state
+            # consistency
+            return
+
+      # troy._logger.debug ("initializing planner (%s)" % self.plugins)
+
+        # for each plugin set to 'AUTOMATIC', do the clever thing
+        if  self.plugins['planner' ]  == AUTOMATIC :
+            self.plugins['planner' ]  = 'maxcores'
+
+
+        # load plugins
+        self._plugin_mgr = ru.PluginManager ('troy')
+        self._planner    = self._plugin_mgr.load ('planner', self.plugins['planner'])
+
+        if  not self._planner : 
+            raise RuntimeError ("Could not load planner plugin")
+
+        self._planner.init_plugin (self._session)
+
+        troy._logger.info ("initialized  planner (%s)" % self.plugins)
+
+
+    # --------------------------------------------------------------------------
+    #
+    @tu.timeit
+    def derive_overlay (self, workload_id):
         """
         create overlay plan (description) from workload
         """
@@ -54,24 +86,28 @@ class Planner(object):
 
         # Workload doesn't need to be PLANNED, but if it is only DESCRIBED,
         # it can't be parametrized.
-        if workload.state not in [PLANNED, DESCRIBED]:
+        if  workload.state not in [PLANNED, DESCRIBED]:
             raise ValueError("workload '%s' not in DESCRIBED or PLANNED "
                              "state" % workload.id)
-        elif workload.state is DESCRIBED and workload._parametrized:
+        elif workload.state is DESCRIBED and workload.parametrized:
             raise ValueError("Parametrized workload '%s' not PLANNED yet."
                              % workload.id)
 
-        # derive overlay from workload
-        overlay = self._planner.derive_overlay(workload, **kwargs)
+        # make sure manager is initialized
+        self._init_plugins (workload)
 
-        # Put the overlay into the system registry so others can access it
-        troy.OverlayManager.register_overlay(overlay)
+        # derive overlay from workload
+        overlay_descr = self._planner.derive_overlay (workload)
+
+        # mark the origin of the overlay description
+        overlay_descr['workload_id'] = workload_id
 
         # Only pass the ID back
-        return overlay.id
+        return overlay_descr
 
     # --------------------------------------------------------------------------
     #
+    @tu.timeit
     def expand_workload(self, workload_id):
         """
         Expand cardinality parameters in workload.
@@ -84,6 +120,8 @@ class Planner(object):
         if workload.state != DESCRIBED:
             raise ValueError("workload '%s' not in DESCRIBED state" %
                              workload.id)
+
+        self._init_plugins (workload)
 
         # Expand (optional) cardinality in workload
         self._planner.expand_workload(workload)

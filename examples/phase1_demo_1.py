@@ -18,57 +18,56 @@ import getpass
 #
 if __name__ == '__main__':
 
-    radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner']
-#                   'Andre Luckow',     'Matteo Turilli',     'Melissa Romanus',
-#                   'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
-#                   'Antons Treikalis', 'Jeffery Rabinowitz', 'Patrick Gray',
-#                   'Vishal Shah',      'Radicalobot']
+    radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner',
+                   'Andre Luckow',     'Matteo Turilli',     'Melissa Romanus',
+                   'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
+                   'Antons Treikalis', 'Jeffery Rabinowitz', 'Patrick Gray',
+                   'Vishal Shah',      'Radicalobot']
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager()
+    workload_mgr = troy.WorkloadManager (dispatcher='local')
 
     # Responsible for managing the pilot overlay
-    overlay_mgr = troy.OverlayManager()
+    overlay_mgr = troy.OverlayManager (provisioner=troy.AUTOMATIC)
 
     # Planning makes initial mapping of workload to overlay
-    planner = troy.Planner('default')
-  # planner = troy.Planner('bundles')
+    planner = troy.Planner('maxcores')
+    #planner = troy.Planner('bundles')
 
     # TROY data structure that holds the tasks and their relations
-    workload = troy.Workload()
+    workload_id = workload_mgr.create_workload ()
+    workload    = workload_mgr.get_workload    (workload_id)
 
     # Create a task for every radicalist
     for r in radicalists:
         task_descr            = troy.TaskDescription()
         task_descr.tag        = "%s" % r
 
-        task_descr.executable = '/bin/sleep'
-        import random
-        task_descr.arguments  = [str(random.randint(0,1))]
+        task_descr.executable = '/bin/echo'
+        task_descr.arguments  = ['Hello World, ', r, '!']
 
         task_id = workload.add_task(task_descr)
 
         # Tasks are uncoupled so no relationships are specified
 
-    # Register the workload so we can pass it by ID
-    troy.WorkloadManager.register_workload(workload)
-
     # combine or split tasks in te workload
-    planner.expand_workload(workload.id)
+    planner.expand_workload(workload_id)
 
     # Initial description of the overlay based on the workload
-    overlay_id = planner.derive_overlay(workload.id, guard=troy.UPPER_LIMIT)
-    #overlay_id = planner.derive_overlay(workload.id)
+    overlay_descr = planner.derive_overlay (workload_id)
+
+    # get overlay for that description
+    overlay_id = overlay_mgr.create_overlay (overlay_descr)
 
     # Translate 1 workload into N ComputeUnits and N DataUnits
-    workload_mgr.translate_workload(workload.id, overlay_id)
+    workload_mgr.translate_workload(workload_id, overlay_id)
 
     # Translate 1 Overlay description into N Pilot Descriptions
     overlay_mgr.translate_overlay(overlay_id)
 
     # Schedule the workload onto the overlay
     # Early binding assumes the overlay is not yet scheduled.
-    workload_mgr.bind_workload (workload.id, overlay_id,
+    workload_mgr.bind_workload (workload_id, overlay_id,
                                 bind_mode=troy.EARLY)
 
     # Decide which resources to use for constructing the overlay
@@ -78,7 +77,7 @@ if __name__ == '__main__':
     overlay_mgr.provision_overlay(overlay_id)
 
     # Execute the ComputeUnits on the Pilots
-    workload_mgr.dispatch_workload(workload.id, overlay_id)
+    workload_mgr.dispatch_workload (workload_id, overlay_id)
 
     # Of course nothing will fail due to TROY's magic robustness and
     # and we therefore just wait until its done!
@@ -96,10 +95,8 @@ if __name__ == '__main__':
     else :
         troy._logger.info ("game over -- play again?")
 
-#    for k in workload.tasks.keys():
-#        for t in
-
-    print workload.tasks.keys()
+    workload_mgr.cancel_workload (workload_id)   # same as workload.cancel ()
+    overlay_mgr .cancel_overlay  (overlay_id)
 
 
     for t_id in workload.tasks.keys():

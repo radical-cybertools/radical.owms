@@ -1,5 +1,7 @@
 
 
+import radical.utils as ru
+
 from   troy.constants import *
 import troy
 
@@ -17,22 +19,22 @@ _idx = 0
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (object) :
-    """
-    This class implements the (trivial) round-robin workload scheduler algorithm for
-    TROY.
-    """
+class PLUGIN_CLASS (troy.PluginBase):
+
+    __metaclass__ = ru.Singleton
+
 
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
 
-        troy._logger.info ("create the round-robin workload_scheduler plugin")
-        
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
+
 
     # --------------------------------------------------------------------------
     #
     def schedule (self, workload, overlay) :
+
         global _idx
 
         if  not len(overlay.pilots.keys()) :

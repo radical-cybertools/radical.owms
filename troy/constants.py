@@ -16,6 +16,15 @@ __license__   = "MIT"
 
 # ------------------------------------------------------------------------------
 #
+# Plugin selection wildcards
+#
+DEFAULT      = 'default'     # use default plugin as configured by Troy
+AUTO         = 'auto'        # leave plugin selection to current Troy strategy
+AUTOMATIC    =  AUTO         # alias
+
+
+# ------------------------------------------------------------------------------
+#
 # workload states
 #
 DESCRIBED    = 'Described'   # tasks known
@@ -49,6 +58,7 @@ UNKNOWN      = 'Unknown'     # what?
 # use that state model
 #
 DESCRIBED    = 'Described'   # Unit created
+BOUND        = 'Bound'       # Unit bound to pilot
 DISPATCHED   = 'Dispatched'  # Unit submitted to pilot
 PENDING      = 'Pending'     # Unit scheduled on pilot
 RUNNING      = 'Running'     # Unit active    on pilot

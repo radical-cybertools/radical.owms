@@ -60,8 +60,6 @@ def test_pilot_inspection () :
         task_description = troy.TaskDescription (task_dict)
         workload.add_task (task_description)
 
-    troy.WorkloadManager.register_workload (workload)
-
 
     workload_mgr = troy.WorkloadManager ()
     workload_mgr.translate_workload(workload.id, overlay.id)
@@ -84,14 +82,14 @@ def test_pilot_inspection () :
     #
     # inspect a pilot
     #
-    pilot_id = overlay.pilots.keys ()[1]
+    pilot_id = overlay.pilots.keys ()[0]
     pilot    = overlay.pilots[pilot_id]
     assert (pilot)
     assert (pilot.state == PROVISIONED)               , "%s != Provisioned'"         % pilot.state
     assert (pilot.description)                        , "no description (%s)"        % pilot.description
     assert (str(pilot.resource) == 'fork://localhost'), "%s != 'fork://localhost'"   % pilot.resource
     assert (str(pilot.size)  == '2')                  , "%s != '2'"                  % pilot.size  
-    assert (len(pilot.units) ==  1 )                  , "%d !=  1"                   % len (pilot.units)
+    assert (len(pilot.units) ==  2 )                  , "%d !=  1"                   % len (pilot.units)
     assert (pilot.native_id)                          , "no native id"
     assert (pilot.native_description)                 , "no native description"
     assert (pilot.start_time)                         , "no start_time"

@@ -14,6 +14,7 @@ import troy
 Represent a compute unit, as element of a troy.Task in a troy.Workload.
 """
 
+
 # ------------------------------------------------------------------------------
 #
 class ComputeUnit (tu.Properties) :
@@ -26,6 +27,7 @@ class ComputeUnit (tu.Properties) :
     i.e. a set of key-value pairs describing the represented workload element.
     """
 
+    _instance_cache = tu.InstanceCache ()
 
     # --------------------------------------------------------------------------
     #
@@ -37,18 +39,22 @@ class ComputeUnit (tu.Properties) :
         """
 
         if  _native_id :
-            # back-translate native if to troy id
-            param = str(troy.WorkloadManager.native_id_to_unit_id (_native_id))
+            native_id  = _native_id
+            uid        = None
+            descr      = troy.ComputeUnitDescription ()
+            reconnect  = True
 
-        if isinstance (param, basestring) :
-            uid       = param
-            descr     = troy.ComputeUnitDescription ()
-            reconnect = True
+        elif isinstance (param, basestring) :
+            _native_id = None
+            uid        = param
+            descr      = troy.ComputeUnitDescription ()
+            reconnect  = True
 
         elif isinstance (param, troy.ComputeUnitDescription) :
-            uid       = ru.generate_id ('cu.')
-            descr     = param
-            reconnect = False
+            native_id  = None
+            uid        = ru.generate_id ('cu.')
+            descr      = param
+            reconnect  = False
 
         else :
             raise TypeError ("ComputeUnit constructor accepts either a uid (string) or a "
@@ -87,69 +93,60 @@ class ComputeUnit (tu.Properties) :
         self.register_property ('affinity_machine_label')
 
         # initialized essential properties
-        self.id          = uid
-        self.state       = DESCRIBED
-        self.description = descr
-        self.pilot_id    = _pilot_id
-        self.task        = _task
-        self.native_id   = _native_id
+        self.id                = uid
+        self.native_id         = native_id
+        self.state             = DESCRIBED
+        self.description       = descr
+        self.pilot_id          = _pilot_id
+        self.task              = _task
+        self.working_directory = None  # can only stage-in once wd is known
 
          
         # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks
 
-        self._pilot_id      = None
         self._dispatcher    = None
         self._instance      = None
         self._instance_type = None
         self._unit_info     = None
 
+        # flag success of stage-in / stage-out
+        self.staged_in      = False
+        self.staged_out     = False
+
+
         self.register_property_updater (self._update_properties)
 
 
+        # check in cache for reconnect
         if  reconnect :
             # we need to get instance and instance type -- but for that we 
             # need to find the provisioner.  So we cycle through all overlay 
             # provision plugins, and ask them if they know about our ID.
 
-            if  self.task :
-                # ha, shortcut found: task should know provisioner
-                dispatcher = self.task.manager._dispatcher ()
-
-                try :
-                    self._dispatcher    = dispatcher
-                    self._instance      = dispatcher.unit_reconnect (_native_id)
-                    self._instance_type = dispatcher.name
-                except :
-                    pass
-
-            # lets check if the above shortcut applied:
-            if not self._instance :
-
-                # ok, need to serach provisioner after all...
-                plugin_mgr = ru.PluginManager ('troy')
-                native_id = troy.WorkloadManager.unit_id_to_native_id (uid)
-
-                # FIXME: error handling
-                candidates = plugin_mgr.list ('workload_dispatcher')
-
-                for candidate in candidates :
-                    dispatcher = plugin_mgr.load ('workload_dispatcher', candidate)
-
-                    try :
-                        self._instance      = dispatcher.unit_reconnect (native_id)
-                        self._instance_type = candidate
-                        self._dispatcher    = dispatcher
-                    except :
-                        pass
+            self.id,             self.native_id, \
+            self._dispatcher,    self._instance, \
+            self._instance_type, self._state =   \
+                    self._instance_cache.get (instance_id = self.id, 
+                                              native_id   = self.native_id)
 
             if  not self._instance :
                 raise ValueError ("Could not reconnect to unit %s" % uid)
 
-            self.native_id = native_id
-
             # refresh unit information and state from the backend
             self._update_properties ()
+
+
+        # register in cache for later reconnect
+        else :
+            self._instance_cache.put (instance_id = self.id, 
+                                      native_id   = self.native_id,
+                                      instance    = [self.id, 
+                                                     self.native_id, 
+                                                     self._dispatcher,    
+                                                     self._instance, 
+                                                     self._instance_type, 
+                                                     self.state])
 
 
     # --------------------------------------------------------------------------
@@ -169,11 +166,12 @@ class ComputeUnit (tu.Properties) :
         cancel the CU
         """
 
-        if  self.state not in [DONE, FAILED, CANCELED] :
-            troy._logger.warning ('cancel unit %s' % self.id)
+        if  self.state in [PENDING, RUNNING] :
+
+            troy._logger.info ('cancel unit     %s' % self.id)
 
             if  self._dispatcher :
-                self._dispatcher.unit_cancel (self._instance)
+                self._dispatcher.unit_cancel (self)
 
             self.state = CANCELED
 
@@ -185,7 +183,7 @@ class ComputeUnit (tu.Properties) :
         if  self.state not in [DESCRIBED] :
             raise RuntimeError ("Can only bind pilots in DESCRIBED state (%s)" % self.state)
             
-        self._pilot_id = pilot_id
+        self.pilot_id  = pilot_id
         self.state     = BOUND
 
 
@@ -205,8 +203,18 @@ class ComputeUnit (tu.Properties) :
 
         troy.WorkloadManager.unit_id_to_native_id (self.id, native_id)
 
+        # update cache
+        self._instance_cache.put (instance_id = self.id, 
+                                  native_id   = self.native_id,
+                                  instance    = [self.id, 
+                                                 self.native_id, 
+                                                 self._dispatcher,    
+                                                 self._instance, 
+                                                 self._instance_type, 
+                                                 self.state])
 
-    # --------------------------------------------------------------------------
+
+    # ----------------------------------------------------------------------
     #
     def _get_instance (self, instance_type) :
 
@@ -249,7 +257,6 @@ class ComputeUnit (tu.Properties) :
             # not calling the updater again (duh!).
             return self.get_property (key)
 
-        if  key == 'resource' : return self._resource
         if  key == 'instance' : return self._instance
 
         # check if the info were available via the original description

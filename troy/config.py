@@ -1,6 +1,14 @@
-import radical.utils.config as ruc
+
+__author__    = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__   = "MIT"
+
 
 import pprint
+
+import radical.utils.config    as ruc
+import radical.utils.singleton as rus
+
 
 # ------------------------------------------------------------------------------
 #
@@ -32,7 +40,9 @@ import pprint
 # h_flag=True
 #
 
-class Configuration(ruc.Configurable):
+class Configuration (ruc.Configurable):
+
+    __metaclass__ = rus.Singleton    
 
     def __init__(self):
 
@@ -60,15 +70,6 @@ class Configuration(ruc.Configurable):
             'default'       : '0',
             'valid_options' : ['0', '1', '2', '3'],
             'documentation' : 'Verbosity mode',
-            'env_variable'  : ''
-        }, {
-            # i_feel_lucky
-            'category'      : 'general',
-            'name'          : 'i_feel_lucky',
-            'type'          : str,
-            'default'       : 'no',
-            'valid_options' : ['yes', 'no'],
-            'documentation' : 'Need I say more?',
             'env_variable'  : ''
         }]
 
@@ -167,7 +168,7 @@ class Configuration(ruc.Configurable):
                 'category'      : section_name,
                 'name'          : 'h_flag',
                 'type'          : bool,
-                'default'       : 'True',
+                'default'       : True,
                 'valid_options' : '',
                 'documentation' : 'Heterogenerous resource type',
                 'env_variable'  : ''
@@ -176,10 +177,11 @@ class Configuration(ruc.Configurable):
             ruc.Configurable.config_options (self, section_name,
                                              _compute_section_template)
             c = ruc.Configurable.get_config(self,section_name)
-            pprint.pprint(c)
 
             endpoint = c['endpoint'].get_value ()
 
-            print 'endpoint: %s' % endpoint
+          # pprint.pprint(c)
+          # import troy
+          # troy._logger.debug ('endpoint: %s' % endpoint)
 
 

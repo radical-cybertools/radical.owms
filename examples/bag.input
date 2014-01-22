@@ -1,0 +1,17 @@
+#This is a sample application skeleton input file
+#It defines a bag-of-tasks application.
+
+#Number of Stages:
+Num_Stage = 1
+
+#Definition of 1st Stage:
+Stage_Name = Stage_1
+    Num_Tasks = 4
+    Task_Length = uniform 10s
+    Input_Source = filesystem
+    Input_Files_Each_Task = 1
+    Tasks_Each_Input_File = 1
+    Input_File_Size = uniform 1048576
+    Output_Files_Each_Task = 1
+    Output_File_Size = uniform 1048576
+

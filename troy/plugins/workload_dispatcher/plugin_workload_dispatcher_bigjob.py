@@ -1,6 +1,7 @@
 
 
 import bigjob
+import radical.utils as ru
 
 from   troy.constants import *
 import troy
@@ -19,15 +20,27 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (object) :
-    """
-    This class implements the bigjob workload dispatcher for TROY.
-    """
+
+    __metaclass__ = ru.Singleton
+
 
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
 
-        troy._logger.info ("create the bigjob workload_dispatcher plugin")
+        self.description = PLUGIN_DESCRIPTION
+        self.name        = "%(name)s_%(type)s" % self.description
+
+        raise RuntimeError ("Plugin is disabled")
+
+
+    # --------------------------------------------------------------------------
+    #
+    def init (self, cfg):
+
+        troy._logger.info ("init the bigjob workload dispatcher plugin")
+        
+        self.cfg = cfg.as_dict ().get (self.name, {})
 
 
     # --------------------------------------------------------------------------
@@ -47,8 +60,8 @@ class PLUGIN_CLASS (object) :
 
 
                 unit_descr = unit.description
-                pilot_id   = unit['_pilot_id']
-                pilot      = troy.Pilot (pilot_id)
+                pilot_id   = unit['pilot_id']
+                pilot      = troy.Pilot (pilot_id, _instance_type='bigjob')
                 troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
                                 % (uid, pilot._get_instance('bigjob')))
                 
@@ -86,6 +99,7 @@ class PLUGIN_CLASS (object) :
     #
     def unit_reconnect (self, native_id) :
 
+        troy._logger.debug ("reconnect to bigjob subjob %s" % native_id)
         bj_cu = bigjob.subjob (subjob_url=native_id)
 
         return bj_cu
@@ -105,12 +119,12 @@ class PLUGIN_CLASS (object) :
         # translate bj state to troy state
         if  'state' in info :
             # hahaha python switch statement hahahahaha
-            info['state'] =  {"New"    : DESCRIBED, 
-                              "Running": RUNNING, 
-                              "Staging": RUNNING, 
-                              "Failed" : FAILED, 
-                              "Done"   : DONE, 
-                              "Unknown": UNKNOWN}.get (info['state'], UNKNOWN)
+            info['state'] =  {"New"     : DISPATCHED, 
+                              "Running" : RUNNING, 
+                              "Staging" : RUNNING, 
+                              "Failed"  : FAILED, 
+                              "Done"    : DONE, 
+                              "Unknown" : UNKNOWN}.get (info['state'], UNKNOWN)
 
       # print 'unit_get_info: %s' % info
 

@@ -71,7 +71,7 @@ class Overlay (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, descr={}) :
+    def __init__ (self, descr=None, overlay_mgr=None) :
         """
         Create a new overlay instance, based on the given overlay description
 
@@ -82,11 +82,13 @@ class Overlay (tu.Properties) :
         instance.
         """
 
+        if  not descr :
+            descr = troy.OverlayDescription ()
+
         if  isinstance (descr, dict) :
             descr = troy.OverlayDescription (descr)
         
         ol_id = ru.generate_id ('ol.')
-
         
         tu.Properties.__init__ (self, descr)
 
@@ -95,12 +97,17 @@ class Overlay (tu.Properties) :
         self.register_property ('state')
         self.register_property ('description')
         self.register_property ('pilots')
+        self.register_property ('manager')
 
         # initialize essential properties
         self.id          = ol_id
         self.state       = DESCRIBED
         self.description = descr
         self.pilots      = dict()
+        self.manager     = overlay_mgr
+
+        # register this instance, so that overlay can be passed around by id.
+        troy.OverlayManager.register_overlay (self)
 
 
     # --------------------------------------------------------------------------

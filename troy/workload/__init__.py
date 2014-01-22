@@ -16,3 +16,5 @@ from task                     import Task
 from workload                 import Workload
 from workload_manager         import WorkloadManager
 
+from data_stager              import DataStager
+

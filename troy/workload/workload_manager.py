@@ -39,31 +39,100 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, inspector  = 'default', 
-                        translator = 'default',
-                        scheduler  = 'round_robin',
-                        dispatcher = 'bigjob') :
+    def __init__ (self, inspector  = AUTOMATIC, 
+                        translator = AUTOMATIC,
+                        scheduler  = AUTOMATIC,
+                        dispatcher = AUTOMATIC, 
+                        stager     = None,
+                        session    = None) :
         """
         Create a new workload manager instance.  
 
         Use default plugins if not indicated otherwise
         """
 
-        # initialize state, load plugins
-        self._plugin_mgr  = ru.PluginManager ('troy')
+        if  session :
+            self._session = session
+        else:
+            self._session = troy.Session ()
+
+        if  stager :
+            self._stager = stager
+        else :
+            self._stager = troy.DataStager (self._session)
+
+
+        # We leave actual plugin initialization for later, in case a strategy
+        # wants to alter / complete the plugin selection
+
+        self.plugins = dict ()
+        self.plugins['inspector' ] = inspector
+        self.plugins['translator'] = translator
+        self.plugins['scheduler' ] = scheduler
+        self.plugins['dispatcher'] = dispatcher
+
+        self._plugin_mgr = None
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _init_plugins (self) :
+
+        if  self._plugin_mgr :
+            # we don't allow changes once plugins are loaded and used, for state
+            # consistency
+            return
+
+        # for each plugin set to 'AUTOMATIC', do the clever thing
+
+        if  self.plugins['inspector' ]  == AUTOMATIC :
+            self.plugins['inspector' ]  = 'reflect'
+        if  self.plugins['translator']  == AUTOMATIC :
+            self.plugins['translator']  = 'direct'
+        if  self.plugins['scheduler' ]  == AUTOMATIC :
+            self.plugins['scheduler' ]  = 'first'
+        if  self.plugins['dispatcher']  == AUTOMATIC :
+            self.plugins['dispatcher']  = 'local'
+
+      # troy._logger.debug ("initializing workload manager (%s)" % self.plugins)
+
+        # load plugins
+        self._plugin_mgr = ru.PluginManager ('troy')
 
         # FIXME: error handling
-        self._inspector   = self._plugin_mgr.load  ('workload_inspector',  inspector)
-        self._translator  = self._plugin_mgr.load  ('workload_translator', translator)
-        self._scheduler   = self._plugin_mgr.load  ('workload_scheduler',  scheduler)
-        self._dispatcher  = self._plugin_mgr.load  ('workload_dispatcher', dispatcher)
+        self._inspector  = self._plugin_mgr.load  ('workload_inspector',  self.plugins['inspector' ])
+        self._translator = self._plugin_mgr.load  ('workload_translator', self.plugins['translator'])
+        self._scheduler  = self._plugin_mgr.load  ('workload_scheduler',  self.plugins['scheduler' ])
+        self._dispatcher = self._plugin_mgr.load  ('workload_dispatcher', self.plugins['dispatcher'])
 
+        if  not self._inspector  : raise RuntimeError ("Could not load inspector  plugin")
+        if  not self._translator : raise RuntimeError ("Could not load translator plugin")
+        if  not self._scheduler  : raise RuntimeError ("Could not load scheduler  plugin")
+        if  not self._dispatcher : raise RuntimeError ("Could not load dispatcher plugin")
+
+        self._inspector .init_plugin (self._session)
+        self._translator.init_plugin (self._session)
+        self._scheduler .init_plugin (self._session)
+        self._dispatcher.init_plugin (self._session)
+
+        troy._logger.info ("initialized  workload manager (%s)" % self.plugins)
 
     # --------------------------------------------------------------------------
     #
     @classmethod
     def register_workload (cls, workload) :
-        ru.Registry.register (workload)
+
+        if  isinstance (workload, list) :
+            workloads =  workload
+        else :
+            workloads = [workload]
+
+        for workload in workloads :
+
+            if  not isinstance (workload, troy.Workload) :
+                raise TypeError ('expected troy.Workload instance, not %s' % type(workload))
+
+            ru.Registry.register (workload)
 
 
     # --------------------------------------------------------------------------
@@ -133,7 +202,25 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def translate_workload (self, workload_id, overlay=None) :
+    def create_workload (self, task_descriptions=None) :
+
+        workload = troy.Workload (workload_mgr=self)
+
+        if  task_descriptions :
+            if  not isinstance (task_descriptions, list) :
+                task_descriptions = [task_descriptions]
+
+            for task_descr in task_descriptions :
+                workload.add_task (task_descr)
+
+        return workload.id
+
+
+    # --------------------------------------------------------------------------
+    #
+    @tu.timeit
+    def translate_workload (self, workload_id, overlay_id=None) :
+        # FIXME: is empty overlay valid?
         """
         Translate the referenced workload, i.e. transform its tasks into
         ComputeUnit and DataUnit descriptions.
@@ -144,11 +231,16 @@ class WorkloadManager (object) :
         translator changes and/or annotates the given workload.
         """
 
+
         workload = self.get_workload (workload_id)
+        overlay  = troy.OverlayManager.get_overlay (overlay_id)
 
         # make sure the workflow is 'fresh', so we can translate it
         if  workload.state not in [DESCRIBED, PLANNED] :
             raise ValueError ("workload '%s' not in DESCRIBED nor PLANNED state" % workload.id)
+
+        # make sure manager is initialized
+        self._init_plugins ()
 
         # hand over control over workload to the translator plugin, so it can do
         # what it has to do.
@@ -157,9 +249,14 @@ class WorkloadManager (object) :
         # mark workload as 'translated'
         workload.state = TRANSLATED
 
+        for partition_id in workload.partitions :
+            partition = self.get_workload (partition_id)
+            partition.state = TRANSLATED
+
 
     # --------------------------------------------------------------------------
     #
+    @tu.timeit
     def bind_workload (self, workload_id, overlay_id, bind_mode=None) :
         """
         bind (schedule) the referenced workload, i.e. assign its components to
@@ -176,7 +273,6 @@ class WorkloadManager (object) :
         in the case of late binding.  Partially dispatched overlays will not be
         usable in either case -- for those, the binding parameter must be left
         unspecified (i.e. `None`).
-        
         """
 
         workload = self.get_workload (workload_id)
@@ -201,17 +297,17 @@ class WorkloadManager (object) :
                 raise ValueError ( "overlay '%s' neither scheduled nor " % str(overlay.id) \
                                  + "dispateched, cannot do late binding")
                                  
+        # make sure manager is initialized
+        self._init_plugins ()
 
         # hand over control over workload (and overlay) to the scheduler plugin,
         # so it can do what it has to do.
         self._scheduler.schedule (workload, overlay)
 
-        # mark workload as 'scheduled'
-        workload.state = BOUND
-
 
     # --------------------------------------------------------------------------
     #
+    @tu.timeit
     def dispatch_workload (self, workload_id, overlay_id) :
         """
         schedule the referenced workload, i.e. submit its Units to the
@@ -230,6 +326,14 @@ class WorkloadManager (object) :
         if  workload.state != BOUND :
             raise ValueError ("workload '%s' not in BOUND state" % workload.id)
 
+        # make sure manager is initialized
+        self._init_plugins ()
+
+      # # we don't really know if the dispatcher plugin will perform the
+      # # stage-in operations in time - so we trigger it manually here.
+      # # Eventually, this should get a new task state (same for stage-out)
+      # self._stager.stage_in_workload (workload)
+
         # hand over control over workload to the dispatcher plugin, so it can do
         # what it has to do.
         self._dispatcher.dispatch (workload, overlay)
@@ -237,9 +341,14 @@ class WorkloadManager (object) :
         # mark workload as 'scheduled'
         workload.state = DISPATCHED
 
+        for partition_id in workload.partitions :
+            partition = self.get_workload (partition_id)
+            partition.state = DISPATCHED
+
 
     # --------------------------------------------------------------------------
     #
+    @tu.timeit
     def cancel_workload (self, workload_id) :
         """
         cancel the referenced workload, i.e. all its tasks

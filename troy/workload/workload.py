@@ -4,6 +4,8 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
+import time
+
 import radical.utils      as ru
 import troy.utils         as tu
 from   troy.constants import *
@@ -73,12 +75,47 @@ class Workload (tu.Properties) :
     a newly `DESCRIBED` task is added to a `SCHEDULED` workload.   Those
     feedback loops are considered out-of-scope for Troy at this point, so that
     state transitions are considered irreversible.  
+
+    Workload Partitions
+    -------------------
+
+    A Troy Planner (or in fact any other algorithm in Troy) can partition
+    a workload.  Workload Partitions are sub-workloads which have to run
+    sequentially -- i.e. partition[0] has to be completed before partition[1]
+    can start.  Task dependencies provide boundaries to the possible
+    partitioning schemes, but partitions can also be defined in the absence of
+    task dependencies, for example to ensure efficient usage of certain overlay
+    structures.
+
+    A troy workload maintains a set of partitions, and any algorithm, in
+    particular the troy.strategy and the workload.dispatcher plugins, may or may
+    not honor the defined partitions -- the plugin documentation should document
+    if partitions are honored or not.
+
+    Partitions are provided as `workload.partitions`, which is a list of
+    partition IDs, which can be translated to `troy.Workload` instances via
+    `troy.WorkloadManager.get_workload (workload.partitions[0])` etc.  That list
+    will contain at least one partition, the original workload itself --
+    algorithms can thus transparently operate over partitioned and unpartitioned
+    workloads.  It is guaranteed that the union of all partitions is equivalent
+    to the complete original workload, i.e. that it contains all tasks of the
+    workload.  The partitions and the original workload share their tasks, i.e.
+    when a task is run and enters `DONE` state in a partition, it is also in
+    `DONE` state in the original workload, and vice versa.  Partition states
+    follow the rules for workload states above.  The overall workload state is
+    not affected by the partitioning of the workload.
+
+    Note that partitions may create garbage collection cycles -- this will be
+    changed in future versions of Troy.
     """
+
+    # FIXME: if the original workload gets, for example, BOUND, then all
+    # partitions should be marked as BOUND.
 
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self) :
+    def __init__ (self, descr=None, workload_mgr=None) :
         """
         Create a new workload instance.
 
@@ -88,6 +125,11 @@ class Workload (tu.Properties) :
         additional id parameter, to reconnect to the thus identified workload
         instances.  
         """
+
+        # workload description is actually not used, yet.  Oh well...
+        if  not descr :
+            descr = dict ()
+
         
         wl_id = ru.generate_id ('wl.')
 
@@ -98,17 +140,27 @@ class Workload (tu.Properties) :
         self.register_property ('state')
         self.register_property ('tasks')
         self.register_property ('relations')
+        self.register_property ('partitions')
+        self.register_property ('manager')
 
         # initialize essential properties
-        self.id        = wl_id
-        self.state     = DESCRIBED
-        self.tasks     = dict()
-        self.relations = list()
+        self.id         = wl_id
+        self.state      = DESCRIBED
+        self.tasks      = dict()
+        self.relations  = list()
+        self.partitions = list()
+        self.manager    = workload_mgr
+
+        # initialize partitions
+        self.partitions = [self.id]
 
         self.register_property_updater ('state', self.get_state)
 
         # initialize private properties
-        self._parametrized = False
+        self.parametrized = False
+
+        # register this instance, so that workload can be passed around by id.
+        troy.WorkloadManager.register_workload (self)
 
 
     # --------------------------------------------------------------------------
@@ -129,16 +181,17 @@ class Workload (tu.Properties) :
         """
 
         # don't touch final states
-        if  self.state in [CANCELED, DONE, FAILED] :
-            return
+        if  self.state in [DISPATCHED] :
 
-        # non-final -- cancel all tasks
-        for tid in self.tasks.keys () :
-            task = self.tasks[tid]
-            task.cancel ()
+            troy._logger.info ('cancel workload %s' % self.id)
 
-        # and update state
-        self.state = CANCELED
+            # non-final -- cancel all tasks
+            for tid in self.tasks.keys () :
+                task = self.tasks[tid]
+                task.cancel ()
+
+            # and update state
+            self.state = CANCELED
 
 
     # --------------------------------------------------------------------------
@@ -168,7 +221,7 @@ class Workload (tu.Properties) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
             # FIXME: add sanity checks for task syntax / semantics
-            task = troy.Task (d, _manager=self)
+            task = troy.Task (d, _workload=self)
 
             if task.tag in self.tasks :
                 raise ValueError ("Task with tag '%s' already exists" % task.tag)
@@ -267,7 +320,7 @@ class Workload (tu.Properties) :
         """
 
         # atomic states are set elsewhere
-        if  self.state in [DESCRIBED, PLANNED, TRANSLATED, BOUND] :
+        if  self.state in [DESCRIBED, PLANNED] :
             return self.state
 
         # final states are never left
@@ -294,6 +347,15 @@ class Workload (tu.Properties) :
         elif CANCELED in task_states :
             self.state = CANCELED
 
+        elif DESCRIBED in task_states :
+            self.state = TRANSLATED
+
+        elif TRANSLATED in task_states :
+            self.state = TRANSLATED
+
+        elif BOUND in task_states :
+            self.state = BOUND
+
         elif DISPATCHED in task_states :
             self.state = DISPATCHED
 
@@ -305,6 +367,15 @@ class Workload (tu.Properties) :
 
         troy._logger.debug ('wl   state %-6s: %-10s %s' % (self.id, self.state, str(task_states)))
         return self.state
+
+
+    # --------------------------------------------------------------------------
+    #
+    def wait (self) :
+
+        while self.state not in [troy.DONE, troy.FAILED, troy.CANCELED]:
+            troy._logger.info ("waiting for workload (state: %s)" % self.state)
+            time.sleep(1)
 
 
     # --------------------------------------------------------------------------

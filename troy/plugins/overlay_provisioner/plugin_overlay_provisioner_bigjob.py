@@ -1,8 +1,8 @@
 
+
 import os
-import saga
 import bigjob
-import weakref
+import radical.utils as ru
 
 from   troy.constants import *
 import troy
@@ -17,26 +17,43 @@ PLUGIN_DESCRIPTION = {
     'description' : 'this is a scheduler which provisions bigjob pilots.'
   }
 
-_idx = 0
-
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (object) :
-    """
-    This class implements the bigjob overlay provisioner for
-    TROY.
-    """
+
+    __metaclass__ = ru.Singleton
+
 
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
 
-        troy._logger.info ("create the bigjob overlay_provisioner plugin")
+        self.description = PLUGIN_DESCRIPTION
+        self.name        = "%(name)s_%(type)s" % self.description
 
-        if  not 'COORDINATION_URL' in os.environ :
-            raise RuntimeError ("Cannot use bigjob backend - no CCORDINATION_URL set")
+        raise RuntimeError ("Plugin is disabled")
 
-        self._coord = os.environ['COORDINATION_URL']
+
+    # --------------------------------------------------------------------------
+    #
+    def init (self, cfg):
+
+
+        self.cfg    = cfg.as_dict ().get (self.name, {})
+        self._coord = None
+
+        if  'COORDINATION_URL' in os.environ :
+            self._coord = os.environ['COORDINATION_URL'] 
+
+        elif 'coordination_url' in self.cfg :
+            self._coord = self.cfg['coordination_url']
+
+        else :
+            troy._logger.error ("No COORDINATION_URL set for bigjob_pilot backend")
+            troy._logger.info  ("example: export COORDINATION_URL=redis://<pass>@gw68.quarry.iu.teragrid.org:6379")
+            troy._logger.info  ("Contact Radica@Ritgers for the redis password")
+            raise RuntimeError ("Cannot use bigjob_pilot backend - no COORDINATION_URL -- see debug log for details")
+
 
 
     # --------------------------------------------------------------------------
@@ -50,14 +67,10 @@ class PLUGIN_CLASS (object) :
             if  pilot.state not in [BOUND] :
                 raise RuntimeError ("Can only provision pilots in BOUND state (%s)" % pilot.state)
 
-            global _idx
-            
             # FIXME: ceck state
             bj_manager     = bigjob.bigjob (coordination_url=self._coord)
             bj_manager_url = bj_manager.get_url ()
-            bj_pilot_url   = bj_manager.start_pilot_job (pilot._resource)
-
-            _idx += 1
+            bj_pilot_url   = bj_manager.start_pilot_job (pilot.resource)
 
             pilot._set_instance ('bigjob', self, [bj_pilot_url, bj_manager], bj_manager.get_url ())
 
@@ -72,7 +85,7 @@ class PLUGIN_CLASS (object) :
         bj_manager     = bigjob.bigjob (coordination_url=self._coord, 
                                         pilot_url=native_id)
         bj_manager_url = bj_manager.get_url ()
-        bj_pilot_url   = saga.Url (bj_manager_url).path[1:]
+        bj_pilot_url   = ru.Url (bj_manager_url).path[1:]
 
         return [bj_pilot_url, bj_manager]
 
