@@ -1,6 +1,8 @@
 
 
 import os
+import getpass
+
 import saga
 import sinon
 import radical.utils as ru
@@ -94,24 +96,38 @@ class PLUGIN_CLASS (troy.PluginBase):
             pilot_descr.resource = troy_pilot.resource
             pilot_descr.cores    = troy_pilot.description['size']
 
-            pilot_descr.run_time = 0  # FIXME
 
-            # FIXME: HACKER-HOOK
-            # set working directory to something which is known to work on all
-            # target hosts.
-            import getpass
-            local_user_id = getpass.getuser()
-            if  'futuregrid' in troy_pilot.resource :
-                pilot_descr.working_directory = "/N/u/%s/agent" % local_user_id
-            elif  'localhost' in troy_pilot.resource :
-                pilot_descr.working_directory = '%s/agent' % os.environ['HOME']
-            else :
-                pilot_descr.working_directory = "/home/%s/agent" % local_user_id
+            userid       = getpass.getuser()
+            home         = os.environ['HOME']
+            queue        = None
+            walltime     = 24 * 60 # 1 day as default
 
-            # FIXME: HACK
+            print self.global_cfg
+
+            for key in self.global_cfg.keys () :
+
+                print 'checking %s for %s' % (key, troy_pilot.resource)
+
+                if 'sinon_id' in self.global_cfg[key] :
+                    print self.global_cfg[key]['sinon_id']
+
+                if  key.startswith ('compute:')        and \
+                    'sinon_id' in self.global_cfg[key] and \
+                    self.global_cfg[key]['sinon_id']  == troy_pilot.resource :
+
+                    print 'resource config for %s' % troy_pilot.resource
+                    print self.global_cfg[key]
+
+                    userid   = self.global_cfg[key].get ('username', userid)
+                    home     = self.global_cfg[key].get ('home',     home)
+                    queue    = self.global_cfg[key].get ('queue',    queue)
+                    walltime = self.global_cfg[key].get ('walltime', walltime)
+
+                    break
+
+            pilot_descr.working_directory = "%s/troy_agents/" % home
+            pilot_descr.queue    = queue
             pilot_descr.run_time = 300
-            pilot_descr.queue    = self.cfg.get ('queue', None)
-            print pilot_descr
           
             sinon_um    = sinon.UnitManager  (session   = self._sinon, 
                                               scheduler = 'direct_submission')
