@@ -27,9 +27,6 @@ if __name__ == '__main__':
 
     os.chdir ("/tmp/troy_demo/")
 
-    # create a data stager for all workloads
-    stager = troy.DataStager ()
-
     radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner',
                    'Andre Luckow',     'Matteo Turilli',     'Melissa Romanus',
                    'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
@@ -47,8 +44,7 @@ if __name__ == '__main__':
 
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (dispatcher = 'local', 
-                                         stager     = stager)  # this is actually the default
+    workload_mgr = troy.WorkloadManager (dispatcher = 'local')
 
     # Responsible for managing the pilot overlay
     overlay_mgr = troy.OverlayManager (scheduler    = 'round_robin', 
