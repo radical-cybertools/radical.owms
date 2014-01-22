@@ -97,6 +97,7 @@ def main(args):
 
         w = Workload(counter, 
                 args.workload_pattern, 
+                args.data_staging,
                 args.local_working_directory,
                 args.workload_directory,
                 args.task_duration, 
@@ -177,47 +178,52 @@ def main(args):
     c1 = troy.Context ('ssh')
     c1.user_id = args.ssh_user_name
     session.add_context (c1)
+    
+    # Enable data staging if the given workload requires it.
+    # if args.data_staging:
+    #     print "OWMS DEBUG: ERROR data_staging is set! value = %s" % args.data_staging
+    #     data_stager = troy.DataStager()
+    data_stager = troy.DataStager()
 
-    # Instantiate TROY planner, data stager, and managers.
-    # TODO: Note that the provisioner has a funny name (AUTOMATIC?). We need to
-    # use args.troy_overlay_rovisioner with a set of plausible names. We will 
-    # take care of consistency checks (what scheduler goes with what 
-    # provisioner) after parsing the CL arguments.
-    data_stager      = troy.DataStager ()
-    planner          = troy.Planner(planner = args.troy_planner, 
-                                    session = session)
+    # Instantiate TROY planner and managers.
+    planner = troy.Planner(planner = args.troy_planner, session = session)
+    
+    # stager = None seems to set a stager anyway.
+    # if args.data_staging:
+    #     workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher, 
+    #                                             stager      = data_stager,
+    #                                             session     = session)
+    # else:
+    #     workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher, 
+    #                                             session     = session)
     workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher, 
                                             stager      = data_stager,
                                             session     = session)
+
+
     overlay_manager  = troy.OverlayManager (scheduler   = args.troy_overlay_scheduler, 
                                             provisioner = args.troy_overlay_provisioner,
                                             session     = session)
 
     # Questions: 
-    # - How do I set the degree of concurrency for the planner?
-    # - Can I use 1 workload manager for multiple workloads? (I think so)
-    # - Do I have a tag in a troy task description to store the name of the 
-    #   workload to which that task belongs?
-    # - Can we change the name of the planner from 'concurrency' to 
-    #   'concurrent'?
     # - How do we use bundles?
 
-    # The following is 'quick and dirty' while waiting to answer to the 
-    # questions above.
     workload_id = workload_manager.create_workload(task_descriptions)
-    troy.execute_workload(workload_id, planner, overlay_manager, workload_manager, strategy='basic')
+    troy.execute_workload(workload_id, planner, overlay_manager, 
+        workload_manager, strategy=args.troy_strategy)
 
 
 #==============================================================================
 class Workload(object):
 
-    def __init__(self, counter, pattern, local_working_directory, 
-        workload_directory, task_duration, task_count, 
+    def __init__(self, counter, pattern, data_staging, 
+        local_working_directory, workload_directory, task_duration, task_count, 
         task_input_file_size, task_output_file_size):
         
         self.name               = pattern.lower()+'_'+str(counter)
         self.counter            = counter
         self.pattern            = pattern
+        self.data_staging       = data_staging
         self.local_directory    = local_working_directory
         self.workload_directory = workload_directory
         self.task_duration      = task_duration
@@ -234,9 +240,11 @@ class Workload(object):
 
             task = Task(self, task_number, self.local_directory, 
                 self.workload_directory, self.task_duration, self.task_if_size, 
-                self.task_of_size)
+                self.task_of_size, self.data_staging)
 
-            task.write_input_file()
+            if self.data_staging:
+                task.write_input_file()
+
             task.write_executable()
 
             self.tasks.append(task)
@@ -246,12 +254,13 @@ class Workload(object):
 class Task(object):
 
     def __init__(self, workload, counter, local_directory, workload_directory, 
-        duration, if_size, of_size):
+        duration, data_staging, if_size, of_size):
 
         self.name               = 'task_'+str(counter)
         self.local_directory    = local_directory
         self.workload_directory = workload_directory
         self.duration           = duration
+        self.data_staging       = data_staging
         self.input_file_size    = if_size
         self.output_file_size   = of_size
 
@@ -276,7 +285,9 @@ class Task(object):
     def write_executable(self):
 
         self.executable_name = self.workload.name+'-'+self.name+'.sh'
-        self.output_file     = self.workload.name+'-'+self.name+'.output'
+
+        if self.data_staging:
+            self.output_file = self.workload.name+'-'+self.name+'.output'
 
         self.executable = open("%s/%s" % 
             (self.local_directory, self.executable_name), "w")
@@ -290,248 +301,15 @@ class Task(object):
 
         self.executable.write("sleep %s\n\n" % self.duration)
         
-        self.executable.write("cat %s > /dev/null\n" % self.input_file)
+        if self.data_staging:
+            self.executable.write("cat %s > /dev/null\n" % self.input_file)
 
-        self.executable.write("dd if=/dev/zero of=%s bs=%s count=1\n" % 
-            (self.output_file, self.output_file_size))
+            self.executable.write("dd if=/dev/zero of=%s bs=%s count=1\n" % 
+                (self.output_file, self.output_file_size))
         
         self.executable.close()
 
         os.chmod(self.local_directory+"/"+self.executable_name, 0755)
-
-
-#==============================================================================
-# class ExecutionStrategy(object):
-
-#     def __init__(self, args):
-
-#         self.coordination_password = args.coordination_password
-#         self.ssh_user_name         = args.ssh_user_name
-#         self.ssh_private_key       = args.ssh_private_key
-
-#         self.bj_config             = args.bigjob_config
-#         self.binding_order         = args.binding_order
-#         self.number_of_cores       = args.number_of_cores
-        
-#         self.information_system    = args.information_system        
-#         self.bundle_config         = args.bundle_config
-
-#         self.workload_description  = args.workload_description 
-#         self.skeleton_mode         = args.skeleton_mode 
-#         self.skeleton_output_file  = args.skeleton_output_file
-#         self.concurrency           = args.concurrency
-#         self.task_execution_time   = args.task_execution_time
-
-#         self.credentials           = None
-#         self.bundle                = None
-#         self.skeleton              = None
-#         self.workload              = None
-#         self.overlay               = None
-
-
-    #--------------------------------------------------------------------------
-    # STRATEGIES
-    #--------------------------------------------------------------------------
-    # Add profile and arguments to describe the experiments.
-    # def local(self):
-        
-    #     try:
-
-    #         self.set_credentials()
-    #         self.generate_skeleton()
-    #         self.generate_workload()
-    #         self.generate_overlay()
-    #         self.instantiate_overlay()
-    #         self.execute_workload()
-
-    #     except Exception, ex:
-
-    #         print "The local execution strategy has failed: %s" % ((str(ex)))
-    #         traceback.print_exc()
-    #         sys.exit(-1)
-
-    #     finally:
-
-    #         if self.overlay:
-    #             self.overlay.shutdown()
-
-    # #--------------------------------------------------------------------------
-    # def remote(self):
-        
-    #     try:
-
-    #         self.set_credentials()
-    #         self.generate_skeleton()
-    #         self.generate_workload()
-    #         self.generate_overlay()
-    #         self.instantiate_overlay()
-    #         self.execute_workload()
-
-    #     except Exception, ex:
-
-    #         print "The remote execution strategy has failed: %s" % ((str(ex)))
-    #         traceback.print_exc()
-    #         sys.exit(-1)
-
-    #     finally:
-
-    #         if self.overlay:
-    #             self.overlay.shutdown()
-
-    # #--------------------------------------------------------------------------
-    # # CREDENTIALS
-    # #--------------------------------------------------------------------------
-    # def set_credentials(self):
-
-    #     try:
-
-    #         timer = Timer('EXPERIMENT: Acquiring credentials')
-
-    #         self.credentials = wmanager.Credentials()
-
-    #         self.credentials.add_coordination_password(self.coordination_password)
-    #         self.credentials.add_ssh_user_name(self.ssh_user_name)
-    #         self.credentials.add_ssh_private_key(self.ssh_private_key)
-
-    #         timer.checkpoint('is done')
-
-    #     except Exception, ex:
-
-    #         print "Credentials setup failed: %s" % ((str(ex)))
-    #         timer.checkpoint('is done')
-    #         traceback.print_exc()
-    #         sys.exit(-1)
-
-
-    # #--------------------------------------------------------------------------
-    # # SKELETON
-    # #--------------------------------------------------------------------------
-    # def generate_skeleton(self):
-
-    #     try:
-
-    #         self.skeleton = wmanager.adapters.Skeleton('test_skeleton', 
-    #             self.workload_description, 
-    #             self.skeleton_mode, 
-    #             self.skeleton_output_file,
-    #             self.task_execution_time
-    #         )
-            
-    #         self.skeleton.generate()
-
-    #     except Exception, ex:
-
-    #         print "Skeleton generation failed: %s" % ((str(ex)))
-    #         traceback.print_exc()
-    #         sys.exit(-1)
-
-
-    # #--------------------------------------------------------------------------
-    # # WORKLOAD
-    # #--------------------------------------------------------------------------
-    # def generate_workload(self):
-
-    #     try:
-
-    #         self.workload = wmanager.Workload('skeleton', 
-    #             self.skeleton, 
-    #             self.concurrency
-    #         )    
-    #         self.workload.generate()
-
-    #     except Exception, ex:
-
-    #         print "Workload generation failed: %s" % ((str(ex)))
-    #         traceback.print_exc()
-    #         sys.exit(-1)
-
-    # #--------------------------------------------------------------------------
-    # def execute_workload(self):
-
-    #     try:
-
-    #         self.workload.execute(self.overlay)
-
-    #     except Exception, ex:
-
-    #         print "Workload execution failed: %s" % ((str(ex)))
-    #         traceback.print_exc()
-    #         sys.exit(-1)
-
-
-
-    # #--------------------------------------------------------------------------
-    # # PILOT OVERLAY
-    # #--------------------------------------------------------------------------
-    # def generate_overlay(self):
-
-    #     try:
-
-    #         self.overlay = wmanager.PilotFramework(self.execution_mode, 
-    #             self.bj_config, 
-    #             self.workload, 
-    #             self.credentials, 
-    #             self.information_system, 
-    #             self.bundle_config,
-    #             self.binding_order,
-    #             self.number_of_cores
-    #         )
-
-    #         # Generate the pilot framework for the given workload
-    #         #
-    #         # - describe_pilots()
-    #         # - escribe_compute_units()
-    #         # - bigjob.PilotComputeService()
-    #         self.overlay.generate()
-
-    #     except Exception, ex:
-
-    #         print "Overlay generation failed: %s" % ((str(ex)))
-    #         traceback.print_exc()
-    #         sys.exit(-1)
-
-
-    # #--------------------------------------------------------------------------
-    # def instantiate_overlay(self):
-    #     # FRAMEWORK INSTANTIATION - BULK API
-    #     # 
-    #     # - bulk_bind_pilots_to_resource()
-    #     # - bulk_schedule_cus_to_pilots()
-    #     # - bulk_instantiate_pilots()
-    #     # - bulk_stage_in_data()
-        
-    #     try:
-
-    #         if self.binding_order == 'WR':
-    #             self.overlay.bulk_schedule_cus_to_pilots('WR')
-    #             self.overlay.bulk_bind_pilots_to_resource()
-    #             self.overlay.bulk_instantiate_pilots()
-    #             self.overlay.bulk_stage_in_data()
-
-    #         if self.binding_order == 'RW':
-    #             self.overlay.bulk_bind_pilots_to_resource()
-    #             self.overlay.bulk_instantiate_pilots()
-    #             self.overlay.bulk_schedule_cus_to_pilots('RW')
-    #             self.overlay.bulk_stage_in_data()
-
-    #     except Exception, ex:
-
-    #         print "Overlay instantiation failed: %s" % ((str(ex)))
-    #         traceback.print_exc()
-    #         sys.exit(-1)
-
-    # #--------------------------------------------------------------------------
-    # def shutdown_overlay(self):
-
-    #     try:
-        
-    #         self.overlay.shutdown()
-
-    #     except Exception, ex:
-
-    #         print "Overlay shutdown failed: %s" % ((str(ex)))
-    #         traceback.print_exc()
-    #         sys.exit(-1)
 
 
 #==============================================================================
@@ -544,7 +322,7 @@ if __name__ == '__main__':
         'a given workload description on a tailored pilot framework.')
 
     # -------------------------------------------------------------------------
-    # Nestor
+    # OWMS
     parser.add_argument(
         '-m', '--execution-mode',
         choices = ['remote', 'local'], default='remote',
@@ -561,7 +339,6 @@ if __name__ == '__main__':
         are bound to pilots. RW = Resources are bound before the Workload; WR \
         = Workload is bound before the Resources. Default: WR.'
     )
-
 
     parser.add_argument(
         '-cc', '--concurrency',
@@ -586,6 +363,13 @@ if __name__ == '__main__':
         help    = 'The working directory on the remote resource(s).'
     )
 
+    parser.add_argument(
+        '-ds', '--data-staging',
+        default = None,
+        metavar = 'data_staging', 
+        help    = 'Enables data staging if the workload requires it. \
+                   Default: None.'
+    )
 
 
     # -------------------------------------------------------------------------
@@ -596,6 +380,15 @@ if __name__ == '__main__':
         metavar = 'execution_manager',
         help    = 'The execution manager system used to execute the given \
         workload. Default: TROY.'
+    )
+
+    parser.add_argument(
+        '-es', '--troy-strategy',
+        choices = ['basic', 'basic_early_binding', 'basic_late_binding'], 
+        default = 'basic_late_binding',
+        metavar = 'troy_strategy',
+        help    = 'The strategy used by TROY in order to execute the given \
+        workload. Default: basic_late_binding.'
     )
 
     parser.add_argument(
