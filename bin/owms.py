@@ -30,38 +30,6 @@ import traceback
 
 import troy
 
-# Configuration parameters owms.py
-
-# '-m',   '--execution-mode',           choices=['remote', 'local'],                  default='remote',           metavar='execution_mode',
-# '-bo',  '--binding-order',            choices=['RW', 'WR'],                         default='WR',               metavar='binding_order',
-# '-cc',  '--concurrency',                                                            default=100,                metavar='concurrency',
-# '-E',   '--execution-manager',        choices=['TROY', 'manual'],                   default='TROY',             metavar='execution_manager',
-# '-ep',  '--troy-planner',             choices=['concurrent', ],                     default='concurrent',       metavar='troy_planner',
-# '-ews', '--troy-workload-scheduler',  choices=['roundrobin', 'loadbalance'],        default='roundrobin',       metavar='troy_overlay_scheduler',
-# '-ewd', '--troy-workload-dispatcher', choices=['local', 'remote'],                  default='TROY',             metavar='troy_workload_dispatcher',
-# '-eos', '--troy-overlay-scheduler',   choices=['roundrobin'],                       default='roundrobin',       metavar='troy_overlay_scheduler',
-# '-eop', '--troy-overlay-provisioner', choices=[''],                                 default='',                 metavar='troy_overlay_provisioner',
-# '-P',   '--pilot-system',             choices=['BigJob', 'saga-pilot'],             default='BigJob'            metavar='pilot_system'
-# '-bj',  '--bigjob-config',                                                          default='etc/bigjob.conf',  metavar='bigjob_config'
-# '-pc',  '--pilot-count',                                                            default=1,                  metavar='pilot_count',
-# '-pcc', '--pilot-core-count',                                                       default=8,                  metavar='pilot_core_count',
-# '-A',   '--application-generator',    choices=['skeleton', 'abstract-application'], default='skeleton',         metavar='application_generator'
-# '-sm',  '--skeleton-mode',            choices=['Shell', 'Swift', 'DAX'],            default='Shell',            metavar='skeleton_mode'
-# '-so',  '--skeleton-output-file',                                                                               metavar='skeleton_output_file',
-# '-wc',  '--workload-count',                                                         default=1,                  metavar='workload_count',
-# '-wp',  '--workload-pattern',         choices=['HOBOT', 'HEBOT'],                   default='HOBOT',            metavar='workload_pattern',
-# '-wld', '--workload-local-directory',                                               default=sys.prefix+'.',     metavar='workload_local_directory',
-# '-wrd', '--workload-remote-directory',                                                                          metavar='workload_remote_directory',
-# '-td',  '--task-duration',                                                          default=0,                  metavar='task_duration',
-# '-tc',  '--task-count',                                                             default=1,                  metavar='task_count',
-# '-tis', '--task-input-file-size',                                                   default=1048576,            metavar='task_input_file_size',
-# '-tos', '--task-output-file-size',                                                  default=1048576,            metavar='task_output_files_size',
-# '-I',   '--information-system',       choices=['bundles'],                          default='bundles',          metavar='information_system'
-# '-b',   '--bundle-config',                                                          default='etc/bundle.conf',  metavar='bundle_config'
-# '-c',   '--coordination-password',                                                                              metavar='coordination_password'
-# '-u',   '--ssh-user-name',                                                                                      metavar='ssh_user_name'
-# '-k',   '--ssh-private-key',                                                                                    metavar='ssh_private_key'
-
 # TODO: Delete and add an option task_description flag.
 # 'workload_description', metavar='workload_description',
 
@@ -115,9 +83,9 @@ def main(args):
     for w in aimes_workloads:
         for t in w.tasks:
 
-            tag = t.workload.name+'-'+t.name
-
-            task_description                   = troy.TaskDescription()
+            tag              = t.workload.name+'-'+t.name
+            task_description = troy.TaskDescription()
+            
             if args.remote_working_directory:
                 task_description.working_directory = args.remote_working_directory
                 print "OWMS DEBUG: task_description.working_directory: %s" % args.remote_working_directory
@@ -125,11 +93,14 @@ def main(args):
                 task_description.working_directory = args.local_working_directory
                 print "OWMS DEBUG: task_description.working_directory: %s" % args.local_working_directory
 
-            task_description.tag               = "%s" % tag
-            task_description.executable        = '/bin/sh'
-            task_description.arguments         = ['%s.sh' % tag]
-            task_description.inputs            = [t.input_file, t.executable_name]
-            task_description.outputs           = [t.output_file]
+            task_description.tag        = "%s" % tag
+            task_description.executable = '/bin/sh'
+            task_description.arguments  = ['%s.sh' % tag]
+
+            # Type None for .input_file and output_file are not yet managed.
+            if args.data_staging:
+                task_description.inputs  = [t.input_file, t.executable_name]
+                task_description.outputs = [t.output_file]
 
             task_descriptions.append(task_description)
 
