@@ -67,6 +67,7 @@ def main(args):
                 args.workload_pattern, 
                 args.data_staging,
                 args.local_working_directory,
+                args.remote_working_directory,
                 args.workload_directory,
                 args.task_duration, 
                 args.task_count, 
@@ -179,7 +180,8 @@ def main(args):
 class Workload(object):
 
     def __init__(self, counter, pattern, data_staging, 
-        local_working_directory, workload_directory, task_duration, task_count, 
+        local_working_directory, remote_working_directory, 
+        workload_directory, task_duration, task_count, 
         task_input_file_size, task_output_file_size):
         
         self.name               = pattern.lower()+'_'+str(counter)
@@ -187,6 +189,7 @@ class Workload(object):
         self.pattern            = pattern
         self.data_staging       = data_staging
         self.local_directory    = local_working_directory
+        self.remote_directory   = remote_working_directory
         self.workload_directory = workload_directory
         self.task_duration      = task_duration
         self.task_count         = task_count
@@ -201,8 +204,9 @@ class Workload(object):
         for task_number in range(self.task_count):
 
             task = Task(self, task_number, self.local_directory, 
-                self.workload_directory, self.task_duration, self.task_if_size, 
-                self.task_of_size, self.data_staging)
+                self.remote_directory, self.workload_directory, 
+                self.task_duration, self.task_if_size, self.task_of_size, 
+                self.data_staging)
 
             if self.data_staging:
                 task.write_input_file()
@@ -215,11 +219,12 @@ class Workload(object):
 #==============================================================================
 class Task(object):
 
-    def __init__(self, workload, counter, local_directory, workload_directory, 
-        duration, data_staging, if_size, of_size):
+    def __init__(self, workload, counter, local_directory, remote_directory, 
+        workload_directory, duration, data_staging, if_size, of_size):
 
         self.name               = 'task_'+str(counter)
         self.local_directory    = local_directory
+        self.remote_directory   = remote_directory
         self.workload_directory = workload_directory
         self.duration           = duration
         self.data_staging       = data_staging
@@ -247,27 +252,32 @@ class Task(object):
     def write_executable(self):
 
         self.executable_name = self.workload.name+'-'+self.name+'.sh'
+        self.output_file     = self.workload.name+'-'+self.name+'.output'
 
-        if self.data_staging:
-            self.output_file = self.workload.name+'-'+self.name+'.output'
-
+        # TODO: Using remote_directory is a stupid hack due to the lack of 
+        # data staging capabilities. It works only when running this on the 
+        # head node of the cluster where the pilot will be submitted.
         self.executable = open("%s/%s" % 
-            (self.local_directory, self.executable_name), "w")
+            (self.remote_directory, self.executable_name), "w")
 
         self.executable.write("#!/bin/bash\n\n")
 
-        self.executable.write("date\n")
-        self.executable.write("echo $0\n")
-        self.executable.write("whoami\n")
-        self.executable.write("pwd\n\n")
+        self.executable.write("date                       >> %s\n" % self.output_file)
+        self.executable.write("echo hostname = `hostname` >> %s\n" % self.output_file)
+        self.executable.write("echo kernel   = $0         >> %s\n" % self.output_file)
+        self.executable.write("echo user     = `whoami`   >> %s\n" % self.output_file)
+        self.executable.write("echo workdir  = `pwd`      >> %s\n" % self.output_file)
 
-        self.executable.write("sleep %s\n\n" % self.duration)
+        self.executable.write("\nsleep %s\n" % self.duration)
+        self.executable.write("echo 'slept for %s seconds' >> %s\n\n" % (self.duration, self.output_file))
         
-        if self.data_staging:
-            self.executable.write("cat %s > /dev/null\n" % self.input_file)
+        # TODO: THe choice of having a data staging is not yet implemented in 
+        # TROY.
+        # if self.data_staging:
+        #     self.executable.write("cat %s > /dev/null\n" % self.input_file)
 
-            self.executable.write("dd if=/dev/zero of=%s bs=%s count=1\n" % 
-                (self.output_file, self.output_file_size))
+        #     self.executable.write("dd if=/dev/zero of=%s bs=%s count=1\n" % 
+        #         (self.output_file, self.output_file_size))
         
         self.executable.close()
 
