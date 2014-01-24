@@ -92,7 +92,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             # Schedule the partition onto the overlay
             workload_mgr.bind_workload (partition.id, overlay_id,
-                                        bind_mode=troy.LATE)
+                                        bind_mode=troy.EARLY)
             workload.state = partition.state
 
           # --------------------------------------------------------------------
