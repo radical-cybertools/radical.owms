@@ -7,7 +7,7 @@ __license__ = "MIT"
 
 """AIMES overlay and workload manager system (owms)
 
-It takes a workload description as an input and executes it on one or more a 
+It takes a workload description as an input and executes it on one or more a
 pilots.
 . The current implementation is limited to the execution of bag of tasks.
 . Uses TROY >= 0.1
@@ -39,7 +39,7 @@ def main(args):
     # AIMES workload variables.
     working_directory = None
     aimes_workloads   = []
-    
+
     # TROY variables.
     planner           = None
     workload_manager  = None
@@ -50,62 +50,62 @@ def main(args):
     # Check whether the requested application generator, pilot system and
     # skeleton modes are implemented.
     if not args.application_generator in ['skeleton', 'file']:
-        raise Exception("Application generator \'%s\' not supported." % 
+        raise Exception("Application generator \'%s\' not supported." %
             args.application_generator)
 
     if args.skeleton_mode != 'Shell':
         raise Exception("%s is not supported." % args.skeleton_mode)
 
     if not args.pilot_system in ['bigjob', 'sinon']:
-        raise Exception("Pilot system \'%s\' is not supported." % 
+        raise Exception("Pilot system \'%s\' is not supported." %
             args.pilot_system)
 
     # Generate the workload(s) to be executed by means of an overlay.
     for counter in range(args.workload_count):
 
-        w = Workload(counter, 
-                args.workload_pattern, 
+        w = Workload(counter,
+                args.tag,
+                args.workload_pattern,
                 args.data_staging,
                 args.local_working_directory,
                 args.remote_working_directory,
                 args.workload_directory,
-                args.task_duration, 
-                args.task_count, 
-                args.task_input_file_size, 
+                args.task_duration,
+                args.task_count,
+                args.task_input_file_size,
                 args.task_output_file_size)
 
         w.create_tasks()
 
         aimes_workloads.append(w)
 
-    # Translate the workload(s) into TROY internal workload description. 
+    # Translate the workload(s) into TROY internal workload description.
     # NOTE: This is missing in TROY at the moment. We need a plugin for each
     #       workload.
     for w in aimes_workloads:
         for t in w.tasks:
 
-            tag              = t.workload.name+'-'+t.name
-            task_description = troy.TaskDescription()
-            
+            cu_description = troy.TaskDescription()
+
             if args.remote_working_directory:
-                task_description.working_directory = args.remote_working_directory
+                cu_description.working_directory = args.remote_working_directory
                 print "OWMS DEBUG: task_description.working_directory: %s" % args.remote_working_directory
             else:
-                task_description.working_directory = args.local_working_directory
+                cu_description.working_directory = args.local_working_directory
                 print "OWMS DEBUG: task_description.working_directory: %s" % args.local_working_directory
 
-            task_description.tag        = "%s" % tag
-            task_description.executable = '/bin/sh'
-            task_description.arguments  = ['%s.sh' % tag]
+            cu_description.tag        = t.tag
+            cu_description.executable = '/bin/sh'
+            cu_description.arguments  = [t.executable_name]
 
             # Type None for .input_file and output_file are not yet managed.
             if args.data_staging:
-                task_description.inputs  = [t.input_file, t.executable_name]
-                task_description.outputs = [t.output_file]
+                cu_description.inputs  = [t.input_file, t.executable_name]
+                cu_description.outputs = [t.output_file]
 
-            task_descriptions.append(task_description)
+            task_descriptions.append(cu_description)
 
-          # print task_description.as_dict ()
+          # print cu_description.as_dict ()
 
     # Create a session for TROY.
     session = troy.Session(
@@ -150,42 +150,43 @@ def main(args):
     c1 = troy.Context ('ssh')
     c1.user_id = args.ssh_user_name
     session.add_context (c1)
-    
+
     # Instantiate TROY planner and managers.
     planner = troy.Planner(planner = args.troy_planner, session = session)
-    
+
     # if args.data_staging:
-    #     workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher, 
+    #     workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher,
     #                                             session     = session)
     # else:
-    #     workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher, 
+    #     workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher,
     #                                             session     = session)
-    workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher, 
+    workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher,
                                             session     = session)
 
 
-    overlay_manager  = troy.OverlayManager (scheduler   = args.troy_overlay_scheduler, 
+    overlay_manager  = troy.OverlayManager (scheduler   = args.troy_overlay_scheduler,
                                             provisioner = args.troy_overlay_provisioner,
                                             session     = session)
 
-    # Questions: 
+    # Questions:
     # - How do we use bundles?
 
     workload_id = workload_manager.create_workload(task_descriptions)
-    troy.execute_workload(workload_id, planner, overlay_manager, 
+    troy.execute_workload(workload_id, planner, overlay_manager,
         workload_manager, strategy=args.troy_strategy)
 
 
 #==============================================================================
 class Workload(object):
 
-    def __init__(self, counter, pattern, data_staging, 
-        local_working_directory, remote_working_directory, 
-        workload_directory, task_duration, task_count, 
+    def __init__(self, counter, tag, pattern, data_staging,
+        local_working_directory, remote_working_directory,
+        workload_directory, task_duration, task_count,
         task_input_file_size, task_output_file_size):
-        
+
         self.name               = pattern.lower()+'_'+str(counter)
         self.counter            = counter
+        self.tag                = tag
         self.pattern            = pattern
         self.data_staging       = data_staging
         self.local_directory    = local_working_directory
@@ -203,10 +204,10 @@ class Workload(object):
 
         for task_number in range(self.task_count):
 
-            task = Task(self, task_number, self.local_directory, 
-                self.remote_directory, self.workload_directory, 
-                self.task_duration, self.task_if_size, self.task_of_size, 
-                self.data_staging)
+            task = Task(self, task_number, self.local_directory,
+                self.remote_directory, self.workload_directory,
+                self.task_duration, self.task_if_size,
+                self.task_of_size, self.data_staging)
 
             if self.data_staging:
                 task.write_input_file()
@@ -219,7 +220,7 @@ class Workload(object):
 #==============================================================================
 class Task(object):
 
-    def __init__(self, workload, counter, local_directory, remote_directory, 
+    def __init__(self, workload, counter, local_directory, remote_directory,
         workload_directory, duration, data_staging, if_size, of_size):
 
         self.name               = 'task_'+str(counter)
@@ -233,31 +234,33 @@ class Task(object):
 
         self.workload           = workload
 
+        self.tag                = None
         self.working_directory  = None
         self.input_file         = None
         self.output_file        = None
         self.executable_name    = None
- 
+
 
     def write_input_file(self):
-        
+
         self.input_file = self.workload.name+'-'+self.name+'.input'
 
-        subprocess.call(["dd", "if=/dev/zero", 
-            "of="+self.local_directory+'/'+self.input_file, 
+        subprocess.call(["dd", "if=/dev/zero",
+            "of="+self.local_directory+'/'+self.input_file,
             "bs="+str(self.input_file_size),
             "count=1"])
 
 
     def write_executable(self):
 
-        self.executable_name = self.workload.name+'-'+self.name+'.sh'
-        self.output_file     = self.workload.name+'-'+self.name+'.output'
+        self.tag             = self.workload.name+'-'+self.name
+        self.executable_name = self.workload.tag+self.tag+'.sh'
+        self.output_file     = self.workload.tag+self.tag+'.output'
 
-        # TODO: Using remote_directory is a stupid hack due to the lack of 
-        # data staging capabilities. It works only when running this on the 
+        # TODO: Using remote_directory is a stupid hack due to the lack of
+        # data staging capabilities. It works only when running this on the
         # head node of the cluster where the pilot will be submitted.
-        self.executable = open("%s/%s" % 
+        self.executable = open("%s/%s" %
             (self.remote_directory, self.executable_name), "w")
 
         self.executable.write("#!/bin/bash\n\n")
@@ -270,18 +273,20 @@ class Task(object):
 
         self.executable.write("\nsleep %s\n" % self.duration)
         self.executable.write("echo 'slept for %s seconds' >> %s\n\n" % (self.duration, self.output_file))
-        
-        # TODO: THe choice of having a data staging is not yet implemented in 
+
+        # TODO: THe choice of having a data staging is not yet implemented in
         # TROY.
         # if self.data_staging:
         #     self.executable.write("cat %s > /dev/null\n" % self.input_file)
 
-        #     self.executable.write("dd if=/dev/zero of=%s bs=%s count=1\n" % 
+        #     self.executable.write("dd if=/dev/zero of=%s bs=%s count=1\n" %
         #         (self.output_file, self.output_file_size))
-        
+
         self.executable.close()
 
-        os.chmod(self.local_directory+"/"+self.executable_name, 0755)
+        # TODO: Change the directory once the data staging mess in TROY will
+        # be fixed.
+        os.chmod(self.remote_directory+"/"+self.executable_name, 0755)
 
 
 #==============================================================================
@@ -290,7 +295,7 @@ if __name__ == '__main__':
     #--------------------------------------------------------------------------
     # COMMAND LINE PARSER
     #--------------------------------------------------------------------------
-    parser = argparse.ArgumentParser(description='Automates the execution of' 
+    parser = argparse.ArgumentParser(description='Automates the execution of'
         'a given workload description on a tailored pilot framework.')
 
     # -------------------------------------------------------------------------
@@ -338,9 +343,18 @@ if __name__ == '__main__':
     parser.add_argument(
         '-ds', '--data-staging',
         default = None,
-        metavar = 'data_staging', 
+        metavar = 'data_staging',
         help    = 'Enables data staging if the workload requires it. \
                    Default: None.'
+    )
+
+    parser.add_argument(
+        '-t', '--tag',
+        default = None,
+        metavar = 'tag',
+        help    = 'Tag of the run. Useful when using owms.py in an \
+        experimental setup that requires to identify uniquely each run. \
+        Default: None.'
     )
 
 
@@ -356,7 +370,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-es', '--troy-strategy',
-        choices = ['basic', 'basic_early_binding', 'basic_late_binding'], 
+        choices = ['basic', 'basic_early_binding', 'basic_late_binding'],
         default = 'basic_late_binding',
         metavar = 'troy_strategy',
         help    = 'The strategy used by TROY in order to execute the given \
@@ -365,7 +379,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-ep', '--troy-planner',
-        choices = ['concurrent', 'bundles', 'maxcores'], 
+        choices = ['concurrent', 'bundles', 'maxcores'],
         default = 'concurrent',
         metavar = 'troy_planner',
         help    = 'The planner used by TROY. Default: concurrent'
@@ -373,7 +387,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-ews', '--troy-workload-scheduler',
-        choices = ['first', 'round_robin', 'ttc_load_balancing'], 
+        choices = ['first', 'round_robin', 'ttc_load_balancing'],
         default = 'round_robin',
         metavar = 'troy_overlay_scheduler',
         help    = 'The algorithm used to schedule the overlay on the targeted \
@@ -459,7 +473,7 @@ if __name__ == '__main__':
     # Application
     parser.add_argument(
         '-A', '--application-generator',
-        choices = ['skeleton', 'abstract-application', 'file'], 
+        choices = ['skeleton', 'abstract-application', 'file'],
         default='skeleton',
         metavar = 'application_generator',
         help    = 'The type of application used to generate the workload to \
@@ -486,7 +500,7 @@ if __name__ == '__main__':
         type = int,
         metavar = 'workload_count',
         help    = 'The number of workloads to be executed. Default: 1.'
-    )    
+    )
 
     parser.add_argument(
         '-wp', '--workload-pattern',
@@ -580,7 +594,7 @@ if __name__ == '__main__':
         metavar = 'ssh_private_key',
         help    = 'Private ssh key. Needed to access the remote resources \
         like, for example, FutureGrid.'
-    )  
+    )
 
     # The description of the workload to be executed is the only mandatory
     # positional argument.
@@ -591,7 +605,7 @@ if __name__ == '__main__':
     #     By default a skeleton description.'
     # )
 
-    # Print help message if no arguments are passed. Better than the default 
+    # Print help message if no arguments are passed. Better than the default
     # error message.
     # if len(sys.argv) == 1:
     #     parser.print_help()
