@@ -38,6 +38,34 @@ class DataStager (object) :
 
     # --------------------------------------------------------------------------
     #
+    def _parse_staging_directive (self, txt) :
+        """
+        returns [src, tgt, op] as relative or absolute paths or URLs.  This
+        parsing is backward compatible with the simple staging directives used
+        in troy previously -- any strings which do not contain staging operators
+        will be interpreted as simple paths (identical for src and tgt,
+        operation set to '=').
+
+        Supported directives:
+
+           src >  tgt -- stage  task input ./src to remote remote.host as ./tgt
+           src >> tgt -- append task input ./src to remote remote.host    ./tgt
+           tgt <  src -- stage  task output from remote host ./src to     ./tgt
+           tgt << src -- append task output from remote host ./src to     ./tgt
+        """
+
+        rs = ru.ReString (txt)
+
+        if  rs // '^(?P<one>.+?)\s*(?P<op><|<<|>|>>)\s*(?P<two>.+)$' :
+            res = rs.get ()
+            return (res['one'] res['two'], res['op'])
+
+        else :
+            return (txt, txt, '=')
+
+
+    # --------------------------------------------------------------------------
+    #
     def stage_in_workload (self, workload) :
       # print "staging_in workload %s" % (workload.id)
         for task_id in workload.tasks :
@@ -66,9 +94,14 @@ class DataStager (object) :
             if  not isinstance (fin, basestring) :
                 raise TypeError ("Input files need to be strings, not %s" % type(fin))
 
-          # print "staging_in %s to %s / %s" % (fin, pilot.resource, unit.working_directory)
+            one, two, op = self.__parse_staging_directive (fin)
+            if  op not in ['>', '>>', '='] :
+                raise ValueError ("invalid staging op '%s' for input staging'" % op)
+
+            print "staging_in %s %s %s / %s / %s / %s" % (one, op, pilot.resource, unit.working_directory, two)
             unit.task.workload.manager._dispatcher.stage_file_in (fin, pilot.resource, unit.working_directory)
-            unit.staged_in = True
+
+        unit.staged_in = True
         return
 
 
