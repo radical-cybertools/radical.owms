@@ -350,11 +350,11 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-t', '--tag',
-        default = None,
+        default = "",
         metavar = 'tag',
         help    = 'Tag of the run. Useful when using owms.py in an \
         experimental setup that requires to identify uniquely each run. \
-        Default: None.'
+        Default: empty string.'
     )
 
 
