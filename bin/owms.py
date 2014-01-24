@@ -262,7 +262,7 @@ class Task(object):
 
         self.executable.write("#!/bin/bash\n\n")
 
-        self.executable.write("date                       >> %s\n" % self.output_file)
+        self.executable.write("date                        > %s\n" % self.output_file)
         self.executable.write("echo hostname = `hostname` >> %s\n" % self.output_file)
         self.executable.write("echo kernel   = $0         >> %s\n" % self.output_file)
         self.executable.write("echo user     = `whoami`   >> %s\n" % self.output_file)
