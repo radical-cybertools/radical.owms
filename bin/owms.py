@@ -161,8 +161,8 @@ def main(args):
     #     workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher,
     #                                             session     = session)
     workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher,
+                                            scheduler   = args.troy_workload_scheduler,
                                             session     = session)
-
 
     overlay_manager  = troy.OverlayManager (scheduler   = args.troy_overlay_scheduler,
                                             provisioner = args.troy_overlay_provisioner,
@@ -350,11 +350,11 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-t', '--tag',
-        default = None,
+        default = "",
         metavar = 'tag',
         help    = 'Tag of the run. Useful when using owms.py in an \
         experimental setup that requires to identify uniquely each run. \
-        Default: None.'
+        Default: empty string.'
     )
 
 
@@ -389,9 +389,9 @@ if __name__ == '__main__':
         '-ews', '--troy-workload-scheduler',
         choices = ['first', 'round_robin', 'ttc_load_balancing'],
         default = 'round_robin',
-        metavar = 'troy_overlay_scheduler',
-        help    = 'The algorithm used to schedule the overlay on the targeted \
-        resources. Default: roundrobin'
+        metavar = 'troy_workload_scheduler',
+        help    = 'The algorithm used to schedule the workload on the targeted \
+        resources. Default: round_robin.'
     )
 
     parser.add_argument(
@@ -403,10 +403,11 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-eos', '--troy-overlay-scheduler',
-        choices = ['round_robin', 'local'], default='round_robin',
+        choices = ['local', 'round_robin'],
+        default='round_robin',
         metavar = 'troy_overlay_scheduler',
         help    = 'The algorithm used to schedule the overlay on the targeted \
-        resources. Default: roundrobin'
+        resources. Default: round_robin.'
     )
 
     parser.add_argument(
