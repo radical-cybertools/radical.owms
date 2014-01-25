@@ -387,11 +387,11 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-ews', '--troy-workload-scheduler',
-        choices = ['workload_scheduler_first', 'workload_scheduler_round_robin', 'workload_scheduler_ttc_load_balancing'],
-        default = 'workload_scheduler_round_robin',
+        choices = ['first', 'round_robin', 'ttc_load_balancing'],
+        default = 'round_robin',
         metavar = 'troy_workload_scheduler',
         help    = 'The algorithm used to schedule the workload on the targeted \
-        resources. Default: workload_scheduler_round_robin.'
+        resources. Default: round_robin.'
     )
 
     parser.add_argument(
@@ -403,11 +403,11 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-eos', '--troy-overlay-scheduler',
-        choices = ['overlay_scheduler_local', 'overlay_scheduler_round_robin'],
-        default='overlay_scheduler_round_robin',
+        choices = ['local', 'round_robin'],
+        default='round_robin',
         metavar = 'troy_overlay_scheduler',
         help    = 'The algorithm used to schedule the overlay on the targeted \
-        resources. Default: overlay_scheduler_round_robin.'
+        resources. Default: round_robin.'
     )
 
     parser.add_argument(
