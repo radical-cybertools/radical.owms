@@ -161,8 +161,8 @@ def main(args):
     #     workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher,
     #                                             session     = session)
     workload_manager = troy.WorkloadManager(dispatcher  = args.troy_workload_dispatcher,
+                                            scheduler   = args.troy_workload_scheduler,
                                             session     = session)
-
 
     overlay_manager  = troy.OverlayManager (scheduler   = args.troy_overlay_scheduler,
                                             provisioner = args.troy_overlay_provisioner,
@@ -387,11 +387,11 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-ews', '--troy-workload-scheduler',
-        choices = ['first', 'round_robin', 'ttc_load_balancing'],
-        default = 'round_robin',
-        metavar = 'troy_overlay_scheduler',
-        help    = 'The algorithm used to schedule the overlay on the targeted \
-        resources. Default: roundrobin'
+        choices = ['workload_scheduler_first', 'workload_scheduler_round_robin', 'workload_scheduler_ttc_load_balancing'],
+        default = 'workload_scheduler_round_robin',
+        metavar = 'troy_workload_scheduler',
+        help    = 'The algorithm used to schedule the workload on the targeted \
+        resources. Default: workload_scheduler_round_robin.'
     )
 
     parser.add_argument(
@@ -403,10 +403,11 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-eos', '--troy-overlay-scheduler',
-        choices = ['round_robin', 'local'], default='round_robin',
+        choices = ['overlay_scheduler_local', 'overlay_scheduler_round_robin'],
+        default='overlay_scheduler_round_robin',
         metavar = 'troy_overlay_scheduler',
         help    = 'The algorithm used to schedule the overlay on the targeted \
-        resources. Default: roundrobin'
+        resources. Default: overlay_scheduler_round_robin.'
     )
 
     parser.add_argument(
