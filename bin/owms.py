@@ -98,10 +98,11 @@ def main(args):
             cu_description.executable = '/bin/sh'
             cu_description.arguments  = [t.executable_name]
 
+            # Comment out until data staging will not be supported by TROY.
             # Type None for .input_file and output_file are not yet managed.
-            if args.data_staging:
-                cu_description.inputs  = [t.input_file, t.executable_name]
-                cu_description.outputs = [t.output_file]
+            # if args.data_staging:
+            #     cu_description.inputs  = [t.input_file, t.executable_name]
+            #     cu_description.outputs = [t.output_file]
 
             task_descriptions.append(cu_description)
 
