@@ -266,16 +266,17 @@ class Task(object):
 
         self.executable.write("#!/bin/bash\n\n")
 
-        self.executable.write("date                        > %s\n" % self.output_file)
-        self.executable.write("echo hostname = `hostname` >> %s\n" % self.output_file)
-        self.executable.write("echo kernel   = $0         >> %s\n" % self.output_file)
-        self.executable.write("echo user     = `whoami`   >> %s\n" % self.output_file)
-        self.executable.write("echo workdir  = `pwd`      >> %s\n" % self.output_file)
+        self.executable.write("date                         > %s\n" % self.output_file)
+        self.executable.write("echo hostname = `hostname`  >> %s\n" % self.output_file)
+        self.executable.write("echo kernel   = $0          >> %s\n" % self.output_file)
+        self.executable.write("echo user     = `whoami`    >> %s\n" % self.output_file)
+        self.executable.write("echo workdir  = `pwd`       >> %s\n" % self.output_file)
 
         self.executable.write("\nsleep %s\n" % self.duration)
         self.executable.write("echo 'slept for %s seconds' >> %s\n\n" % (self.duration, self.output_file))
 
-        self.executable.write("date                        > %s\n" % self.output_file)
+        self.executable.write("date                        >> %s\n" % self.output_file)
+        
         # TODO: THe choice of having a data staging is not yet implemented in
         # TROY.
         # if self.data_staging:
