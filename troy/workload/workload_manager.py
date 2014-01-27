@@ -291,7 +291,7 @@ class WorkloadManager (object) :
             if  overlay.state != BOUND   and \
                 overlay.state != PROVISIONED :
                 raise ValueError ( "overlay '%s' neither scheduled nor " % str(overlay.id) \
-                                 + "dispateched, cannot do late binding")
+                                 + "dispatched, cannot do late binding")
                                  
         # make sure manager is initialized
         self._init_plugins ()

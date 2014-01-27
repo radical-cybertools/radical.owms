@@ -84,6 +84,10 @@ class DataStager (object) :
         if  unit.staged_in :
             return
 
+        # do nothing if nothing to do
+        if  not len(unit.inputs) :
+            return
+
         pilot = troy.Pilot (unit.pilot_id)
       # print "staging_in unit %s on %s (%s)" % (unit.id, pilot.id, pilot.resource)
 
@@ -124,6 +128,10 @@ class DataStager (object) :
 
         # stage in only once
         if  unit.staged_out :
+            return
+
+        # do nothing if nothing to do
+        if  not len(unit.outputs) :
             return
 
         pilot = troy.Pilot (unit.pilot_id)
