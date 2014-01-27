@@ -74,7 +74,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         ########################################################################
         
         # ----------------------------------------------------------------------
-        # submit the first partition before the overlay is provisioned
+        # schedule the first partition before the overlay is provisioned
         for partition_id in workload.partitions[:1] :
 
             troy._logger.info  ("dispatch workload partition 0 (%s)" % partition_id)
@@ -92,7 +92,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             # Schedule the partition onto the overlay
             workload_mgr.bind_workload (partition.id, overlay_id,
-                                        bind_mode=troy.LATE)
+                                        bind_mode=troy.EARLY)
             workload.state = partition.state
 
           # --------------------------------------------------------------------
@@ -104,11 +104,8 @@ class PLUGIN_CLASS (troy.PluginBase):
           # both the overlay and the workload are now scheduled/bound -- we
           # can expect the unit working directories to be createable, at the
           # least, and can thus trigger stage-in for the workload.
-          # workload_mgr._stager.stage_in_workload (partition)
+          # workload_mgr.stage_in_workload (partition_id)
 
-            # Execute the ComputeUnits on the Pilots
-            workload_mgr.dispatch_workload (partition.id, overlay_id)
-            workload.state = partition.state
 
         # ----------------------------------------------------------------------
         # partition 0 is  dispatched, now provision the overlay
@@ -121,23 +118,27 @@ class PLUGIN_CLASS (troy.PluginBase):
 
 
         # ----------------------------------------------------------------------
-        # overlay is dispatched, now wait for partition 0 to finish, before we
-        # can dispatch the other partitions
+        # dispatch the first partition to provisioned overlay then wait for
+        # partition 0 to finish, before we can dispatch the other partitions
         for partition_id in workload.partitions[:1] :
+
+            # Execute the ComputeUnits on the Pilots
+            workload_mgr.dispatch_workload (partition.id, overlay_id)
+            workload.state = partition.state
 
             partition.wait ()
             workload.state = partition.state
 
             if partition.state == troy.DONE :
-                troy._logger.info  ("partition done")
+                troy._logger.info  ("partition %s done" % partition.id)
             else :
-                troy._logger.error ("partition failed - abort")
-                raise RuntimeError ("partition failed - abort")
+                troy._logger.error ("partition %s failed - abort" % partition.id)
+                raise RuntimeError ("partition %s failed - abort" % partition.id)
 
             # # we did not do any stage-in, but actually *could* do stage-out,
             # as the working dirs and resources are now obviously known.
             # once the workload is done, we stage data out...
-            workload_mgr._stager.stage_out_workload (partition)
+            workload_mgr.stage_out_workload (partition_id)
 
 
         # ----------------------------------------------------------------------
@@ -165,7 +166,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             # both the overlay and the workload are now scheduled/bound -- we
             # can expect the unit working directories to be createable, at the
             # least, and can thus trigger stage-in for the workload.
-            workload_mgr._stager.stage_in_workload (partition)
+            workload_mgr.stage_in_workload (partition_id)
 
             # Execute the ComputeUnits on the Pilots
             workload_mgr.dispatch_workload (partition.id, overlay_id)
@@ -183,7 +184,7 @@ class PLUGIN_CLASS (troy.PluginBase):
                 raise RuntimeError ("partition failed - abort")
 
             # once the workload is done, we stage data out...
-            workload_mgr._stager.stage_out_workload (partition)
+            workload_mgr.stage_out_workload (partition_id)
 
 
         troy._logger.info ("all partition done (%s)" % workload.state)

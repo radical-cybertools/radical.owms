@@ -89,7 +89,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             # both the overlay and the workload are now scheduled/bound -- we
             # can expect the unit working directories to be createable, at the
             # least, and can thus trigger stage-in for the workload.
-            workload_mgr._stager.stage_in_workload (partition)
+            workload_mgr.stage_in_workload (partition_id)
 
             # Execute the ComputeUnits on the Pilots
             workload_mgr.dispatch_workload (partition.id, overlay_id)
@@ -101,13 +101,13 @@ class PLUGIN_CLASS (troy.PluginBase):
             workload.state = partition.state
 
             if partition.state == troy.DONE :
-                troy._logger.info  ("partition done")
+                troy._logger.info  ("partition %s done" % partition.id)
             else :
-                troy._logger.error ("partition failed - abort")
-                raise RuntimeError ("partition failed - abort")
+                troy._logger.error ("partition %s failed - abort" % partition.id)
+                raise RuntimeError ("partition %s failed - abort" % partition.id)
 
             # once the workload is done, we stage data out...
-            workload_mgr._stager.stage_out_workload (partition)
+            workload_mgr.stage_out_workload (partition_id)
 
 
         troy._logger.info ("all partition done (%s)" % workload.state)

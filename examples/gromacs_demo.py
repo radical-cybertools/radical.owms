@@ -52,12 +52,8 @@ if __name__ == '__main__':
     c1.user_id = 'merzky'
     session.add_context (c1)
 
-    # create a data stager for all workloads
-    stager = troy.DataStager()
-
     # Responsible for application workload
     workload_mgr = troy.WorkloadManager(dispatcher = 'bigjob_pilot',
-                                        stager     = stager,  # this is actually the default
                                         session    = session)
 
     # Responsible for managing the pilot overlay

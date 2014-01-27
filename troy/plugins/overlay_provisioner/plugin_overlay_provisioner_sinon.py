@@ -128,9 +128,9 @@ class PLUGIN_CLASS (troy.PluginBase):
             sinon_um.add_pilots (sinon_pilot)
 
             troy_pilot._set_instance (instance_type = 'sinon', 
-                                 provisioner   = self, 
-                                 instance      = [sinon_um,     sinon_pm,     sinon_pilot], 
-                                 native_id     = [sinon_um.uid, sinon_pm.uid, sinon_pilot.uid])
+                                      provisioner   = self, 
+                                      instance      = [sinon_um,     sinon_pm,     sinon_pilot], 
+                                      native_id     = [sinon_um.uid, sinon_pm.uid, sinon_pilot.uid])
 
             troy._logger.info ('overlay  provision: provision pilot  %s : %s ' \
                             % (troy_pilot, troy_pilot._get_instance ('sinon')[2]))
