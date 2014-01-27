@@ -14,7 +14,8 @@ PLUGIN_DESCRIPTION = {
     'name'          : 'max_pilot_size', 
     'version'       : '0.1',
     'description'   : 'this translator creates n pilots of maximal size.',
-    'configuration' : [('pilot size', 'INT, size of each pilot (default: %d)' % _DEFAULT_PILOT_SIZE )]
+    'configuration' : [('pilot size', 'INT, size of each pilot (default: %d)' \
+                      % _DEFAULT_PILOT_SIZE )]
   }
 
 
