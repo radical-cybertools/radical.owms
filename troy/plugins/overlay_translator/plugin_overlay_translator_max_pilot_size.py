@@ -48,7 +48,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         else :
             pilot_size = _DEFAULT_PILOT_SIZE
 
-        troy._logger.info ("overlay  translate: max pilot size set to %d" % pilot_size(
+        troy._logger.info ("overlay  translate: max pilot size set to %d" % pilot_size)
 
         if  pilot_size == UNLIMITED :
             # don't split the overlay at all
