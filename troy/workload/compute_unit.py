@@ -257,6 +257,7 @@ class ComputeUnit (tu.Properties) :
             # not calling the updater again (duh!).
             return self.get_property (key)
 
+
         if  key == 'instance' : return self._instance
 
         # check if the info were available via the original description
