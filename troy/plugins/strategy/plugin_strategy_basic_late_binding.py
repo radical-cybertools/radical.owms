@@ -119,10 +119,10 @@ class PLUGIN_CLASS (troy.PluginBase):
             workload.state = partition.state
 
             if partition.state == troy.DONE :
-                troy._logger.info  ("partition done")
+                troy._logger.info  ("partition %s done" % partition.id)
             else :
-                troy._logger.error ("partition failed - abort")
-                raise RuntimeError ("partition failed - abort")
+                troy._logger.error ("partition %s failed - abort" % partition.id)
+                raise RuntimeError ("partition %s failed - abort" % partition.id)
 
             # once the workload is done, we stage data out...
             workload_mgr.stage_out_workload (partition_id)

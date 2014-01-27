@@ -25,7 +25,7 @@ cd       $ROOT
 test -d ve || virtualenv ve
 source ve/bin/activate
 
-    
+
 ###############################################################################
 echo -n "(re)install all packages? [Y/n] "
 read answer
@@ -34,11 +34,11 @@ if [ "$answer" = "n" ]; then
 else
     echo 'install packages'
     cd  $ROOT
-    
+
     # those 2 don't like pip:
     easy_install apache-libcloud
     easy_install threadpool
-    
+
     cd   $ROOT
     test -e troy          || git clone git@github.com:saga-project/troy.git
     cd   troy
@@ -46,7 +46,7 @@ else
     git  pull
     yes  | pip  uninstall troy
     pip  install .
-    
+
     cd   $ROOT
     test -e bigjob        || git clone git@github.com:saga-project/BigJob.git bigjob
     cd   bigjob/
@@ -54,15 +54,15 @@ else
     git  pull
     yes  | pip  uninstall bigjob
     pip  install .
-    
+
     cd   $ROOT
     test -e saga-pilot    || git clone git@github.com:saga-project/saga-pilot.git
     cd   saga-pilot/
-    git  checkout devel
+    git  checkout master
     git  pull
-    yes  | pip  uninstall saga-pilot
+    yes  | pip  uninstall sinon
     pip  install .
-    
+
     cd   $ROOT
     test -e saga-python   || git clone git@github.com:saga-project/saga-python.git
     cd   saga-python/
@@ -70,7 +70,7 @@ else
     git  pull
     yes  | pip  uninstall saga-python
     pip  install .
-    
+
     cd   $ROOT
     test -e radical.utils || git clone git@github.com:saga-project/radical.utils.git
     cd   radical.utils/

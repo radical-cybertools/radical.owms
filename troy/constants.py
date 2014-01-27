@@ -184,6 +184,7 @@ LATE             = 'Late'
 #
 UPPER_LIMIT      = 'Upper'
 LOWER_LIMIT      = 'Lower'
+UNLIMITED        = 'Unlimited'
 
 
 # ------------------------------------------------------------------------------

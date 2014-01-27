@@ -1,5 +1,5 @@
 
-__author__    = "Andre Merzky, Ole Weidner"
+__author__    = "Andre Merzky, Ole Weidneri, Matteo Turilli"
 __copyright__ = "Copyright 2013, RADICAL Research, Rutgers University"
 __license__   = "MIT"
 
@@ -21,7 +21,7 @@ from setuptools import setup, Command
 #   - long_version:  v1.2.3-9-g0684b06  - is used as runtime (ru.version)
 #   - both are derived from the last git tag
 #   - the file troy/VERSION is created with the long_version, und used
-#     by ru.__init__.py to provide the runtime version information. 
+#     by ru.__init__.py to provide the runtime version information.
 #
 def get_version():
 
@@ -90,7 +90,7 @@ class our_test(Command):
     def finalize_options   (self) : pass
     def run (self) :
         testdir = "%s/tests/" % os.path.dirname(os.path.realpath(__file__))
-        retval  = subprocess.call([sys.executable, 
+        retval  = subprocess.call([sys.executable,
                                    '%s/run_tests.py'               % testdir,
                                    '%s/configs/workload_input.cfg' % testdir])
         raise SystemExit(retval)
@@ -107,7 +107,7 @@ setup_args = {
     'name'             : "troy",
     'version'          : short_version,
     'description'      : "Tiered Resource OverlaY",
-    'long_description' : (read('README.md') + '\n\n' + read('CHANGES.md')),    
+    'long_description' : (read('README.md') + '\n\n' + read('CHANGES.md')),
     'author'           : 'RADICAL Group at Rutgers University',
     'author_email'     : "radical@rutgers.edu",
     'maintainer'       : "Andre Merzky",
@@ -118,7 +118,7 @@ setup_args = {
     'classifiers'      : [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
-        'Environment :: Console',                    
+        'Environment :: Console',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
@@ -159,7 +159,7 @@ setup_args = {
         "troy.external.bundle.src.bundle.example",
         "troy.bundle_wrapper",
     ],
-    'scripts'          : [],
+    'scripts'          : ['bin/owms.py'],
     'package_data'     : {'' : ['VERSION']},
     'cmdclass'         : {
         'test'         : our_test,
