@@ -152,7 +152,7 @@ class DataStager (object) :
             if  op not in ['<', '='] :
                 raise ValueError ("invalid staging op '%s' for output staging" % op)
 
-          # print "staging_out %s < %s / %s / %s" %                (one, pilot.resource, unit.working_directory, two)
+          # print "staging_out %s < %s / %s / %s" %               (one, pilot.resource, unit.working_directory, two)
             unit.task.workload.manager._dispatcher.stage_file_out (one, pilot.resource, unit.working_directory, two)
 
         unit.staged_out = True

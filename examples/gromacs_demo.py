@@ -80,7 +80,11 @@ if __name__ == '__main__':
         task_descr.arguments         = ['-nsteps', steps]
 
         task_descr.inputs            = ['topol.tpr']
-        task_descr.outputs           = ['state.cpt', 'confout.gro', 'ener.edr', 'traj.trr', 'md.log']
+        task_descr.outputs           = ['state.cpt.%d   < state.cpt'   % n, 
+                                        'confout.gro.%d < confout.gro' % n, 
+                                        'ener.edr.%d    < ener.edr'    % n, 
+                                        'traj.trr.%d    < traj.trr'    % n, 
+                                        'md.log.%d      < md.log'      % n]
         task_descr.working_directory = "/N/u/%s/troy_demo/tasks/%d/" % (demo_config['user'], n)
 
         print task_descr

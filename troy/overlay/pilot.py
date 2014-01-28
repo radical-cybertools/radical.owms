@@ -318,8 +318,8 @@ class Pilot (tu.Properties) :
         # now that we have fresh info, lets update all pilot properties
         for info_key in self._pilot_info :
 
-            if  info_key in keymap : new_key = keymap[info_key]
-            else                   : new_key =        info_key
+            # translate key if needed
+            new_key = keymap.get (info_key, info_key)
 
             # this will trigger registered callbacks
             self.set_property (new_key, self._pilot_info[info_key])
@@ -332,8 +332,7 @@ class Pilot (tu.Properties) :
 
             for descr_key in description : 
 
-                if  descr_key in keymap : new_key = keymap[descr_key]
-                else                    : new_key =        descr_key
+                new_key = keymap.get (descr_key, descr_key)
 
                 # this will trigger registered callbacks
                 self.set_property (new_key, description[descr_key])
