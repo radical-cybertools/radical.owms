@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (dispatcher = 'bigjob_pilot')
+    workload_mgr = troy.WorkloadManager (dispatcher = 'local')
 
     # Responsible for managing the pilot overlay
     overlay_mgr = troy.OverlayManager (scheduler    = 'round_robin', 
@@ -67,8 +67,8 @@ if __name__ == '__main__':
 
         task_descr.inputs            = ["%s > %s" % (fin,  'input')]
         task_descr.outputs           = ["%s < %s" % (fout, 'output')]
-      # task_descr.working_directory = "/N/u/merzky/troy_demo/tasks/%s/" % fnames[r]
         task_descr.working_directory = "/N/u/merzky/troy_demo/tasks/%s/" % fnames[r]
+        task_descr.working_directory = "/home/merzky/troy_demo/tasks/%s/" % fnames[r]
 
         print 'task description'
         print task_descr

@@ -29,8 +29,15 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
+        """
+        invoked when plugin is loaded. Only do sanity checks, no other
+        initialization
+        """
 
         troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
+
+        # cache saga dirs for file staging
+        self._dir_cache = dict()
 
 
     # --------------------------------------------------------------------------
@@ -101,50 +108,82 @@ class PLUGIN_CLASS (troy.PluginBase):
 
     # --------------------------------------------------------------------------
     #
-    def stage_file_in (self, src, resource, tgt) :
+    def stage_file_in (self, src, resource, workdir, tgt) :
         """
         src file element can contain wildcards.  
         tgt can not contain wildcards -- but must be a directory URL.
         """
 
-        # make sure we stay on localhost
-        resource_url = saga.Url (resource)
-        if  resource_url.host != 'localhost' :
-            raise ValueError ("can only stage files on local resource, not %s" % resource_url.host)
+        if  workdir[0] != '/' : 
+            raise ValueError ("target directory must have absolute path, not %s"
+                    % workdir)
 
-        # make sure the src path is absolute
+
+        # make sure src path is absolute -- if not, its relative to pwd
         if  src[0] != '/' :
-            src = "%s/%s" % (os.getcwd(), src)
+            src = os.path.normpath ("%s/%s" % (os.getcwd(), src))
 
-        print 'copy %s -> %s' % (src, tgt)
+        # make sure tgt parg is absolute -- if not, its relative to workdir
+        if  tgt[0] != '/' :
+            tgt = os.path.normpath ("%s/%s" % (workdir, tgt))
 
-        os.popen ("mkdir -p %s" % (os.path.dirname (tgt)))
-        os.popen ("cp %s %s" % (src, tgt))
+        # if src is not a fully qualified URL, interpret it as local path
+        src_url = saga.Url (src)
+        if  not src_url.host and not src_url.schema :
+            src_url = saga.Url ("file://localhost%s" % src)
+
+        resource_url = saga.Url (resource)
+        if  resource_url.schema.endswith ('fork') :
+            resource_url.schema = 'file'
+
+        troy._logger.debug ('copy %s -> %s / %s' % (src_url, resource_url, tgt))
+
+        # if neded, create a dir handle to the target resource and cache it
+        if  not str(resource) in self._dir_cache :
+            self._dir_cache[str(resource)] = saga.filesystem.Directory (resource_url)
+
+        # use cached dir handle, point it to the target dir (to create it if
+        # needed), and copy the file
+        tgt_dir = self._dir_cache[str(resource)]
+        tgt_dir.change_dir (os.path.dirname (tgt), saga.filesystem.CREATE_PARENTS)
+        tgt_dir.copy       (src_url, tgt)
 
 
     # --------------------------------------------------------------------------
     #
-    def stage_file_out (self, resource, src_dir, src) :
+    def stage_file_out (self, tgt, resource, srcdir, src) :
         """
         src file element can contain wildcards.  
-        tgt can not contain wildcards, but must be a directory.
+        tgt can not contain wildcards -- but it can be a directory URL (and, in
+        fact, is interpreted as such if src contains wildcard chars).
         """
 
-        # make sure we stay on localhost
-        resource_url = saga.Url (resource)
-        if  resource_url.host != 'localhost' :
-            raise ValueError ("can only stage files on local resource, not %s" % resource_url.host)
+        if  tgt[0] != '/' :
+            tgt = "%s/%s" % (os.getcwd(), tgt)
 
-        # make sure the src path is absolute
-        if  src_dir[0] != '/' :
-            src_dir = "%s/%s" % (os.getcwd(), src_dir)
+        # HACK
+        while resource [-1] == '/' : resource = resource [0:-1]
+        while srcdir   [-1] == '/' : srcdir   = srcdir   [0:-1]
+        while srcdir   [ 0] == '/' : srcdir   = srcdir   [1:  ]
 
-        tgt = os.getcwd()
 
-        print 'copy %s / %s -> %s' % (src_dir, src, tgt)
+        src_url          = saga.Url ("/%s/%s" % (srcdir, src))
+        tgt_url          = saga.Url ("file://localhost%s" % tgt)
+        src_dir_url      = saga.Url (src_url) # deep copy
+        src_dir_url.path = os.path.dirname (src_url.path)
 
-        os.popen ("cp %s/%s %s" % (src_dir, src, tgt))
+        troy._logger.debug ('copy %s <- %s' % (tgt_url, src_url))
 
+        if  not str(resource) in self._dir_cache :
+            self._dir_cache[str(resource)] = saga.filesystem.Directory \
+                    (src_dir_url, saga.filesystem.CREATE_PARENTS)
+            troy._logger.warning ('new cache for %s (%s)' % (resource, src_dir_url))
+
+        troy._logger.warning ('use cache for %s (%s)' % (resource, src_dir_url))
+        src_dir = self._dir_cache[str(resource)]
+
+        src_dir.change_dir (src_dir_url.path)
+        src_dir.copy       (src_url, tgt_url)
 
 
 
