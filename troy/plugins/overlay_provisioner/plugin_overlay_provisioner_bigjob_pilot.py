@@ -61,6 +61,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             troy._logger.info  ("Contact Radica@Ritgers for the redis password")
             raise RuntimeError ("Cannot use bigjob_pilot backend - no COORDINATION_URL -- see debug log for details")
 
+        troy._logger.debug ('using bj coordination url %s' % self._coord)
         self.cp_service = pilot_module.PilotComputeService (self._coord)
 
 

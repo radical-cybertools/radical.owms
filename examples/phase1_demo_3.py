@@ -70,9 +70,6 @@ if __name__ == '__main__':
         task_descr.working_directory = "/N/u/merzky/troy_demo/tasks/%s/" % fnames[r]
         task_descr.working_directory = "/home/merzky/troy_demo/tasks/%s/" % fnames[r]
 
-        print 'task description'
-        print task_descr
-
         task_descriptions.append (task_descr)
 
 

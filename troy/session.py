@@ -20,6 +20,16 @@ class Session (saga.Session) :
 
         saga.Session.__init__ (self, default)
 
+
+    def get_config (self, section=None) :
+
+        if  section :
+            return self.cfg.as_dict ().get (section, {})
+        else :
+            return self.cfg.as_dict ()
+
+
+
     
 # ------------------------------------------------------------------------------
 #

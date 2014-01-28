@@ -15,6 +15,7 @@ import time
 import troy
 import getpass
 
+
 # ------------------------------------------------------------------------------
 #
 if __name__ == '__main__':
@@ -33,13 +34,15 @@ if __name__ == '__main__':
             'planner_concurrent': {
                 'concurrency': 100
             },
-            'workload_dispatcher_bigjob_pilot': {
-                'coordination_url ': 'redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379'
-            },
-            'overlay_provisioner_bigjob_pilot': {
-                'coordination_url ': 'redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379'
-            },
+          # 'workload_dispatcher_bigjob_pilot': {
+          #     'coordination_url' : BJ_COORD_URL
+          # },
+          # 'overlay_provisioner_bigjob_pilot': {
+          #     'coordination_url' : BJ_COORD_URL
+          # },
         })
+
+    demo_config = session.get_config ('gromacs_demo')
 
     # Add resources to the session.
     session.user_cfg['overlay_scheduler_round_robin'] = {
@@ -49,18 +52,16 @@ if __name__ == '__main__':
     # Manage credentials.
     # TODO: set it to args.protocol (default ssh).
     c1 = troy.Context ('ssh')
-    c1.user_id = 'marksant'
+    c1.user_id = demo_config['user']
     session.add_context (c1)
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager(dispatcher = 'bigjob_pilot',
-                                        #dispatcher = 'sinon',
+    workload_mgr = troy.WorkloadManager(dispatcher = demo_config['pilot_backend'],
                                         session    = session)
 
     # Responsible for managing the pilot overlay
     overlay_mgr = troy.OverlayManager(scheduler    = 'round_robin',
-                                      provisioner  = 'bigjob_pilot',
-                                      #provisioner  = 'sinon',
+                                      provisioner  = demo_config['pilot_backend'],
                                       session      = session)
 
     # Planning makes initial mapping of workload to overlay
@@ -80,7 +81,7 @@ if __name__ == '__main__':
 
         task_descr.inputs            = ['topol.tpr']
         task_descr.outputs           = ['state.cpt', 'confout.gro', 'ener.edr', 'traj.trr', 'md.log']
-        task_descr.working_directory = "/N/u/marksant/troy_demo/tasks/%d/" % n
+        task_descr.working_directory = "/N/u/%s/troy_demo/tasks/%d/" % (demo_config['user'], n)
 
         print task_descr
 
@@ -93,3 +94,4 @@ if __name__ == '__main__':
     troy.execute_workload(workload_id, planner, overlay_mgr, workload_mgr, strategy='basic')
 
     # Woohooo!  Magic has happened!
+
