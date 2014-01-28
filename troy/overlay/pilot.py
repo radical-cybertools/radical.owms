@@ -99,6 +99,7 @@ class Pilot (tu.Properties) :
 
         if  reconnect :
 
+            self._instance_cache._dump ()
             self.id,             self.native_id, \
             self._provisioner,   self._instance, \
             self._instance_type, self._state,    \
@@ -123,6 +124,7 @@ class Pilot (tu.Properties) :
                                                      self._instance_type, 
                                                      self.state, 
                                                      self.resource])
+            self._instance_cache._dump ()
 
 
     # --------------------------------------------------------------------------
@@ -159,8 +161,6 @@ class Pilot (tu.Properties) :
         if  self.state not in [DESCRIBED] :
             raise RuntimeError ("Can only bind pilots in DESCRIBED state (%s)" % self.state)
 
-      # print " ------------ binding pilot: %s" % resource
-            
         self.resource = resource
         self.state    = BOUND
 
@@ -174,6 +174,7 @@ class Pilot (tu.Properties) :
                                                  self._instance_type, 
                                                  self.state, 
                                                  self.resource])
+        self._instance_cache._dump ()
 
     # --------------------------------------------------------------------------
     #
@@ -202,10 +203,14 @@ class Pilot (tu.Properties) :
                                                  self.state, 
                                                  self.resource])
 
+        self._instance_cache._dump ()
+
 
     # --------------------------------------------------------------------------
     #
     def _get_instance (self, instance_type) :
+
+        self._instance_cache._dump ()
 
         if  instance_type != self._instance_type :
             raise RuntimeError ("pilot instance type is '%s', not '%s'" \
@@ -302,6 +307,7 @@ class Pilot (tu.Properties) :
                   'last_contact'         : 'last_contact',
                   'stopped'              : 'stopped',
                   'end_queue_time'       : 'end_queue_time',
+                  'resource'             : 'native_resource', # FIXME?
                   'processes_per_node'   : 'processes_per_node',
                   'number_of_processes'  : 'slots',
                   'working_directory'    : 'working_directory',

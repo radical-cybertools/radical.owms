@@ -91,7 +91,6 @@ class PLUGIN_CLASS (troy.PluginBase):
             # FIXME: HACK
             pilot_descr.queue               = self.cfg.get ('queue', None)
             pilot_descr.walltime            = 300
-            print pilot_descr
 
             resource_url = saga.Url (troy_pilot.resource)
             userid       = getpass.getuser()

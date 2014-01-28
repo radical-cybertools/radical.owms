@@ -44,7 +44,7 @@ class DataStager (object) :
         parsing is backward compatible with the simple staging directives used
         in troy previously -- any strings which do not contain staging operators
         will be interpreted as simple paths (identical for src and tgt,
-        operation set to '=').
+        operation set to '=', which is interpreted as ).
 
         Supported directives:
 
@@ -58,7 +58,7 @@ class DataStager (object) :
 
         if  rs // '^(?P<one>.+?)\s*(?P<op><|<<|>|>>)\s*(?P<two>.+)$' :
             res = rs.get ()
-            return (res['one'] res['two'], res['op'])
+            return (res['one'], res['two'], res['op'])
 
         else :
             return (txt, txt, '=')
@@ -98,16 +98,17 @@ class DataStager (object) :
             if  not isinstance (fin, basestring) :
                 raise TypeError ("Input files need to be strings, not %s" % type(fin))
 
-            one, two, op = self.__parse_staging_directive (fin)
-            if  op not in ['>', '>>', '='] :
-                raise ValueError ("invalid staging op '%s' for input staging'" % op)
+            one, two, op = self._parse_staging_directive (fin)
+            if  op in ['>>'] :
+                raise ValueError ("op '>>' (append) not yet supported for input staging")
 
-            print "staging_in %s %s %s / %s / %s / %s" % (one, op, pilot.resource, unit.working_directory, two)
-            unit.task.workload.manager._dispatcher.stage_file_in (fin, pilot.resource, unit.working_directory)
+            if  op not in ['>', '='] :
+                raise ValueError ("invalid staging op '%s' for input staging" % op)
+
+          # print "staging_in %s > s %s / %s / %s" % (one, pilot.resource, unit.working_directory, two)
+            unit.task.workload.manager._dispatcher.stage_file_in (one, pilot.resource, unit.working_directory, two)
 
         unit.staged_in = True
-        return
-
 
 
     # --------------------------------------------------------------------------
@@ -144,10 +145,17 @@ class DataStager (object) :
             if  not isinstance (fout, basestring) :
                 raise TypeError ("Input files need to be strings, not %s" % type(fout))
 
-            unit.task.workload.manager._dispatcher.stage_file_out (pilot.resource, unit.working_directory, fout)
-          # print "staging_out %s from %s / %s" % (fout, pilot.resource, unit.working_directory)
-            unit.staged_out = True
-        return
+            one, two, op = self._parse_staging_directive (fout)
+            if  op in ['<<'] :
+                raise ValueError ("op '<<' (append) not yet supported for output staging")
+
+            if  op not in ['<', '='] :
+                raise ValueError ("invalid staging op '%s' for output staging" % op)
+
+          # print "staging_out %s < %s / %s / %s" %                (one, pilot.resource, unit.working_directory, two)
+            unit.task.workload.manager._dispatcher.stage_file_out (one, pilot.resource, unit.working_directory, two)
+
+        unit.staged_out = True
 
 
 # ------------------------------------------------------------------------------

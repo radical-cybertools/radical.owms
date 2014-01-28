@@ -1,10 +1,9 @@
 
 
 import os
-import getpass
-
 import saga
 import sinon
+import getpass
 import radical.utils as ru
 
 from   troy.constants import *
@@ -96,27 +95,19 @@ class PLUGIN_CLASS (troy.PluginBase):
             pilot_descr.resource = troy_pilot.resource
             pilot_descr.cores    = troy_pilot.description['size']
 
-
+            resource_url = saga.Url (troy_pilot.resource)
             userid       = getpass.getuser()
             home         = os.environ['HOME']
             queue        = None
             walltime     = 24 * 60 # 1 day as default
 
-            print self.global_cfg
-
             for key in self.global_cfg.keys () :
-
-                print 'checking %s for %s' % (key, troy_pilot.resource)
-
-                if 'sinon_id' in self.global_cfg[key] :
-                    print self.global_cfg[key]['sinon_id']
 
                 if  key.startswith ('compute:')        and \
                     'sinon_id' in self.global_cfg[key] and \
-                    self.global_cfg[key]['sinon_id']  == troy_pilot.resource :
+                    self.global_cfg[key]['endpoint'] == resource_url.host :
 
-                    print 'resource config for %s' % troy_pilot.resource
-                    print self.global_cfg[key]
+                    pilot_descr.resource = self.global_cfg[key]['sinon_id']
 
                     userid   = self.global_cfg[key].get ('username', userid)
                     home     = self.global_cfg[key].get ('home',     home)
@@ -127,18 +118,14 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             pilot_descr.working_directory = "%s/troy_agents/" % home
             pilot_descr.queue    = queue
+
             pilot_descr.run_time = 300
-          
+
             sinon_um    = sinon.UnitManager  (session   = self._sinon, 
                                               scheduler = 'direct_submission')
             sinon_pm    = sinon.PilotManager (session   = self._sinon, 
                                               resource_configurations = FGCONF)
             sinon_pilot = sinon_pm.submit_pilots (pilot_descr)
-
-            # once the pilot is submitted, we keep the actual submission url as
-            # resource identifier
-            troy_pilot.resource = sinon_pilot.description['resource']
-
 
 
             sinon_um.add_pilots (sinon_pilot)
@@ -148,8 +135,10 @@ class PLUGIN_CLASS (troy.PluginBase):
                                       instance      = [sinon_um,     sinon_pm,     sinon_pilot], 
                                       native_id     = [sinon_um.uid, sinon_pm.uid, sinon_pilot.uid])
 
-            troy._logger.info ('overlay  provision: provision pilot  %s : %s ' \
-                            % (troy_pilot, troy_pilot._get_instance ('sinon')[2]))
+            troy._logger.info ('overlay  provision: provision pilot  %s : %s (%s)' \
+                            % (troy_pilot, 
+                               troy_pilot._get_instance ('sinon')[2], 
+                               troy_pilot.resource))
 
 
     # --------------------------------------------------------------------------
