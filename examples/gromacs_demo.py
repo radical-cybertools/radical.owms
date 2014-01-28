@@ -20,12 +20,12 @@ import getpass
 if __name__ == '__main__':
 
     # set up local pwd
-    try :
-        os.mkdir("/tmp/troy_demo/")
-    except :
-        pass # might exist
-
-    os.chdir("/tmp/troy_demo/")
+#    try :
+#        os.mkdir("/tmp/troy_demo/")
+#    except :
+#        pass # might exist
+#
+    #os.chdir("/tmp/troy_demo/")
 
     # Create a session for TROY.
     session = troy.Session(
@@ -49,16 +49,18 @@ if __name__ == '__main__':
     # Manage credentials.
     # TODO: set it to args.protocol (default ssh).
     c1 = troy.Context ('ssh')
-    c1.user_id = 'merzky'
+    c1.user_id = 'marksant'
     session.add_context (c1)
 
     # Responsible for application workload
     workload_mgr = troy.WorkloadManager(dispatcher = 'bigjob_pilot',
+                                        #dispatcher = 'sinon',
                                         session    = session)
 
     # Responsible for managing the pilot overlay
     overlay_mgr = troy.OverlayManager(scheduler    = 'round_robin',
                                       provisioner  = 'bigjob_pilot',
+                                      #provisioner  = 'sinon',
                                       session      = session)
 
     # Planning makes initial mapping of workload to overlay
@@ -78,7 +80,7 @@ if __name__ == '__main__':
 
         task_descr.inputs            = ['topol.tpr']
         task_descr.outputs           = ['state.cpt', 'confout.gro', 'ener.edr', 'traj.trr', 'md.log']
-        task_descr.working_directory = "/N/u/merzky/troy_demo/tasks/%d/" % n
+        task_descr.working_directory = "/N/u/marksant/troy_demo/tasks/%d/" % n
 
         print task_descr
 
