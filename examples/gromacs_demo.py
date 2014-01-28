@@ -44,10 +44,10 @@ if __name__ == '__main__':
 
     demo_config = session.get_config ('gromacs_demo')
 
-    # Add resources to the session.
-    session.user_cfg['overlay_scheduler_round_robin'] = {
-        'resources': 'pbs+ssh://india.futuregrid.org/'
-    }
+  # # Add resources to the session.
+  # session.user_cfg['overlay_scheduler_round_robin'] = {
+  #     'resources': 'pbs+ssh://india.futuregrid.org/'
+  # }
 
     # Manage credentials.
     # TODO: set it to args.protocol (default ssh).
@@ -76,7 +76,7 @@ if __name__ == '__main__':
 
         task_descr                   = troy.TaskDescription()
         task_descr.tag               = "%d" % n
-        task_descr.executable        = '/N/u/marksant/bin/mdrun'
+        task_descr.executable        = '%s' % demo_config['mdrun']
         task_descr.arguments         = ['-nsteps', steps]
 
         task_descr.inputs            = ['topol.tpr']
@@ -85,7 +85,7 @@ if __name__ == '__main__':
                                         'ener.edr.%d    < ener.edr'    % n, 
                                         'traj.trr.%d    < traj.trr'    % n, 
                                         'md.log.%d      < md.log'      % n]
-        task_descr.working_directory = "/N/u/%s/troy_demo/tasks/%d/" % (demo_config['user'], n)
+        task_descr.working_directory = "%s/troy_demo/tasks/%d/" % (demo_config['home'], n)
 
         print task_descr
 

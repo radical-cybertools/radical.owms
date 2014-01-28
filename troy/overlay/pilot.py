@@ -99,7 +99,6 @@ class Pilot (tu.Properties) :
 
         if  reconnect :
 
-            self._instance_cache._dump ()
             self.id,             self.native_id, \
             self._provisioner,   self._instance, \
             self._instance_type, self._state,    \
@@ -124,7 +123,6 @@ class Pilot (tu.Properties) :
                                                      self._instance_type, 
                                                      self.state, 
                                                      self.resource])
-            self._instance_cache._dump ()
 
 
     # --------------------------------------------------------------------------
@@ -174,7 +172,7 @@ class Pilot (tu.Properties) :
                                                  self._instance_type, 
                                                  self.state, 
                                                  self.resource])
-        self._instance_cache._dump ()
+
 
     # --------------------------------------------------------------------------
     #
@@ -203,14 +201,10 @@ class Pilot (tu.Properties) :
                                                  self.state, 
                                                  self.resource])
 
-        self._instance_cache._dump ()
-
 
     # --------------------------------------------------------------------------
     #
     def _get_instance (self, instance_type) :
-
-        self._instance_cache._dump ()
 
         if  instance_type != self._instance_type :
             raise RuntimeError ("pilot instance type is '%s', not '%s'" \
