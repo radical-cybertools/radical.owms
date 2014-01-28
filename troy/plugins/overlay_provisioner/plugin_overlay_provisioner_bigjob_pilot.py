@@ -1,6 +1,8 @@
 
 
 import os
+import saga
+import getpass
 
 import pilot         as pilot_module
 import radical.utils as ru
@@ -91,17 +93,28 @@ class PLUGIN_CLASS (troy.PluginBase):
             pilot_descr.walltime            = 300
             print pilot_descr
 
-            # FIXME: HACKER-HOOK
-            # set working directory to something which is known to work on all
-            # target hosts.
-            import getpass
-            local_user_id = getpass.getuser()
-            if  'futuregrid' in troy_pilot.resource :
-                pilot_descr.working_directory = "/N/u/%s/agent" % local_user_id
-            elif  'localhost' in troy_pilot.resource :
-                pilot_descr.working_directory = '%s/agent' % os.environ['HOME']
-            else :
-                pilot_descr.working_directory = "/home/%s/agent" % local_user_id
+            resource_url = saga.Url (troy_pilot.resource)
+            userid       = getpass.getuser()
+            home         = os.environ['HOME']
+            queue        = None
+            walltime     = 24 * 60 # 1 day as default
+
+            for key in self.global_cfg.keys () :
+
+                if  key.startswith ('compute:')        and \
+                    'endpoint' in self.global_cfg[key] and \
+                    self.global_cfg[key]['endpoint']  == resource_url.host :
+
+                    userid   = self.global_cfg[key].get ('username', userid)
+                    home     = self.global_cfg[key].get ('home',     home)
+                    queue    = self.global_cfg[key].get ('queue',    queue)
+                    walltime = self.global_cfg[key].get ('walltime', walltime)
+
+                    break
+
+            pilot_descr.working_directory = "%s/troy_agents/" % home
+            pilot_descr.queue             = queue
+            pilot_descr.wall_time         = 300
 
             # and create the pilot
             bj_pilot = self.cp_service.create_pilot (pilot_descr)
