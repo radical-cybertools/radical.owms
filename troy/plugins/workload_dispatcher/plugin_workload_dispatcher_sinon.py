@@ -83,11 +83,6 @@ class PLUGIN_CLASS (troy.PluginBase):
 
                 unit = task.units[uid]
 
-              # # stage-in for unit.  For that to work, we have to make sure to
-              # # set the working_directory for the unit (if that was not set
-              # # explicitly before)
-              # workload.manager._stager.stage_in_unit (unit)
-
                 # sanity check for CU state -- only in BOUND state we can 
                 # rely on a pilot being assigned to the CU.
                 if  unit.state not in [BOUND] :
@@ -115,11 +110,12 @@ class PLUGIN_CLASS (troy.PluginBase):
                     if  key in ['tag', 'inputs', 'outputs', 'stdin', 'stdout'] :
                         continue
 
-                    elif key in ['working_directory', 'inputs', 'outputs', 'stdin', 'stdout'] :
-                        sinon_cu_descr['working_directory_priv'] = unit_descr[key]
+                    elif key in ['working_directory'] :
+                        sinon_cu_descr['WorkingDirectoryPriv'] = unit_descr[key]
 
                     else :
                         sinon_cu_descr[key] = unit_descr[key]
+
 
                 # FIXME: sanity check for pilot type
                 [sinon_um, sinon_pm, sinon_pilot] = pilot._get_instance ('sinon')
@@ -270,12 +266,15 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         troy._logger.debug ('copy %s <- %s' % (tgt_url, src_url))
 
-        if  not str(resource) in self._dir_cache :
-            self._dir_cache[str(resource)] = saga.filesystem.Directory \
-                    (src_dir_url, saga.filesystem.CREATE_PARENTS)
-            troy._logger.warning ('new cache for %s (%s)' % (resource, src_dir_url))
+        resource_url = saga.Url (resource)
+        if  resource_url.schema.endswith ('+ssh') :
+            resource_url.schema = 'ssh'
 
-        troy._logger.warning ('use cache for %s (%s)' % (resource, src_dir_url))
+        if  not str(resource) in self._dir_cache :
+            self._dir_cache[str(resource)] = saga.filesystem.Directory (resource_url)
+      #     troy._logger.warning ('new cache for %s (%s)' % (resource, resource_url))
+
+      # troy._logger.warning ('use cache for %s (%s)' % (resource, resource_url))
         src_dir = self._dir_cache[str(resource)]
 
         src_dir.change_dir (src_dir_url.path)

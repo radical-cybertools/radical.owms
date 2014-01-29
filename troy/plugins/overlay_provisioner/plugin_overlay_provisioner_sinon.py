@@ -10,7 +10,8 @@ from   troy.constants import *
 import troy
 
 
-FGCONF = 'https://raw.github.com/saga-project/saga-pilot/master/configs/futuregrid.json'
+FGCONF    = 'https://raw.github.com/saga-project/saga-pilot/master/configs/futuregrid.json'
+TROY_CONF = "file://localhost/%s/resource.py" % os.path.dirname (troy.__file__)
 
 
 # ------------------------------------------------------------------------------
@@ -81,7 +82,6 @@ class PLUGIN_CLASS (troy.PluginBase):
         manager, ad pass it around with the PM and pilot instance.
         """
 
-        # we simply assign all pilots to localhost
         for pid in overlay.pilots.keys() :
 
             troy_pilot = overlay.pilots[pid]
@@ -100,6 +100,9 @@ class PLUGIN_CLASS (troy.PluginBase):
             home         = os.environ['HOME']
             queue        = None
             walltime     = 24 * 60 # 1 day as default
+
+            troy._logger.info ('overlay  provision: provision   pilot  %s : %s ' \
+                            % (pid, resource_url))
 
             for key in self.global_cfg.keys () :
 
@@ -124,7 +127,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             sinon_um    = sinon.UnitManager  (session   = self._sinon, 
                                               scheduler = 'direct_submission')
             sinon_pm    = sinon.PilotManager (session   = self._sinon, 
-                                              resource_configurations = FGCONF)
+                                              resource_configurations = TROY_CONF)
             sinon_pilot = sinon_pm.submit_pilots (pilot_descr)
 
 
@@ -135,7 +138,7 @@ class PLUGIN_CLASS (troy.PluginBase):
                                       instance      = [sinon_um,     sinon_pm,     sinon_pilot], 
                                       native_id     = [sinon_um.uid, sinon_pm.uid, sinon_pilot.uid])
 
-            troy._logger.info ('overlay  provision: provision pilot  %s : %s (%s)' \
+            troy._logger.info ('overlay  provision: provisioned pilot  %s : %s (%s)' \
                             % (troy_pilot, 
                                troy_pilot._get_instance ('sinon')[2], 
                                troy_pilot.resource))

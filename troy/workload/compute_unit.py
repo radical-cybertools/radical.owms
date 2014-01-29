@@ -61,6 +61,7 @@ class ComputeUnit (tu.Properties) :
                              "description (troy.ComputeUnitDescription), not '%s'" \
                           % type(param))
 
+        # set properties which are known from the description
         tu.Properties.__init__ (self, descr)
 
         # register properties
@@ -99,7 +100,6 @@ class ComputeUnit (tu.Properties) :
         self.description       = descr
         self.pilot_id          = _pilot_id
         self.task              = _task
-        self.working_directory = None  # can only stage-in once wd is known
 
          
         # FIXME: complete attribute list, dig properties from description,

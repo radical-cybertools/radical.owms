@@ -52,9 +52,6 @@ class PLUGIN_CLASS (troy.PluginBase):
                 unit = task.units[unit_id]
                 unit._bind (pilot_id)
 
-                troy._logger.info ("workload schedule : assign unit %-18s to %s" % (unit_id, pilot_id))
-        
-
 
 # ------------------------------------------------------------------------------
 

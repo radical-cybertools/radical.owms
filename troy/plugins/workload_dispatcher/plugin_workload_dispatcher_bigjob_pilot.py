@@ -215,6 +215,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         while srcdir   [-1] == '/' : srcdir   = srcdir   [0:-1]
         while srcdir   [ 0] == '/' : srcdir   = srcdir   [1:  ]
 
+
         src_url          = saga.Url ("/%s/%s" % (srcdir, src))
         tgt_url          = saga.Url ("file://localhost%s" % tgt)
         src_dir_url      = saga.Url (src_url) # deep copy
@@ -228,9 +229,9 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         if  not str(resource) in self._dir_cache :
             self._dir_cache[str(resource)] = saga.filesystem.Directory (resource_url)
-            troy._logger.warning ('new cache for %s (%s)' % (resource, resource_url))
+      #     troy._logger.warning ('new cache for %s (%s)' % (resource, resource_url))
 
-        troy._logger.warning ('use cache for %s (%s)' % (resource, resource_url))
+      # troy._logger.warning ('use cache for %s (%s)' % (resource, resource_url))
         src_dir = self._dir_cache[str(resource)]
 
         src_dir.change_dir (src_dir_url.path)

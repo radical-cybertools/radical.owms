@@ -50,6 +50,9 @@ class PLUGIN_CLASS (troy.PluginBase):
             cu_id = task._add_unit (cu_descr)
             troy._logger.info ('workload translate: derive unit %-18s for %s' % (cu_id, task.id))
 
+        for uid in task.units :
+            unit = task.units[uid]
+
 
 
 # ------------------------------------------------------------------------------

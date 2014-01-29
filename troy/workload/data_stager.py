@@ -105,8 +105,10 @@ class DataStager (object) :
             if  op not in ['>', '='] :
                 raise ValueError ("invalid staging op '%s' for input staging" % op)
 
-          # print "staging_in %s > s %s / %s / %s" % (one, pilot.resource, unit.working_directory, two)
-            unit.task.workload.manager._dispatcher.stage_file_in (one, pilot.resource, unit.working_directory, two)
+            troy._logger.debug ("staging_in  %s > %s / %s / %s" \
+                             %  (one, pilot.resource, unit.working_directory, two))
+            unit.task.workload.manager._dispatcher.stage_file_in (one, pilot.resource, 
+                    unit.working_directory, two)
 
         unit.staged_in = True
 
@@ -136,7 +138,7 @@ class DataStager (object) :
             return
 
         pilot = troy.Pilot (unit.pilot_id)
-      # print "staging_out unit %s on %s (%s)" % (unit.id, pilot.id, pilot.resource)
+
 
         if  not unit.working_directory :
             raise RuntimeError ("no working directory defined for %s - cannot stage-in" % unit.id)
@@ -152,8 +154,10 @@ class DataStager (object) :
             if  op not in ['<', '='] :
                 raise ValueError ("invalid staging op '%s' for output staging" % op)
 
-          # print "staging_out %s < %s / %s / %s" %               (one, pilot.resource, unit.working_directory, two)
-            unit.task.workload.manager._dispatcher.stage_file_out (one, pilot.resource, unit.working_directory, two)
+            troy._logger.debug ("staging_out %s < %s / %s / %s" \
+                             %  (one, pilot.resource, unit.working_directory, two))
+            unit.task.workload.manager._dispatcher.stage_file_out (one, pilot.resource, 
+                    unit.working_directory, two)
 
         unit.staged_out = True
 
