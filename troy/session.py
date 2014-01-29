@@ -18,7 +18,19 @@ class Session (saga.Session) :
         self.user_cfg = cfg
         self._apitype = 'saga.Session'
 
+      # troy._logger.info ("config: %s" % self.cfg.as_dict ())
+
         saga.Session.__init__ (self, default)
+
+
+    def get_config (self, section=None) :
+
+        if  section :
+            return self.cfg.as_dict ().get (section, {})
+        else :
+            return self.cfg.as_dict ()
+
+
 
     
 # ------------------------------------------------------------------------------

@@ -3,13 +3,15 @@
 import os
 import saga
 import sinon
+import getpass
 import radical.utils as ru
 
 from   troy.constants import *
 import troy
 
 
-FGCONF = 'https://raw.github.com/saga-project/saga-pilot/master/configs/futuregrid.json'
+FGCONF    = 'https://raw.github.com/saga-project/saga-pilot/master/configs/futuregrid.json'
+TROY_CONF = "file://localhost/%s/resource.py" % os.path.dirname (troy.__file__)
 
 
 # ------------------------------------------------------------------------------
@@ -80,7 +82,6 @@ class PLUGIN_CLASS (troy.PluginBase):
         manager, ad pass it around with the PM and pilot instance.
         """
 
-        # we simply assign all pilots to localhost
         for pid in overlay.pilots.keys() :
 
             troy_pilot = overlay.pilots[pid]
@@ -94,35 +95,40 @@ class PLUGIN_CLASS (troy.PluginBase):
             pilot_descr.resource = troy_pilot.resource
             pilot_descr.cores    = troy_pilot.description['size']
 
-            pilot_descr.run_time = 0  # FIXME
+            resource_url = saga.Url (troy_pilot.resource)
+            userid       = getpass.getuser()
+            home         = os.environ['HOME']
+            queue        = None
+            walltime     = 24 * 60 # 1 day as default
 
-            # FIXME: HACKER-HOOK
-            # set working directory to something which is known to work on all
-            # target hosts.
-            import getpass
-            local_user_id = getpass.getuser()
-            if  'futuregrid' in troy_pilot.resource :
-                pilot_descr.working_directory = "/N/u/%s/agent" % local_user_id
-            elif  'localhost' in troy_pilot.resource :
-                pilot_descr.working_directory = '%s/agent' % os.environ['HOME']
-            else :
-                pilot_descr.working_directory = "/home/%s/agent" % local_user_id
+            troy._logger.info ('overlay  provision: provision   pilot  %s : %s ' \
+                            % (pid, resource_url))
 
-            # FIXME: HACK
+            for key in self.global_cfg.keys () :
+
+                if  key.startswith ('compute:')        and \
+                    'sinon_id' in self.global_cfg[key] and \
+                    self.global_cfg[key]['endpoint'] == resource_url.host :
+
+                    pilot_descr.resource = self.global_cfg[key]['sinon_id']
+
+                    userid   = self.global_cfg[key].get ('username', userid)
+                    home     = self.global_cfg[key].get ('home',     home)
+                    queue    = self.global_cfg[key].get ('queue',    queue)
+                    walltime = self.global_cfg[key].get ('walltime', walltime)
+
+                    break
+
+            pilot_descr.working_directory = "%s/troy_agents/" % home
+            pilot_descr.queue    = queue
+
             pilot_descr.run_time = 300
-            pilot_descr.queue    = self.cfg.get ('queue', None)
-            print pilot_descr
-          
+
             sinon_um    = sinon.UnitManager  (session   = self._sinon, 
                                               scheduler = 'direct_submission')
             sinon_pm    = sinon.PilotManager (session   = self._sinon, 
-                                              resource_configurations = FGCONF)
+                                              resource_configurations = TROY_CONF)
             sinon_pilot = sinon_pm.submit_pilots (pilot_descr)
-
-            # once the pilot is submitted, we keep the actual submission url as
-            # resource identifier
-            troy_pilot.resource = sinon_pilot.description['resource']
-
 
 
             sinon_um.add_pilots (sinon_pilot)
@@ -132,8 +138,10 @@ class PLUGIN_CLASS (troy.PluginBase):
                                       instance      = [sinon_um,     sinon_pm,     sinon_pilot], 
                                       native_id     = [sinon_um.uid, sinon_pm.uid, sinon_pilot.uid])
 
-            troy._logger.info ('overlay  provision: provision pilot  %s : %s ' \
-                            % (troy_pilot, troy_pilot._get_instance ('sinon')[2]))
+            troy._logger.info ('overlay  provision: provisioned pilot  %s : %s (%s)' \
+                            % (troy_pilot, 
+                               troy_pilot._get_instance ('sinon')[2], 
+                               troy_pilot.resource))
 
 
     # --------------------------------------------------------------------------

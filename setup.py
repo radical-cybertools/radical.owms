@@ -164,11 +164,15 @@ setup_args = {
     'cmdclass'         : {
         'test'         : our_test,
     },
-    'install_requires' : ['saga-python', 'radical.utils'],
+  # 'install_requires' : ['saga-python', 'radical.utils'],
+  # At the moment, the radical.utils plugin manager has trouble when any plugin
+  # fails to load.  Until that is fixed, we have to make sure that all
+  # dependencies are met -- so we add the all for the time being.
+    'install_requires' : ['saga-python', 'radical.utils', 'bigjob', 'paramiko'],
     'extras_require'   : {
-        'sinon'        :  ["sinon"],
+        'sagapilot'    :  ["sagapilot"],
         'bigjob'       :  ["bigjob"],
-        'bundles'      :  ["paramico"]
+        'bundles'      :  ["paramiko"]
     },
     'tests_require'    : ['nose'],
     'zip_safe'         : False,

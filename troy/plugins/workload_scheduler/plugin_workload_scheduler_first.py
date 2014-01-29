@@ -37,7 +37,8 @@ class PLUGIN_CLASS (troy.PluginBase):
         # schedule to first available pilot
 
         if  not overlay.pilots.keys() :
-            raise RuntimeError ('no pilots in overlay')
+            troy._logger.warn ("no pilots in overlay")
+            return
 
         # schedule to first pilot
         pilot_id = overlay.pilots.keys()[0]
@@ -51,9 +52,6 @@ class PLUGIN_CLASS (troy.PluginBase):
                 troy._logger.info ("workload schedule : assign unit %-18s to %s" % (unit_id, pilot_id))
                 unit = task.units[unit_id]
                 unit._bind (pilot_id)
-
-                troy._logger.info ("workload schedule : assign unit %-18s to %s" % (unit_id, pilot_id))
-        
 
 
 # ------------------------------------------------------------------------------

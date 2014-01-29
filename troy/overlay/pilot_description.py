@@ -28,14 +28,15 @@ class PilotDescription (tu.Properties) :
     #
     def __init__ (self, descr={}) :
 
-
+        # initialize properties
         tu.Properties.__init__ (self, descr)
 
         # property defaults
         self.size              = 1
-      # self.working_directory = '/tmp/troy.%s/' % os.getuid ()
 
-        # FIXME
+        # properties as set
+        for key in descr :
+            self.set_attribute (key, descr[key])
 
 
     # --------------------------------------------------------------------------

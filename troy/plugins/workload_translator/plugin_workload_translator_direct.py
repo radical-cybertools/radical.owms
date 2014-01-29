@@ -51,6 +51,5 @@ class PLUGIN_CLASS (troy.PluginBase):
             troy._logger.info ('workload translate: derive unit %-18s for %s' % (cu_id, task.id))
 
 
-
 # ------------------------------------------------------------------------------
 

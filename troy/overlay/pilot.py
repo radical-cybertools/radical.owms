@@ -159,8 +159,6 @@ class Pilot (tu.Properties) :
         if  self.state not in [DESCRIBED] :
             raise RuntimeError ("Can only bind pilots in DESCRIBED state (%s)" % self.state)
 
-      # print " ------------ binding pilot: %s" % resource
-            
         self.resource = resource
         self.state    = BOUND
 
@@ -174,6 +172,7 @@ class Pilot (tu.Properties) :
                                                  self._instance_type, 
                                                  self.state, 
                                                  self.resource])
+
 
     # --------------------------------------------------------------------------
     #
@@ -302,6 +301,7 @@ class Pilot (tu.Properties) :
                   'last_contact'         : 'last_contact',
                   'stopped'              : 'stopped',
                   'end_queue_time'       : 'end_queue_time',
+                  'resource'             : 'native_resource', # FIXME?
                   'processes_per_node'   : 'processes_per_node',
                   'number_of_processes'  : 'slots',
                   'working_directory'    : 'working_directory',
@@ -312,8 +312,8 @@ class Pilot (tu.Properties) :
         # now that we have fresh info, lets update all pilot properties
         for info_key in self._pilot_info :
 
-            if  info_key in keymap : new_key = keymap[info_key]
-            else                   : new_key =        info_key
+            # translate key if needed
+            new_key = keymap.get (info_key, info_key)
 
             # this will trigger registered callbacks
             self.set_property (new_key, self._pilot_info[info_key])
@@ -326,8 +326,7 @@ class Pilot (tu.Properties) :
 
             for descr_key in description : 
 
-                if  descr_key in keymap : new_key = keymap[descr_key]
-                else                    : new_key =        descr_key
+                new_key = keymap.get (descr_key, descr_key)
 
                 # this will trigger registered callbacks
                 self.set_property (new_key, description[descr_key])
