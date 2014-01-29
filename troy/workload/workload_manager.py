@@ -190,8 +190,8 @@ class WorkloadManager (object) :
 
             # lookup id
             if  not unit_id in cls._unit_id_map :
-                import pprint
-                pprint.pprint (cls._unit_id_map)
+              # import pprint
+              # pprint.pprint (cls._unit_id_map)
                 raise ValueError ("no such unit known '%s'" % unit_id)
             return cls._unit_id_map[unit_id]
 

@@ -49,6 +49,10 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         global _idx
 
+        if  not len(self.resources) :
+            raise RuntimeError ("No resources to schedule over")
+
+
         for pid in overlay.pilots.keys() :
 
             if  _idx >= len(self.resources) :

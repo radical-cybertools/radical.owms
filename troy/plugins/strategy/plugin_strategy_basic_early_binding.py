@@ -85,11 +85,6 @@ class PLUGIN_CLASS (troy.PluginBase):
             # not enforce a workload state model...
             workload.state = partition.state
 
-            # throughout this loop, we reflect the workload state as the state
-            # of the current partition.  This only works because troy does
-            # not enforce a workload state model...
-            workload.state = partition.state
-
             # Schedule the partition onto the overlay
             workload_mgr.bind_workload (partition.id, overlay_id,
                                         bind_mode=troy.EARLY)

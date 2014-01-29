@@ -33,6 +33,7 @@ class ComputeUnitDescription (tu.Properties) :
         # register properties
         self.register_property ('executable')
         self.register_property ('arguments')
+        self.register_property ('working_directory')
         # FIXME: complete...
 
 

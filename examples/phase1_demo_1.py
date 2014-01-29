@@ -99,4 +99,22 @@ if __name__ == '__main__':
     overlay_mgr .cancel_overlay  (overlay_id)
 
 
+    for t_id in workload.tasks.keys():
+        print "t_id", t_id
+        task = workload.tasks[t_id]
+        for u_id in task.units.keys():
+            print "u_id", u_id
+            unit = task.units[u_id]
+            print unit.description
 
+        #print workload.units[t].description
+        
+
+        #print t.tasks
+        #print t.description
+        #for u in t.units:
+        #print j
+        #print j.tasks()
+
+    workload_mgr.cancel_workload (workload.id)   # same as workload.cancel ()
+    overlay_mgr .cancel_overlay  (overlay_id)

@@ -4,7 +4,7 @@ export PS1=' $'
 
 ##################################################################
 # adjust these vars
-export ROOT=`pwd`
+export ROOT=`pwd`/experiments/
 export USERID=merzky
 export WORKDIR=/N/u/$USERID/agent
 ##################################################################
@@ -19,7 +19,9 @@ export COORDINATION_URL=$BIGJOB_COORD
 ###############################################################################
 # prepare virtualenv
 echo 'prepare virtualenv'
-cd  $ROOT
+mkdir -p $ROOT
+cd       $ROOT
+# deactivate || true  # why doesn't this work?
 test -d ve || virtualenv ve
 source ve/bin/activate
 
