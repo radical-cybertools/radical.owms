@@ -1,4 +1,8 @@
 
+__author__ = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__ = "MIT"
+
 
 import threading
 
@@ -26,10 +30,10 @@ class Planner(object):
 
     # --------------------------------------------------------------------------
     #
-    def __init__(self, planner = AUTOMATIC, 
+    def __init__(self, planner = AUTOMATIC,
                        session = None):
         """
-        Create a new planner instance for this workload.  
+        Create a new planner instance for this workload.
 
         Use the default planner plugin if not indicated otherwise
         """
@@ -65,7 +69,7 @@ class Planner(object):
         self._plugin_mgr = ru.PluginManager ('troy')
         self._planner    = self._plugin_mgr.load ('planner', self.plugins['planner'])
 
-        if  not self._planner : 
+        if  not self._planner :
             raise RuntimeError ("Could not load planner plugin")
 
         self._planner.init_plugin (self._session)
@@ -78,7 +82,42 @@ class Planner(object):
     @tu.timeit
     def derive_overlay (self, workload_id):
         """
-        create overlay plan (description) from workload
+        create overlay plan (description) from workload.
+
+        Notes
+
+        . Derive implies a workload. Does it make sense to think about a
+          def describe_overlay() in which a workload is not provided? I am
+          thinking about a stronger notion of 'early binding' in which pilots
+          would be created preemptively. Do we see any use case for this?
+
+        . I find the overloading of the term 'planner' confusing. self here is
+          a planner. Then there is a private planner that is a planner plug-in
+          that has a method with the same name (derive_overlay) of self. I
+          believe this overloading hides a confusion about how we use plugins
+          in the planner. Plugins should be specific, something that implement
+          _alternative_ ways (i.e. algorithms) to solve a well-specified,
+          unique, task within the overarching, composite action tat we call
+          'planning'. See further comments on the bundles.
+
+        . Do we have a state model for an overlay? We have one for the
+          workload but I did not managed to find one for the planner.
+
+        TODO
+
+        . One of the reason to have a planner (Mark will have more to tell us
+          soon about all the other functionalities) is to check that the
+          workload as a whole makes sense given the available resources.
+          Therefore, as part of the actions of the planner I would add both
+          spatial and time dimensions of the overlay (as partially done in
+          the overlay bundles plugin):
+          - Max/Min amount of cores requires by the workload. If Max > of
+            the cores available from the accessible resources, raise Exception.
+          - Max/Min queing time required by the given workload. If Max > of
+            the cores available from the accessible resources, raise Exception.
+          - Max/Min degree of concurrency for the given workload - derived
+            from the two previous parameters.
+
         """
 
         # Get the workload from the repo
@@ -111,6 +150,12 @@ class Planner(object):
     def expand_workload(self, workload_id):
         """
         Expand cardinality parameters in workload.
+
+        Notes
+
+        . Currently, this method is empty. What is its goal? Answering this
+          question should also clarify why 'expand'.
+
         """
 
         # Get the workload from the repo

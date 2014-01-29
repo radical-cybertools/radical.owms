@@ -1,4 +1,8 @@
 
+__author__ = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__ = "MIT"
+
 
 import radical.utils as ru
 
@@ -10,8 +14,8 @@ _DEFAULT_PILOT_SIZE = UNLIMITED
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
-    'type'          : 'overlay_translator', 
-    'name'          : 'max_pilot_size', 
+    'type'          : 'overlay_translator',
+    'name'          : 'max_pilot_size',
     'version'       : '0.1',
     'description'   : 'this translator creates n pilots of maximal size.',
     'configuration' : [('pilot size', 'INT as size of each pilot, or troy.UNLIMITED" (default: UNLIMITED)')]
@@ -57,7 +61,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         pilot_cnt = 0
         while (pilot_cnt * pilot_size) < overlay.description.cores :
 
-            pilot_descr = troy.PilotDescription ({'size'      : pilot_size, 
+            pilot_descr = troy.PilotDescription ({'size'      : pilot_size,
                                                   'wall_time' : overlay.description.wall_time})
             pilot_id    = overlay._add_pilot (pilot_descr)
             pilot_cnt  += 1

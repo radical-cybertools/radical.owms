@@ -1,4 +1,8 @@
 
+__author__ = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__ = "MIT"
+
 
 import radical.utils as ru
 
@@ -7,6 +11,21 @@ import troy
 
 from   bundle import BundleManager
 
+"""
+Notes
+
+. Bundles is ortogonal to other functionalities. E.g. we might want to have
+  a planner that uses some specific algorithms in order to define a min/max
+  for the walltime of a pilot. These algorithm are mutually exclusive and, as
+  such, they need to be incapsulated into a plugin, possibly loaded and
+  unloaded during the same session. The problem is that both these plugings
+  may need bundled functionalities in order to work properly. We may want to
+  fugure out implementations that do not need bundles but I would not put
+  bundles into their own plugin. This is way too complex and leads to
+  collapsing the concept of code isolation (e.g. block, module) into that of
+  plugin, somehting that seems to me overengineering.
+
+"""
 
 # ------------------------------------------------------------------------------
 #

@@ -1,4 +1,8 @@
 
+__author__ = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__ = "MIT"
+
 
 import radical.utils as ru
 
@@ -35,7 +39,7 @@ class PLUGIN_CLASS (troy.PluginBase):
     def expand_workload(self, workload):
 
         # Do nothing for now
-        
+
         troy._logger.info ("planner  expand wl: expand workload : %s" % workload)
 
 
@@ -49,7 +53,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         for task_id in workload.tasks :
             cores += workload.tasks[task_id].cores
 
-        ovl_descr = troy.OverlayDescription ({'cores'     : cores, 
+        ovl_descr = troy.OverlayDescription ({'cores'     : cores,
                                               'wall_time' : (1 << 1) + (1 << 3) + (1 << 5)})
 
         troy._logger.info ("planner  derive ol: derive overlay for workload: %s" % ovl_descr)
