@@ -14,11 +14,15 @@ __license__   = "MIT"
         virtualenv ve
         source     ve/bin/activate
         pip install ~/projects/troy/           # fix/data_staging branch
-        pip install ~/projects/sinon/          # devel or master
+        pip install ~/projects/sagapilot/      # devel or master
         pip install ~/projects/saga-python/    # devel
         pip install ~/projects/radical.utils/  # devel
         pip install paramiko bigjob
         time ./gromacs_demo.py
+
+    All of the dependencies will also be installed by pip, as dependencies for
+    troy, but (a) sagapilot is not yet in pypi, and (b) at this point we need
+    some of the deps in their devel branches.
 
     You will need the following additional settings in ~/.troy.cfg:
 
