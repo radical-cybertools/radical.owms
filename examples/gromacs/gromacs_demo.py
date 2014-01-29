@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 __author__    = "TROY Development Team"
 __copyright__ = "Copyright 2014, RADICAL"
@@ -5,8 +6,34 @@ __license__   = "MIT"
 
 
 """
-    Demo application for 1 feb 2014
-    - Bag of Task (BoT)
+    Demo application for 1 Feb 2014, a MD Bag of Task with data staging
+
+    Prepare/run with the following set of commands (the exact path to the packages
+    may vary for you):
+
+        virtualenv ve
+        source     ve/bin/activate
+        pip install ~/projects/troy/           # fix/data_staging branch
+        pip install ~/projects/sinon/          # devel or master
+        pip install ~/projects/saga-python/    # devel
+        pip install ~/projects/radical.utils/  # devel
+        pip install paramiko bigjob
+        time ./gromacs_demo.py
+
+    You will need the following additional settings in ~/.troy.cfg:
+
+        [gromacs_demo]
+
+        pilot_backend = sinon
+        bagsize       = 3
+        steps         = 256
+
+        demo_id       = india_sinon_3_256
+        user          = merzky
+        mdrun         = /N/u/marksant/bin/mdrun
+        home          = /N/u/merzky/
+        resources     = pbs+ssh://india.futuregrid.org
+
 """
 
 import os
