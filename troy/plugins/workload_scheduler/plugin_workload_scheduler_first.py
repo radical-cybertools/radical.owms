@@ -37,7 +37,8 @@ class PLUGIN_CLASS (troy.PluginBase):
         # schedule to first available pilot
 
         if  not overlay.pilots.keys() :
-            raise RuntimeError ('no pilots in overlay')
+            troy._logger.warn ("no pilots in overlay")
+            return
 
         # schedule to first pilot
         pilot_id = overlay.pilots.keys()[0]
