@@ -100,8 +100,9 @@ class Planner(object):
           unique, task within the overarching, composite action tat we call
           'planning'. See further comments on the bundles.
 
-        . Do we have a state model for an overlay? We have one for the
-          workload but I did not managed to find one for the planner.
+        . Do we have a state model for an overlay? I found the states listed
+          in constants.py (shall we put them in something like states.py?). Do
+          we use/set them in the planner?
 
         TODO
 

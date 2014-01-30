@@ -15,7 +15,7 @@ import troy
 class WorkloadManager (object) :
     """
     The `WorkloadManager` class, as its name suggests, manages :class:`Workload`
-    instances, i.e. translates, schedules and enacts those instances.  
+    instances, i.e. translates, schedules and enacts those instances.
 
     The internal state of the workload manager is not open for inspection -- but
     the workloads it manages can be exposed for inspection, on request
@@ -29,23 +29,41 @@ class WorkloadManager (object) :
     we want to get any meaningful feedback loop.  Easiest and cleanest is
     probably to allow to repeatedly run through earlier stages again -- DONE
     tasks will then simply be ignored...
+
+    Notes
+
+    . I agree that iterative scheduling has to be implemented. The state model
+      of the workload could be extended by adding a RESCHEDULING state. In a
+      synchronos model:
+      - the manager should 'monitor' the state of its pilots
+      - react to a well-defined set of states by transitioning the workload
+        into a RESCHEDULING state
+      - chose another resource if available or create a new (pilots of an)
+        overlay
+      - call the scheduler to get a scheduling map of the remaining task (I
+        agree, the tasks in state done should be disregarded)
+      - enact the scheduling map on the new (pilots of an) overlay.
+
+    . The workload should be open to inspection only to the components of TROY,
+      to to the application layer.
+
     """
 
     # FIXME: state checks ignore PLANNED state...
 
     # this map is used to translate between troy unit IDs and native backend
-    # IDs. 
+    # IDs.
     _unit_id_map = dict ()
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, inspector  = AUTOMATIC, 
+    def __init__ (self, inspector  = AUTOMATIC,
                         translator = AUTOMATIC,
                         scheduler  = AUTOMATIC,
-                        dispatcher = AUTOMATIC, 
+                        dispatcher = AUTOMATIC,
                         session    = None) :
         """
-        Create a new workload manager instance.  
+        Create a new workload manager instance.
 
         Use default plugins if not indicated otherwise
         """
@@ -77,20 +95,26 @@ class WorkloadManager (object) :
         if  self._plugin_mgr :
             # we don't allow changes once plugins are loaded and used, for state
             # consistency
+            # NOTES: Does this mean that we cannot unload/load plugin within
+            #        the same workload manager? If so, why do we need a plugin
+            #        manager at all?
             return
 
         # for each plugin set to 'AUTOMATIC', do the clever thing
+        # TODO: We should probably move all this to a configuration file. I
+        #       changed scheduler to round_robin because first kind of drug
+        #       every run with multiple pilots. This is bad(tm).
 
         if  self.plugins['inspector' ]  == AUTOMATIC :
             self.plugins['inspector' ]  = 'reflect'
         if  self.plugins['translator']  == AUTOMATIC :
             self.plugins['translator']  = 'direct'
         if  self.plugins['scheduler' ]  == AUTOMATIC :
-            self.plugins['scheduler' ]  = 'first'
+            self.plugins['scheduler' ]  = 'round_robin'
         if  self.plugins['dispatcher']  == AUTOMATIC :
             self.plugins['dispatcher']  = 'local'
 
-      # troy._logger.debug ("initializing workload manager (%s)" % self.plugins)
+        # troy._logger.debug ("initializing workload manager (%s)" % self.plugins)
 
         # load plugins
         self._plugin_mgr = ru.PluginManager ('troy')
@@ -117,6 +141,19 @@ class WorkloadManager (object) :
     #
     @classmethod
     def register_workload (cls, workload) :
+        """
+        Notes
+
+        . What exactly does classmethod do. I saw the documentation in
+          signatures.py but I did not manage to understand it.
+
+        . What cls stands for? It is puzzling as when registering a
+          workload in the examples we pass a single parameter. I suspect it
+          has to do with classmethod and type registration. What exactly buy
+          us a part oscurity and a very gray area in the phylosophy of
+          language design?
+
+        """
 
         if  isinstance (workload, list) :
             workloads =  workload
@@ -145,6 +182,23 @@ class WorkloadManager (object) :
         """
         We don't care about locking at this point -- so we simply release the
         workload immediately...
+
+        Questions
+
+        . I remember we discussed this previously but I forgot about why we
+          we decided to pass IDs instead of objects. Having a syntactic check
+          on workload seems ugly and somewhat fragile. I would think a type
+          checking would be more robust.
+
+        . Why do we need to lock the acquising in readonly mode of a
+          workload_id? I dag out the code for Registry.acquire and I see that
+          'The registry will thus ensure that a consumer will always see
+          instances which are not changed by a third party over the scope of
+          a lease'. The access to the workload description submitted by the
+          application layer is confined by desing to the planner. Why should
+          we care about concurrent (especially readonly) access and possible
+          modification to the workload?
+
         """
         if  not workload_id :
             return None
@@ -199,6 +253,18 @@ class WorkloadManager (object) :
     # --------------------------------------------------------------------------
     #
     def create_workload (self, task_descriptions=None) :
+        """
+        Notes
+
+        . This methods breaks the design choice of having the planner as the
+          entry point to TROY - i.e. the interface with the application layer.
+          Following that design choice would require to move this method to
+          the planner. You can see the consequences of breaking the design in
+          the current demo: They create the workload by first instatiating
+          a workload manager. This should not be the case. They should
+          instantiate a planner.
+
+        """
 
         workload = troy.Workload (workload_mgr=self)
 
@@ -282,17 +348,17 @@ class WorkloadManager (object) :
             raise ValueError ("workload '%s' not in TRANSLATED state" % workload.id)
 
         # make sure we can honor the requested scheduling mode
-        if  bind_mode == EARLY : 
+        if  bind_mode == EARLY :
             if  overlay.state != TRANSLATED :
                 raise ValueError ("overlay '%s' not in TRANSLATED state, cannot " \
                                   "do early binding" % str(overlay.id))
 
-        elif bind_mode == LATE : 
+        elif bind_mode == LATE :
             if  overlay.state != BOUND   and \
                 overlay.state != PROVISIONED :
                 raise ValueError ( "overlay '%s' neither scheduled nor " % str(overlay.id) \
                                  + "dispatched, cannot do late binding")
-                                 
+
         # make sure manager is initialized
         self._init_plugins ()
 
