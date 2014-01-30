@@ -102,12 +102,12 @@ if __name__ == '__main__':
         task_descr.executable        = '%s' % demo_config['mdrun']
         task_descr.arguments         = ['-nsteps', steps]
 
-        task_descr.inputs            = ['topol.tpr']
-        task_descr.outputs           = ['%s_state.cpt.%d   < state.cpt'   % (demo_id, n), 
-                                        '%s_confout.gro.%d < confout.gro' % (demo_id, n), 
-                                        '%s_ener.edr.%d    < ener.edr'    % (demo_id, n), 
-                                        '%s_traj.trr.%d    < traj.trr'    % (demo_id, n), 
-                                     #  '%s_md.log.%d      < md.log'      % (demo_id, n),
+        task_descr.inputs            = ['input/topol.tpr > topol.tpr']
+        task_descr.outputs           = ['output/%s_state.cpt.%d   < state.cpt'   % (demo_id, n),
+                                        'output/%s_confout.gro.%d < confout.gro' % (demo_id, n),
+                                        'output/%s_ener.edr.%d    < ener.edr'    % (demo_id, n),
+                                        'output/%s_traj.trr.%d    < traj.trr'    % (demo_id, n),
+                                        'output/%s_md.log.%d      < md.log'      % (demo_id, n),
                                        ]
         task_descr.working_directory = "%s/troy_demo/tasks/%d/" % (remote_home, n)
 
