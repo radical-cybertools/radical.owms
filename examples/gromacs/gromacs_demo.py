@@ -119,7 +119,7 @@ if __name__ == '__main__':
 
     # execute the workload with the given execution strategy
     troy.execute_workload (workload_id, planner, overlay_mgr, workload_mgr, 
-                           strategy='basic_early_binding')
+                           strategy='basic_late_binding')
 
     # Woohooo!  Magic has happened!
 
