@@ -23,9 +23,10 @@ if __name__ == '__main__':
                    'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
                    'Antons Treikalis', 'Jeffery Rabinowitz', 'Patrick Gray',
                    'Vishal Shah',      'Radicalobot']
+    radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner']
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (dispatcher='local')
+    workload_mgr = troy.WorkloadManager (dispatcher='sinon')
 
     # Responsible for managing the pilot overlay
     overlay_mgr = troy.OverlayManager (provisioner=troy.AUTOMATIC)

@@ -177,19 +177,26 @@ class PLUGIN_CLASS (troy.PluginBase):
         # find out what we can about the pilot...
         [sinon_um, sinon_pm, sinon_pilot] = pilot._get_instance ('sinon')
 
+        sinon_pilot._attributes_dump ()
+
         info = {
-                'uid'              : sinon_pilot.uid, 
-                'description'      : sinon_pilot.description, 
-                'state'            : sinon_pilot.state, 
-                'state_details'    : sinon_pilot.state_details, 
-                'resource_details' : sinon_pilot.resource_details, 
-                'unit_ids'         : dict(),
-              # 'unit_ids'         : sinon_pilot.units,  # FIXME
-              # 'unit_managers'    : sinon_pilot.unit_managers, 
-                'pilot_manager'    : sinon_pilot.pilot_manager, 
-                'submission_time'  : sinon_pilot.submission_time, 
-                'start_time'       : sinon_pilot.start_time, 
-                'stop_time'        : sinon_pilot.stop_time}
+            'uid'              : sinon_pilot.uid, 
+            'description'      : sinon_pilot.description, 
+            'state'            : sinon_pilot.state, 
+            'state_details'    : sinon_pilot.state_details, 
+            'resource_details' : sinon_pilot.resource_details, 
+            'cores_per_node'   : sinon_pilot.resource_details['cores_per_node'],
+            'nodes'            : sinon_pilot.resource_details['nodes'],
+            'unit_ids'         : list(),
+          # 'unit_ids'         : sinon_pilot.units,          # FIXME
+            'unit_managers'    : list(),
+          # 'unit_managers'    : sinon_pilot.unit_managers,  # FIXME
+            'pilot_manager'    : sinon_pilot.pilot_manager, 
+            'submission_time'  : sinon_pilot.submission_time, 
+            'start_time'       : sinon_pilot.start_time, 
+            'stop_time'        : sinon_pilot.stop_time, 
+        }
+
         
       # # FIXME
       # for sinon_unit_id in sinon_pilot.units :
@@ -207,6 +214,8 @@ class PLUGIN_CLASS (troy.PluginBase):
                           sinon.states.CANCELED : CANCELED, 
                           sinon.states.FAILED   : FAILED, 
                           sinon.states.UNKNOWN  : UNKNOWN}.get (sinon_pilot.state, UNKNOWN)
+        import pprint
+        pprint.pprint (info)
  
         return info
  
