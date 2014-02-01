@@ -35,12 +35,8 @@ class Session (saga.Session) :
 
         if  'troy' in cfg :
             if 'log_level' in cfg['troy'] :
-                print cfg['troy']['log_level']
-
-                log_level = cfg['troy']['log_level']
+                log_level  =  cfg['troy']['log_level']
                 troy._logger.setLevel (log_level)
-
-      # troy._logger.debug ("config: %s" % self.cfg.as_dict ())
 
         saga.Session.__init__ (self, default)
 

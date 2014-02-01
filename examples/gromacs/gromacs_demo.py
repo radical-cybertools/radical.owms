@@ -5,46 +5,53 @@ __copyright__ = "Copyright 2014, RADICAL"
 __license__   = "MIT"
 
 
+import sys
+import troy
+
+
 """
     Demo application for 1 Feb 2014, a MD Bag of Task with data staging
 
-    Prepare/run with the following set of commands (the exact path to the packages
-    may vary for you):
+    A suitable virtualenv can be created by sourcing 'prepare_demo.sh' -- this
+    will create a temporary repository space under `troy_install`, and
+    a virtualenv with all required dependencies under `troy_virtualenv`.
 
-        virtualenv ve
-        source     ve/bin/activate
-        pip install ~/projects/troy/           # fix/data_staging branch
-        pip install ~/projects/sagapilot/      # devel or master
-        pip install ~/projects/saga-python/    # devel
-        pip install ~/projects/radical.utils/  # devel
-        pip install paramiko bigjob
-        time ./gromacs_demo.py
+    Additionally, you will need a demo configuration file, like this::
 
-    All of the dependencies will also be installed by pip, as dependencies for
-    troy, but (a) sagapilot is not yet in pypi, and (b) at this point we need
-    some of the deps in their devel branches.
+        {
+            "demo_id"       : "demo_stampede_3_256",
+            "bagsize"       : 3,
+            "steps"         : 256,
+        
+            # target host configuration for futuregrid
+            "user"          : "merzky",
+            "mdrun"         : "/N/u/marksant/bin/mdrun",
+            "home"          : "/N/u/merzky/",
+            
+            "log_level"     : "INFO"
+        }
 
-    You will need the following additional settings in ~/.troy.cfg:
+    The `demo_id` is used as prefix for the output data staged back to
+    localhost;  `bagsize` is the number of MD tasks running; `steps` is the
+    number of iteration steps for each task.
 
-        [gromacs_demo]
+    The additional host configuration info are somewhat redundant with resource
+    information available on Troy and other layers -- but are required for data
+    staging, which is at this point not well integrated in the Pilot layer
+    interactions.  For further Troy configuration options, you may want to check
+    out `examples/troy.cfg`.
 
-        pilot_backend = sinon
-        bagsize       = 3
-        steps         = 256
+    The demo supports the execution of different `traces`, by the virtue of
+    selecting different plugins, pilot backends, execution strategies, and
+    target resources.  See code section `TROY CONFIGURATION` below.
 
-        demo_id       = india_sinon_3_256
-        user          = merzky
-        mdrun         = /N/u/marksant/bin/mdrun
-        home          = /N/u/merzky/
-        resources     = pbs+ssh://india.futuregrid.org
+    You can run the demo by calling::
+
+        python gromacs_demo.py [config_file]
+
+    where `config_file` defaults to `./gromacs_demo.cfg`.
 
 """
-
-import os
-import sys
-import troy
-import pprint
-import radical.utils as ru
 
 
 # ------------------------------------------------------------------------------
@@ -63,12 +70,12 @@ if __name__ == '__main__':
         demo_config_file = 'gromacs_demo.cfg'
 
     # read the demo config
+    import radical.utils 
     print "reading configuration from %s" % demo_config_file
-    demo_config = ru.read_json (demo_config_file)
+    demo_config = radical.utils.read_json  (demo_config_file)
 
     # dig out config settings
     demo_id     =     demo_config['demo_id']
-    mdrun       =     demo_config['mdrun']          # application executable
     bagsize     = int(demo_config['bagsize'])       # number of mdrun tasks
     steps       = int(demo_config['steps'])         # mdrun parameter
     log_level   =     demo_config['log_level']      # troy logger detail
@@ -77,20 +84,21 @@ if __name__ == '__main__':
     # needed anymore.  At this point, those information are still specific to
     # the target resource, mostly for out-of-band data staging (troy stages data
     # via saga, not via the pilot systems).
+    mdrun       =     demo_config['mdrun']          # application executable
     remote_home =     demo_config['home']           # user home on resource
     remote_user =     demo_config['user']           # user name on resource
 
 
     # --------------------------------------------------------------------------
     # 
-    # configuration of Troy: what plugins are being used, whet resources are
+    # TROY CONFIGURATION: what plugins are being used, whet resources are
     # targeted, etc
     #
-  # resources      = "slurm+ssh://stampede.tacc.utexas.edu"
+    resources      = "slurm+ssh://stampede.tacc.utexas.edu"
   # resources      = "pbs+ssh://india.futuregrid.org"
   # resources      = "pbs+ssh://india.futuregrid.org,pbs+ssh://sierra.futuregrid.org,"
-    resources      = "fork://localhost"
-    pilot_backend  = 'local'
+  # resources      = "fork://localhost"
+    pilot_backend  = 'bigjob_pilot'
     
     plugin_strategy            = 'basic_early_binding' # early, late
     plugin_planner             = 'concurrent'          # concurrent, bundles, maxcores
