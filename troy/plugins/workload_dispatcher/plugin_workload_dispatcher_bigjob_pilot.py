@@ -56,11 +56,6 @@ class PLUGIN_CLASS (troy.PluginBase):
 
                 unit = task.units[uid]
 
-              # # stage-in for unit.  For that to work, we have to make sure to
-              # # set the working_directory for the unit (if that was not set
-              # # explicitly before)
-              # workload.manager._stager.stage_in_unit (unit)
-
                 # sanity check for CU state -- only in BOUND state we can 
                 # rely on a pilot being assigned to the CU.
                 if  unit.state not in [BOUND] :
@@ -153,90 +148,6 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         sj = unit._get_instance ('bigjob_pilot')
         sj.cancel ()
-
-
-    # --------------------------------------------------------------------------
-    #
-    def stage_file_in (self, src, resource, workdir, tgt) :
-        """
-        src file element can contain wildcards.  
-        tgt can not contain wildcards -- but must be a directory URL.
-        """
-
-        if  workdir[0] != '/' : 
-            raise ValueError ("target directory must have absolute path, not %s"
-                    % workdir)
-
-
-        # make sure src path is absolute -- if not, its relative to pwd
-        if  src[0] != '/' :
-            src = os.path.normpath ("%s/%s" % (os.getcwd(), src))
-
-        # make sure tgt parg is absolute -- if not, its relative to workdir
-        if  tgt[0] != '/' :
-            tgt = os.path.normpath ("%s/%s" % (workdir, tgt))
-
-        # if src is not a fully qualified URL, interpret it as local path
-        src_url = saga.Url (src)
-        if  not src_url.host and not src_url.schema :
-            src_url = saga.Url ("file://localhost%s" % src)
-
-        resource_url = saga.Url (resource)
-        if  resource_url.schema.endswith ('+ssh') :
-            resource_url.schema = 'ssh'
-
-        troy._logger.debug ('copy %s -> %s / %s' % (src_url, resource_url, tgt))
-
-        # if neded, create a dir handle to the target resource and cache it
-        if  not str(resource) in self._dir_cache :
-            self._dir_cache[str(resource)] = saga.filesystem.Directory (resource_url)
-
-        # use cached dir handle, point it to the target dir (to create it if
-        # needed), and copy the file
-        tgt_dir = self._dir_cache[str(resource)]
-        tgt_dir.change_dir (os.path.dirname (tgt), saga.filesystem.CREATE_PARENTS)
-        tgt_dir.copy       (src_url, tgt)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def stage_file_out (self, tgt, resource, srcdir, src) :
-        """
-        src file element can contain wildcards.  
-        tgt can not contain wildcards -- but it can be a directory URL (and, in
-        fact, is interpreted as such if src contains wildcard chars).
-        """
-
-        if  tgt[0] != '/' :
-            tgt = "%s/%s" % (os.getcwd(), tgt)
-
-        # HACK
-        while resource [-1] == '/' : resource = resource [0:-1]
-        while srcdir   [-1] == '/' : srcdir   = srcdir   [0:-1]
-        while srcdir   [ 0] == '/' : srcdir   = srcdir   [1:  ]
-
-
-        src_url          = saga.Url ("/%s/%s" % (srcdir, src))
-        tgt_url          = saga.Url ("file://localhost%s" % tgt)
-        src_dir_url      = saga.Url (src_url) # deep copy
-        src_dir_url.path = os.path.dirname (src_url.path)
-
-        troy._logger.debug ('copy %s <- %s' % (tgt_url, src_url))
-
-        resource_url = saga.Url (resource)
-        if  resource_url.schema.endswith ('+ssh') :
-            resource_url.schema = 'ssh'
-
-        if  not str(resource) in self._dir_cache :
-            self._dir_cache[str(resource)] = saga.filesystem.Directory (resource_url)
-      #     troy._logger.warning ('new cache for %s (%s)' % (resource, resource_url))
-
-      # troy._logger.warning ('use cache for %s (%s)' % (resource, resource_url))
-        src_dir = self._dir_cache[str(resource)]
-
-        src_dir.change_dir (src_dir_url.path)
-        src_dir.copy       (src_url, tgt_url)
-
 
 
 # ------------------------------------------------------------------------------

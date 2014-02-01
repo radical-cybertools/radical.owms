@@ -6,6 +6,21 @@ __license__   = "MIT"
 
 import saga
 import troy
+import logging
+
+def _format_log_level (log_level) :
+
+    return {
+            'debug'    : logging.DEBUG,
+            'info'     : logging.INFO,
+            'warning'  : logging.WARNING,
+            'error'    : logging.ERROR,
+            'critical' : logging.CRITICAL
+            } [log_leverl.lower()]
+
+    raise ValueError ('%s is not a valid value for log_level.' \
+                   % (log_level, log_level))
+
 
 
 # ------------------------------------------------------------------------------
@@ -18,7 +33,14 @@ class Session (saga.Session) :
         self.user_cfg = cfg
         self._apitype = 'saga.Session'
 
-      # troy._logger.info ("config: %s" % self.cfg.as_dict ())
+        if  'troy' in cfg :
+            if 'log_level' in cfg['troy'] :
+                print cfg['troy']['log_level']
+
+                log_level = cfg['troy']['log_level']
+                troy._logger.setLevel (log_level)
+
+      # troy._logger.debug ("config: %s" % self.cfg.as_dict ())
 
         saga.Session.__init__ (self, default)
 

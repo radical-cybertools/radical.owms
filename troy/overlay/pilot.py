@@ -106,10 +106,11 @@ class Pilot (tu.Properties) :
                                                       native_id   = self.native_id)
 
             if  not self._instance :
-                raise ValueError ("Could not reconnect to pilot %s (%s)" % (self.id, self.native_id))
+                troy._logger.warn ("Could not reconnect to pilot %s (%s)" % (self.id, self.native_id))
 
-            # refresh pilot information and state from the backend
-            self._update_properties ()
+            else :
+                # refresh pilot information and state from the backend
+                self._update_properties ()
 
 
         # register in cache for later reconnect

@@ -266,14 +266,7 @@ class WorkloadManager (object) :
 
         """
 
-        workload = troy.Workload (workload_mgr=self)
-
-        if  task_descriptions :
-            if  not isinstance (task_descriptions, list) :
-                task_descriptions = [task_descriptions]
-
-            for task_descr in task_descriptions :
-                workload.add_task (task_descr)
+        workload = troy.Workload (task_descriptions)
 
         return workload.id
 
@@ -349,13 +342,12 @@ class WorkloadManager (object) :
 
         # make sure we can honor the requested scheduling mode
         if  bind_mode == EARLY :
-            if  overlay.state != TRANSLATED :
-                raise ValueError ("overlay '%s' not in TRANSLATED state, cannot " \
+            if  overlay.state not in [TRANSLATED, SCHEDULED] :
+                raise ValueError ("overlay '%s' not in TRANSLATED or SCHEDULED state, cannot " \
                                   "do early binding" % str(overlay.id))
 
         elif bind_mode == LATE :
-            if  overlay.state != BOUND   and \
-                overlay.state != PROVISIONED :
+            if  overlay.state != PROVISIONED :
                 raise ValueError ( "overlay '%s' neither scheduled nor " % str(overlay.id) \
                                  + "dispatched, cannot do late binding")
 

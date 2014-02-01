@@ -208,24 +208,7 @@ class OverlayManager (object) :
     #
     def create_overlay (self, overlay_descr=None) :
 
-        # in the case that the overlay description was derived from any single
-        # specific workload, this is a good opportunity to configfure any
-        # unconfigured overlay manager with compatible plugins.  So we check the
-        # plugin description for an originating workload ID, attempt to retrieve
-        # that workload, and from it get the workload_mgr instance, and use that
-        # as baseline for configuration.
-        if 'workload_id' in overlay_descr :
-            workload_id  =  overlay_descr['workload_id']
-            workload     =  troy.WorkloadManager.get_workload (workload_id)
-            workload_mgr =  workload.manager
-        else :
-            workload_mgr =  None
-
-        overlay = troy.Overlay (descr=overlay_descr, overlay_mgr=self)
-
-        # make sure manager is initialized
-        self._init_plugins  (workload_mgr=workload_mgr)
-
+        overlay = troy.Overlay (descr=overlay_descr)
         return overlay.id
 
 
