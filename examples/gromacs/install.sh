@@ -2,9 +2,9 @@
 # try to deactivate any lingering virtualenv
 deactivate || true
 
-export PWD=`pwd`
-export INSTALL_ROOT=$PWD/troy_install/
-export INSTALL_VE=$PWD/troy_virtualenv/
+export OLDPWD=`pwd`
+export INSTALL_ROOT=$OLDPWD/troy_install/
+export INSTALL_VE=$OLDPWD/troy_virtualenv/
 
 rm    -rf  $INSTALL_VE
 virtualenv $INSTALL_VE
@@ -56,6 +56,11 @@ git  pull
 yes  | pip  uninstall radical.utils
 pip  install .
 
-cd $PWD
-echo "ready to run gromacs_demo.py -- please read leading comments first!"
+cd $OLDPWD
+echo
+echo "-------------------------------------"
+echo " Ready to run gromacs_demo.py"
+echo " Please read leading comments first!"
+echo "-------------------------------------"
+echo
 

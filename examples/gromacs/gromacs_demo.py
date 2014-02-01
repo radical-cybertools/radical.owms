@@ -20,8 +20,10 @@ import troy
 
         {
             "demo_id"       : "demo_stampede_3_256",
-            "bagsize"       : 3,
             "steps"         : 256,
+            "bag_size"      : 3,
+            "pilot_size"    : 4,
+            "concurrency"   : 100,
         
             # target host configuration for futuregrid
             "user"          : "merzky",
@@ -32,8 +34,9 @@ import troy
         }
 
     The `demo_id` is used as prefix for the output data staged back to
-    localhost;  `bagsize` is the number of MD tasks running; `steps` is the
-    number of iteration steps for each task.
+    localhost; `steps` is the number of iteration steps for each task;
+    `bag_size` is the number of MD tasks running; `pilot_size` and `concurrency`
+    govern the task distribution over the pilots. 
 
     The additional host configuration info are somewhat redundant with resource
     information available on Troy and other layers -- but are required for data
@@ -76,9 +79,11 @@ if __name__ == '__main__':
 
     # dig out config settings
     demo_id     =     demo_config['demo_id']
-    bagsize     = int(demo_config['bagsize'])       # number of mdrun tasks
     steps       = int(demo_config['steps'])         # mdrun parameter
-    log_level   =     demo_config['log_level']      # troy logger detail
+    bag_size    = int(demo_config['bag_size'])      # number of mdrun tasks
+    pilot_size  = int(demo_config['pilot_size'])    # number of cores per pilot
+    concurrency = int(demo_config['concurrency'])   # % of concurrent tasks
+    log_level   =     demo_config['log_level']      # troy logging detail
 
     # we also have some configuration parameters which eventually should not be
     # needed anymore.  At this point, those information are still specific to
@@ -113,6 +118,12 @@ if __name__ == '__main__':
     session = troy.Session (cfg = {'overlay_scheduler_round_robin' : {
                                        'resources'   : resources
                                        },
+                                   'planner_concurrent' : {
+                                       'concurrency' : concurrency,
+                                       },
+                                   'overlay_translator_max_pilot_size' : {
+                                       'pilot_size'  : pilot_size,
+                                       },
                                    'troy' : {
                                        'log_level'   : log_level,
                                        },
@@ -131,9 +142,9 @@ if __name__ == '__main__':
     # create our application workload
     #
     # create the requested number of mdrun task descriptions
-    print "defining %d tasks" % bagsize
+    print "defining %d tasks" % bag_size
     task_descriptions = list()
-    for n in range(bagsize):
+    for n in range(bag_size):
 
         task_descr                   = troy.TaskDescription()
         task_descr.tag               = "%d" % n
