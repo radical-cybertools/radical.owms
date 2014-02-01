@@ -99,9 +99,11 @@ if __name__ == '__main__':
     # TROY CONFIGURATION: what plugins are being used, whet resources are
     # targeted, etc
     #
-    resources      = "slurm+ssh://stampede.tacc.utexas.edu"
+  # resources      = "slurm+ssh://stampede.tacc.utexas.edu"
   # resources      = "pbs+ssh://india.futuregrid.org"
-  # resources      = "pbs+ssh://india.futuregrid.org,pbs+ssh://sierra.futuregrid.org,"
+  # resources      = "pbs+ssh://hotel.futuregrid.org"
+  # resources      = "pbs+ssh://alamo.futuregrid.org"
+    resources      = "pbs+ssh://sierra.futuregrid.org"
   # resources      = "fork://localhost"
     pilot_backend  = 'bigjob_pilot'
     
