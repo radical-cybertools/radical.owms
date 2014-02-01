@@ -10,7 +10,7 @@ def timeit (method) :
         result = method (*args, **kwargs)
         stop   = time.time ()
 
-        signature = "TIMER %s (%s, %s, %s) " % (method.__name__, args[0].__name__, args[1:], kwargs)
+        signature = "TIMER %s (%s, %s) " % (method.__name__, args, kwargs)
 
         troy._logger.info ('%30s : %6.2f sec' % (signature, stop-start))
 
