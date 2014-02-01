@@ -44,7 +44,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         # would do that anyways, but we want to explicitly make this part of the
         # stratey.
 
-        troy._logger.info ('troy default strategy : strategize workload %s!' % workload_id)
+        troy._logger.info ('apply early binding strategy to workload %s!' % workload_id)
         workload = workload_mgr.get_workload (workload_id)
 
         # combine or split tasks in te workload

@@ -73,8 +73,11 @@ class _Unit (object) :
         except :
             pass
 
-        command = "cd %s ; %s %s" % (pwd, self.descr['executable'], 
-                                     ' '.join (self.descr['arguments'])) 
+        args = ""
+        for arg in self.descr['arguments'] :
+            args += "%s " % arg
+
+        command = "cd %s ; %s %s" % (pwd, self.descr['executable'], args.strip())
 
         troy._logger.debug ("running unit %s (%s)" % (self.id, command))
 

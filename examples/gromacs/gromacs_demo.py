@@ -51,6 +51,10 @@ import radical.utils as ru
 #
 if __name__ == '__main__':
 
+    # --------------------------------------------------------------------------
+    #
+    # configuration of demo options (i.e. application options)
+    #
     # for convenience, we store the configuration also in a simple json config
     # file
     if  len(sys.argv) > 1 :
@@ -64,10 +68,9 @@ if __name__ == '__main__':
 
     # dig out config settings
     demo_id     =     demo_config['demo_id']
-    backend     =     demo_config['pilot_backend']  # bigjob or sinon
+    mdrun       =     demo_config['mdrun']          # application executable
     bagsize     = int(demo_config['bagsize'])       # number of mdrun tasks
     steps       = int(demo_config['steps'])         # mdrun parameter
-    resources   =     demo_config['resources']      # for pilot scheduling
     log_level   =     demo_config['log_level']      # troy logger detail
 
     # we also have some configuration parameters which eventually should not be
@@ -76,10 +79,29 @@ if __name__ == '__main__':
     # via saga, not via the pilot systems).
     remote_home =     demo_config['home']           # user home on resource
     remote_user =     demo_config['user']           # user name on resource
-    mdrun       =     demo_config['mdrun']          # application executable
 
 
-    # Create a session for TROY, and configure the plugins we are going to use
+    # --------------------------------------------------------------------------
+    # 
+    # configuration of Troy: what plugins are being used, whet resources are
+    # targeted, etc
+    #
+  # resources      = "slurm+ssh://stampede.tacc.utexas.edu"
+  # resources      = "pbs+ssh://india.futuregrid.org"
+  # resources      = "pbs+ssh://india.futuregrid.org,pbs+ssh://sierra.futuregrid.org,"
+    resources      = "fork://localhost"
+    pilot_backend  = 'local'
+    
+    plugin_strategy            = 'basic_early_binding' # early, late
+    plugin_planner             = 'concurrent'          # concurrent, bundles, maxcores
+    plugin_overlay_translator  = 'max_pilot_size'      # max_pilot_size
+    plugin_overlay_scheduler   = 'round_robin'         # rr, local
+    plugin_overlay_provisioner = pilot_backend         # sinon, bj, local
+    plugin_workload_translator = troy.AUTOMATIC        # direct
+    plugin_workload_scheduler  = 'round_robin'         # rr, first, ttc
+    plugin_workload_dispatcher = pilot_backend         # sinon, bj, local
+
+    # Create a session for TROY, and configure some plugins
     session = troy.Session (cfg = {'overlay_scheduler_round_robin' : {
                                        'resources'   : resources
                                        },
@@ -90,12 +112,16 @@ if __name__ == '__main__':
 
     # Also add some security credentials to the session (we assume ssh keys set
     # up for this demo, so only need to specify the user name on the target
-    # resource)
+    # resource).
     c1         = troy.Context ('ssh')
     c1.user_id = remote_user
     session.add_context (c1)
 
 
+    # --------------------------------------------------------------------------
+    #
+    # create our application workload
+    #
     # create the requested number of mdrun task descriptions
     print "defining %d tasks" % bagsize
     task_descriptions = list()
@@ -121,31 +147,39 @@ if __name__ == '__main__':
     workload = troy.Workload (task_descriptions)
 
 
+    # --------------------------------------------------------------------------
+    #
+    # create the troy manager objects: planner, overlay manager and workload 
+    # manager
+    #
     # the troy.Planner accepts a workload, and derives an overlay to execute it
-    planner = troy.Planner (planner = 'concurrent',
+    planner = troy.Planner (planner = plugin_planner,
                             session = session)
 
 
     # the troy.OverlayManager translates an overlay transcription into an
     # overlay, then schedules and provisions it.
-    overlay_mgr = troy.OverlayManager (scheduler    = 'round_robin',
-                                       translator   = 'max_pilot_size',
-                                       provisioner  = backend,
+    overlay_mgr = troy.OverlayManager (translator   = plugin_overlay_translator,
+                                       scheduler    = plugin_overlay_scheduler,
+                                       provisioner  = plugin_overlay_provisioner,
                                        session      = session)
 
 
     # the troy.WorkloadManager transforms a workload, schedules it over an
     # overlay, and dispatches it to the pilots.
-    workload_mgr = troy.WorkloadManager (scheduler  = 'first',
-                                         translator = troy.AUTOMATIC,
-                                         dispatcher = backend,
-                                         session    = session)
+    workload_mgr = troy.WorkloadManager (translator  = plugin_workload_translator,   
+                                         scheduler   = plugin_workload_scheduler,
+                                         dispatcher  = plugin_workload_dispatcher,
+                                         session     = session)
 
     # The order of actions on the planner, overlay manager and workload manager
     # is orchestrated by a troy execution strategy (which represents a specific
     # trace in the original troy design).
-    troy.execute_workload (workload.id, planner, overlay_mgr, workload_mgr, 
-                           strategy='basic_early_binding')
+    troy.execute_workload (workload     = workload, 
+                           planner      = planner, 
+                           overlay_mgr  = overlay_mgr, 
+                           workload_mgr = workload_mgr, 
+                           strategy     = plugin_strategy)
 
     # Woohooo!  Magic has happened!
 
