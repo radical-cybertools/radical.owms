@@ -143,6 +143,9 @@ class DataStager (object) :
             if  op not in ['>', '='] :
                 raise ValueError ("'%s' not supported for input staging" % op)
 
+            troy._logger.info ("staging_in %s < %s / %s / %s" \
+                                         %  (one, pilot.resource, workdir, two))
+
             self._stage_in_file (one, pilot.resource, workdir, two)
 
         unit.staged_in = True
@@ -250,7 +253,7 @@ class DataStager (object) :
             if  op not in ['<', '='] :
                 raise ValueError ("'%s' not supported for output staging" % op)
 
-            troy._logger.debug ("staging_out %s < %s / %s / %s" \
+            troy._logger.info ("staging_out %s < %s / %s / %s" \
                                          %  (one, pilot.resource, workdir, two))
             self._stage_out_file (one, pilot.resource, workdir, two)
 

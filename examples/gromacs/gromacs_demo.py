@@ -99,12 +99,13 @@ if __name__ == '__main__':
     # TROY CONFIGURATION: what plugins are being used, whet resources are
     # targeted, etc
     #
-  # resources      = "slurm+ssh://stampede.tacc.utexas.edu"
+    resources      = "slurm+ssh://stampede.tacc.utexas.edu"
   # resources      = "pbs+ssh://india.futuregrid.org"
   # resources      = "pbs+ssh://hotel.futuregrid.org"
   # resources      = "pbs+ssh://alamo.futuregrid.org"
-    resources      = "pbs+ssh://sierra.futuregrid.org"
+  # resources      = "pbs+ssh://sierra.futuregrid.org"
   # resources      = "fork://localhost"
+
     pilot_backend  = 'bigjob_pilot'
     
     plugin_strategy            = 'basic_early_binding' # early, late
@@ -113,7 +114,7 @@ if __name__ == '__main__':
     plugin_overlay_scheduler   = 'round_robin'         # rr, local
     plugin_overlay_provisioner = pilot_backend         # sinon, bj, local
     plugin_workload_translator = troy.AUTOMATIC        # direct
-    plugin_workload_scheduler  = 'round_robin'         # rr, first, ttc
+    plugin_workload_scheduler  = 'ttc_load_balancing'  # rr, first, ttc
     plugin_workload_dispatcher = pilot_backend         # sinon, bj, local
 
     # Create a session for TROY, and configure some plugins
