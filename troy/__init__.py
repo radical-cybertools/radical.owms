@@ -47,6 +47,9 @@ Please always note the Troy version when opening tickets or asking for support
 on the Troy mailing lists!
 """
 
+# FIXME: the logger init will require a 'classical' troy config, which is
+# different from the json based config we use now.   May need updating once the
+# radical configuration system has changed to json
 _logger = rul.logger.getLogger  ('troy')
 _logger.info ('troy            version: %s' % version)
 

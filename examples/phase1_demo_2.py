@@ -49,7 +49,29 @@ if __name__ == '__main__' :
                         'Andre Luckow',     'Matteo Turilli']
 
     # create a session with custom config options
-    session = troy.Session ({'concurrent_planner' : {'concurrency' : '80'}})
+    user_cfg = {'planner' : {
+                    'planner' : {
+                        'concurrent' : {
+                            'concurrency' : '80'
+                            }
+                        }
+                    },
+                'workload_manager' : {
+                    'dispatcher' : {
+                        'bigjob' : {
+                            'coordination_url' : 'redis://localhost'
+                            }
+                        }
+                    },
+                'overlay_manager' : {
+                    'provisioner' : {
+                        'bigjob' : {
+                            'coordination_url' : 'redis://localhost'
+                            }
+                        }
+                    }
+                }
+    session = troy.Session (user_cfg)
 
     # create planner, overlay and workload manager, with plugins as configured
     planner      = troy.Planner         (planner     = PLUGIN_PLANNER            ,

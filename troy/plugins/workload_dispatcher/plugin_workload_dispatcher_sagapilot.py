@@ -1,9 +1,7 @@
 
 
 import os
-import saga
-import pilot         as pilot_module
-
+import sagapilot     as sp
 import radical.utils as ru
 from   troy.constants import *
 import troy
@@ -13,9 +11,9 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'workload_dispatcher', 
-    'name'        : 'bigjob_pilot', 
+    'name'        : 'sagapilot', 
     'version'     : '0.1',
-    'description' : 'this is a dispatcher which submits to bigjob pilots.'
+    'description' : 'this is a dispatcher which submits to sagapilot pilots.'
   }
 
 
@@ -36,8 +34,31 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
-        # cache saga dirs for file staging
-        self._dir_cache = dict()
+
+    # --------------------------------------------------------------------------
+    #
+    def init (self):
+        """
+        invoked by user of plugin, i.e. a overlay manager.  May get invoked
+        multiple times -- plugins are singletons, and thus shared amongst all
+        overlay managers!
+        """
+
+        self._coord = None
+
+        if  'coordination_url' in self.cfg :
+            self._coord = self.cfg['coordination_url']
+
+        elif 'COORDINATION_URL' in os.environ :
+            self._coord = os.environ['COORDINATION_URL'] 
+
+        else :
+            troy._logger.error ("No COORDINATION_URL set for sagapilot backend")
+            troy._logger.info  ("example: export COORDINATION_URL=redis://<pass>@gw68.quarry.iu.teragrid.org:6379")
+            troy._logger.info  ("Contact Radica@Ritgers for the redis password")
+            raise RuntimeError ("Cannot use sagapilot backend - no COORDINATION_URL -- see debug log for details")
+
+        self._sp  = sp.Session (database_url = self._coord)
 
 
     # --------------------------------------------------------------------------
@@ -68,31 +89,39 @@ class PLUGIN_CLASS (troy.PluginBase):
 
                 # reconnect to the given pilot -- this is likely to pull the
                 # instance from a cache, so should not cost too much.
-                pilot      = troy.Pilot (pilot_id, _instance_type='bigjob_pilot')
+                pilot      = troy.Pilot (pilot_id, _instance_type='sagapilot')
                 troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
-                                % (uid, pilot._get_instance('bigjob_pilot')))
+                                % (uid, pilot._get_instance('sagapilot')[1]))
                 
                 # translate our information into bigjob speak, and dispatch
-                # a subjob for the CU
-                bj_cu_descr = pilot_module.ComputeUnitDescription ()
+                # a cu for the CU
+                sp_cu_descr = sp.ComputeUnitDescription ()
                 for key in unit_descr :
 
                     # ignore Troy level keys
-                    if  key in ['tag'] :
+                    # FIXME: this should be a positive filter, not a negative
+                    # one, to shield against evolving troy...
+                    if  key in ['tag', 'inputs', 'outputs', 'stdin', 'stdout'] :
                         continue
 
-                    bj_cu_descr[key] = unit_descr[key]
+                    elif key in ['working_directory'] :
+                        sp_cu_descr['WorkingDirectoryPriv'] = unit_descr[key]
+
+                    else :
+                        sp_cu_descr[key] = unit_descr[key]
+
 
                 # FIXME: sanity check for pilot type
-                bj_pilot  = pilot._get_instance ('bigjob_pilot')
-                bj_cu     = bj_pilot.submit_compute_unit (bj_cu_descr)
-                bj_cu_url = bj_cu.get_url ()
+                [sp_um, sp_pm, sp_pilot] = pilot._get_instance ('sp')
+                sp_cu = sp_um.submit_units (sp_cu_descr)
 
                 # attach the backend instance to the unit, for later state
                 # checks etc. We leave it up to the unit to decide if it wants
                 # to cache the instance, or just the ID and then later
                 # reconnect.
-                unit._set_instance ('bigjob_pilot', self, bj_cu, bj_cu_url)
+                unit._set_instance ('sagapilot', self, 
+                                    instance  = [sp_um,     sp_cu],
+                                    native_id = [sp_um.uid, sp_cu.uid])
 
 
     # --------------------------------------------------------------------------
@@ -104,10 +133,14 @@ class PLUGIN_CLASS (troy.PluginBase):
         troy.Unit doesn't have that instance anymore...
         """
 
-        troy._logger.debug ("reconnect to bigjob_pilot subjob %s" % native_id)
-        bj_cu = pilot_module.ComputeUnit (cu_url=native_id)
+        troy._logger.debug ("reconnect to sagapilot cu %s" % native_id)
+        sp_um_id = native_id[0]
+        sp_cu_id = native_id[1]
 
-        return bj_cu
+        sp_um    = self._sp.get_unit_managers (sp_um_id)
+        sp_cu    = sp_um.get_units (sp_cu_id)
+
+        return [sp_um, sp_cu]
 
 
     # --------------------------------------------------------------------------
@@ -120,19 +153,28 @@ class PLUGIN_CLASS (troy.PluginBase):
         """
 
         # find out what we can about the pilot...
-        bj_cu = unit._get_instance ('bigjob_pilot')
+        [sp_um, sp_cu] = unit._get_instance ('sagapilot')
 
-        info = bj_cu.get_details ()
+        info = {'uid'              : sp_cu.uid,
+                'description'      : sp_cu.description,
+                'state'            : sp_cu.state,
+                'state_details'    : sp_cu.state_details,
+                'execution_details': sp_cu.execution_details,
+                'submission_time'  : sp_cu.submission_time,
+                'start_time'       : sp_cu.start_time,
+                'stop_time'        : sp_cu.stop_time}
 
-        # translate bj state to troy state
+
+        # translate sagapilot state to troy state
         if  'state' in info :
             # hahaha python switch statement hahahahaha
-            info['state'] =  {"New"     : DISPATCHED, 
-                              "Running" : RUNNING, 
-                              "Staging" : RUNNING, 
-                              "Failed"  : FAILED, 
-                              "Done"    : DONE, 
-                              "Unknown" : UNKNOWN}.get (info['state'], UNKNOWN)
+            info['state'] =  {sp.states.PENDING  : PENDING, 
+                              sp.states.RUNNING  : RUNNING, 
+                              sp.states.ACTIVE   : RUNNING, 
+                              sp.states.DONE     : DONE, 
+                              sp.states.CANCELED : CANCELED, 
+                              sp.states.FAILED   : FAILED, 
+                              sp.states.UNKNOWN  : UNKNOWN}.get (info['state'], UNKNOWN)
 
       # print 'unit_get_info: %s' % info
 
@@ -146,8 +188,8 @@ class PLUGIN_CLASS (troy.PluginBase):
         bye bye bye Junimond, es ist vorbei, bye bye...
         """
 
-        sj = unit._get_instance ('bigjob_pilot')
-        sj.cancel ()
+        [sp_um, sp_cu] = unit._get_instance ('sagapilot')
+        sp_cu.cancel ()
 
 
 # ------------------------------------------------------------------------------

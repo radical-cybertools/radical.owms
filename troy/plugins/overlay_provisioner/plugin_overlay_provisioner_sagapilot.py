@@ -2,10 +2,9 @@
 
 import os
 import saga
-import sinon
 import getpass
+import sagapilot     as sp
 import radical.utils as ru
-
 from   troy.constants import *
 import troy
 
@@ -18,9 +17,9 @@ TROY_CONF = "file://localhost/%s/resource.py" % os.path.dirname (troy.__file__)
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'overlay_provisioner', 
-    'name'        : 'sinon', 
+    'name'        : 'sagapilot', 
     'version'     : '0.1',
-    'description' : 'this is a plugin which provisions sinon pilots.'
+    'description' : 'this is a plugin which provisions sagapilot pilots.'
   }
 
 
@@ -60,12 +59,12 @@ class PLUGIN_CLASS (troy.PluginBase):
             self._coord = os.environ['COORDINATION_URL'] 
 
         else :
-            troy._logger.error ("No COORDINATION_URL set for sinon backend")
+            troy._logger.error ("No COORDINATION_URL set for sagapilot backend")
             troy._logger.info  ("example: export COORDINATION_URL=redis://<pass>@gw68.quarry.iu.teragrid.org:6379")
             troy._logger.info  ("Contact Radica@Ritgers for the redis password")
-            raise RuntimeError ("Cannot use sinon backend - no COORDINATION_URL -- see debug log for details")
+            raise RuntimeError ("Cannot use sagapilot backend - no COORDINATION_URL -- see debug log for details")
 
-        self._sinon  = sinon.Session (database_url = self._coord)
+        self._sp  = sp.Session (database_url = self._coord)
 
 
     # --------------------------------------------------------------------------
@@ -90,8 +89,8 @@ class PLUGIN_CLASS (troy.PluginBase):
             if  troy_pilot.state not in [BOUND] :
                 raise RuntimeError ("Can only provision BOUND pilots (%s)" % troy_pilot.state)
 
-            # translate information into sinon speak
-            pilot_descr          = sinon.ComputePilotDescription()
+            # translate information into sagapilot speak
+            pilot_descr          = sp.ComputePilotDescription()
             pilot_descr.resource = troy_pilot.resource
             pilot_descr.cores    = troy_pilot.description['size']
 
@@ -104,13 +103,14 @@ class PLUGIN_CLASS (troy.PluginBase):
             troy._logger.info ('overlay  provision: provision   pilot  %s : %s ' \
                             % (pid, resource_url))
 
+            # FIXME: 
             for key in self.global_cfg.keys () :
 
                 if  key.startswith ('compute:')        and \
-                    'sinon_id' in self.global_cfg[key] and \
+                    'sagapilot_id' in self.global_cfg[key] and \
                     self.global_cfg[key]['endpoint'] == resource_url.host :
 
-                    pilot_descr.resource = self.global_cfg[key]['sinon_id']
+                    pilot_descr.resource = self.global_cfg[key]['sagapilot_id']
 
                     userid   = self.global_cfg[key].get ('username', userid)
                     home     = self.global_cfg[key].get ('home',     home)
@@ -124,23 +124,23 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             pilot_descr.run_time = 300
 
-            sinon_um    = sinon.UnitManager  (session   = self._sinon, 
+            sp_um    = sp.UnitManager  (session   = self._sp, 
                                               scheduler = 'direct_submission')
-            sinon_pm    = sinon.PilotManager (session   = self._sinon, 
+            sp_pm    = sp.PilotManager (session   = self._sp, 
                                               resource_configurations = TROY_CONF)
-            sinon_pilot = sinon_pm.submit_pilots (pilot_descr)
+            sp_pilot = sp_pm.submit_pilots (pilot_descr)
 
 
-            sinon_um.add_pilots (sinon_pilot)
+            sp_um.add_pilots (sp_pilot)
 
-            troy_pilot._set_instance (instance_type = 'sinon', 
+            troy_pilot._set_instance (instance_type = 'sagapilot', 
                                       provisioner   = self, 
-                                      instance      = [sinon_um,     sinon_pm,     sinon_pilot], 
-                                      native_id     = [sinon_um.uid, sinon_pm.uid, sinon_pilot.uid])
+                                      instance      = [sp_um,     sp_pm,     sp_pilot], 
+                                      native_id     = [sp_um.uid, sp_pm.uid, sp_pilot.uid])
 
             troy._logger.info ('overlay  provision: provisioned pilot  %s : %s (%s)' \
                             % (troy_pilot, 
-                               troy_pilot._get_instance ('sinon')[2], 
+                               troy_pilot._get_instance ('sagapilot')[2], 
                                troy_pilot.resource))
 
 
@@ -153,15 +153,15 @@ class PLUGIN_CLASS (troy.PluginBase):
         troy.Pilot doesn't have that instance anymore...
         """
 
-        sinon_um_id    = native_id[0]
-        sinon_pm_id    = native_id[1]
-        sinon_pilot_id = native_id[2]
+        sp_um_id    = native_id[0]
+        sp_pm_id    = native_id[1]
+        sp_pilot_id = native_id[2]
 
-        sinon_um       = self._sinon.get_unit_managers  (sinon_um_id)
-        sinon_pm       = self._sinon.get_pilot_managers (sinon_pm_id)
-        sinon_pilot    = sinon_pm.get_pilots            (sinon_pilot_id)
+        sp_um       = self._sp.get_unit_managers  (sp_um_id)
+        sp_pm       = self._sp.get_pilot_managers (sp_pm_id)
+        sp_pilot    = sp_pm.get_pilots            (sp_pilot_id)
 
-        return [sinon_um, sinon_pm, sinon_pilot]
+        return [sp_um, sp_pm, sp_pilot]
     
  
     # --------------------------------------------------------------------------
@@ -175,38 +175,38 @@ class PLUGIN_CLASS (troy.PluginBase):
  
  
         # find out what we can about the pilot...
-        [sinon_um, sinon_pm, sinon_pilot] = pilot._get_instance ('sinon')
+        [sp_um, sp_pm, sp_pilot] = pilot._get_instance ('sagapilot')
 
         info = {
-                'uid'              : sinon_pilot.uid, 
-                'description'      : sinon_pilot.description, 
-                'state'            : sinon_pilot.state, 
-                'state_details'    : sinon_pilot.state_details, 
-                'resource_details' : sinon_pilot.resource_details, 
+                'uid'              : sp_pilot.uid, 
+                'description'      : sp_pilot.description, 
+                'state'            : sp_pilot.state, 
+                'state_details'    : sp_pilot.state_details, 
+                'resource_details' : sp_pilot.resource_details, 
                 'unit_ids'         : dict(),
-              # 'unit_ids'         : sinon_pilot.units,  # FIXME
-              # 'unit_managers'    : sinon_pilot.unit_managers, 
-                'pilot_manager'    : sinon_pilot.pilot_manager, 
-                'submission_time'  : sinon_pilot.submission_time, 
-                'start_time'       : sinon_pilot.start_time, 
-                'stop_time'        : sinon_pilot.stop_time}
+              # 'unit_ids'         : sp_pilot.units,  # FIXME
+              # 'unit_managers'    : sp_pilot.unit_managers, 
+                'pilot_manager'    : sp_pilot.pilot_manager, 
+                'submission_time'  : sp_pilot.submission_time, 
+                'start_time'       : sp_pilot.start_time, 
+                'stop_time'        : sp_pilot.stop_time}
         
       # # FIXME
-      # for sinon_unit_id in sinon_pilot.units :
+      # for sp_unit_id in sp_pilot.units :
       #     
-      #     unit = troy.ComputeUnit (_native_id=[sinon_um.uid, sinon_unit_id], 
+      #     unit = troy.ComputeUnit (_native_id=[sp_um.uid, sp_unit_id], 
       #                              _pilot_id=pilot.id)
       #     info['units'][unit.id] = unit
  
-        # translate sinon state to troy state
+        # translate sagapilot state to troy state
         # hahaha python switch statement hahahahaha
-        info['state'] =  {sinon.states.PENDING  : PROVISIONED, 
-                          sinon.states.RUNNING  : PROVISIONED, 
-                          sinon.states.ACTIVE   : PROVISIONED, 
-                          sinon.states.DONE     : COMPLETED, 
-                          sinon.states.CANCELED : CANCELED, 
-                          sinon.states.FAILED   : FAILED, 
-                          sinon.states.UNKNOWN  : UNKNOWN}.get (sinon_pilot.state, UNKNOWN)
+        info['state'] =  {sp.states.PENDING  : PROVISIONED, 
+                          sp.states.RUNNING  : PROVISIONED, 
+                          sp.states.ACTIVE   : PROVISIONED, 
+                          sp.states.DONE     : COMPLETED, 
+                          sp.states.CANCELED : CANCELED, 
+                          sp.states.FAILED   : FAILED, 
+                          sp.states.UNKNOWN  : UNKNOWN}.get (sp_pilot.state, UNKNOWN)
  
         return info
  
@@ -215,8 +215,8 @@ class PLUGIN_CLASS (troy.PluginBase):
     #
     def pilot_cancel (self, pilot) :
  
-        [sinon_um, sinon_pm, sinon_pilot] = pilot._get_instance ('sinon')
-        sinon_pilot.cancel ()
+        [sp_um, sp_pm, sp_pilot] = pilot._get_instance ('sagapilot')
+        sp_pilot.cancel ()
 
 
 # ------------------------------------------------------------------------------

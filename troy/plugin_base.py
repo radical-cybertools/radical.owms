@@ -22,12 +22,7 @@ class PluginBase (object) :
         troy._logger.info ("init plugin %s" % (self.name))
 
         self.session    = session
-        self.global_cfg = session.cfg.as_dict ()
-
-        # merge user configuration into global_config
-        self.global_cfg.update (session.user_cfg)
-
-        self.cfg        = self.global_cfg.get (self.name, dict())
+        self.cfg        = self.session.get_config (self.name)
 
         # call plugin.init() as plugin initializer -- if that does not exist,
         # the init() method from below is called as a fallback

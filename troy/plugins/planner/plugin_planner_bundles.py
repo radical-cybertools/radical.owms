@@ -70,10 +70,11 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         self.bm = BundleManager()
 
-        cg = self.session.cfg.get_config('bundle')
-        finished_job_trace = cg['finished_job_trace'].get_value()
+        cg = self.session.get_config ('troy:bundle')
+        finished_job_trace = cg['finished_job_trace']
 
-        for sect in self.session.cfg.compute_sections:
+        # FIXME: not sure if the new resource config contains all needed data...
+        for sect in self.session.get_config ('troy:resources'):
             cs = self.session.cfg.get_config(sect)
 
             cred = { 'port': int(cs['port'].get_value()),

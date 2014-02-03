@@ -8,7 +8,4 @@ include VERSION
 recursive-include tests *
 recursive-include troy  *
 
-include examples/*.py
-include examples/*.cfg
-
 
