@@ -95,7 +95,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             resource_url = saga.Url (troy_pilot.resource)
             userid       = getpass.getuser()
-            home         = os.environ['HOME']
+            home         = None
             queue        = None
             walltime     = 24 * 60 # 1 day as default
 
@@ -111,6 +111,11 @@ class PLUGIN_CLASS (troy.PluginBase):
                     walltime = self.global_cfg[key].get ('walltime', walltime)
 
                     break
+
+            if  not home :
+                troy._logger.error ("no home dir in config for bj on %s" % resource_url
+                                   +" - assume local $HOME (%s)" % os.environ['HOME'])
+                home = os.environ['HOME']
 
             pilot_descr.working_directory = "%s/troy_agents/" % home
             pilot_descr.queue             = queue

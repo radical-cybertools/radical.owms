@@ -11,7 +11,7 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-def execute_workload (workload_id, planner, overlay_mgr, workload_mgr, 
+def execute_workload (workload, planner, overlay_mgr, workload_mgr, 
                       strategy='default') : 
 
     """
@@ -26,11 +26,20 @@ def execute_workload (workload_id, planner, overlay_mgr, workload_mgr,
     if  not strategy  : 
         raise RuntimeError ("Could not load troy strategy plugin")
 
-    # for initialization, we re-use the workload manager session
-    strategy.init_plugin (workload_mgr._session)
+    # for initialization, we re-use the planner session
+    strategy.init_plugin (planner._session)
 
-    # hand over control over workload to the manager plugin, so it can do
-    # what it has to do.
+    # this method accepts workloads and workload IDs
+    if  isinstance   (workload, basestring) :
+        workload_id = workload
+    elif isinstance  (workload, troy.Workload) :
+        workload_id = workload.id
+    else :
+        raise TypeError ("strategy apply to troy workloads, not to %s" \
+                      % type(workload))
+
+    # hand over control the selected strategy plugin, 
+    # so it can do what it has to do.
     strategy.execute (workload_id, planner, overlay_mgr, workload_mgr)
 
 

@@ -44,7 +44,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         # would do that anyways, but we want to explicitly make this part of the
         # stratey.
 
-        troy._logger.info ('troy default strategy : strategize workload %s!' % workload_id)
+        troy._logger.info ('apply early binding strategy to workload %s!' % workload_id)
         workload = workload_mgr.get_workload (workload_id)
 
         # combine or split tasks in te workload
@@ -58,6 +58,9 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         # Translate 1 Overlay description into N Pilot Descriptions
         overlay_mgr.translate_overlay (overlay_id)
+
+        # Decide which resources to use for constructing the overlay
+        overlay_mgr.schedule_overlay (overlay_id)
 
         # Translate /split workload into ComputeUnits etc
         workload_mgr.translate_workload (workload.id, overlay_id)
@@ -90,23 +93,14 @@ class PLUGIN_CLASS (troy.PluginBase):
                                         bind_mode=troy.EARLY)
             workload.state = partition.state
 
-          # --------------------------------------------------------------------
-          # FIXME: we cannot stage in at this point, as we do not know the
-          # target directories: the pilots are not scheduled and thus not
-          # assigned to a resource, and thus the tasks are not bound to
-          # a resource -- so where to stage to?
-
-          # both the overlay and the workload are now scheduled/bound -- we
-          # can expect the unit working directories to be createable, at the
-          # least, and can thus trigger stage-in for the workload.
-          # workload_mgr.stage_in_workload (partition_id)
+            # both the overlay and the workload are now scheduled/bound -- we
+            # can expect the unit working directories to be createable, at the
+            # least, and can thus trigger stage-in for the workload.
+            workload_mgr.stage_in_workload (partition_id)
 
 
         # ----------------------------------------------------------------------
         # partition 0 is  dispatched, now provision the overlay
-
-        # Decide which resources to use for constructing the overlay
-        overlay_mgr.schedule_overlay (overlay_id)
 
         # Instantiate Pilots on specified resources
         overlay_mgr.provision_overlay (overlay_id)

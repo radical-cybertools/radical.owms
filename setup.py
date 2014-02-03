@@ -27,16 +27,19 @@ def get_version():
 
     short_version = None  # 0.4.0
     long_version  = None  # 0.4.0-9-g0684b06
+    branch_name   = None  # devel
 
     try:
         import subprocess as sp
         import re
 
         srcroot       = os.path.dirname (os.path.abspath (__file__))
-        VERSION_MATCH = re.compile (r'(([\d\.]+)\D.*)')
+        VERSION_MATCH = re.compile (r'(([\d\.]+)\D.*)(\s+(\S+))?')
 
         # attempt to get version information from git
-        p   = sp.Popen ('cd %s && git describe --tags --always' % srcroot,
+        p   = sp.Popen ('cd %s ; ' \
+                        'git describe --tags --always ; ' \
+                        'git branch --contains | grep -e "^\*" | cut -f 2 -d " "' % srcroot,
                         stdout=sp.PIPE, stderr=sp.STDOUT, shell=True)
         out = p.communicate()[0]
 
@@ -53,6 +56,7 @@ def get_version():
         if v:
             long_version  = v.groups ()[0]
             short_version = v.groups ()[1]
+            branch_name   = v.groups ()[3]
 
 
         # sanity check if we got *something*
@@ -60,6 +64,9 @@ def get_version():
             sys.stderr.write ("Cannot determine version from git or ./VERSION\n")
             import sys
             sys.exit (-1)
+
+        if  branch_name :
+            long_version = "%s-%s" % (long_version, branch_name)
 
 
         # make sure the version files exist for the runtime version inspection
@@ -76,6 +83,7 @@ def get_version():
 
 
 short_version, long_version = get_version ()
+
 
 #-----------------------------------------------------------------------------
 # check python version. we need > 2.5, <3.x

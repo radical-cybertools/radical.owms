@@ -97,6 +97,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         c_partition_id = workload.partitions[0] # max 1
         c_partition    = troy.WorkloadManager.get_workload (c_partition_id)
 
+
         for tid in c_partition.tasks :
             cores += c_partition.tasks[tid].cores
 

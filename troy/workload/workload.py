@@ -115,7 +115,7 @@ class Workload (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, descr=None, workload_mgr=None) :
+    def __init__ (self, task_descriptions=None) :
         """
         Create a new workload instance.
 
@@ -126,11 +126,6 @@ class Workload (tu.Properties) :
         instances.  
         """
 
-        # workload description is actually not used, yet.  Oh well...
-        if  not descr :
-            descr = dict ()
-
-        
         wl_id = ru.generate_id ('wl.')
 
         tu.Properties.__init__ (self)
@@ -149,7 +144,6 @@ class Workload (tu.Properties) :
         self.tasks      = dict()
         self.relations  = list()
         self.partitions = list()
-        self.manager    = workload_mgr
 
         # initialize partitions
         self.partitions = [self.id]
@@ -161,6 +155,16 @@ class Workload (tu.Properties) :
 
         # register this instance, so that workload can be passed around by id.
         troy.WorkloadManager.register_workload (self)
+
+        # fill the workload with given task descriptions
+        if  task_descriptions :
+            if  not isinstance (task_descriptions, list) :
+                task_descriptions = [task_descriptions]
+
+            for task_descr in task_descriptions :
+                self.add_task (task_descr)
+
+        
 
 
     # --------------------------------------------------------------------------

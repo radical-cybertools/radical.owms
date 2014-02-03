@@ -1,22 +1,25 @@
-export INSTALL_ROOT=/tmp/troy
-export INSTALL_VE=$HOME/.virtualenv/pristine
 
-rm -rf $INSTALL_VE
-virtualenv-2.7 $INSTALL_VE
-. $INSTALL_VE/bin/activate
+# try to deactivate any lingering virtualenv
+deactivate || true
 
-mkdir $INSTALL_ROOT
+export OLDPWD=`pwd`
+export INSTALL_ROOT=$OLDPWD/troy_install/
+export INSTALL_VE=$OLDPWD/troy_virtualenv/
+
+rm    -rf  $INSTALL_VE
+virtualenv $INSTALL_VE
+source     $INSTALL_VE/bin/activate
+mkdir -p   $INSTALL_ROOT
     
-# those 2 don't like pip:
+# those 2 don't like pip on futuregrid:
 easy_install apache-libcloud
 easy_install threadpool
+
     
 cd   $INSTALL_ROOT
 test -e troy || git clone git@github.com:saga-project/troy.git
 cd   troy
 git  checkout devel
-#git  checkout fix/resource_configuration
-#git  checkout fix/data_staging
 git  pull
 yes  | pip  uninstall troy
 pip  install .
@@ -52,3 +55,12 @@ git  checkout devel
 git  pull
 yes  | pip  uninstall radical.utils
 pip  install .
+
+cd $OLDPWD
+echo
+echo "-------------------------------------"
+echo " Ready to run gromacs_demo.py"
+echo " Please read leading comments first!"
+echo "-------------------------------------"
+echo
+
