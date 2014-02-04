@@ -177,7 +177,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         # find out what we can about the pilot...
         [sinon_um, sinon_pm, sinon_pilot] = pilot._get_instance ('sinon')
 
-        sinon_pilot._attributes_dump ()
+      # sinon_pilot._attributes_dump ()
 
         info = {
             'uid'              : sinon_pilot.uid, 

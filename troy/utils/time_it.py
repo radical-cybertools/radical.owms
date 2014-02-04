@@ -3,116 +3,191 @@ import time
 import datetime
 import troy
 
+# ------------------------------------------------------------------------------
+#
 class TimedDuration (object) :
+    """
+    This context managed class supports the exception safe timing via with
+    clauses, like::
 
-    def __init__ (self, timed, name, tag) :
+        with TimedDuration (self, event, tags) :
+            return method (*args, **kwargs)
+
+    This mechanism is used in Timed.timed_method()
+
+    """
+
+    # --------------------------------------------------------------------------
+    #
+    def __init__ (self, timed, event, tags) :
+
+        if  not isinstance (tags, list) :
+            tags = [tags]
 
         self.timed = timed
-        self.name  = name
-        self.tag   = tag
+        self.event = event
+        self.tags  = tags
 
+
+    # --------------------------------------------------------------------------
+    #
     def __enter__ (self) :
 
-        self.start = self.timed.timed_duration_start (self.name, self.tag)
+        self.timed.timed_duration_start (self.event, self.tags)
 
 
+    # --------------------------------------------------------------------------
+    #
     def __exit__(self, t, v, tb) :
 
-        timer  = self.timed.timed_duration_stop (self.name, self.tag)
-        signature  = "%s (%s)" % (self.name, self.tag)
-        troy._logger.info ('timed start    : %s : %s (UTC)' % (signature, self.start))
-        troy._logger.info ('timed duration : %s : %s  sec'  % (signature, timer))
-
+        self.timed.timed_duration_stop (self.event, self.tags)
 
 
 # ------------------------------------------------------------------------------
 #
 class Timed (object) :
     """
-    keep track of time durations and events.
-    This class is not thread safe.
+    Keep track of time durations and events.
+    This class is not thread safe: multiple threads concurrently timing the same
+    method will conflict.
+
+    The following two invocations are semantically equivalent::
+
+        # using the timed_method wrapper
+        self.timed_method ('workload_manager', 
+                           ['schedule()', workload.id, overlay.id], 
+                           self._scheduler.schedule, [workload, overlay])
+
+        # using explicit duration timing
+        self.timed_duration_start ('workload_manager', 
+                                   ['schedule()', workload.id, overlay.id])
+        self._scheduler.schedule  (workload, overlay)
+        self.timed_duration_stop  ('workload_manager', 
+                                   ['schedule()', workload.id, overlay.id])
+
+    The `timed_method` version, however, is guarded against exceptions from the
+    called method, so should be preferred in production code.
     """
 
-    def _timed_init (self) :
+    # --------------------------------------------------------------------------
+    #
+    def __init__ (self, id) :
 
-        if  not hasattr(self, '_timed_initialized') :
-            self._timed_initialized = True
-            self._timed_events      = dict()
-            self._timed_durations   = dict()
-            self._current_durations = dict()
+       self._current_durations = dict()
+       self.timed_events       = list()
+       self.timed_durations    = list()
+       self.timed_components   = dict()
+       self.timed_id           = id
+
+       self.timed_event (id, 'creation')
 
 
+    # --------------------------------------------------------------------------
+    #
     def timed_dump (self) :
+
         import pprint
-        pprint.pprint (self._timed_events)
-        pprint.pprint (self._timed_durations)
+
+        print '- events %d ---------------------'  % len(self.timed_events)
+        pprint.pprint (self.timed_events)
+        print '- durations %d ------------------'  % len(self.timed_durations)
+      # for d in self.timed_durations :
+      #     print ' ----- %d ' % len(d)
+      #     pprint.pprint (d)
+      #     print ' ----- '
+        pprint.pprint (self.timed_durations)
+        print '- current %d --------------------' % len(self._current_durations)
+        pprint.pprint (self._current_durations)
+        for component_id in self.timed_components :
+            print '- component %s --------------' % component_id
+            self.timed_components[component_id].timed_dump ()
 
 
-    def timed_duration_start (self, name, tag) :
 
-        self._timed_init ()
+    # --------------------------------------------------------------------------
+    #
+    def timed_component (self, component, component_id) :
 
-        if  name in self._current_durations :
-            raise RuntimeError ("cannot recursively time %s" % name)
+        if  component_id in self.timed_components :
+            # simply ignore
+            pass
+        else :
+            self.timed_components[component_id] = component
 
-        if  not name in self._timed_durations :
-            self._timed_durations[name] = list()
+
+    # --------------------------------------------------------------------------
+    #
+    def timed_duration_start (self, event, tags) :
+
+        if  not isinstance (tags, list) :
+            tags = [tags]
+
+        if  event in self._current_durations and \
+            self._current_durations[event]   :
+            raise RuntimeError ("cannot recursively time %s" % event)
 
         start   = datetime.datetime.utcnow ()
-        namestr = "%s (%s)" % (name, tag)
-        self._current_durations[name] = {
+        self._current_durations[event] = {
             'start' : start, 
-            'name'  : namestr,
+            'event' : event,
+            'tags'  : tags,
         }
+
+        troy._logger.info ('timed start    : %s %s : %s (UTC)' % (event, tags, start))
 
         return start
 
 
-    def timed_duration_stop (self, name, tag) :
+    # --------------------------------------------------------------------------
+    #
+    def timed_duration_stop (self, event, tags) :
 
-        self._timed_init ()
+        if  not isinstance (tags, list) :
+            tags = [tags]
 
-        if  not name in self._current_durations :
-            raise RuntimeError ("no timing for %s" % name)
+        if  not event in self._current_durations or \
+            not self._current_durations[event]   :
+            raise RuntimeError ("no timing for %s" % event)
 
-        stop_timer = datetime.datetime.utcnow()
-        timer      = (stop_timer - 
-                      self._current_durations[name]['start']).total_seconds()
+        stop  = datetime.datetime.utcnow()
+        timer = (stop - self._current_durations[event]['start']).total_seconds()
 
-        self._current_durations[name]['stop']     = stop_timer
-        self._current_durations[name]['duration'] = timer
+        self._current_durations[event]['stop']     = stop
+        self._current_durations[event]['duration'] = timer
 
-        if  not name in self._timed_durations :
-            self._timed_durations[name] = list()
+        self.timed_durations.append (self._current_durations[event])
+        self._current_durations[event] = None
 
-        self._timed_durations[name].append (self._current_durations[name])
-        del(self._current_durations[name])
+        troy._logger.info ('timed stop     : %s %s : %s (UTC)' % (event, tags, stop))
+        troy._logger.info ('timed duration : %s %s : %s  sec'  % (event, tags, timer))
 
         return timer
 
 
 
-    def timed_event (self, name, tag) :
+    # --------------------------------------------------------------------------
+    #
+    def timed_event (self, event, tags) :
 
-        self._timed_init ()
-
-        if  not name in self._timed_events :
-            self._timed_events[name] = list()
+        if  not isinstance (tags, list) :
+            tags = [tags]
 
         timer = datetime.datetime.utcnow ()
 
-        self._timed_events[name].append ({
-            'time' : timer, 
-            'tag'  : tag,
+        self.timed_events.append ({
+            'time'  : timer, 
+            'event' : event, 
+            'tags'  : tags,
             })
 
-        signature = "%s (%s)" % (name, tag)
-        troy._logger.info ('timed event    : %s : %s (UTC)' % (signature, timer))
+        troy._logger.info ('timed event [%s]   : %s : %s (UTC)' % (self.timed_id, event, tags))
 
 
-    def timed_method (self, name, tag, method, args=[], kwargs={}) :
+    # --------------------------------------------------------------------------
+    #
+    def timed_method (self, event, tags, method, args=[], kwargs={}) :
 
-        with TimedDuration (self, name, tag) :
+        with TimedDuration (self, event, tags) :
             return method (*args, **kwargs)
 
 
@@ -122,6 +197,8 @@ class Timed (object) :
 #
 def timeit (method) :
 
+    # --------------------------------------------------------------------------
+    #
     def timed (*args, **kwargs) :
 
         start  = time.time ()

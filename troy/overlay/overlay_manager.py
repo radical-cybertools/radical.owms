@@ -17,7 +17,7 @@ Manages the pilot-based overlays for TROY.
 
 # -----------------------------------------------------------------------------
 #
-class OverlayManager (object) :
+class OverlayManager (tu.Timed) :
     """
     Generates and instantiates an overlay. An overlay consists of pilot
     descriptions and instances.
@@ -80,6 +80,11 @@ class OverlayManager (object) :
         self.plugins['provisioner'] = provisioner
 
         self._plugin_mgr = None
+
+        self.id = ru.generate_id ('olm.')
+
+        tu.Timed.__init__       (self, self.id)
+        session.timed_component (self, self.id)
 
 
     # --------------------------------------------------------------------------
@@ -206,15 +211,6 @@ class OverlayManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def create_overlay (self, overlay_descr=None) :
-
-        overlay = troy.Overlay (descr=overlay_descr)
-        return overlay.id
-
-
-    # --------------------------------------------------------------------------
-    #
-    @tu.timeit
     def translate_overlay(self, overlay_id):
         """
         Inspect backend resources, and select suitable resources for the
@@ -226,6 +222,8 @@ class OverlayManager (object) :
 
         overlay = self.get_overlay (overlay_id)
 
+        self.timed_component (overlay, overlay.id)
+
         # make sure the overlay is 'fresh', so we can translate it it
         if  overlay.state != DESCRIBED :
             raise ValueError ("overlay '%s' not in DESCRIBED state" % overlay.id)
@@ -235,7 +233,8 @@ class OverlayManager (object) :
 
         # hand over control over overlay to the scheduler plugin, so it can do
         # what it has to do.
-        self._translator.translate (overlay)
+        overlay.timed_method ('translate', [], 
+                              self._translator.translate, [overlay])
 
         # mark overlay as 'translated'
         overlay.state = TRANSLATED
@@ -243,7 +242,6 @@ class OverlayManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    @tu.timeit
     def schedule_overlay (self, overlay_id) :
         """
         Inspect backend resources, and select suitable resources for the
@@ -255,6 +253,8 @@ class OverlayManager (object) :
 
         overlay = self.get_overlay (overlay_id)
 
+        self.timed_component (overlay, overlay.id)
+
         # make sure the overlay is 'fresh', so we can schedule it
         if  overlay.state != TRANSLATED :
             raise ValueError ("overlay '%s' not in TRANSLATED state" % overlay.id)
@@ -264,7 +264,8 @@ class OverlayManager (object) :
 
         # hand over control over overlay to the scheduler plugin, so it can do
         # what it has to do.
-        self._scheduler.schedule (overlay)
+        overlay.timed_method ('schedule', [], 
+                              self._scheduler.schedule, [overlay])
 
         # mark overlay as 'scheduled'
         overlay.state = SCHEDULED
@@ -272,7 +273,6 @@ class OverlayManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    @tu.timeit
     def provision_overlay (self, overlay_id) :
         """
         Create pilot instances for each pilot described in the overlay.
@@ -283,6 +283,8 @@ class OverlayManager (object) :
 
         overlay = self.get_overlay (overlay_id)
 
+        self.timed_component (overlay, overlay.id)
+
         # make sure the overlay is 'fresh', so we can schedule it
         if  overlay.state != SCHEDULED :
             raise ValueError ("overlay '%s' not in SCHEDULED state" % overlay.id)
@@ -292,7 +294,17 @@ class OverlayManager (object) :
 
         # hand over control over overlay to the provisioner plugin, so it can do
         # what it has to do.
-        self._provisioner.provision (overlay)
+        print '1 ======================='
+        overlay.timed_dump()
+        print '2 ======================='
+        overlay.timed_method ('provision', [], 
+                              self._provisioner.provision, [overlay])
+        print '3 ======================='
+        overlay.timed_dump()
+        print '4 ======================='
+        print self
+        self.timed_dump()
+        print '5 ======================='
 
         # mark overlay as 'provisioned'
         overlay.state = PROVISIONED
@@ -300,13 +312,16 @@ class OverlayManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    @tu.timeit
     def cancel_overlay (self, overlay_id) :
         """
         cancel the referenced overlay, i.e. all its pilots
         """
 
         overlay = self.get_overlay (overlay_id)
+
+        self.timed_component (overlay, overlay.id)
+
+        overlay.timed_method ('cancel', [], overlay.cancel)
         overlay.cancel ()
 
 

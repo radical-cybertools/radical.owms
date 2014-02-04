@@ -19,20 +19,26 @@ def _format_log_level (log_level) :
             'warning'  : logging.WARNING,
             'error'    : logging.ERROR,
             'critical' : logging.CRITICAL
-            } [log_leverl.lower()]
+            } [log_level.lower()]
 
-    raise ValueError ('%s is not a valid value for log_level.' \
-                   % (log_level, log_level))
+    raise ValueError ('%s is not a valid value for log_level.' % log_level)
 
 
 
 # ------------------------------------------------------------------------------
 #
-class Session (saga.Session) : 
+class Session (saga.Session, tu.Timed) : 
 
+    # --------------------------------------------------------------------------
+    #
     def __init__ (self, cfg={}, default=True) :
 
-        self.session_id = ru.generate_id ('session.', mode=ru.ID_UNIQUE)
+        self.id = ru.generate_id ('session.', mode=ru.ID_UNIQUE)
+        
+        tu.Timed.__init__ (self, self.id)
+        self.timed_method ('saga.Session', ['init'],  
+                           saga.Session.__init__, [self, default])
+
         self.cfg        = troy.Configuration ()
         self.user_cfg   = cfg
         self._apitype   = 'saga.Session'
@@ -42,11 +48,11 @@ class Session (saga.Session) :
                 log_level  =  cfg['troy']['log_level']
                 troy._logger.setLevel (log_level)
 
-        saga.Session.__init__ (self, default)
-
-        troy._logger.critical ("session id: %s" % self.session_id)
+        troy._logger.critical ("session id: %s" % self.id)
 
 
+    # --------------------------------------------------------------------------
+    #
     def get_config (self, section=None) :
 
         if  section :
@@ -55,12 +61,12 @@ class Session (saga.Session) :
             return self.cfg.as_dict ()
 
 
-
-    
 # ------------------------------------------------------------------------------
 #
 class Context (saga.Context) : 
 
+    # --------------------------------------------------------------------------
+    #
     def __init__ (self, ctype) :
 
         self._apitype = 'saga.Context'

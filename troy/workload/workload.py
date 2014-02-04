@@ -126,8 +126,10 @@ class Workload (tu.Properties, tu.Timed) :
         instances.  
         """
 
-        wl_id = ru.generate_id ('wl.')
 
+        self.id = ru.generate_id ('wl.')
+
+        tu.Timed.__init__      (self, self.id)
         tu.Properties.__init__ (self)
 
         # register properties, initialize state
@@ -139,11 +141,12 @@ class Workload (tu.Properties, tu.Timed) :
         self.register_property ('manager')
 
         # initialize essential properties
-        self.id         = wl_id
-        self.state      = DESCRIBED
+        self._set_state (DESCRIBED)
+
         self.tasks      = dict()
         self.relations  = list()
         self.partitions = list()
+
 
         # initialize partitions
         self.partitions = [self.id]
@@ -195,7 +198,7 @@ class Workload (tu.Properties, tu.Timed) :
                 task.cancel ()
 
             # and update state
-            self.state = CANCELED
+            self._set_state (CANCELED)
 
 
     # --------------------------------------------------------------------------
@@ -292,6 +295,18 @@ class Workload (tu.Properties, tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
+    def _set_state (self, new_state) :
+        """
+        Private method which updates the workload state, and logs the event time
+        """
+
+        if  self.state != new_state :
+            self.state  = new_state
+            self.timed_event ('state', [new_state])
+
+
+    # --------------------------------------------------------------------------
+    #
     def get_state (self) :
         """
         The workload state is a wonderous thing -- it is sometimes atomic, and
@@ -343,31 +358,31 @@ class Workload (tu.Properties, tu.Timed) :
           # print 'ts: %s' % task.state
 
         if UNKNOWN in task_states :
-            self.state = UNKNOWN
+            self._set_state (UNKNOWN)
 
         elif FAILED in task_states :
-            self.state = FAILED
+            self._set_state (FAILED)
 
         elif CANCELED in task_states :
-            self.state = CANCELED
+            self._set_state (CANCELED)
 
         elif DESCRIBED in task_states :
-            self.state = TRANSLATED
+            self._set_state (TRANSLATED)
 
         elif TRANSLATED in task_states :
-            self.state = TRANSLATED
+            self._set_state (TRANSLATED)
 
         elif BOUND in task_states :
-            self.state = BOUND
+            self._set_state (BOUND)
 
         elif DISPATCHED in task_states :
-            self.state = DISPATCHED
+            self._set_state (DISPATCHED)
 
         else :
-            self.state = DONE
+            self._set_state (DONE)
             for s in task_states :
                 if s != DONE :
-                    self.state = UNKNOWN
+                    self._set_state (UNKNOWN)
 
         troy._logger.debug ('wl   state %-6s: %-10s %s' % (self.id, self.state, str(task_states)))
         return self.state
