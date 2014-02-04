@@ -10,8 +10,8 @@ from   troy.constants import *
 import troy
 
 
-FGCONF    = 'https://raw.github.com/saga-project/saga-pilot/master/configs/futuregrid.json'
-TROY_CONF = "file://localhost/%s/resource.py" % os.path.dirname (troy.__file__)
+FG_CONF    = 'https://raw.github.com/saga-project/saga-pilot/master/configs/futuregrid.json'
+XSEDE_CONF = 'https://raw.github.com/saga-project/saga-pilot/master/configs/xsede.json'
 
 
 # ------------------------------------------------------------------------------
@@ -127,7 +127,8 @@ class PLUGIN_CLASS (troy.PluginBase):
             sinon_um    = sinon.UnitManager  (session   = self._sinon, 
                                               scheduler = 'direct_submission')
             sinon_pm    = sinon.PilotManager (session   = self._sinon, 
-                                              resource_configurations = TROY_CONF)
+                                              resource_configurations = [FGCONF,
+                                                  XSEDECONF)
             sinon_pilot = sinon_pm.submit_pilots (pilot_descr)
 
 
