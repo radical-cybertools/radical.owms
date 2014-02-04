@@ -12,7 +12,7 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-class WorkloadManager (object) :
+class WorkloadManager (tu.Timed) :
     """
     The `WorkloadManager` class, as its name suggests, manages :class:`Workload`
     instances, i.e. translates, schedules and enacts those instances.
@@ -299,10 +299,18 @@ class WorkloadManager (object) :
 
         # hand over control over workload to the translator plugin, so it can do
         # what it has to do.
-        self._translator.translate (workload, overlay)
+        self.timed_method ('workload_manager', 'translate', 
+                           self._translator.translate, [workload, overlay])
+
 
         # mark workload as 'translated'
+        self.timed_event  ('workload_manager', 'state change: %s -> %s' % (workload.state, TRANSLATED))
         workload.state = TRANSLATED
+
+        self.timed_dump ()
+
+        import sys
+        sys.exit ()
 
         for partition_id in workload.partitions :
             partition = self.get_workload (partition_id)

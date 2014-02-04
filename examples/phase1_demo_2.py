@@ -15,10 +15,13 @@ import getpass
 
 
 PLUGIN_PLANNER              = 'concurrent'
-PLUGIN_OVERLAY_SCHEDULER    = troy.AUTOMATIC
+PLUGIN_OVERLAY_SCHEDULER    = 'round_robin'
 PLUGIN_OVERLAY_TRANSLATOR   = troy.AUTOMATIC
+PLUGIN_OVERLAY_PROVISIONER  = 'sinon'
 PLUGIN_WORKLOAD_SCHEDULER   = troy.AUTOMATIC
-PLUGIN_WORKLOAD_DISPATCHER  = 'bigjob_pilot' # troy.AUTOMATIC # 'sinon'
+PLUGIN_WORKLOAD_DISPATCHER  = 'sinon' # troy.AUTOMATIC # 'sinon'
+
+WORKDIR                     = '/N/u/merzky/troy_demo/'
 
 
 # ------------------------------------------------------------------------------
@@ -27,10 +30,11 @@ def create_task_description (r, msg) :
     litte helper which creates a task description for a radical member greeting
     """
 
-    task_descr            = troy.TaskDescription ()
-    task_descr.tag        = "%s" % r
-    task_descr.executable = '/bin/echo'
-    task_descr.arguments  = ['Hello', msg, r, '!']
+    task_descr                   = troy.TaskDescription ()
+    task_descr.tag               = "%s" % r
+    task_descr.executable        = '/bin/echo'
+    task_descr.arguments         = ['Hello', msg, r, '!']
+    task_descr.working_directory = WORKDIR
 
     return task_descr
 
@@ -59,6 +63,7 @@ if __name__ == '__main__' :
                                          session     = session                   )
     overlay_mgr  = troy.OverlayManager  (scheduler   = PLUGIN_OVERLAY_SCHEDULER  ,
                                          translator  = PLUGIN_OVERLAY_TRANSLATOR ,
+                                         provisioner = PLUGIN_OVERLAY_PROVISIONER,
                                          session     = session                   )
 
 
@@ -145,6 +150,14 @@ if __name__ == '__main__' :
         troy._logger.error ("workload(s) failed!")
         troy._logger.info  ("workload_1 state: %s)" % workload_1.state)
         troy._logger.info  ("workload_2 state: %s)" % workload_2.state)
+
+    # --------------------------------------------------------------------------
+    # We are done -- save traces
+  # session     .store_workload_trace (               target='stdout')
+  # overlay_mgr .store_overlay _trace (overlay_id   , target='stdout')
+  # workload_mgr.store_workload_trace (workload_id_1, target='stdout')
+  # workload_mgr.store_workload_trace (workload_id_2, target='stdout')
+
 
     # --------------------------------------------------------------------------
     # We are done -- clean up

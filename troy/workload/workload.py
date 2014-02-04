@@ -15,7 +15,7 @@ import troy
 # ------------------------------------------------------------------------------
 #
 @ru.Lockable  # needed locks for the ru.Registry
-class Workload (tu.Properties) :
+class Workload (tu.Properties, tu.Timed) :
     """
     The `Workload` class represents a workload which is managed by Troy.  It
     contains a set of :class:`Tasks`, and a set of :class:`Relation`s between

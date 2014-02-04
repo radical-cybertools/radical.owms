@@ -7,6 +7,9 @@ __license__   = "MIT"
 import saga
 import troy
 import logging
+import radical.utils as ru
+import troy.utils    as tu
+
 
 def _format_log_level (log_level) :
 
@@ -29,9 +32,10 @@ class Session (saga.Session) :
 
     def __init__ (self, cfg={}, default=True) :
 
-        self.cfg      = troy.Configuration ()
-        self.user_cfg = cfg
-        self._apitype = 'saga.Session'
+        self.session_id = ru.generate_id ('session.', mode=ru.ID_UNIQUE)
+        self.cfg        = troy.Configuration ()
+        self.user_cfg   = cfg
+        self._apitype   = 'saga.Session'
 
         if  'troy' in cfg :
             if 'log_level' in cfg['troy'] :
@@ -39,6 +43,8 @@ class Session (saga.Session) :
                 troy._logger.setLevel (log_level)
 
         saga.Session.__init__ (self, default)
+
+        troy._logger.critical ("session id: %s" % self.session_id)
 
 
     def get_config (self, section=None) :
