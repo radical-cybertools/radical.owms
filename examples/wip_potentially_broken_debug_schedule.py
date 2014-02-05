@@ -27,15 +27,26 @@ if __name__ == '__main__':
     random.seed(1)
     for i in range(1):
         run_start_time=time.time()
+
+        #{'default_overlay_translator' : {'pilot_size': '1'}
+        #{'concurrent_planner' : {'concurrency' : '1'},
+        session = troy.Session ({'default_overlay_translator' :
+                                     {'max_pilot_size': '1'}}
+                                )
+
         # Responsible for application workload
-        workload_mgr = troy.WorkloadManager(scheduler='ttc_load_balancing')
+        workload_mgr = troy.WorkloadManager(scheduler='ttc_load_balancing',
+                                            session=session)
 
         # Responsible for managing the pilot overlay
         #overlay_mgr = troy.OverlayManager()
-        overlay_mgr = troy.OverlayManager (provisioner=troy.AUTOMATIC)
-
+        overlay_mgr = troy.OverlayManager (translator="max_pilot_size",
+                                           session=session
+                                           )
         # Planning makes initial mapping of workload to overlay
-        planner = troy.Planner('maxcores')
+        planner = troy.Planner('maxcores',
+                               session=session)
+
 
         # TROY data structure that holds the tasks and their relations
         #workload = troy.Workload()
@@ -60,7 +71,6 @@ if __name__ == '__main__':
         overlay_descr = planner.derive_overlay (workload_id)
 
         overlay_id = overlay_mgr.create_overlay (overlay_descr)
-
 
         # Translate 1 workload into N ComputeUnits and N DataUnits
         workload_mgr.translate_workload(workload.id, overlay_id)
