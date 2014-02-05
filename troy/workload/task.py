@@ -38,7 +38,7 @@ class Task (tu.Properties, tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, descr, session=None, _workload=None) :
+    def __init__ (self, session, descr, _workload=None) :
         """
         Create a new workload element, aka Task, according to the description..
 
@@ -48,15 +48,13 @@ class Task (tu.Properties, tu.Timed) :
         to reconnect to the thus identified task instance.  
         """
 
-        if  session : self.session = session
-        else        : self.session = troy.Session ()
-
+        self.session = session
 
         # initialize state
         self.id   = ru.generate_id ('t.')
         tu.Timed.__init__  (self, self.id)
 
-        self.session.timed_component ('task', self.id)
+        self.session.timed_component ('task', self.id, self)
 
         if  not 'tag' in descr :
             raise ValueError ("no 'tag' in TaskDescription")
@@ -130,7 +128,7 @@ class Task (tu.Properties, tu.Timed) :
         u = troy.ComputeUnit (self.session, cu_descr, _task=self)
 
         self.units[u.id] = u
-        self.timed_component ('unit', u.id)
+        self.timed_component ('unit', u.id, u)
 
         return u.id
 

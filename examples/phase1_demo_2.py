@@ -53,22 +53,22 @@ if __name__ == '__main__' :
     radical_oldfarts = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner',
                         'Andre Luckow',     'Matteo Turilli']
 
-    radical_students = ['Melissa Romanus']
-    radical_oldfarts = ['Shantenu Jha']
+    radical_students = ['Melissa Romanus',  'Ashley Zebrowski',   'Dinesh Ganapathi']
+    radical_oldfarts = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner']
 
     # create a session with custom config options
     session = troy.Session ({'concurrent_planner' : {'concurrency' : '100'}})
 
     # create planner, overlay and workload manager, with plugins as configured
-    planner      = troy.Planner         (planner     = PLUGIN_PLANNER            ,
-                                         session     = session                   )
-    workload_mgr = troy.WorkloadManager (scheduler   = PLUGIN_WORKLOAD_SCHEDULER , 
-                                         dispatcher  = PLUGIN_WORKLOAD_DISPATCHER,
-                                         session     = session                   )
-    overlay_mgr  = troy.OverlayManager  (scheduler   = PLUGIN_OVERLAY_SCHEDULER  ,
+    planner      = troy.Planner         (session     = session                   ,
+                                         planner     = PLUGIN_PLANNER            )
+    workload_mgr = troy.WorkloadManager (session     = session                   ,
+                                         scheduler   = PLUGIN_WORKLOAD_SCHEDULER , 
+                                         dispatcher  = PLUGIN_WORKLOAD_DISPATCHER)
+    overlay_mgr  = troy.OverlayManager  (session     = session                   ,
+                                         scheduler   = PLUGIN_OVERLAY_SCHEDULER  ,
                                          translator  = PLUGIN_OVERLAY_TRANSLATOR ,
-                                         provisioner = PLUGIN_OVERLAY_PROVISIONER,
-                                         session     = session                   )
+                                         provisioner = PLUGIN_OVERLAY_PROVISIONER)
 
 
     # --------------------------------------------------------------------------
@@ -109,7 +109,7 @@ if __name__ == '__main__' :
     # Now take care of the oldfart workload -- not so many tasks for the old
     # people, and we lazily reuse the same overlay -- which is running, so,
     # late binding in this case.
-    workload_2 = troy.Workload ()
+    workload_2 = troy.Workload (session)
 
     for r in radical_oldfarts :
         workload_2.add_task (create_task_description (r, 'oldfart       '))

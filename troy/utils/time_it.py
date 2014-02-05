@@ -102,13 +102,13 @@ class Timed (object) :
 
     # --------------------------------------------------------------------------
     #
-    def timed_component (self, component_type, component_id) :
+    def timed_component (self, component_type, component_id, component) :
 
         if  not component_type in self.timed_components :
-            self.timed_components[component_type] = list()
+            self.timed_components[component_type] = dict()
 
         if  not component_id in self.timed_components[component_type] :
-            self.timed_components[component_type].append (component_id)
+            self.timed_components[component_type][component_id] = weakref.ref (component)
 
 
     # --------------------------------------------------------------------------

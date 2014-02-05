@@ -57,19 +57,18 @@ class WorkloadManager (tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, inspector  = AUTOMATIC,
+    def __init__ (self, session, 
+                        inspector  = AUTOMATIC,
                         translator = AUTOMATIC,
                         scheduler  = AUTOMATIC,
-                        dispatcher = AUTOMATIC,
-                        session    = None) :
+                        dispatcher = AUTOMATIC) :
         """
         Create a new workload manager instance.
 
         Use default plugins if not indicated otherwise
         """
 
-        if  session : self.session = session
-        else        : self.session = troy.Session ()
+        self.session = session
 
         self._stager = None
 
@@ -88,7 +87,7 @@ class WorkloadManager (tu.Timed) :
         self.id = ru.generate_id ('wlm.')
 
         tu.Timed.__init__       (self, self.id)
-        self.session.timed_component ('workload_manager', self.id)
+        self.session.timed_component ('workload_manager', self.id, self)
 
 
     # --------------------------------------------------------------------------
@@ -271,7 +270,7 @@ class WorkloadManager (tu.Timed) :
         workload = self.get_workload (workload_id)
         overlay  = troy.OverlayManager.get_overlay (overlay_id)
 
-        self.timed_component ('workload', workload.id)
+        self.timed_component ('workload', workload.id, workload)
 
         # make sure the workflow is 'fresh', so we can translate it
         if  workload.state not in [DESCRIBED, PLANNED] :
@@ -317,7 +316,7 @@ class WorkloadManager (tu.Timed) :
         workload = self.get_workload (workload_id)
         overlay  = troy.OverlayManager.get_overlay (overlay_id)
 
-        self.timed_component ('workload', workload.id)
+        self.timed_component ('workload', workload.id, workload)
 
         if  not overlay :
             raise ValueError ("binding needs a valid overlay")
@@ -360,7 +359,7 @@ class WorkloadManager (tu.Timed) :
         workload = self.get_workload (workload_id)
         overlay  = troy.OverlayManager.get_overlay (overlay_id)
 
-        self.timed_component ('workload', workload.id)
+        self.timed_component ('workload', workload.id, workload)
 
         # make sure the workload is scheduled, so we can dispatch it.
         # we don't care about overlay state
@@ -396,7 +395,7 @@ class WorkloadManager (tu.Timed) :
         """
 
         workload = self.get_workload (workload_id)
-        self.timed_component  ('workload', workload.id)
+        self.timed_component  ('workload', workload.id, workload)
         workload.timed_method ('cancel', [], workload.cancel)
 
 

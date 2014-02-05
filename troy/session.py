@@ -50,6 +50,11 @@ class Session (saga.Session, tu.Timed) :
 
         troy._logger.critical ("session id: %s" % self.id)
 
+        import traceback
+        for line in traceback.format_stack():
+            print line.strip()
+
+
 
     # --------------------------------------------------------------------------
     #

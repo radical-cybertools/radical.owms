@@ -214,8 +214,8 @@ class PLUGIN_CLASS (troy.PluginBase):
                           sinon.states.CANCELED : CANCELED, 
                           sinon.states.FAILED   : FAILED, 
                           sinon.states.UNKNOWN  : UNKNOWN}.get (sinon_pilot.state, UNKNOWN)
-        import pprint
-        pprint.pprint (info)
+      # import pprint
+      # pprint.pprint (info)
  
         return info
  

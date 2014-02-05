@@ -96,7 +96,7 @@ class Overlay (tu.Properties, tu.Timed) :
         tu.Timed.__init__      (self, self.id)
         tu.Properties.__init__ (self, descr)
 
-        self.session.timed_component ('overlay', self.id)
+        self.session.timed_component ('overlay', self.id, self)
 
         # register properties, initialize state
         self.register_property ('id')
@@ -151,7 +151,7 @@ class Overlay (tu.Properties, tu.Timed) :
         if  not isinstance (p_descr, troy.PilotDescription) :
             raise TypeError ("expected PilotDescription, got %s" % type(p_descr))
 
-        p = troy.Pilot (p_descr, _overlay=self)
+        p = troy.Pilot (self.session, p_descr, _overlay=self)
 
         self.pilots[p.id] = p
 

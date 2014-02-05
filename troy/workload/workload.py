@@ -115,7 +115,7 @@ class Workload (tu.Properties, tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, session=None, task_descriptions=None) :
+    def __init__ (self, session, task_descriptions=None) :
         """
         Create a new workload instance.
 
@@ -126,16 +126,14 @@ class Workload (tu.Properties, tu.Timed) :
         instances.  
         """
 
-        if  session : self.session = session
-        else        : self.session = troy.Session ()
-
+        self.session = session
 
         self.id = ru.generate_id ('wl.')
 
         tu.Timed.__init__      (self, self.id)
         tu.Properties.__init__ (self)
 
-        self.session.timed_component ('workload', self.id)
+        self.session.timed_component ('workload', self.id, self)
 
         # register properties, initialize state
         self.register_property ('id')
@@ -236,9 +234,9 @@ class Workload (tu.Properties, tu.Timed) :
                 raise ValueError ("Task with tag '%s' already exists" % task.tag)
             
             # FIXME: add sanity checks for task syntax / semantics
-            task = troy.Task (d, session=self.session, _workload=self)
+            task = troy.Task (self.session, d, _workload=self)
         
-            self.timed_component ('task', task.id)
+            self.timed_component ('task', task.id, task)
 
             self.tasks [d.tag] = task
             ret.append (task.id)

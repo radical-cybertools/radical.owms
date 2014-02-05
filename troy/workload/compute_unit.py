@@ -31,15 +31,14 @@ class ComputeUnit (tu.Properties, tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, session=None, param=None, _native_id=None, _task=None, _pilot_id=None) :
+    def __init__ (self, session, param=None, _native_id=None, _task=None, _pilot_id=None) :
         """
         Create a new ComputeUnit, according to the description, or reconnect to with an ID
 
         Each new CU is assigned a new ID.
         """
 
-        if  session : self.session = session
-        else        : self.session = troy.Session ()
+        self.session = session
 
 
         if  _native_id :
@@ -66,7 +65,7 @@ class ComputeUnit (tu.Properties, tu.Timed) :
                           % type(param))
 
         tu.Timed.__init__  (self, self.id)
-        self.session.timed_component ('unit', self.id)
+        self.session.timed_component ('unit', self.id, self)
 
         # set properties which are known from the description
         tu.Properties.__init__ (self, descr)

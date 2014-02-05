@@ -24,16 +24,14 @@ class Pilot (tu.Properties, tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, param, session=None, _overlay=None, _instance_type=None) :
+    def __init__ (self, session, param, _overlay=None, _instance_type=None) :
         """
         Create a new pilot according to a description, or reconnect to with an ID.
 
         Each new pilot is assigned a new ID.
         """
 
-        if  session : self.session = session
-        else        : self.session = troy.Session ()
-
+        self.session = session
 
         if isinstance (param, basestring) :
             self.id   = param
@@ -54,7 +52,7 @@ class Pilot (tu.Properties, tu.Timed) :
         tu.Timed.__init__      (self, self.id)
         tu.Properties.__init__ (self, descr)
 
-        self.session.timed_component ('pilot', self.id) 
+        self.session.timed_component ('pilot', self.id, self)
 
         # register properties
         self.register_property ('id')
