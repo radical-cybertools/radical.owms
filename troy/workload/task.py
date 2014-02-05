@@ -52,9 +52,8 @@ class Task (tu.Properties, tu.Timed) :
 
         # initialize state
         self.id   = ru.generate_id ('t.')
-        tu.Timed.__init__  (self, self.id)
-
-        self.session.timed_component ('task', self.id, self)
+        tu.Timed.__init__            (self, 'troy.Task', self.id)
+        self.session.timed_component (self, 'troy.Task', self.id)
 
         if  not 'tag' in descr :
             raise ValueError ("no 'tag' in TaskDescription")
@@ -125,12 +124,12 @@ class Task (tu.Properties, tu.Timed) :
         if  not isinstance (cu_descr, troy.ComputeUnitDescription) :
             raise TypeError ("expected ComputeUnitDescription, got %s" % type(cu_descr))
 
-        u = troy.ComputeUnit (self.session, cu_descr, _task=self)
+        unit = troy.ComputeUnit (self.session, cu_descr, _task=self)
 
-        self.units[u.id] = u
-        self.timed_component ('unit', u.id, u)
+        self.units[unit.id] = unit
+        self.timed_component (unit, 'troy.Unit', unit.id)
 
-        return u.id
+        return unit.id
 
 
     # --------------------------------------------------------------------------

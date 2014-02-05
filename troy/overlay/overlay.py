@@ -93,10 +93,10 @@ class Overlay (tu.Properties, tu.Timed) :
         
         self.id = ru.generate_id ('ol.')
 
-        tu.Timed.__init__      (self, self.id)
-        tu.Properties.__init__ (self, descr)
+        tu.Timed.__init__            (self, 'troy.Overlay', self.id)
+        self.session.timed_component (self, 'troy.Overlay', self.id)
 
-        self.session.timed_component ('overlay', self.id, self)
+        tu.Properties.__init__ (self, descr)
 
         # register properties, initialize state
         self.register_property ('id')

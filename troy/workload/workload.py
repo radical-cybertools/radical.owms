@@ -130,10 +130,11 @@ class Workload (tu.Properties, tu.Timed) :
 
         self.id = ru.generate_id ('wl.')
 
-        tu.Timed.__init__      (self, self.id)
+        tu.Timed.__init__            (self, 'troy.Workload', self.id)
+        self.session.timed_component (self, 'troy.Workload', self.id)
+
         tu.Properties.__init__ (self)
 
-        self.session.timed_component ('workload', self.id, self)
 
         # register properties, initialize state
         self.register_property ('id')
@@ -236,7 +237,7 @@ class Workload (tu.Properties, tu.Timed) :
             # FIXME: add sanity checks for task syntax / semantics
             task = troy.Task (self.session, d, _workload=self)
         
-            self.timed_component ('task', task.id, task)
+            self.timed_component (task, 'troy.Task', task.id)
 
             self.tasks [d.tag] = task
             ret.append (task.id)

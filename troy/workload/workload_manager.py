@@ -86,8 +86,8 @@ class WorkloadManager (tu.Timed) :
 
         self.id = ru.generate_id ('wlm.')
 
-        tu.Timed.__init__       (self, self.id)
-        self.session.timed_component ('workload_manager', self.id, self)
+        tu.Timed.__init__             (self, 'troy.WorkloadManager', self.id)
+        self.session.timed_component  (self, 'troy.WorkloadManager', self.id)
 
 
     # --------------------------------------------------------------------------
@@ -270,7 +270,7 @@ class WorkloadManager (tu.Timed) :
         workload = self.get_workload (workload_id)
         overlay  = troy.OverlayManager.get_overlay (overlay_id)
 
-        self.timed_component ('workload', workload.id, workload)
+        self.timed_component (workload, 'troy.Workload', workload.id)
 
         # make sure the workflow is 'fresh', so we can translate it
         if  workload.state not in [DESCRIBED, PLANNED] :
@@ -316,7 +316,7 @@ class WorkloadManager (tu.Timed) :
         workload = self.get_workload (workload_id)
         overlay  = troy.OverlayManager.get_overlay (overlay_id)
 
-        self.timed_component ('workload', workload.id, workload)
+        self.timed_component (workload, 'troy.Workload', workload.id)
 
         if  not overlay :
             raise ValueError ("binding needs a valid overlay")
@@ -359,7 +359,7 @@ class WorkloadManager (tu.Timed) :
         workload = self.get_workload (workload_id)
         overlay  = troy.OverlayManager.get_overlay (overlay_id)
 
-        self.timed_component ('workload', workload.id, workload)
+        self.timed_component (workload, 'troy.Workload', workload.id)
 
         # make sure the workload is scheduled, so we can dispatch it.
         # we don't care about overlay state
@@ -395,7 +395,7 @@ class WorkloadManager (tu.Timed) :
         """
 
         workload = self.get_workload (workload_id)
-        self.timed_component  ('workload', workload.id, workload)
+        self.timed_component  (workload, 'troy.Workload', workload.id)
         workload.timed_method ('cancel', [], workload.cancel)
 
 

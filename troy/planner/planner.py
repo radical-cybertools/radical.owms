@@ -41,8 +41,8 @@ class Planner(tu.Timed):
 
         self.id = ru.generate_id ('planner.')
 
-        tu.Timed.__init__       (self, self.id)
-        self.session.timed_component ('planner', self.id, self)
+        tu.Timed.__init__            (self, 'troy.Planner', self.id)
+        self.session.timed_component (self, 'troy.Planner', self.id)
 
         self.plugins = dict ()
         self.plugins['planner' ] = planner
@@ -124,7 +124,7 @@ class Planner(tu.Timed):
         # Get the workload from the repo
         workload = troy.WorkloadManager.get_workload(workload_id)
 
-        self.timed_component ('workload', workload.id, workload)
+        self.timed_component (workload, 'troy.Workload', workload.id)
 
         # Workload doesn't need to be PLANNED, but if it is only DESCRIBED,
         # it can't be parametrized.
@@ -164,7 +164,7 @@ class Planner(tu.Timed):
         # Get the workload from the repo
         workload = troy.WorkloadManager.get_workload(workload_id)
 
-        self.timed_component ('workload', workload.id, workload)
+        self.timed_component (workload, 'troy.Workload', workload.id)
 
         # make sure the workflow is 'fresh', so we can translate it
         if workload.state != DESCRIBED:

@@ -161,6 +161,7 @@ if __name__ == '__main__' :
   # workload_mgr.store_workload_trace (workload_2.id, target='stdout')
 
     session.timed_dump ()
+    session.timed_store ('mongodb://localhost/timing/')
 
 
     # --------------------------------------------------------------------------

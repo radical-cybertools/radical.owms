@@ -81,8 +81,8 @@ class OverlayManager (tu.Timed) :
 
         self.id = ru.generate_id ('olm.')
 
-        tu.Timed.__init__       (self, self.id)
-        self.session.timed_component ('overlay_manager', self.id, self)
+        tu.Timed.__init__            (self, 'troy.OverlayManager', self.id)
+        self.session.timed_component (self, 'troy.OverlayManager', self.id)
 
 
     # --------------------------------------------------------------------------
@@ -220,7 +220,7 @@ class OverlayManager (tu.Timed) :
 
         overlay = self.get_overlay (overlay_id)
 
-        self.timed_component ('overlay', overlay.id, overlay)
+        self.timed_component (overlay, 'troy.Overlay', overlay.id)
 
         # make sure the overlay is 'fresh', so we can translate it it
         if  overlay.state != DESCRIBED :
@@ -251,7 +251,7 @@ class OverlayManager (tu.Timed) :
 
         overlay = self.get_overlay (overlay_id)
 
-        self.timed_component ('overlay', overlay.id, overlay)
+        self.timed_component (overlay, 'troy.Overlay', overlay.id)
 
         # make sure the overlay is 'fresh', so we can schedule it
         if  overlay.state != TRANSLATED :
@@ -281,7 +281,7 @@ class OverlayManager (tu.Timed) :
 
         overlay = self.get_overlay (overlay_id)
 
-        self.timed_component ('overlay', overlay.id, overlay)
+        self.timed_component (overlay, 'troy.Overlay', overlay.id)
 
         # make sure the overlay is 'fresh', so we can schedule it
         if  overlay.state != SCHEDULED :
@@ -317,7 +317,7 @@ class OverlayManager (tu.Timed) :
 
         overlay = self.get_overlay (overlay_id)
 
-        self.timed_component ('overlay', overlay.id, overlay)
+        self.timed_component (overlay, 'troy.Overlay', overlay.id)
 
         overlay.timed_method ('cancel', [], overlay.cancel)
         overlay.cancel ()

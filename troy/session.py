@@ -35,7 +35,7 @@ class Session (saga.Session, tu.Timed) :
 
         self.id = ru.generate_id ('session.', mode=ru.ID_UNIQUE)
         
-        tu.Timed.__init__ (self, self.id)
+        tu.Timed.__init__ (self, 'troy.Session', self.id)
         self.timed_method ('saga.Session', ['init'],  
                            saga.Session.__init__, [self, default])
 

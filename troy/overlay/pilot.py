@@ -49,10 +49,10 @@ class Pilot (tu.Properties, tu.Timed) :
                           % type(param))
 
 
-        tu.Timed.__init__      (self, self.id)
-        tu.Properties.__init__ (self, descr)
+        tu.Timed.__init__            (self, 'troy.Pilot', self.id)
+        self.session.timed_component (self, 'troy.Pilot', self.id)
 
-        self.session.timed_component ('pilot', self.id, self)
+        tu.Properties.__init__ (self, descr)
 
         # register properties
         self.register_property ('id')

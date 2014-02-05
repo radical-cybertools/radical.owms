@@ -64,8 +64,8 @@ class ComputeUnit (tu.Properties, tu.Timed) :
                              "description (troy.ComputeUnitDescription), not '%s'" \
                           % type(param))
 
-        tu.Timed.__init__  (self, self.id)
-        self.session.timed_component ('unit', self.id, self)
+        tu.Timed.__init__            (self, 'troy.Unit', self.id)
+        self.session.timed_component (self, 'troy.Unit', self.id)
 
         # set properties which are known from the description
         tu.Properties.__init__ (self, descr)

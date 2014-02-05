@@ -216,7 +216,43 @@ class PLUGIN_CLASS (troy.PluginBase):
                           sinon.states.UNKNOWN  : UNKNOWN}.get (sinon_pilot.state, UNKNOWN)
       # import pprint
       # pprint.pprint (info)
- 
+      #
+      # {'cores_per_node'   : 4,
+      #  'description'      : <sagapilot.compute_pilot_description.ComputePilotDescription object at 0x28d6a50>,
+      #  'nodes'            : [u'localhost'],
+      #  'pilot_manager'    : <sagapilot.pilot_manager.PilotManager object at 0x28d6e10>,
+      #  'resource_details' : {'cores_per_node': 4, 'nodes': [u'localhost']},
+      #  'start_time'       : datetime.datetime(2014, 2, 5, 13, 4, 56, 145000),
+      #  'state'            : 'Provisioned',
+      #  'state_details'    : [u"Created agent directory 'file://localhost/home/merzky/troy_agents/pilot-52f236e4f2291a42e669a2b0/'",
+      #                        u"Copied 'file://localhost//home/merzky/saga/troy/ve/bin/bootstrap-and-run-agent' script to agent directory",
+      #                        u"Copied 'file://localhost//home/merzky/saga/troy/ve/local/lib/python2.7/site-packages/sagapilot-0.4-py2.7.egg/sagapilot/agent/sagapilot-agent.py' script to agent directory",
+      #                        u"Pilot Job successfully submitted with JobID '[fork://localhost]-[20505]'"],
+      #  'stop_time'        : None,
+      #  'submission_time'  : datetime.datetime(2014, 2, 5, 13, 4, 42, 239000),
+      #  'uid'              : '52f236e4f2291a42e669a2b0',
+      #  'unit_ids'         : [],
+      #  'unit_managers'    : []}
+
+
+        # register sinon events when they have a valid time stamp.  This may
+        # register them multiple times though, but duplication is filtered out
+        # on time keeping level
+        if 'submission_time' in info and info['submission_time'] :
+            pilot.timed_event ('submission', 'sinon', info['submission_time'])
+
+        if 'start_time' in info and info['start_time'] :
+            pilot.timed_event ('start', 'sinon', info['start_time'])
+
+        if 'stop_time' in info and info['stop_time'] :
+            pilot.timed_event ('stop', 'sinon', info['stop_time'])
+
+        if 'state_details' in info :
+            for state_detail in info['state_details'] :
+                pilot.timed_event ('state_detail', ['sinon', state_detail], -1)
+
+
+
         return info
  
  
