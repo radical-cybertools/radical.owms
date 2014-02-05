@@ -28,16 +28,19 @@ if __name__ == '__main__':
     for i in range(1):
         run_start_time=time.time()
         # Responsible for application workload
-        workload_mgr = troy.WorkloadManager(scheduler='debug')
+        workload_mgr = troy.WorkloadManager(scheduler='ttc_load_balancing')
 
         # Responsible for managing the pilot overlay
-        overlay_mgr = troy.OverlayManager()
+        #overlay_mgr = troy.OverlayManager()
+        overlay_mgr = troy.OverlayManager (provisioner=troy.AUTOMATIC)
 
         # Planning makes initial mapping of workload to overlay
-        planner = troy.Planner('default')
+        planner = troy.Planner('maxcores')
 
         # TROY data structure that holds the tasks and their relations
-        workload = troy.Workload()
+        #workload = troy.Workload()
+        workload_id = workload_mgr.create_workload ()
+        workload    = workload_mgr.get_workload    (workload_id)
 
         # Create a task for every radicalist
         for r in radicalists:
@@ -46,17 +49,18 @@ if __name__ == '__main__':
 
             task_descr.executable = '/bin/sleep'
             task_descr.arguments  = [str(random.randint(1,10))]
+            task_descr.walltime = random.randint(1,10) # in seconds
 
             task_id = workload.add_task(task_descr)
-
-            # Tasks are uncoupled so no relationships are specified
 
         # combine or split tasks in te workload
         planner.expand_workload(workload.id)
 
         # Initial description of the overlay based on the workload
-        overlay_id = planner.derive_overlay(workload.id)
-        #overlay_id = planner.derive_overlay(workload.id)
+        overlay_descr = planner.derive_overlay (workload_id)
+
+        overlay_id = overlay_mgr.create_overlay (overlay_descr)
+
 
         # Translate 1 workload into N ComputeUnits and N DataUnits
         workload_mgr.translate_workload(workload.id, overlay_id)
