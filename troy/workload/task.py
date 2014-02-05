@@ -48,12 +48,17 @@ class Task (tu.Properties, tu.Timed) :
         to reconnect to the thus identified task instance.  
         """
 
-        self.session = session
+        self.session  = session
+        self.workload = _workload
 
         # initialize state
         self.id   = ru.generate_id ('t.')
+
         tu.Timed.__init__            (self, 'troy.Task', self.id)
         self.session.timed_component (self, 'troy.Task', self.id)
+
+        if  self.workload :
+            self.workload.timed_component (self, 'troy.Task', self.id)
 
         if  not 'tag' in descr :
             raise ValueError ("no 'tag' in TaskDescription")
@@ -73,7 +78,6 @@ class Task (tu.Properties, tu.Timed) :
         self.tag         = descr.tag
         self.description = descr
         self.units       = dict()
-        self.workload    = _workload
 
         # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks

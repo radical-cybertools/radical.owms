@@ -119,10 +119,10 @@ class PLUGIN_CLASS (troy.PluginBase):
 
                     break
 
-            pilot_descr.working_directory = "%s/troy_agents/" % home
+            # FIXME
+            pilot_descr.sandbox  = "%s/troy_agents/" % home
+            pilot_descr.runtime  = 300
             pilot_descr.queue    = queue
-
-            pilot_descr.run_time = 300
 
             sinon_um    = sinon.UnitManager  (session   = self._sinon, 
                                               scheduler = 'direct_submission')

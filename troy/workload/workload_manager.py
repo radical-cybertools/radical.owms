@@ -180,7 +180,7 @@ class WorkloadManager (tu.Timed) :
     # --------------------------------------------------------------------------
     #
     @classmethod
-    def get_workload (cls, workload_id) :
+    def get_workload (cls, workload_id, _manager=None) :
         """
         We don't care about locking at this point -- so we simply release the
         workload immediately...
@@ -208,10 +208,13 @@ class WorkloadManager (tu.Timed) :
         if  not workload_id.startswith ('wl.') :
             raise ValueError ("'%s' does not represent a workload" % workload_id)
 
-        wl = ru.Registry.acquire (workload_id, ru.READONLY)
+        workload = ru.Registry.acquire (workload_id, ru.READONLY)
         ru.Registry.release (workload_id)
 
-        return wl
+        if  _manager :
+            _manager.timed_component (workload, 'troy.Workload', workload_id)
+
+        return workload
 
 
     # --------------------------------------------------------------------------
@@ -267,10 +270,8 @@ class WorkloadManager (tu.Timed) :
         """
 
 
-        workload = self.get_workload (workload_id)
-        overlay  = troy.OverlayManager.get_overlay (overlay_id)
-
-        self.timed_component (workload, 'troy.Workload', workload.id)
+        workload = troy.WorkloadManager.get_workload (workload_id, _manager=self)
+        overlay  = troy.OverlayManager .get_overlay  (overlay_id,  _manager=self)
 
         # make sure the workflow is 'fresh', so we can translate it
         if  workload.state not in [DESCRIBED, PLANNED] :
@@ -316,8 +317,6 @@ class WorkloadManager (tu.Timed) :
         workload = self.get_workload (workload_id)
         overlay  = troy.OverlayManager.get_overlay (overlay_id)
 
-        self.timed_component (workload, 'troy.Workload', workload.id)
-
         if  not overlay :
             raise ValueError ("binding needs a valid overlay")
 
@@ -359,8 +358,6 @@ class WorkloadManager (tu.Timed) :
         workload = self.get_workload (workload_id)
         overlay  = troy.OverlayManager.get_overlay (overlay_id)
 
-        self.timed_component (workload, 'troy.Workload', workload.id)
-
         # make sure the workload is scheduled, so we can dispatch it.
         # we don't care about overlay state
         if  workload.state != BOUND :
@@ -395,7 +392,6 @@ class WorkloadManager (tu.Timed) :
         """
 
         workload = self.get_workload (workload_id)
-        self.timed_component  (workload, 'troy.Workload', workload.id)
         workload.timed_method ('cancel', [], workload.cancel)
 
 

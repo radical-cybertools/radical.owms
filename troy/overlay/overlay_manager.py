@@ -190,7 +190,7 @@ class OverlayManager (tu.Timed) :
     # --------------------------------------------------------------------------
     #
     @classmethod
-    def get_overlay (cls, overlay_id) :
+    def get_overlay (cls, overlay_id, _manager=None) :
         """
         We don't care about locking at this point -- so we simply release the
         overlay immediately...
@@ -201,10 +201,13 @@ class OverlayManager (tu.Timed) :
         if  not overlay_id.startswith ('ol.') :
             raise ValueError ("'%s' does not represent a overlay" % overlay_id)
 
-        ol = ru.Registry.acquire (overlay_id, ru.READONLY)
+        overlay = ru.Registry.acquire (overlay_id, ru.READONLY)
         ru.Registry.release (overlay_id)
 
-        return ol
+        if  _manager :
+            _manager.timed_component (overlay, 'troy.Overlay', overlay_id)
+
+        return overlay
 
 
     # --------------------------------------------------------------------------

@@ -103,18 +103,15 @@ class Timed (object) :
             print "%s    duration %s %s" % (indent, d['event'], d['tags'])
         for ct in self.timed_components.keys() :
             print "%s    %s"  % (indent, ct)
-            for c in self.timed_components[ct] :
+            for cid in self.timed_components[ct] :
+                c = self.timed_components[ct][cid]()
                 print "%s      %s"  % (indent, c)
+                cid.timed_dump (indent+'--')
 
 
     # --------------------------------------------------------------------------
     #
     def timed_store (self, url) :
-
-        # make sure this is only called for a troy.Session
-        if  not self.timed_type == 'troy.Session' :
-            raise TypeError ('timed_store works on a troy.Session, not %s' % self.timed_type)
-
 
         # get mongodb database details, and connect to it
         host, port, dbname, _, _ = ru.split_dburl (url)
