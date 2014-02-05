@@ -74,7 +74,7 @@ if __name__ == '__main__' :
     # --------------------------------------------------------------------------
     # Create the student workload first.  Makes sense, amiright?
     # Create two task for every radical student.  They love getting more tasks!
-    workload_1 = troy.Workload ()
+    workload_1 = troy.Workload (session=session)
 
     for r in radical_students :
         workload_1.add_task (create_task_description (r+'_1', 'student       '))
@@ -84,7 +84,7 @@ if __name__ == '__main__' :
     # Initial description of the overlay based on the workload, and translate the
     # overlay into N pilot descriptions.
     overlay_descr = planner.derive_overlay (workload_1.id)
-    overlay       = troy.Overlay           (overlay_descr)
+    overlay       = troy.Overlay           (session, overlay_descr)
 
     # make sure the overlay is properly represented by pilots
     overlay_mgr.translate_overlay   (overlay.id)

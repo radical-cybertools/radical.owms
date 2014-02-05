@@ -12,7 +12,7 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-class Task (tu.Properties) :
+class Task (tu.Properties, tu.Timed) :
     """
     The `Task` class represents a element of work to be performed on behalf of
     an application, and is part of a workload managed by Troy.
@@ -38,7 +38,7 @@ class Task (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, descr, _workload=None) :
+    def __init__ (self, descr, session=None, _workload=None) :
         """
         Create a new workload element, aka Task, according to the description..
 
@@ -48,8 +48,15 @@ class Task (tu.Properties) :
         to reconnect to the thus identified task instance.  
         """
 
+        if  session : self.session = session
+        else        : self.session = troy.Session ()
+
+
         # initialize state
-        tid   = ru.generate_id ('t.')
+        self.id   = ru.generate_id ('t.')
+        tu.Timed.__init__  (self, self.id)
+
+        self.session.timed_component ('task', self.id)
 
         if  not 'tag' in descr :
             raise ValueError ("no 'tag' in TaskDescription")
@@ -65,7 +72,6 @@ class Task (tu.Properties) :
         self.register_property ('workload')
 
         # initialize essential properties
-        self.id          = tid
         self.state       = DESCRIBED
         self.tag         = descr.tag
         self.description = descr
@@ -121,9 +127,10 @@ class Task (tu.Properties) :
         if  not isinstance (cu_descr, troy.ComputeUnitDescription) :
             raise TypeError ("expected ComputeUnitDescription, got %s" % type(cu_descr))
 
-        u = troy.ComputeUnit (cu_descr, _task=self)
+        u = troy.ComputeUnit (self.session, cu_descr, _task=self)
 
         self.units[u.id] = u
+        self.timed_component ('unit', u.id)
 
         return u.id
 

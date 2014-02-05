@@ -144,8 +144,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         # TODO: How to communicate back to application?
         self.check_resource_availability(ovl_descr)
 
-        # Create an overlay
-        return troy.Overlay(ovl_descr)
+        return ovl_descr
 
 
 

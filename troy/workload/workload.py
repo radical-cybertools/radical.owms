@@ -115,7 +115,7 @@ class Workload (tu.Properties, tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, task_descriptions=None) :
+    def __init__ (self, session=None, task_descriptions=None) :
         """
         Create a new workload instance.
 
@@ -126,11 +126,16 @@ class Workload (tu.Properties, tu.Timed) :
         instances.  
         """
 
+        if  session : self.session = session
+        else        : self.session = troy.Session ()
+
 
         self.id = ru.generate_id ('wl.')
 
         tu.Timed.__init__      (self, self.id)
         tu.Properties.__init__ (self)
+
+        self.session.timed_component ('workload', self.id)
 
         # register properties, initialize state
         self.register_property ('id')
@@ -227,12 +232,14 @@ class Workload (tu.Properties, tu.Timed) :
             if  not isinstance (d, troy.TaskDescription) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
-            # FIXME: add sanity checks for task syntax / semantics
-            task = troy.Task (d, _workload=self)
-
-            if task.tag in self.tasks :
+            if d.tag in self.tasks :
                 raise ValueError ("Task with tag '%s' already exists" % task.tag)
             
+            # FIXME: add sanity checks for task syntax / semantics
+            task = troy.Task (d, session=self.session, _workload=self)
+        
+            self.timed_component ('task', task.id)
+
             self.tasks [d.tag] = task
             ret.append (task.id)
 

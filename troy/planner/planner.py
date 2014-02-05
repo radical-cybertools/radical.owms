@@ -38,15 +38,13 @@ class Planner(tu.Timed):
         Use the default planner plugin if not indicated otherwise
         """
 
-        if  session :
-            self._session = session
-        else:
-            self._session = troy.Session ()
+        if  session : self.session = session
+        else        : self.session = troy.Session ()
 
-        self.id = ru.generate_id ('pl.')
+        self.id = ru.generate_id ('planner.')
 
         tu.Timed.__init__       (self, self.id)
-        session.timed_component (self, self.id)
+        self.session.timed_component ('planner', self.id)
 
         self.plugins = dict ()
         self.plugins['planner' ] = planner
@@ -77,7 +75,7 @@ class Planner(tu.Timed):
         if  not self._planner :
             raise RuntimeError ("Could not load planner plugin")
 
-        self._planner.init_plugin (self._session)
+        self._planner.init_plugin (self.session)
 
         troy._logger.info ("initialized  planner (%s)" % self.plugins)
 
@@ -128,7 +126,7 @@ class Planner(tu.Timed):
         # Get the workload from the repo
         workload = troy.WorkloadManager.get_workload(workload_id)
 
-        self.timed_component (workload, workload.id)
+        self.timed_component ('workload', workload.id)
 
         # Workload doesn't need to be PLANNED, but if it is only DESCRIBED,
         # it can't be parametrized.
@@ -168,7 +166,7 @@ class Planner(tu.Timed):
         # Get the workload from the repo
         workload = troy.WorkloadManager.get_workload(workload_id)
 
-        self.timed_component (workload, workload.id)
+        self.timed_component ('workload', workload.id)
 
         # make sure the workflow is 'fresh', so we can translate it
         if workload.state != DESCRIBED:

@@ -16,7 +16,7 @@ Represent a pilot, as element of a troy.Overlay.
 
 # ------------------------------------------------------------------------------
 #
-class Pilot (tu.Properties) :
+class Pilot (tu.Properties, tu.Timed) :
     """
     """
 
@@ -24,20 +24,24 @@ class Pilot (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, param, _overlay=None, _instance_type=None) :
+    def __init__ (self, param, session=None, _overlay=None, _instance_type=None) :
         """
         Create a new pilot according to a description, or reconnect to with an ID.
 
         Each new pilot is assigned a new ID.
         """
 
+        if  session : self.session = session
+        else        : self.session = troy.Session ()
+
+
         if isinstance (param, basestring) :
-            pid       = param
+            self.id   = param
             descr     = troy.PilotDescription ()
             reconnect = True
 
         elif isinstance (param, troy.PilotDescription) :
-            pid       = ru.generate_id ('p.')
+            self.id   = ru.generate_id ('p.')
             descr     = param
             reconnect = False
 
@@ -47,7 +51,10 @@ class Pilot (tu.Properties) :
                           % type(param))
 
 
+        tu.Timed.__init__      (self, self.id)
         tu.Properties.__init__ (self, descr)
+
+        self.session.timed_component ('pilot', self.id) 
 
         # register properties
         self.register_property ('id')
@@ -80,7 +87,6 @@ class Pilot (tu.Properties) :
         self.register_property ('affinity_machine_label')
          
         # initialize essential properties
-        self.id             = pid
         self.state          = DESCRIBED
         self.description    = descr
         self.overlay        = _overlay

@@ -1,6 +1,7 @@
 
 import time
 import datetime
+import weakref
 import troy
 
 # ------------------------------------------------------------------------------
@@ -84,35 +85,30 @@ class Timed (object) :
 
     # --------------------------------------------------------------------------
     #
-    def timed_dump (self) :
+    def timed_dump (self, indent='') :
 
         import pprint
 
-        print '- events %d ---------------------'  % len(self.timed_events)
-        pprint.pprint (self.timed_events)
-        print '- durations %d ------------------'  % len(self.timed_durations)
-      # for d in self.timed_durations :
-      #     print ' ----- %d ' % len(d)
-      #     pprint.pprint (d)
-      #     print ' ----- '
-        pprint.pprint (self.timed_durations)
-        print '- current %d --------------------' % len(self._current_durations)
-        pprint.pprint (self._current_durations)
-        for component_id in self.timed_components :
-            print '- component %s --------------' % component_id
-            self.timed_components[component_id].timed_dump ()
-
+        print "%s= %s" % (indent, self.timed_id)
+        for e in self.timed_events :
+            print "%s    event    %s %s" % (indent, e['event'], e['tags'])
+        for d in self.timed_durations :                       
+            print "%s    duration %s %s" % (indent, d['event'], d['tags'])
+        for ct in self.timed_components.keys() :
+            print "%s    %s"  % (indent, ct)
+            for c in self.timed_components[ct] :
+                print "%s      %s"  % (indent, c)
 
 
     # --------------------------------------------------------------------------
     #
-    def timed_component (self, component, component_id) :
+    def timed_component (self, component_type, component_id) :
 
-        if  component_id in self.timed_components :
-            # simply ignore
-            pass
-        else :
-            self.timed_components[component_id] = component
+        if  not component_type in self.timed_components :
+            self.timed_components[component_type] = list()
+
+        if  not component_id in self.timed_components[component_type] :
+            self.timed_components[component_type].append (component_id)
 
 
     # --------------------------------------------------------------------------

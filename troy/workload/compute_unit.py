@@ -17,7 +17,7 @@ Represent a compute unit, as element of a troy.Task in a troy.Workload.
 
 # ------------------------------------------------------------------------------
 #
-class ComputeUnit (tu.Properties) :
+class ComputeUnit (tu.Properties, tu.Timed) :
     """
     The `ComputeUnit` class represents the smallest element of work to be
     performed on behalf of an application, and is part of a workload managed by
@@ -31,35 +31,42 @@ class ComputeUnit (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, param=None, _native_id=None, _task=None, _pilot_id=None) :
+    def __init__ (self, session=None, param=None, _native_id=None, _task=None, _pilot_id=None) :
         """
         Create a new ComputeUnit, according to the description, or reconnect to with an ID
 
         Each new CU is assigned a new ID.
         """
 
+        if  session : self.session = session
+        else        : self.session = troy.Session ()
+
+
         if  _native_id :
             native_id  = _native_id
-            uid        = None
+            self.id    = None
             descr      = troy.ComputeUnitDescription ()
             reconnect  = True
 
         elif isinstance (param, basestring) :
             _native_id = None
-            uid        = param
+            self.id    = param
             descr      = troy.ComputeUnitDescription ()
             reconnect  = True
 
         elif isinstance (param, troy.ComputeUnitDescription) :
             native_id  = None
-            uid        = ru.generate_id ('cu.')
+            self.id    = ru.generate_id ('cu.')
             descr      = param
             reconnect  = False
 
         else :
-            raise TypeError ("ComputeUnit constructor accepts either a uid (string) or a "
+            raise TypeError ("ComputeUnit constructor accepts either an uid (string) or a "
                              "description (troy.ComputeUnitDescription), not '%s'" \
                           % type(param))
+
+        tu.Timed.__init__  (self, self.id)
+        self.session.timed_component ('unit', self.id)
 
         # set properties which are known from the description
         tu.Properties.__init__ (self, descr)
@@ -94,7 +101,6 @@ class ComputeUnit (tu.Properties) :
         self.register_property ('affinity_machine_label')
 
         # initialized essential properties
-        self.id                = uid
         self.native_id         = native_id
         self.state             = DESCRIBED
         self.description       = descr
@@ -131,7 +137,7 @@ class ComputeUnit (tu.Properties) :
                                               native_id   = self.native_id)
 
             if  not self._instance :
-                raise ValueError ("Could not reconnect to unit %s" % uid)
+                raise ValueError ("Could not reconnect to unit %s" % self.id)
 
             # refresh unit information and state from the backend
             self._update_properties ()

@@ -73,7 +73,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             # then create concurrent partitions
             task_ids = workload.tasks.keys ()
-            c_partition = troy.Workload ()
+            c_partition = troy.Workload (self.session)
 
             for n in range (0, n_concurrent) :
                 c_partition.tasks[task_ids[n]] = workload.tasks[task_ids[n]]

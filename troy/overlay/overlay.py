@@ -71,7 +71,7 @@ class Overlay (tu.Properties, tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, descr=None) :
+    def __init__ (self, session=None, descr=None) :
         """
         Create a new overlay instance, based on the given overlay description
 
@@ -81,6 +81,9 @@ class Overlay (tu.Properties, tu.Timed) :
         additional id parameter, to reconnect to the thus identified overlay
         instance.
         """
+
+        if  session : self.session = session
+        else:         self.session = troy.Session ()
 
         if  not descr :
             descr = troy.OverlayDescription ()
@@ -92,6 +95,8 @@ class Overlay (tu.Properties, tu.Timed) :
 
         tu.Timed.__init__      (self, self.id)
         tu.Properties.__init__ (self, descr)
+
+        self.session.timed_component ('overlay', self.id)
 
         # register properties, initialize state
         self.register_property ('id')
