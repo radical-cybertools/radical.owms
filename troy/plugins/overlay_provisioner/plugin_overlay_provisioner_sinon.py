@@ -128,7 +128,7 @@ class PLUGIN_CLASS (troy.PluginBase):
                                               scheduler = 'direct_submission')
             sinon_pm    = sinon.PilotManager (session   = self._sinon, 
                                               resource_configurations = [FGCONF,
-                                                  XSEDECONF)
+                                                  XSEDECONF])
             sinon_pilot = sinon_pm.submit_pilots (pilot_descr)
 
 
