@@ -47,7 +47,7 @@ class PLUGIN_CLASS (troy.PluginBase):
                 print unit.description
                 # this is hacky as all get-out but this IS a WIP... TODO
                 try:
-                    unit.description._ttc = int(unit.description.arguments[0])
+                    unit.description._ttc = int(unit.description.walltime)
                 except:
                     pass
 
