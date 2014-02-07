@@ -96,17 +96,17 @@ class Timed (object) :
     #
     def timed_dump (self, indent='') :
 
-        print "%s= %s" % (indent, self.timed_id)
+        print "%s  %s" % (indent, self.timed_id)
         for e in self.timed_events :
-            print "%s    event    %s %s" % (indent, e['event'], e['tags'])
+            print "%s    event     %26s : %15s : %s" % (indent, e['time'], e['event'], e['tags'])
         for d in self.timed_durations :                       
-            print "%s    duration %s %s" % (indent, d['event'], d['tags'])
+            print "%s    duration  %25.2fs : %15s : %s" % (indent, d['duration'], d['event'], d['tags'])
         for ct in self.timed_components.keys() :
             print "%s    %s"  % (indent, ct)
             for cid in self.timed_components[ct] :
                 c = self.timed_components[ct][cid]()
-                print "%s      %s"  % (indent, c)
-                cid.timed_dump (indent+'--')
+                print "%s      %s (%s)"  % (indent, cid, type(c))
+                c.timed_dump (indent+'  ')
 
 
     # --------------------------------------------------------------------------
@@ -225,7 +225,7 @@ class Timed (object) :
         if  not timer :
             timer = datetime.datetime.utcnow ()
         elif timer == -1 :
-            timer = datetime.datetime.utcfromtimestamp (0)
+            timer = None
 
 
         event_sig = "%s %s" % (event, tags)
