@@ -32,6 +32,7 @@ class Pilot (tu.Properties, tu.Timed) :
         """
 
         self.session = session
+        self.overlay = _overlay
 
         if isinstance (param, basestring) :
             self.id   = param
@@ -51,6 +52,9 @@ class Pilot (tu.Properties, tu.Timed) :
 
         tu.Timed.__init__            (self, 'troy.Pilot', self.id)
         self.session.timed_component (self, 'troy.Pilot', self.id)
+
+        if  self.overlay :
+            self.overlay.timed_component (self, 'troy.Pilot', self.id)
 
         tu.Properties.__init__ (self, descr)
 
@@ -87,7 +91,6 @@ class Pilot (tu.Properties, tu.Timed) :
         # initialize essential properties
         self.state          = DESCRIBED
         self.description    = descr
-        self.overlay        = _overlay
         self.resource       = None
 
         # FIXME: complete attribute list, dig properties from description,
