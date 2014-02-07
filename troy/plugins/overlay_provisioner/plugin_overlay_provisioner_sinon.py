@@ -10,8 +10,8 @@ from   troy.constants import *
 import troy
 
 
-FG_CONF    = 'https://raw.github.com/saga-project/saga-pilot/master/configs/futuregrid.json'
-XSEDE_CONF = 'https://raw.github.com/saga-project/saga-pilot/master/configs/xsede.json'
+FGCONF    = 'https://raw.github.com/saga-project/saga-pilot/master/configs/futuregrid.json'
+XSEDECONF = 'https://raw.github.com/saga-project/saga-pilot/master/configs/xsede.json'
 
 
 # ------------------------------------------------------------------------------
