@@ -51,11 +51,11 @@ class OverlayManager (tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, inspector   = AUTOMATIC,
+    def __init__ (self, session     = None, 
+                        inspector   = AUTOMATIC,
                         translator  = AUTOMATIC,
                         scheduler   = AUTOMATIC,
-                        provisioner = AUTOMATIC, 
-                        session     = None) :
+                        provisioner = AUTOMATIC) :
         """
         Create a new overlay manager instance.
 

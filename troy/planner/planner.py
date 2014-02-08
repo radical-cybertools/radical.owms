@@ -30,14 +30,16 @@ class Planner(tu.Timed):
 
     # --------------------------------------------------------------------------
     #
-    def __init__(self, session, planner=AUTOMATIC) :
+    def __init__(self, session=None, planner=AUTOMATIC) :
         """
         Create a new planner instance for this workload.
 
         Use the default planner plugin if not indicated otherwise
         """
 
-        self.session = session
+        if  session : self.session = session
+        else:         self.session = troy.Session ()
+
 
         self.id = ru.generate_id ('planner.')
 

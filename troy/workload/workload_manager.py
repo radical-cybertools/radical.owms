@@ -57,18 +57,19 @@ class WorkloadManager (tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, session, 
-                        inspector  = AUTOMATIC,
-                        translator = AUTOMATIC,
-                        scheduler  = AUTOMATIC,
-                        dispatcher = AUTOMATIC) :
+    def __init__ (self, session     = None, 
+                        inspector   = AUTOMATIC,
+                        translator  = AUTOMATIC,
+                        scheduler   = AUTOMATIC,
+                        dispatcher  = AUTOMATIC) :
         """
         Create a new workload manager instance.
 
         Use default plugins if not indicated otherwise
         """
 
-        self.session = session
+        if  session : self.session = session
+        else:         self.session = troy.Session ()
 
         self._stager = None
 
