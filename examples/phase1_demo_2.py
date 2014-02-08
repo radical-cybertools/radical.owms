@@ -154,23 +154,19 @@ if __name__ == '__main__' :
         troy._logger.info  ("workload_2 state: %s)" % workload_2.state)
 
     # --------------------------------------------------------------------------
-    # We are done -- save traces
-  # session     .store_workload_trace (               target='stdout')
-  # overlay_mgr .store_overlay _trace (overlay.id   , target='stdout')
-  # workload_mgr.store_workload_trace (workload_1.id, target='stdout')
-  # workload_mgr.store_workload_trace (workload_2.id, target='stdout')
-
-  # workload_mgr.timed_dump ()
-  # workload_mgr.timed_store ('mongodb://localhost/timing/')
-    session.timed_dump ()
-    session.timed_store ('mongodb://localhost/timing/')
-
-
-    # --------------------------------------------------------------------------
     # We are done -- clean up
     workload_mgr.cancel_workload (workload_1.id)
     workload_mgr.cancel_workload (workload_2.id)
     overlay_mgr .cancel_overlay  (overlay.id)
+
+
+    # --------------------------------------------------------------------------
+    # We are done -- save traces
+  # workload_mgr.timed_dump ()
+  # workload_mgr.timed_store ('mongodb://localhost/timing/')
+    session.timed_dump ()
+  # session.timed_store ('mongodb://localhost/timing/')
+    session.timed_store ('mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/timing/')
 
 
     # --------------------------------------------------------------------------
