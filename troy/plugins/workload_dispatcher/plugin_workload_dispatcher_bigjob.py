@@ -61,7 +61,7 @@ class PLUGIN_CLASS (object) :
 
                 unit_descr = unit.description
                 pilot_id   = unit['pilot_id']
-                pilot      = troy.Pilot (pilot_id, _instance_type='bigjob')
+                pilot      = troy.Pilot (overlay.session, pilot_id, _instance_type='bigjob')
                 troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
                                 % (uid, pilot._get_instance('bigjob')))
                 

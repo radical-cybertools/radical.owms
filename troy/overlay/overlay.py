@@ -71,7 +71,7 @@ class Overlay (tu.Properties, tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, session=None, descr=None) :
+    def __init__ (self, session, descr=None) :
         """
         Create a new overlay instance, based on the given overlay description
 

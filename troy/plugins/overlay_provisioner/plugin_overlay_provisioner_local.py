@@ -260,7 +260,8 @@ class PLUGIN_CLASS (troy.PluginBase):
         info['units'] = dict()
 
         for unit_id in p.list_units () :
-            unit = troy.ComputeUnit (_native_id=unit_id, _pilot_id=pilot.id)
+            unit = troy.ComputeUnit (pilot.session, 
+                                     _native_id=unit_id, _pilot_id=pilot.id)
             info['units'][unit.id] = unit
 
         # hahaha python switch statement hahahahaha

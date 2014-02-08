@@ -103,7 +103,8 @@ class PLUGIN_CLASS (object) :
 
         info['units'] = dict ()
         for unit_id in unit_ids :
-            cu = troy.ComputeUnit (_native_id=unit_id, _pilot_id=pilot.id)
+            cu = troy.ComputeUnit (pilot.session, _native_id=unit_id, 
+                                   _pilot_id=pilot.id)
             info['units'][unit_id] = cu
 
         # translate bj state to troy state

@@ -145,6 +145,7 @@ class Workload (tu.Properties, tu.Timed) :
         self.register_property ('manager')
 
         # initialize essential properties
+        self.state = UNKNOWN
         self._set_state (DESCRIBED)
 
         self.tasks      = dict()
@@ -232,7 +233,7 @@ class Workload (tu.Properties, tu.Timed) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
             if d.tag in self.tasks :
-                raise ValueError ("Task with tag '%s' already exists" % task.tag)
+                raise ValueError ("Task with tag '%s' already exists" % d.tag)
             
             # FIXME: add sanity checks for task syntax / semantics
             task = troy.Task (self.session, d, _workload=self)

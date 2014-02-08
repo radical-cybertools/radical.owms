@@ -54,7 +54,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         overlay_descr = planner.derive_overlay (workload.id)
 
         # create an overlay based on that description
-        overlay = troy.Overlay (overlay_descr)
+        overlay = troy.Overlay (overlay_mgr.session, overlay_descr)
 
         # Translate 1 Overlay description into N Pilot Descriptions
         overlay_mgr.translate_overlay (overlay.id)

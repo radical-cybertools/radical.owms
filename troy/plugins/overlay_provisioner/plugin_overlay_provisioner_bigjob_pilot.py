@@ -168,7 +168,9 @@ class PLUGIN_CLASS (troy.PluginBase):
  
         info['units'] = dict ()
         for bj_unit in bj_units :
-            unit = troy.ComputeUnit (_native_id=bj_unit.get_url (), _pilot_id=pilot.id)
+            unit = troy.ComputeUnit (pilot.session, 
+                                     _native_id=bj_unit.get_url (), 
+                                     _pilot_id=pilot.id)
             info['units'][unit.id] = unit
 
         if  'description' in info :

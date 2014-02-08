@@ -201,7 +201,8 @@ class PLUGIN_CLASS (troy.PluginBase):
       # # FIXME
       # for sinon_unit_id in sinon_pilot.units :
       #     
-      #     unit = troy.ComputeUnit (_native_id=[sinon_um.uid, sinon_unit_id], 
+      #     unit = troy.ComputeUnit (pilot.session, 
+      #                              _native_id=[sinon_um.uid, sinon_unit_id], 
       #                              _pilot_id=pilot.id)
       #     info['units'][unit.id] = unit
  
