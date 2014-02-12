@@ -17,12 +17,12 @@ import getpass
 PLUGIN_PLANNER              = 'concurrent'
 PLUGIN_OVERLAY_SCHEDULER    = 'round_robin'
 PLUGIN_OVERLAY_TRANSLATOR   = troy.AUTOMATIC
-PLUGIN_OVERLAY_PROVISIONER  = 'local'
+PLUGIN_OVERLAY_PROVISIONER  = 'sinon'
 PLUGIN_WORKLOAD_SCHEDULER   = troy.AUTOMATIC
-PLUGIN_WORKLOAD_DISPATCHER  = 'local' # troy.AUTOMATIC # 'sinon'
+PLUGIN_WORKLOAD_DISPATCHER  = 'sinon'
 
-WORKDIR                     = '/N/u/merzky/troy_demo/'
 WORKDIR                     = '/home/merzky/troy_demo/'
+WORKDIR                     = '/N/u/merzky/troy_demo/'
 
 
 # ------------------------------------------------------------------------------

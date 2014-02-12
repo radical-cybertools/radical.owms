@@ -295,17 +295,8 @@ class OverlayManager (tu.Timed) :
 
         # hand over control over overlay to the provisioner plugin, so it can do
         # what it has to do.
-        print '1 ======================='
-        overlay.timed_dump()
-        print '2 ======================='
         overlay.timed_method ('provision', [], 
                               self._provisioner.provision, [overlay])
-        print '3 ======================='
-        overlay.timed_dump()
-        print '4 ======================='
-        print self
-        self.timed_dump()
-        print '5 ======================='
 
         # mark overlay as 'provisioned'
         overlay.state = PROVISIONED
