@@ -253,7 +253,6 @@ class PLUGIN_CLASS (troy.PluginBase):
                 pilot.timed_event ('state_detail', ['sinon', state_detail], -1)
 
 
-
         return info
  
  
