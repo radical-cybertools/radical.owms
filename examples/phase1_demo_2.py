@@ -21,8 +21,8 @@ PLUGIN_OVERLAY_PROVISIONER  = 'bigjob_pilot'
 PLUGIN_WORKLOAD_SCHEDULER   = troy.AUTOMATIC
 PLUGIN_WORKLOAD_DISPATCHER  = 'bigjob_pilot' # troy.AUTOMATIC # 'sinon'
 
-WORKDIR                     = '/home/merzky/troy_demo/'
 WORKDIR                     = '/N/u/merzky/troy_demo/'
+WORKDIR                     = '/home/merzky/troy_demo/'
 
 
 # ------------------------------------------------------------------------------
