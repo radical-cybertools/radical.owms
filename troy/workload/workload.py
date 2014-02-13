@@ -115,7 +115,7 @@ class Workload (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, task_descriptions=None) :
+    def __init__ (self, task_descriptions=None, relation_descriptions=None) :
         """
         Create a new workload instance.
 
@@ -156,13 +156,20 @@ class Workload (tu.Properties) :
         # register this instance, so that workload can be passed around by id.
         troy.WorkloadManager.register_workload (self)
 
-        # fill the workload with given task descriptions
+        # fill the workload with given task and relation descriptions
         if  task_descriptions :
             if  not isinstance (task_descriptions, list) :
                 task_descriptions = [task_descriptions]
 
             for task_descr in task_descriptions :
                 self.add_task (task_descr)
+
+        if  relation_descriptions :
+            if  not isinstance (relation_descriptions, list) :
+                relation_descriptions = [relation_descriptions]
+
+            for relation_descr in  relation_descriptions :
+                self.add_relation (relation_descr)
 
         
 
@@ -173,6 +180,9 @@ class Workload (tu.Properties) :
         """
         Destructor -- cancels the workload
         """
+
+        # AM: is this really wanted?  Will break on long-running workloads.
+        # OTOH, of course, we have no means to reconnect...
 
         self.cancel ()
 

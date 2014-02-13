@@ -135,6 +135,15 @@ class WorkloadManager (object) :
         self._scheduler .init_plugin (self._session)
         self._dispatcher.init_plugin (self._session)
 
+        # parser plugins are somewhat different, as we load all parsers we can
+        # find.  On any incoming workload, we'll try one after the other
+        self._parsers = list()
+        for parser_plugin_name in self._plugin_mgr.list ('workload_parser') :
+            parser = self._plugin_mgr.load (parser_plugin_name)
+            if parser :
+                parser.init_plugin (self.session)
+                self._parsers.append (parser)
+
         troy._logger.info ("initialized  workload manager (%s)" % self.plugins)
 
     # --------------------------------------------------------------------------
@@ -252,7 +261,24 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def create_workload (self, task_descriptions=None) :
+    def parse_workload (self, workload_description) :
+        """
+        Parse a json workload description, convert into a set of
+        task_descriptions and relation_descriptions
+        """
+
+        # make sure manager is initialized
+        self._init_plugins ()
+
+        workload = troy.Workload (task_descriptions)
+
+        return workload.id
+
+
+    # --------------------------------------------------------------------------
+    #
+    def create_workload (self, task_descriptions=None,
+                         relation_descriptions=None) :
         """
         Notes
 
@@ -264,9 +290,13 @@ class WorkloadManager (object) :
           a workload manager. This should not be the case. They should
           instantiate a planner.
 
+        - AM: Hmm, we do that via the WL manager to keep ownership of the
+          workload with that WL manager -- otherwise the planner would initially
+          own the workload, and would hand off ownership to the WL manager
+          later.  Is this acceptable then?
         """
 
-        workload = troy.Workload (task_descriptions)
+        workload = troy.Workload (task_descriptions, relation_descriptions)
 
         return workload.id
 
