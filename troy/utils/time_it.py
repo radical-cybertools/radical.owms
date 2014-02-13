@@ -94,19 +94,28 @@ class Timed (object) :
 
     # --------------------------------------------------------------------------
     #
-    def timed_dump (self, indent='') :
+    def timed_dump (self, _indent=None) :
 
-        print "%s  %s" % (indent, self.timed_id)
+        _toplevel = False
+
+        if  not _indent : 
+            _toplevel = True
+            _indent   = ""
+
+        print "%s  %s" % (_indent, self.timed_id)
         for e in self.timed_events :
-            print "%s    event     %26s : %15s : %s" % (indent, e['time'], e['event'], e['tags'])
+            print "%s    event     %26s : %-15s : %s" % (_indent, e['time'], e['event'], e['tags'])
         for d in self.timed_durations :                       
-            print "%s    duration  %25.2fs : %15s : %s" % (indent, d['duration'], d['event'], d['tags'])
+            print "%s    duration  %25.2fs : %-15s : %s" % (_indent, d['duration'], d['event'], d['tags'])
         for ct in self.timed_components.keys() :
-            print "%s    %s"  % (indent, ct)
+            print "%s    %s"  % (_indent, ct)
             for cid in self.timed_components[ct] :
                 c = self.timed_components[ct][cid]()
-                print "%s      %s (%s)"  % (indent, cid, type(c))
-                c.timed_dump (indent+'  ')
+                print "%s      %s (%s)"  % (_indent, cid, type(c))
+                c.timed_dump (_indent+'  ')
+
+        if  _toplevel :
+            print " === dumped %s ===" % self.timed_id
 
 
     # --------------------------------------------------------------------------
@@ -183,7 +192,7 @@ class Timed (object) :
             'tags'  : tags,
         }
 
-        troy._logger.info ('timed start    : %s %s : %s (UTC)' % (event, tags, start))
+        troy._logger.debug ('timed start    : %s %s : %s (UTC)' % (event, tags, start))
 
         return start
 
@@ -208,8 +217,8 @@ class Timed (object) :
         self.timed_durations.append (self._timed_current[event])
         self._timed_current[event] = None
 
-        troy._logger.info ('timed stop     : %s %s : %s (UTC)' % (event, tags, stop))
-        troy._logger.info ('timed duration : %s %s : %s  sec'  % (event, tags, timer))
+        troy._logger.debug ('timed stop     : %s %s : %s (UTC)' % (event, tags, stop))
+        troy._logger.debug ('timed duration : %s %s : %s  sec'  % (event, tags, timer))
 
         return timer
 
@@ -238,7 +247,7 @@ class Timed (object) :
                                    'event' : event, 
                                    'tags'  : tags })
 
-        troy._logger.info ('timed event [%s]   : %s : %s (UTC)' % (self.timed_id, event, tags))
+        troy._logger.debug ('timed event [%s]   : %s : %s (UTC)' % (self.timed_id, event, tags))
 
 
     # --------------------------------------------------------------------------
@@ -265,7 +274,7 @@ def timeit (method) :
         timer  = stop - start
 
         signature = "%s (%s, %s) " % (method.__name__, args, kwargs)
-        troy._logger.info ('%30s : %6.2f sec' % (signature, timer))
+        troy._logger.debug ('%30s : %6.2f sec' % (signature, timer))
 
         return result
 

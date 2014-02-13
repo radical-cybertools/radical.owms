@@ -183,10 +183,10 @@ class PLUGIN_CLASS (troy.PluginBase):
             'uid'              : sinon_pilot.uid, 
             'description'      : sinon_pilot.description, 
             'state'            : sinon_pilot.state, 
-            'state_details'    : sinon_pilot.state_details, 
-            'resource_details' : sinon_pilot.resource_details, 
-            'cores_per_node'   : sinon_pilot.resource_details['cores_per_node'],
-            'nodes'            : sinon_pilot.resource_details['nodes'],
+            'state_detail'    : sinon_pilot.state_detail, 
+            'resource_detail' : sinon_pilot.resource_detail, 
+            'cores_per_node'   : sinon_pilot.resource_detail['cores_per_node'],
+            'nodes'            : sinon_pilot.resource_detail['nodes'],
             'unit_ids'         : list(),
           # 'unit_ids'         : sinon_pilot.units,          # FIXME
             'unit_managers'    : list(),
@@ -222,10 +222,10 @@ class PLUGIN_CLASS (troy.PluginBase):
       #  'description'      : <sagapilot.compute_pilot_description.ComputePilotDescription object at 0x28d6a50>,
       #  'nodes'            : [u'localhost'],
       #  'pilot_manager'    : <sagapilot.pilot_manager.PilotManager object at 0x28d6e10>,
-      #  'resource_details' : {'cores_per_node': 4, 'nodes': [u'localhost']},
+      #  'resource_detail' : {'cores_per_node': 4, 'nodes': [u'localhost']},
       #  'start_time'       : datetime.datetime(2014, 2, 5, 13, 4, 56, 145000),
       #  'state'            : 'Provisioned',
-      #  'state_details'    : [u"Created agent directory 'file://localhost/home/merzky/troy_agents/pilot-52f236e4f2291a42e669a2b0/'",
+      #  'state_detail'    : [u"Created agent directory 'file://localhost/home/merzky/troy_agents/pilot-52f236e4f2291a42e669a2b0/'",
       #                        u"Copied 'file://localhost//home/merzky/saga/troy/ve/bin/bootstrap-and-run-agent' script to agent directory",
       #                        u"Copied 'file://localhost//home/merzky/saga/troy/ve/local/lib/python2.7/site-packages/sagapilot-0.4-py2.7.egg/sagapilot/agent/sagapilot-agent.py' script to agent directory",
       #                        u"Pilot Job successfully submitted with JobID '[fork://localhost]-[20505]'"],
@@ -248,8 +248,8 @@ class PLUGIN_CLASS (troy.PluginBase):
         if 'stop_time' in info and info['stop_time'] :
             pilot.timed_event ('stop', 'sinon', info['stop_time'])
 
-        if 'state_details' in info :
-            for state_detail in info['state_details'] :
+        if 'state_detail' in info :
+            for state_detail in info['state_detail'] :
                 pilot.timed_event ('state_detail', ['sinon', state_detail], -1)
 
 
