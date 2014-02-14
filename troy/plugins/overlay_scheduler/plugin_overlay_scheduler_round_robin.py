@@ -35,6 +35,9 @@ class PLUGIN_CLASS (troy.PluginBase):
     #
     def init (self):
 
+        print self.cfg
+        print self.global_cfg
+
         if 'resources'    in self.cfg :
             self.resources = self.cfg['resources'].split (',')
             troy._logger.debug ("round_robin over %s" % self.resources )

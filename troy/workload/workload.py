@@ -15,7 +15,7 @@ import troy
 # ------------------------------------------------------------------------------
 #
 @ru.Lockable  # needed locks for the ru.Registry
-class Workload (tu.Properties) :
+class Workload (tu.Properties, tu.Timed) :
     """
     The `Workload` class represents a workload which is managed by Troy.  It
     contains a set of :class:`Tasks`, and a set of :class:`Relation`s between
@@ -115,7 +115,7 @@ class Workload (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, task_descriptions=None) :
+    def __init__ (self, session, task_descriptions=None) :
         """
         Create a new workload instance.
 
@@ -126,9 +126,15 @@ class Workload (tu.Properties) :
         instances.  
         """
 
-        wl_id = ru.generate_id ('wl.')
+        self.session = session
+
+        self.id = ru.generate_id ('wl.')
+
+        tu.Timed.__init__            (self, 'troy.Workload', self.id)
+        self.session.timed_component (self, 'troy.Workload', self.id)
 
         tu.Properties.__init__ (self)
+
 
         # register properties, initialize state
         self.register_property ('id')
@@ -139,11 +145,13 @@ class Workload (tu.Properties) :
         self.register_property ('manager')
 
         # initialize essential properties
-        self.id         = wl_id
-        self.state      = DESCRIBED
+        self.state = UNKNOWN
+        self._set_state (DESCRIBED)
+
         self.tasks      = dict()
         self.relations  = list()
         self.partitions = list()
+
 
         # initialize partitions
         self.partitions = [self.id]
@@ -195,7 +203,7 @@ class Workload (tu.Properties) :
                 task.cancel ()
 
             # and update state
-            self.state = CANCELED
+            self._set_state (CANCELED)
 
 
     # --------------------------------------------------------------------------
@@ -224,12 +232,14 @@ class Workload (tu.Properties) :
             if  not isinstance (d, troy.TaskDescription) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
-            # FIXME: add sanity checks for task syntax / semantics
-            task = troy.Task (d, _workload=self)
-
-            if task.tag in self.tasks :
-                raise ValueError ("Task with tag '%s' already exists" % task.tag)
+            if d.tag in self.tasks :
+                raise ValueError ("Task with tag '%s' already exists" % d.tag)
             
+            # FIXME: add sanity checks for task syntax / semantics
+            task = troy.Task (self.session, d, _workload=self)
+        
+            self.timed_component (task, 'troy.Task', task.id)
+
             self.tasks [d.tag] = task
             ret.append (task.id)
 
@@ -292,6 +302,18 @@ class Workload (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
+    def _set_state (self, new_state) :
+        """
+        Private method which updates the workload state, and logs the event time
+        """
+
+        if  self.state != new_state :
+            self.state  = new_state
+            self.timed_event ('state', [new_state])
+
+
+    # --------------------------------------------------------------------------
+    #
     def get_state (self) :
         """
         The workload state is a wonderous thing -- it is sometimes atomic, and
@@ -343,31 +365,31 @@ class Workload (tu.Properties) :
           # print 'ts: %s' % task.state
 
         if UNKNOWN in task_states :
-            self.state = UNKNOWN
+            self._set_state (UNKNOWN)
 
         elif FAILED in task_states :
-            self.state = FAILED
+            self._set_state (FAILED)
 
         elif CANCELED in task_states :
-            self.state = CANCELED
+            self._set_state (CANCELED)
 
         elif DESCRIBED in task_states :
-            self.state = TRANSLATED
+            self._set_state (TRANSLATED)
 
         elif TRANSLATED in task_states :
-            self.state = TRANSLATED
+            self._set_state (TRANSLATED)
 
         elif BOUND in task_states :
-            self.state = BOUND
+            self._set_state (BOUND)
 
         elif DISPATCHED in task_states :
-            self.state = DISPATCHED
+            self._set_state (DISPATCHED)
 
         else :
-            self.state = DONE
+            self._set_state (DONE)
             for s in task_states :
                 if s != DONE :
-                    self.state = UNKNOWN
+                    self._set_state (UNKNOWN)
 
         troy._logger.debug ('wl   state %-6s: %-10s %s' % (self.id, self.state, str(task_states)))
         return self.state

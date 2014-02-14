@@ -56,7 +56,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
                 unit_descr     = unit.description
                 pid            = unit.pilot_id
-                pilot          = troy.Pilot (pid)
+                pilot          = troy.Pilot (overlay.session, pid)
                 pilot_instance = pilot._get_instance ('default')
                 unit_instance  = pilot_instance.submit_unit (unit_descr)
                 troy._logger.info ('workload dispatch : dispatch %-23s to %s' % (unit_id, pid))

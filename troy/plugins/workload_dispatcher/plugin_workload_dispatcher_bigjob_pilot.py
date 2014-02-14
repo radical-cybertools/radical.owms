@@ -68,7 +68,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
                 # reconnect to the given pilot -- this is likely to pull the
                 # instance from a cache, so should not cost too much.
-                pilot      = troy.Pilot (overlay.session, pilot_id, _instance_type='bigjob')
+                pilot      = troy.Pilot (overlay.session, pilot_id, _instance_type='bigjob_pilot')
                 troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
                                 % (uid, pilot._get_instance('bigjob_pilot')))
                 

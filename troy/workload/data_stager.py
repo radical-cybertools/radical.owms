@@ -113,25 +113,22 @@ class DataStager (object) :
         if  not len(unit.inputs) :
             return
 
-        pilot    = troy.Pilot (unit.pilot_id)
+        pilot    = troy.Pilot (unit.session, unit.pilot_id)
         resource = pilot.resource
         workdir  = unit.working_directory
 
+        # sanity checks
         if  not workdir :
             raise RuntimeError ("no working directory defined for %s - cannot stage-in" % unit.id)
 
-        # sanity checks
         if  not pilot :
             raise RuntimeError ("unit %s not bound  - cannot stage-in" % unit.id)
 
         if  not resource :
             raise RuntimeError ("pilot not bound %s - cannot stage-in" % unit.id)
 
-        if  not workdir :
-            raise RuntimeError ("no workdir for %s  - cannot stage-in" % unit.id)
-
-
         for fin in unit.inputs :
+
             if  not isinstance (fin, basestring) :
                 raise TypeError ("Input specs need to be strings, not %s" % type(fin))
 
@@ -226,19 +223,19 @@ class DataStager (object) :
         if  not len(unit.outputs) :
             return
 
-        pilot    = troy.Pilot (unit.pilot_id)
+        pilot    = troy.Pilot (unit.session, unit.pilot_id)
         resource = pilot.resource
         workdir  = unit.working_directory
 
         # sanity checks
+        if  not workdir :
+            raise RuntimeError ("no working directory defined for %s - cannot stage-out" % unit.id)
+
         if  not pilot :
             raise RuntimeError ("unit %s not bound  - cannot stage-out" % unit.id)
 
         if  not resource :
             raise RuntimeError ("pilot not bound %s - cannot stage-out" % unit.id)
-
-        if  not workdir :
-            raise RuntimeError ("no workdir for %s  - cannot stage-out" % unit.id)
 
         for fout in unit.outputs :
 

@@ -54,16 +54,16 @@ class PLUGIN_CLASS (troy.PluginBase):
         overlay_descr = planner.derive_overlay (workload.id)
 
         # create an overlay based on that description
-        overlay_id = overlay_mgr.create_overlay (overlay_descr)
+        overlay = troy.Overlay (overlay_mgr.session, overlay_descr)
 
         # Translate 1 Overlay description into N Pilot Descriptions
-        overlay_mgr.translate_overlay (overlay_id)
+        overlay_mgr.translate_overlay (overlay.id)
 
         # Decide which resources to use for constructing the overlay
-        overlay_mgr.schedule_overlay (overlay_id)
+        overlay_mgr.schedule_overlay (overlay.id)
 
         # Translate /split workload into ComputeUnits etc
-        workload_mgr.translate_workload (workload.id, overlay_id)
+        workload_mgr.translate_workload (workload.id, overlay.id)
 
         ########################################################################
         # 
@@ -89,7 +89,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             workload.state = partition.state
 
             # Schedule the partition onto the overlay
-            workload_mgr.bind_workload (partition.id, overlay_id,
+            workload_mgr.bind_workload (partition.id, overlay.id,
                                         bind_mode=troy.EARLY)
             workload.state = partition.state
 
@@ -103,7 +103,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         # partition 0 is  dispatched, now provision the overlay
 
         # Instantiate Pilots on specified resources
-        overlay_mgr.provision_overlay (overlay_id)
+        overlay_mgr.provision_overlay (overlay.id)
 
 
         # ----------------------------------------------------------------------
@@ -112,7 +112,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         for partition_id in workload.partitions[:1] :
 
             # Execute the ComputeUnits on the Pilots
-            workload_mgr.dispatch_workload (partition.id, overlay_id)
+            workload_mgr.dispatch_workload (partition.id, overlay.id)
             workload.state = partition.state
 
             partition.wait ()
@@ -148,7 +148,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             workload.state = partition.state
 
             # Schedule the partition onto the overlay
-            workload_mgr.bind_workload (partition.id, overlay_id,
+            workload_mgr.bind_workload (partition.id, overlay.id,
                                         bind_mode=troy.LATE)
             workload.state = partition.state
 
@@ -158,7 +158,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             workload_mgr.stage_in_workload (partition_id)
 
             # Execute the ComputeUnits on the Pilots
-            workload_mgr.dispatch_workload (partition.id, overlay_id)
+            workload_mgr.dispatch_workload (partition.id, overlay.id)
             workload.state = partition.state
 
             # Of course nothing will fail due to TROY's magic robustness and
@@ -178,7 +178,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         troy._logger.info ("all partition done (%s)" % workload.state)
 
-        overlay_mgr.cancel_overlay (overlay_id)
+        overlay_mgr.cancel_overlay (overlay.id)
 
 
 # ------------------------------------------------------------------------------

@@ -10,7 +10,9 @@ import pprint
 import saga
 import troy
 import logging
-import radical.utils.logger as rul
+import radical.utils as ru
+import troy.utils    as tu
+
 
 
 # ------------------------------------------------------------------------------
@@ -23,10 +25,9 @@ def _format_log_level (log_level) :
             'warning'  : logging.WARNING,
             'error'    : logging.ERROR,
             'critical' : logging.CRITICAL
-            } [log_leverl.lower()]
+            } [log_level.lower()]
 
-    raise ValueError ('%s is not a valid value for log_level.' \
-                   % (log_level, log_level))
+    raise ValueError ('%s is not a valid value for log_level.' % log_level)
 
 
 # ------------------------------------------------------------------------------
@@ -75,8 +76,10 @@ _resource_config_skeleton = {
 
 # ------------------------------------------------------------------------------
 #
-class Session (saga.Session) : 
+class Session (saga.Session, tu.Timed) : 
 
+    # --------------------------------------------------------------------------
+    #
     def __init__ (self, user_cfg={}, default=True) :
 
         # FIXME: the whole config setup should be moved to troy/config.py, once
@@ -85,6 +88,14 @@ class Session (saga.Session) :
         # set saga apitype for clean inheritance (cpi to api mapping relies on
         # _apitype)
         self._apitype = 'saga.Session'
+
+        self.id = ru.generate_id ('session.', mode=ru.ID_UNIQUE)
+        
+        tu.Timed.__init__ (self, 'troy.Session', self.id)
+        self.timed_method ('saga.Session', ['init'],  
+                           saga.Session.__init__, [self, default])
+
+        self.user_cfg   = user_cfg
 
         # read the ~/.troy.cfg, which uses ini format
         print 'read  troy cfg'
@@ -127,7 +138,11 @@ class Session (saga.Session) :
                 log_level  =  cfg['troy']['log_level']
                 troy._logger.setLevel (log_level)
 
-        saga.Session.__init__ (self, default)
+        troy._logger.critical ("session id: %s" % self.id)
+
+        import traceback
+        for line in traceback.format_stack():
+            print line.strip()
 
     # --------------------------------------------------------------------------
     #
@@ -181,6 +196,8 @@ class Session (saga.Session) :
 #
 class Context (saga.Context) : 
 
+    # --------------------------------------------------------------------------
+    #
     def __init__ (self, ctype) :
 
         self._apitype = 'saga.Context'

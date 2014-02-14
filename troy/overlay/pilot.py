@@ -16,7 +16,7 @@ Represent a pilot, as element of a troy.Overlay.
 
 # ------------------------------------------------------------------------------
 #
-class Pilot (tu.Properties) :
+class Pilot (tu.Properties, tu.Timed) :
     """
     """
 
@@ -24,20 +24,23 @@ class Pilot (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, param, _overlay=None, _instance_type=None) :
+    def __init__ (self, session, param, _overlay=None, _instance_type=None) :
         """
         Create a new pilot according to a description, or reconnect to with an ID.
 
         Each new pilot is assigned a new ID.
         """
 
+        self.session = session
+        self.overlay = _overlay
+
         if isinstance (param, basestring) :
-            pid       = param
+            self.id   = param
             descr     = troy.PilotDescription ()
             reconnect = True
 
         elif isinstance (param, troy.PilotDescription) :
-            pid       = ru.generate_id ('p.')
+            self.id   = ru.generate_id ('p.')
             descr     = param
             reconnect = False
 
@@ -46,6 +49,12 @@ class Pilot (tu.Properties) :
                              "description (troy.PilotDescription), not '%s'" \
                           % type(param))
 
+
+        tu.Timed.__init__            (self, 'troy.Pilot', self.id)
+        self.session.timed_component (self, 'troy.Pilot', self.id)
+
+        if  self.overlay :
+            self.overlay.timed_component (self, 'troy.Pilot', self.id)
 
         tu.Properties.__init__ (self, descr)
 
@@ -80,10 +89,8 @@ class Pilot (tu.Properties) :
         self.register_property ('affinity_machine_label')
          
         # initialize essential properties
-        self.id             = pid
         self.state          = DESCRIBED
         self.description    = descr
-        self.overlay        = _overlay
         self.resource       = None
 
         # FIXME: complete attribute list, dig properties from description,

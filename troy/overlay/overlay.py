@@ -17,7 +17,7 @@ Represent a pilot-based overlay that is managed by TROY.
 # -----------------------------------------------------------------------------
 #
 @ru.Lockable  # needed locks for the ru.Registry
-class Overlay (tu.Properties) :
+class Overlay (tu.Properties, tu.Timed) :
     """
     The `Overlay` class represents a resource overlay which is managed by Troy,
     i.e. in application and user space.  It contains a set of :class:`Pilots`, 
@@ -71,7 +71,7 @@ class Overlay (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, descr=None) :
+    def __init__ (self, session, descr=None) :
         """
         Create a new overlay instance, based on the given overlay description
 
@@ -82,14 +82,20 @@ class Overlay (tu.Properties) :
         instance.
         """
 
+        if  session : self.session = session
+        else:         self.session = troy.Session ()
+
         if  not descr :
             descr = troy.OverlayDescription ()
 
         if  isinstance (descr, dict) :
             descr = troy.OverlayDescription (descr)
         
-        ol_id = ru.generate_id ('ol.')
-        
+        self.id = ru.generate_id ('ol.')
+
+        tu.Timed.__init__            (self, 'troy.Overlay', self.id)
+        self.session.timed_component (self, 'troy.Overlay', self.id)
+
         tu.Properties.__init__ (self, descr)
 
         # register properties, initialize state
@@ -100,7 +106,6 @@ class Overlay (tu.Properties) :
         self.register_property ('manager')
 
         # initialize essential properties
-        self.id          = ol_id
         self.state       = DESCRIBED
         self.description = descr
         self.pilots      = dict()
@@ -146,7 +151,7 @@ class Overlay (tu.Properties) :
         if  not isinstance (p_descr, troy.PilotDescription) :
             raise TypeError ("expected PilotDescription, got %s" % type(p_descr))
 
-        p = troy.Pilot (p_descr, _overlay=self)
+        p = troy.Pilot (self.session, p_descr, _overlay=self)
 
         self.pilots[p.id] = p
 

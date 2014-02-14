@@ -10,7 +10,7 @@ import troy
 
 
 FGCONF    = 'https://raw.github.com/saga-project/saga-pilot/master/configs/futuregrid.json'
-TROY_CONF = "file://localhost/%s/resource.py" % os.path.dirname (troy.__file__)
+XSEDECONF = 'https://raw.github.com/saga-project/saga-pilot/master/configs/xsede.json'
 
 
 # ------------------------------------------------------------------------------
@@ -119,15 +119,17 @@ class PLUGIN_CLASS (troy.PluginBase):
 
                     break
 
-            pilot_descr.working_directory = "%s/troy_agents/" % home
+            # FIXME
+            pilot_descr.sandbox  = "%s/troy_agents/" % home
+            pilot_descr.runtime  = 300
             pilot_descr.queue    = queue
 
             pilot_descr.run_time = 300
 
             sp_um    = sp.UnitManager  (session   = self._sp, 
-                                              scheduler = 'direct_submission')
+                                        scheduler = 'direct_submission')
             sp_pm    = sp.PilotManager (session   = self._sp, 
-                                              resource_configurations = TROY_CONF)
+                                        resource_configurations = [FGCONF, XSEDECONF])
             sp_pilot = sp_pm.submit_pilots (pilot_descr)
 
 
@@ -177,24 +179,31 @@ class PLUGIN_CLASS (troy.PluginBase):
         # find out what we can about the pilot...
         [sp_um, sp_pm, sp_pilot] = pilot._get_instance ('sagapilot')
 
-        info = {
-                'uid'              : sp_pilot.uid, 
-                'description'      : sp_pilot.description, 
-                'state'            : sp_pilot.state, 
-                'state_details'    : sp_pilot.state_details, 
-                'resource_details' : sp_pilot.resource_details, 
-                'unit_ids'         : dict(),
-              # 'unit_ids'         : sp_pilot.units,  # FIXME
-              # 'unit_managers'    : sp_pilot.unit_managers, 
-                'pilot_manager'    : sp_pilot.pilot_manager, 
-                'submission_time'  : sp_pilot.submission_time, 
-                'start_time'       : sp_pilot.start_time, 
-                'stop_time'        : sp_pilot.stop_time}
+      # sp_pilot._attributes_dump ()
+
+        info = { 'uid'              : sp_pilot.uid, 
+                 'description'      : sp_pilot.description, 
+                 'state'            : sp_pilot.state, 
+                 'log'              : sp_pilot.log, 
+                 'resource_detail'  : sp_pilot.resource_detail, 
+                 'cores_per_node'   : sp_pilot.resource_detail['cores_per_node'],
+                 'nodes'            : sp_pilot.resource_detail['nodes'],
+                 'unit_ids'         : list(),
+               # 'unit_ids'         : sp_pilot.units,          # FIXME
+                 'unit_managers'    : list(),
+               # 'unit_managers'    : sp_pilot.unit_managers,  # FIXME
+                 'pilot_manager'    : sp_pilot.pilot_manager, 
+                 'submission_time'  : sp_pilot.submission_time, 
+                 'start_time'       : sp_pilot.start_time, 
+                 'stop_time'        : sp_pilot.stop_time, 
+             }
+
         
       # # FIXME
       # for sp_unit_id in sp_pilot.units :
       #     
-      #     unit = troy.ComputeUnit (_native_id=[sp_um.uid, sp_unit_id], 
+      #     unit = troy.ComputeUnit (pilot.session, 
+      #                              _native_id=[sp_um.uid, sp_unit_id], 
       #                              _pilot_id=pilot.id)
       #     info['units'][unit.id] = unit
  
@@ -208,6 +217,44 @@ class PLUGIN_CLASS (troy.PluginBase):
                           sp.states.FAILED   : FAILED, 
                           sp.states.UNKNOWN  : UNKNOWN}.get (sp_pilot.state, UNKNOWN)
  
+      # import pprint
+      # pprint.pprint (info)
+      #
+      # {'cores_per_node'   : 4,
+      #  'description'      : <sagapilot.compute_pilot_description.ComputePilotDescription object at 0x28d6a50>,
+      #  'nodes'            : [u'localhost'],
+      #  'pilot_manager'    : <sagapilot.pilot_manager.PilotManager object at 0x28d6e10>,
+      #  'resource_detail' : {'cores_per_node': 4, 'nodes': [u'localhost']},
+      #  'start_time'       : datetime.datetime(2014, 2, 5, 13, 4, 56, 145000),
+      #  'state'            : 'Provisioned',
+      #  'state_detail'    : [u"Created agent directory 'file://localhost/home/merzky/troy_agents/pilot-52f236e4f2291a42e669a2b0/'",
+      #                        u"Copied 'file://localhost//home/merzky/saga/troy/ve/bin/bootstrap-and-run-agent' script to agent directory",
+      #                        u"Copied 'file://localhost//home/merzky/saga/troy/ve/local/lib/python2.7/site-packages/sagapilot-0.4-py2.7.egg/sagapilot/agent/sagapilot-agent.py' script to agent directory",
+      #                        u"Pilot Job successfully submitted with JobID '[fork://localhost]-[20505]'"],
+      #  'stop_time'        : None,
+      #  'submission_time'  : datetime.datetime(2014, 2, 5, 13, 4, 42, 239000),
+      #  'uid'              : '52f236e4f2291a42e669a2b0',
+      #  'unit_ids'         : [],
+      #  'unit_managers'    : []}
+
+
+        # register sagapilot events when they have a valid time stamp.  This may
+        # register them multiple times though, but duplication is filtered out
+        # on time keeping level
+        if 'submission_time' in info and info['submission_time'] :
+            pilot.timed_event ('submission', 'sagapilot', info['submission_time'])
+
+        if 'start_time' in info and info['start_time'] :
+            pilot.timed_event ('start', 'sagapilot', info['start_time'])
+
+        if 'stop_time' in info and info['stop_time'] :
+            pilot.timed_event ('stop', 'sagapilot', info['stop_time'])
+
+        if 'state_detail' in info :
+            for state_detail in info['state_detail'] :
+                pilot.timed_event ('state_detail', ['sagapilot', state_detail], -1)
+
+
         return info
  
  

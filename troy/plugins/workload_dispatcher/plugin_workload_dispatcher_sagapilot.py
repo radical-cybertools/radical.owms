@@ -89,7 +89,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
                 # reconnect to the given pilot -- this is likely to pull the
                 # instance from a cache, so should not cost too much.
-                pilot      = troy.Pilot (pilot_id, _instance_type='sagapilot')
+                pilot      = troy.Pilot (self.session, pilot_id, _instance_type='sagapilot')
                 troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
                                 % (uid, pilot._get_instance('sagapilot')[1]))
                 
@@ -177,6 +177,27 @@ class PLUGIN_CLASS (troy.PluginBase):
                               sp.states.UNKNOWN  : UNKNOWN}.get (info['state'], UNKNOWN)
 
       # print 'unit_get_info: %s' % info
+        # unit_get_info: {'state_details'     : None, 
+        #                 'state'             : 'Done', 
+        #                 'uid'               : '52f22c8af2291a13649baf23', 
+        #                 'submission_time'   : datetime.datetime(2014, 2, 5, 12, 20, 26, 744000), 
+        #                 'execution_details' : [u'localhost:3'], 
+        #                 'stop_time'         : datetime.datetime(2014, 2, 5, 12, 20, 41, 890000), 
+        #                 'start_time'        : datetime.datetime(2014, 2, 5, 12, 20, 40, 884000), 
+        #                 'description'       : <sagapilot.compute_unit_description.ComputeUnitDescription object at 0x27ea990>}
+
+        # register sinon events when they have a valid time stamp.  This may
+        # register them multiple times though, but duplication is filtered out
+        # on time keeping level
+        if 'submission_time' in info and info['submission_time'] :
+            unit.timed_event ('submission', 'sinon', info['submission_time'])
+
+        if 'start_time' in info and info['start_time'] :
+            unit.timed_event ('start', 'sinon', info['start_time'])
+
+        if 'stop_time' in info and info['stop_time'] :
+            unit.timed_event ('stop', 'sinon', info['stop_time'])
+
 
         return info
 

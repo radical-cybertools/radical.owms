@@ -73,10 +73,10 @@ if __name__ == '__main__':
         task_descriptions.append (task_descr)
 
 
-    workload_id = workload_mgr.create_workload (task_descriptions)
+    workload = troy.Workload (task_descriptions)
 
     # execute the workload with the given execution strategy
-    troy.execute_workload (workload_id, planner, overlay_mgr, workload_mgr, strategy='basic')
+    troy.execute_workload (workload.id, planner, overlay_mgr, workload_mgr, strategy='basic')
 
     # Wohooo!  Magic has happened!
 

@@ -12,7 +12,7 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-class WorkloadManager (object) :
+class WorkloadManager (tu.Timed) :
     """
     The `WorkloadManager` class, as its name suggests, manages :class:`Workload`
     instances, i.e. translates, schedules and enacts those instances.
@@ -57,21 +57,19 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, inspector  = AUTOMATIC,
-                        translator = AUTOMATIC,
-                        scheduler  = AUTOMATIC,
-                        dispatcher = AUTOMATIC,
-                        session    = None) :
+    def __init__ (self, session     = None, 
+                        inspector   = AUTOMATIC,
+                        translator  = AUTOMATIC,
+                        scheduler   = AUTOMATIC,
+                        dispatcher  = AUTOMATIC) :
         """
         Create a new workload manager instance.
 
         Use default plugins if not indicated otherwise
         """
 
-        if  session :
-            self._session = session
-        else:
-            self._session = troy.Session ()
+        if  session : self.session = session
+        else:         self.session = troy.Session ()
 
         self._stager = None
 
@@ -86,6 +84,11 @@ class WorkloadManager (object) :
         self.plugins['dispatcher'] = dispatcher
 
         self._plugin_mgr = None
+
+        self.id = ru.generate_id ('wlm.')
+
+        tu.Timed.__init__             (self, 'troy.WorkloadManager', self.id)
+        self.session.timed_component  (self, 'troy.WorkloadManager', self.id)
 
 
     # --------------------------------------------------------------------------
@@ -130,10 +133,10 @@ class WorkloadManager (object) :
         if  not self._scheduler  : raise RuntimeError ("Could not load scheduler  plugin")
         if  not self._dispatcher : raise RuntimeError ("Could not load dispatcher plugin")
 
-        self._inspector .init_plugin (self._session)
-        self._translator.init_plugin (self._session)
-        self._scheduler .init_plugin (self._session)
-        self._dispatcher.init_plugin (self._session)
+        self._inspector .init_plugin (self.session)
+        self._translator.init_plugin (self.session)
+        self._scheduler .init_plugin (self.session)
+        self._dispatcher.init_plugin (self.session)
 
         troy._logger.info ("initialized  workload manager (%s)" % self.plugins)
 
@@ -178,7 +181,7 @@ class WorkloadManager (object) :
     # --------------------------------------------------------------------------
     #
     @classmethod
-    def get_workload (cls, workload_id) :
+    def get_workload (cls, workload_id, _manager=None) :
         """
         We don't care about locking at this point -- so we simply release the
         workload immediately...
@@ -206,10 +209,13 @@ class WorkloadManager (object) :
         if  not workload_id.startswith ('wl.') :
             raise ValueError ("'%s' does not represent a workload" % workload_id)
 
-        wl = ru.Registry.acquire (workload_id, ru.READONLY)
+        workload = ru.Registry.acquire (workload_id, ru.READONLY)
         ru.Registry.release (workload_id)
 
-        return wl
+        if  _manager :
+            _manager.timed_component (workload, 'troy.Workload', workload_id)
+
+        return workload
 
 
     # --------------------------------------------------------------------------
@@ -252,28 +258,6 @@ class WorkloadManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def create_workload (self, task_descriptions=None) :
-        """
-        Notes
-
-        . This methods breaks the design choice of having the planner as the
-          entry point to TROY - i.e. the interface with the application layer.
-          Following that design choice would require to move this method to
-          the planner. You can see the consequences of breaking the design in
-          the current demo: They create the workload by first instatiating
-          a workload manager. This should not be the case. They should
-          instantiate a planner.
-
-        """
-
-        workload = troy.Workload (task_descriptions)
-
-        return workload.id
-
-
-    # --------------------------------------------------------------------------
-    #
-    @tu.timeit
     def translate_workload (self, workload_id, overlay_id=None) :
         # FIXME: is empty overlay valid?
         """
@@ -287,8 +271,8 @@ class WorkloadManager (object) :
         """
 
 
-        workload = self.get_workload (workload_id)
-        overlay  = troy.OverlayManager.get_overlay (overlay_id)
+        workload = troy.WorkloadManager.get_workload (workload_id, _manager=self)
+        overlay  = troy.OverlayManager .get_overlay  (overlay_id,  _manager=self)
 
         # make sure the workflow is 'fresh', so we can translate it
         if  workload.state not in [DESCRIBED, PLANNED] :
@@ -299,19 +283,20 @@ class WorkloadManager (object) :
 
         # hand over control over workload to the translator plugin, so it can do
         # what it has to do.
-        self._translator.translate (workload, overlay)
+        workload.timed_method ('translate', [], 
+                               self._translator.translate, [workload, overlay])
+
 
         # mark workload as 'translated'
-        workload.state = TRANSLATED
+        workload._set_state (TRANSLATED)
 
         for partition_id in workload.partitions :
             partition = self.get_workload (partition_id)
-            partition.state = TRANSLATED
+            partition._set_state (TRANSLATED)
 
 
     # --------------------------------------------------------------------------
     #
-    @tu.timeit
     def bind_workload (self, workload_id, overlay_id, bind_mode=None) :
         """
         bind (schedule) the referenced workload, i.e. assign its components to
@@ -356,12 +341,11 @@ class WorkloadManager (object) :
 
         # hand over control over workload (and overlay) to the scheduler plugin,
         # so it can do what it has to do.
-        self._scheduler.schedule (workload, overlay)
-
+        workload.timed_method ('schedule', [overlay.id], 
+                               self._scheduler.schedule, [workload, overlay])
 
     # --------------------------------------------------------------------------
     #
-    @tu.timeit
     def dispatch_workload (self, workload_id, overlay_id) :
         """
         schedule the referenced workload, i.e. submit its Units to the
@@ -390,56 +374,56 @@ class WorkloadManager (object) :
 
         # hand over control over workload to the dispatcher plugin, so it can do
         # what it has to do.
-        self._dispatcher.dispatch (workload, overlay)
+        workload.timed_method ('dispatch', [overlay.id], 
+                               self._dispatcher.dispatch, [workload, overlay])
 
         # mark workload as 'scheduled'
-        workload.state = DISPATCHED
+        workload._set_state (DISPATCHED)
 
         for partition_id in workload.partitions :
             partition = self.get_workload (partition_id)
-            partition.state = DISPATCHED
+            partition._set_state (DISPATCHED)
 
 
     # --------------------------------------------------------------------------
     #
-    @tu.timeit
     def cancel_workload (self, workload_id) :
         """
         cancel the referenced workload, i.e. all its tasks
         """
 
         workload = self.get_workload (workload_id)
-        workload.cancel ()
+        workload.timed_method ('cancel', [], workload.cancel)
 
 
     # --------------------------------------------------------------------------
     #
-    @tu.timeit
     def stage_in_workload (self, workload_id) :
         """
         trigger stage-in for all workload tasks
         """
 
         if  not self._stager :
-            self._stager = troy.DataStager (self._session)
+            self._stager = troy.DataStager (self.session)
 
         workload = self.get_workload (workload_id)
-        self._stager.stage_in_workload (workload)
+        workload.timed_method ('stage_in_workload', [], 
+                               self._stager.stage_in_workload, [workload])
 
 
     # --------------------------------------------------------------------------
     #
-    @tu.timeit
     def stage_out_workload (self, workload_id) :
         """
         trigger stage-out for all workload tasks
         """
 
         if  not self._stager :
-            self._stager = troy.DataStager (self._session)
+            self._stager = troy.DataStager (self.session)
 
         workload = self.get_workload (workload_id)
-        self._stager.stage_out_workload (workload)
+        workload.timed_method ('stage_out_workload', [], 
+                               self._stager.stage_out_workload, [workload])
 
 
 # ------------------------------------------------------------------------------

@@ -14,7 +14,7 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-class Planner(object):
+class Planner(tu.Timed):
     """
     The `Planner` class represents the upper layer, i.e. the application facing
     layer, of Troy, and thus hosts the API that ultimately will be used by end
@@ -30,18 +30,21 @@ class Planner(object):
 
     # --------------------------------------------------------------------------
     #
-    def __init__(self, planner = AUTOMATIC,
-                       session = None):
+    def __init__(self, session=None, planner=AUTOMATIC) :
         """
         Create a new planner instance for this workload.
 
         Use the default planner plugin if not indicated otherwise
         """
 
-        if  session :
-            self._session = session
-        else:
-            self._session = troy.Session ()
+        if  session : self.session = session
+        else:         self.session = troy.Session ()
+
+
+        self.id = ru.generate_id ('planner.')
+
+        tu.Timed.__init__            (self, 'troy.Planner', self.id)
+        self.session.timed_component (self, 'troy.Planner', self.id)
 
         self.plugins = dict ()
         self.plugins['planner' ] = planner
@@ -72,14 +75,13 @@ class Planner(object):
         if  not self._planner :
             raise RuntimeError ("Could not load planner plugin")
 
-        self._planner.init_plugin (self._session)
+        self._planner.init_plugin (self.session)
 
         troy._logger.info ("initialized  planner (%s)" % self.plugins)
 
 
     # --------------------------------------------------------------------------
     #
-    @tu.timeit
     def derive_overlay (self, workload_id):
         """
         create overlay plan (description) from workload.
@@ -124,6 +126,8 @@ class Planner(object):
         # Get the workload from the repo
         workload = troy.WorkloadManager.get_workload(workload_id)
 
+        self.timed_component (workload, 'troy.Workload', workload.id)
+
         # Workload doesn't need to be PLANNED, but if it is only DESCRIBED,
         # it can't be parametrized.
         if  workload.state not in [PLANNED, DESCRIBED]:
@@ -137,7 +141,8 @@ class Planner(object):
         self._init_plugins (workload)
 
         # derive overlay from workload
-        overlay_descr = self._planner.derive_overlay (workload)
+        overlay_descr = workload.timed_method ('derive_overlay', [], 
+                                               self._planner.derive_overlay, [workload])
 
         # mark the origin of the overlay description
         overlay_descr['workload_id'] = workload_id
@@ -147,7 +152,6 @@ class Planner(object):
 
     # --------------------------------------------------------------------------
     #
-    @tu.timeit
     def expand_workload(self, workload_id):
         """
         Expand cardinality parameters in workload.
@@ -162,6 +166,8 @@ class Planner(object):
         # Get the workload from the repo
         workload = troy.WorkloadManager.get_workload(workload_id)
 
+        self.timed_component (workload, 'troy.Workload', workload.id)
+
         # make sure the workflow is 'fresh', so we can translate it
         if workload.state != DESCRIBED:
             raise ValueError("workload '%s' not in DESCRIBED state" %
@@ -170,7 +176,8 @@ class Planner(object):
         self._init_plugins (workload)
 
         # Expand (optional) cardinality in workload
-        self._planner.expand_workload(workload)
+        workload.timed_method ('expand', [], 
+                               self._planner.expand_workload, [workload])
 
         # Workload is now ready to go to the workload manager
         workload.state = PLANNED
