@@ -14,12 +14,12 @@ import troy
 import getpass
 
 
-PLUGIN_PLANNER              = 'concurrent'
+PLUGIN_OVERLAY_DERIVE       = 'concurrent'
 PLUGIN_OVERLAY_SCHEDULER    = 'round_robin'
 PLUGIN_OVERLAY_TRANSLATOR   = troy.AUTOMATIC
-PLUGIN_OVERLAY_PROVISIONER  = 'bigjob_pilot'
+PLUGIN_OVERLAY_PROVISIONER  = 'sagapilot'
 PLUGIN_WORKLOAD_SCHEDULER   = troy.AUTOMATIC
-PLUGIN_WORKLOAD_DISPATCHER  = 'bigjob_pilot' # troy.AUTOMATIC # 'sinon'
+PLUGIN_WORKLOAD_DISPATCHER  = 'sagapilot'
 
 WORKDIR                     = '/N/u/merzky/troy_demo/'
 WORKDIR                     = '/home/merzky/troy_demo/'
@@ -57,11 +57,19 @@ if __name__ == '__main__' :
     radical_oldfarts = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner']
 
     # create a session with custom config options
-    session = troy.Session ({'concurrent_planner' : {'concurrency' : '100'}})
+    session = troy.Session ({
+        'planner' : {
+            'derive' : { 
+                'concurrent' : {
+                    'concurrency' : '100'
+                    }
+                }
+            }
+        })
 
     # create planner, overlay and workload manager, with plugins as configured
     planner      = troy.Planner         (session     = session                   ,
-                                         planner     = PLUGIN_PLANNER            )
+                                         derive      = PLUGIN_OVERLAY_DERIVE     )
     workload_mgr = troy.WorkloadManager (session     = session                   ,
                                          scheduler   = PLUGIN_WORKLOAD_SCHEDULER , 
                                          dispatcher  = PLUGIN_WORKLOAD_DISPATCHER)

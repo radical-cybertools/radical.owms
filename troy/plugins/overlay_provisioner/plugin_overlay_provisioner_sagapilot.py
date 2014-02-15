@@ -91,10 +91,10 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             # translate information into sagapilot speak
             pilot_descr          = sp.ComputePilotDescription()
-            pilot_descr.resource = troy_pilot.resource
             pilot_descr.cores    = troy_pilot.description['size']
 
-            resource_url = saga.Url (troy_pilot.resource)
+            # set some stupid defaults in case we don't find a resource config
+            resource_url = saga.Url (troy_pilot.resource)  
             userid       = getpass.getuser()
             home         = os.environ['HOME']
             queue        = None
@@ -103,28 +103,36 @@ class PLUGIN_CLASS (troy.PluginBase):
             troy._logger.info ('overlay  provision: provision   pilot  %s : %s ' \
                             % (pid, resource_url))
 
-            # FIXME: 
-            for key in self.global_cfg.keys () :
+            # resources are in fact URLs -- but sagapilot uses only hostnames as
+            # keys.  So we check if the URL is well formed and attempt to
+            # extract the host
+            try :
+                resource = saga.Url (troy_pilot.resource).host
 
-                if  key.startswith ('compute:')        and \
-                    'sagapilot_id' in self.global_cfg[key] and \
-                    self.global_cfg[key]['endpoint'] == resource_url.host :
+            except SagaException as e :
+                resource = troy_pilot.resource
+                troy._logger.warn ("cannot parse host from url '%s'" % resource)
 
-                    pilot_descr.resource = self.global_cfg[key]['sagapilot_id']
+            # we also look through the troy resource configs to see if we can
+            # dig default queue and walltime out of it
+            resource_cfg = self.session.get_config ('resources')
+            print resource_cfg
+            if  resource in resource_cfg :
+                print resource_cfg[resource]
+                userid   = resource_cfg[resource].get ('username', userid)
+                home     = resource_cfg[resource].get ('home',     home)
+                queue    = resource_cfg[resource].get ('queue',    queue)
+                print walltime
+                walltime = resource_cfg[resource].get ('walltime', walltime)
+                print walltime
+            else :
+                troy._logger.warn ("no resource config for '%s'" % resource)
 
-                    userid   = self.global_cfg[key].get ('username', userid)
-                    home     = self.global_cfg[key].get ('home',     home)
-                    queue    = self.global_cfg[key].get ('queue',    queue)
-                    walltime = self.global_cfg[key].get ('walltime', walltime)
-
-                    break
 
             # FIXME
-            pilot_descr.sandbox  = "%s/troy_agents/" % home
-            pilot_descr.runtime  = 300
+            pilot_descr.resource = resource
+            pilot_descr.runtime  = walltime
             pilot_descr.queue    = queue
-
-            pilot_descr.run_time = 300
 
             sp_um    = sp.UnitManager  (session   = self._sp, 
                                         scheduler = 'direct_submission')
@@ -211,7 +219,6 @@ class PLUGIN_CLASS (troy.PluginBase):
         # hahaha python switch statement hahahahaha
         info['state'] =  {sp.states.PENDING  : PROVISIONED, 
                           sp.states.RUNNING  : PROVISIONED, 
-                          sp.states.ACTIVE   : PROVISIONED, 
                           sp.states.DONE     : COMPLETED, 
                           sp.states.CANCELED : CANCELED, 
                           sp.states.FAILED   : FAILED, 

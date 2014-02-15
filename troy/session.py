@@ -42,35 +42,35 @@ def _format_log_level (log_level) :
 # permitted, such as for the dispatcher plugins.
 
 _troy_config_skeleton = {
-        'log_level'           : int( 0),
-        'resource_config'     : None,
-        'planner'             : {
-            'planner'         : dict(),
+        'log_level'                : int( 0),
+        'resource_config'          : None,
+        'planner'                : {
+            'expand'               : dict(),
+            'derive'               : dict(),
         },
-        'overlay_manager'     : {
-            'dispatcher'      : dict(),
-            'provisioner'     : dict(),
-            'scheduler'       : dict(),
-            'transformer'     : dict(),
-            'translator'      : dict(),
+        'overlay_manager'        : {
+            'overlay_dispatcher'   : dict(),
+            'overlay_provisioner'  : dict(),
+            'overlay_scheduler'    : dict(),
+            'overlay_transformer'  : dict(),
+            'overlay_translator'   : dict(),
         },
-        'workload_manager'    : {
-            'dispatcher'      : dict(),
-            'inspector'       : dict(),
-            'scheduler'       : dict(),
-            'transformer'     : dict(),
-            'translator'      : dict(),
+        'workload_manager'       : {
+            'workload_dispatcher'  : dict(),
+            'workload_scheduler'   : dict(),
+            'workload_transformer' : dict(),
+            'workload_translator'  : dict(),
         },
-        'resources'           : dict(),
-        'application'         : dict(),
+        'resources'                : dict(),
+        'application'              : dict(),
     }
 
 
 _resource_config_skeleton = {
-        'type'                : list(),
-        'home'                : None,
-        'queue'               : None,
-        'walltime'            : int(0)
+        'type'      : list(),
+        'home'      : None,
+        'queue'     : None,
+        'walltime'  : int(60*24) # default: 1 day
     }
 
 
@@ -105,7 +105,7 @@ class Session (saga.Session, tu.Timed) :
         # the user config is passed as python dict, and merged into the config.
         print 'merge user cfg'
         print user_cfg
-        ru.dict_merge (self.cfg, user_cfg, merge_policy='overwrite')
+        ru.dict_merge (self.cfg, user_cfg, policy='overwrite')
         self._check_config ()
 
 
@@ -119,15 +119,14 @@ class Session (saga.Session, tu.Timed) :
 
         # if the troy.cfg also has a user specified resource config, read that
         # and merge it in
-        if  'resource_config' in self.cfg and \
-            self.cfg['resource_config']   :
+        if  'resource_config' in self.cfg and self.cfg['resource_config'] :
 
             print 'merge ursc cfg'
             resource_user_cfg_file = self.cfg['resource_config']
             print 'merge ursc cfg %s' % resource_user_cfg_file
             resource_user_cfg      = ru.read_json_str (resource_user_cfg_file)
             ru.dict_merge (self.cfg['resources'], resource_user_cfg, 
-                           merge_policy='overwrite')
+                           policy='overwrite')
             self._check_config ()
 
 
@@ -157,18 +156,29 @@ class Session (saga.Session, tu.Timed) :
         current_cfg  = self.cfg
         current_path = 'troy'
 
-        for elem in path :
+        for idx, elem in enumerate(path) :
+
             if  not elem in current_cfg :
+                # if this is the last path element, return an empty dict
+                if  idx == len(path)-1 :
+                    return dict()
+
+                print elem
+                print current_cfg.keys()
+                pprint.pprint (self.cfg)
                 raise RuntimeError ('no config "%s" beneath %s' \
                         % (':'.join (path), current_path))
 
-            if  not istinstance (current_cfg[elem], dict) :
+            if  not isinstance (current_cfg[elem], dict) :
+                print elem
+                print current_cfg.keys()
                 raise TypeError ('no config dict "%s" beneath %s' \
                         % (':'.join (path), current_path))
 
-            current_config = current_config[elem]
+            current_cfg = current_cfg[elem]
+            current_path = '%s:%s' % (current_path, elem)
 
-        return current_config
+        return current_cfg
 
 
     # --------------------------------------------------------------------------
@@ -183,10 +193,11 @@ class Session (saga.Session, tu.Timed) :
         ru.dict_merge (self.cfg, _troy_config_skeleton)
 
         # we know know we have a resource dict -- handle all resource configs
-        # simmilarly: merge with skeleton to ensure completeness...
+        # simmilarly: merge conservatively with skeleton to ensure completeness...
         for res_name in self.cfg['resources'] :
             ru.dict_merge (self.cfg['resources'][res_name], 
-                           _resource_config_skeleton)
+                           _resource_config_skeleton, 
+                           policy='preserve')
 
         print "-----------------------------"
         pprint.pprint (self.cfg)

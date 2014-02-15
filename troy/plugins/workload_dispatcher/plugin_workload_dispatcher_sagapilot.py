@@ -112,7 +112,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
 
                 # FIXME: sanity check for pilot type
-                [sp_um, sp_pm, sp_pilot] = pilot._get_instance ('sp')
+                [sp_um, sp_pm, sp_pilot] = pilot._get_instance ('sagapilot')
                 sp_cu = sp_um.submit_units (sp_cu_descr)
 
                 # attach the backend instance to the unit, for later state
@@ -168,13 +168,14 @@ class PLUGIN_CLASS (troy.PluginBase):
         # translate sagapilot state to troy state
         if  'state' in info :
             # hahaha python switch statement hahahahaha
-            info['state'] =  {sp.states.PENDING  : PENDING, 
-                              sp.states.RUNNING  : RUNNING, 
-                              sp.states.ACTIVE   : RUNNING, 
-                              sp.states.DONE     : DONE, 
-                              sp.states.CANCELED : CANCELED, 
-                              sp.states.FAILED   : FAILED, 
-                              sp.states.UNKNOWN  : UNKNOWN}.get (info['state'], UNKNOWN)
+            info['state'] =  {sp.states.PENDING             : PENDING, 
+                              sp.states.TRANSFERRING_INPUT  : RUNNING, 
+                              sp.states.RUNNING             : RUNNING, 
+                              sp.states.TRANSFERRING_OUTPUT : RUNNING, 
+                              sp.states.DONE                : DONE, 
+                              sp.states.CANCELED            : CANCELED, 
+                              sp.states.FAILED              : FAILED, 
+                              sp.states.UNKNOWN             : UNKNOWN}.get (info['state'], UNKNOWN)
 
       # print 'unit_get_info: %s' % info
         # unit_get_info: {'state_details'     : None, 

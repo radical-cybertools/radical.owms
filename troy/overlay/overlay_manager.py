@@ -52,7 +52,6 @@ class OverlayManager (tu.Timed) :
     # --------------------------------------------------------------------------
     #
     def __init__ (self, session     = None, 
-                        inspector   = AUTOMATIC,
                         translator  = AUTOMATIC,
                         scheduler   = AUTOMATIC,
                         provisioner = AUTOMATIC) :
@@ -72,7 +71,6 @@ class OverlayManager (tu.Timed) :
         # wants to alter / complete the plugin selection
 
         self.plugins = dict ()
-        self.plugins['inspector' ]  = inspector
         self.plugins['translator']  = translator
         self.plugins['scheduler' ]  = scheduler
         self.plugins['provisioner'] = provisioner
@@ -99,8 +97,6 @@ class OverlayManager (tu.Timed) :
 
         # for each plugin set to 'AUTOMATIC', do the clever thing
         #
-        if  self.plugins['inspector' ]  == AUTOMATIC :
-            self.plugins['inspector' ]  = 'reflect'
         if  self.plugins['translator']  == AUTOMATIC :
             self.plugins['translator']  = 'max_pilot_size'
         if  self.plugins['scheduler' ]  == AUTOMATIC :
@@ -119,20 +115,17 @@ class OverlayManager (tu.Timed) :
         self._plugin_mgr  = ru.PluginManager ('troy')
 
         # FIXME: error handling
-        self._inspector   = self._plugin_mgr.load ('overlay_inspector',   self.plugins['inspector'  ])
         self._translator  = self._plugin_mgr.load ('overlay_translator',  self.plugins['translator' ])
         self._scheduler   = self._plugin_mgr.load ('overlay_scheduler',   self.plugins['scheduler'  ])
         self._provisioner = self._plugin_mgr.load ('overlay_provisioner', self.plugins['provisioner'])
 
-        if  not self._inspector   : raise RuntimeError ("Could not load inspector   plugin")
         if  not self._translator  : raise RuntimeError ("Could not load translator  plugin")
         if  not self._scheduler   : raise RuntimeError ("Could not load scheduler   plugin")
         if  not self._provisioner : raise RuntimeError ("Could not load provisioner plugin")
 
-        self._inspector  .init_plugin (self.session)
-        self._translator .init_plugin (self.session)
-        self._scheduler  .init_plugin (self.session)
-        self._provisioner.init_plugin (self.session)
+        self._translator .init_plugin (self.session, 'overlay_manager')
+        self._scheduler  .init_plugin (self.session, 'overlay_manager')
+        self._provisioner.init_plugin (self.session, 'overlay_manager')
 
         troy._logger.info ("initialized  overlay manager (%s)" % self.plugins)
 

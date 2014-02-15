@@ -17,10 +17,6 @@ class WorkloadManager (tu.Timed) :
     The `WorkloadManager` class, as its name suggests, manages :class:`Workload`
     instances, i.e. translates, schedules and enacts those instances.
 
-    The internal state of the workload manager is not open for inspection -- but
-    the workloads it manages can be exposed for inspection, on request
-    (:func:`inspect_workload()`).
-
     FIXME: how are race conditions handled -- like, a workload is scheduled on
     an overlay, but before dispatching, a pilot in that overlay disappears?
     I guess we should add the option to schedule a single unit, or reschedule
@@ -44,9 +40,6 @@ class WorkloadManager (tu.Timed) :
         agree, the tasks in state done should be disregarded)
       - enact the scheduling map on the new (pilots of an) overlay.
 
-    . The workload should be open to inspection only to the components of TROY,
-      to to the application layer.
-
     """
 
     # FIXME: state checks ignore PLANNED state...
@@ -58,7 +51,6 @@ class WorkloadManager (tu.Timed) :
     # --------------------------------------------------------------------------
     #
     def __init__ (self, session     = None, 
-                        inspector   = AUTOMATIC,
                         translator  = AUTOMATIC,
                         scheduler   = AUTOMATIC,
                         dispatcher  = AUTOMATIC) :
@@ -78,7 +70,6 @@ class WorkloadManager (tu.Timed) :
         # wants to alter / complete the plugin selection
 
         self.plugins = dict ()
-        self.plugins['inspector' ] = inspector
         self.plugins['translator'] = translator
         self.plugins['scheduler' ] = scheduler
         self.plugins['dispatcher'] = dispatcher
@@ -108,8 +99,6 @@ class WorkloadManager (tu.Timed) :
         #       changed scheduler to round_robin because first kind of drug
         #       every run with multiple pilots. This is bad(tm).
 
-        if  self.plugins['inspector' ]  == AUTOMATIC :
-            self.plugins['inspector' ]  = 'reflect'
         if  self.plugins['translator']  == AUTOMATIC :
             self.plugins['translator']  = 'direct'
         if  self.plugins['scheduler' ]  == AUTOMATIC :
@@ -123,20 +112,17 @@ class WorkloadManager (tu.Timed) :
         self._plugin_mgr = ru.PluginManager ('troy')
 
         # FIXME: error handling
-        self._inspector  = self._plugin_mgr.load  ('workload_inspector',  self.plugins['inspector' ])
         self._translator = self._plugin_mgr.load  ('workload_translator', self.plugins['translator'])
         self._scheduler  = self._plugin_mgr.load  ('workload_scheduler',  self.plugins['scheduler' ])
         self._dispatcher = self._plugin_mgr.load  ('workload_dispatcher', self.plugins['dispatcher'])
 
-        if  not self._inspector  : raise RuntimeError ("Could not load inspector  plugin")
         if  not self._translator : raise RuntimeError ("Could not load translator plugin")
         if  not self._scheduler  : raise RuntimeError ("Could not load scheduler  plugin")
         if  not self._dispatcher : raise RuntimeError ("Could not load dispatcher plugin")
 
-        self._inspector .init_plugin (self.session)
-        self._translator.init_plugin (self.session)
-        self._scheduler .init_plugin (self.session)
-        self._dispatcher.init_plugin (self.session)
+        self._translator.init_plugin (self.session, 'workload_manager')
+        self._scheduler .init_plugin (self.session, 'workload_manager')
+        self._dispatcher.init_plugin (self.session, 'workload_manager')
 
         troy._logger.info ("initialized  workload manager (%s)" % self.plugins)
 

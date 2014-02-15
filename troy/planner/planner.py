@@ -14,7 +14,7 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-class Planner(tu.Timed):
+class Planner (tu.Timed) :
     """
     The `Planner` class represents the upper layer, i.e. the application facing
     layer, of Troy, and thus hosts the API that ultimately will be used by end
@@ -30,7 +30,7 @@ class Planner(tu.Timed):
 
     # --------------------------------------------------------------------------
     #
-    def __init__(self, session=None, planner=AUTOMATIC) :
+    def __init__ (self, session=None, expand=AUTOMATIC, derive=AUTOMATIC) :
         """
         Create a new planner instance for this workload.
 
@@ -47,7 +47,8 @@ class Planner(tu.Timed):
         self.session.timed_component (self, 'troy.Planner', self.id)
 
         self.plugins = dict ()
-        self.plugins['planner' ] = planner
+        self.plugins['expand' ] = expand
+        self.plugins['derive' ] = derive
 
         self._plugin_mgr = None
 
@@ -64,18 +65,25 @@ class Planner(tu.Timed):
       # troy._logger.debug ("initializing planner (%s)" % self.plugins)
 
         # for each plugin set to 'AUTOMATIC', do the clever thing
-        if  self.plugins['planner' ]  == AUTOMATIC :
-            self.plugins['planner' ]  = 'maxcores'
+        if  self.plugins['derive' ]  == AUTOMATIC :
+            self.plugins['derive' ]  = 'maxcores'
+        if  self.plugins['expand' ]  == AUTOMATIC :
+            self.plugins['expand' ]  = 'noop'
 
 
         # load plugins
         self._plugin_mgr = ru.PluginManager ('troy')
-        self._planner    = self._plugin_mgr.load ('planner', self.plugins['planner'])
+        self._expand     = self._plugin_mgr.load ('expand', self.plugins['expand'])
+        self._derive     = self._plugin_mgr.load ('derive', self.plugins['derive'])
 
-        if  not self._planner :
-            raise RuntimeError ("Could not load planner plugin")
+        if  not self._expand :
+            raise RuntimeError ("Could not load planner workload_expand plugin")
 
-        self._planner.init_plugin (self.session)
+        if  not self._derive :
+            raise RuntimeError ("Could not load planner overlay_derive plugin")
+
+        self._expand.init_plugin (self.session, 'planner')
+        self._derive.init_plugin (self.session, 'planner')
 
         troy._logger.info ("initialized  planner (%s)" % self.plugins)
 
@@ -142,7 +150,7 @@ class Planner(tu.Timed):
 
         # derive overlay from workload
         overlay_descr = workload.timed_method ('derive_overlay', [], 
-                                               self._planner.derive_overlay, [workload])
+                                               self._derive.derive_overlay, [workload])
 
         # mark the origin of the overlay description
         overlay_descr['workload_id'] = workload_id
@@ -152,7 +160,7 @@ class Planner(tu.Timed):
 
     # --------------------------------------------------------------------------
     #
-    def expand_workload(self, workload_id):
+    def expand_workload (self, workload_id):
         """
         Expand cardinality parameters in workload.
 
@@ -177,7 +185,7 @@ class Planner(tu.Timed):
 
         # Expand (optional) cardinality in workload
         workload.timed_method ('expand', [], 
-                               self._planner.expand_workload, [workload])
+                               self._expand.expand_workload, [workload])
 
         # Workload is now ready to go to the workload manager
         workload.state = PLANNED
