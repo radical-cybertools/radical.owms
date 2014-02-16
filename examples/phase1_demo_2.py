@@ -101,12 +101,6 @@ if __name__ == '__main__' :
     # make sure the overlay is properly represented by pilots
     overlay_mgr.translate_overlay   (overlay.id)
 
-    # ----
-    overlay_mgr.schedule_overlay   (overlay.id)
-    overlay_mgr.provision_overlay  (overlay.id)
-    sys.exit(0)
-    # ----
-
 
     # Translate 1 workload into N tasks and then M ComputeUnits, and bind them 
     # to specific pilots (which are not yet running, thus early binding)
