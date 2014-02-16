@@ -31,9 +31,13 @@ class Session (saga.Session, tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, cfg={}, default=True) :
+    def __init__ (self, cfg={}, default=True, tag=None) :
 
-        self.id = ru.generate_id ('session.', mode=ru.ID_UNIQUE)
+        stub = 'session.'
+        if  tag :
+            stub = 'session.%s.' % tag
+
+        self.id = ru.generate_id (stub, mode=ru.ID_UNIQUE)
         
         tu.Timed.__init__ (self, 'troy.Session', self.id)
         self.timed_method ('saga.Session', ['init'],  
