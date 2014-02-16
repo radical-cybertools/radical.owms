@@ -370,13 +370,7 @@ class WorkloadManager (tu.Timed) :
                 ru.dict_merge (unit.description, resource_cfg, policy='preserve')
 
                 # expand values with resource config settings
-                for key, val in unit.description.iteritems() :
-                    if  isinstance (val, basestring) :
-                        # allow three levels of nesting.  There must be a better
-                        # way... *scraytch*
-                        unit.description[key] = unit.description[key] % resource_cfg
-                        unit.description[key] = unit.description[key] % resource_cfg
-                        unit.description[key] = unit.description[key] % resource_cfg
+                ru.dict_stringexpand (unit.description, resource_cfg)
 
 
       # # we don't really know if the dispatcher plugin will perform the

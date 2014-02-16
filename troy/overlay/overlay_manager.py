@@ -297,12 +297,7 @@ class OverlayManager (tu.Timed) :
             ru.dict_merge (pilot.description, resource_cfg, policy='preserve')
 
             # expand values with resource config settings
-            for key, val in pilot.description.iteritems() :
-                if  isinstance (val, basestring) :
-                    pilot.description[key] = val % resource_cfg
-
-            import pprint
-            pprint.pprint (pilot.description)
+            ru.dict_stringexpand (pilot.description, resource_cfg)
 
 
         # hand over control over overlay to the provisioner plugin, so it can do

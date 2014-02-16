@@ -244,8 +244,8 @@ class Session (saga.Session, tu.Timed) :
                            _resource_config_skeleton, 
                            policy='preserve')
 
-        print "-----------------------------"
-        pprint.pprint (self.cfg)
+      # print "-----------------------------"
+      # pprint.pprint (self.cfg)
 
 
 # ------------------------------------------------------------------------------
