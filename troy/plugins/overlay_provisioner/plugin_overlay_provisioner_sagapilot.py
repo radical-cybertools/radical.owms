@@ -94,39 +94,23 @@ class PLUGIN_CLASS (troy.PluginBase):
             pilot_descr.cores    = troy_pilot.description['size']
 
             # set some stupid defaults in case we don't find a resource config
-            resource_url = saga.Url (troy_pilot.resource)  
-            userid       = getpass.getuser()
+            username     = getpass.getuser()
             home         = os.environ['HOME']
             queue        = None
             walltime     = 24 * 60 # 1 day as default
 
             troy._logger.info ('overlay  provision: provision   pilot  %s : %s ' \
-                            % (pid, resource_url))
+                            % (pid, resource))
 
-            # resources are in fact URLs -- but sagapilot uses only hostnames as
-            # keys.  So we check if the URL is well formed and attempt to
-            # extract the host
-            try :
-                resource = saga.Url (troy_pilot.resource).host
+            # get troys idea of resource configuration
+            resource_cfg = self.session.get_resource_config (troy_pilot.resource)
+            username = resource_cfg.get ('username', username)
+            home     = resource_cfg.get ('home',     home)
+            queue    = resource_cfg.get ('queue',    queue)
+            walltime = resource_cfg.get ('walltime', walltime)
 
-            except SagaException as e :
-                resource = troy_pilot.resource
-                troy._logger.warn ("cannot parse host from url '%s'" % resource)
-
-            # we also look through the troy resource configs to see if we can
-            # dig default queue and walltime out of it
-            resource_cfg = self.session.get_config ('resources')
-            print resource_cfg
-            if  resource in resource_cfg :
-                print resource_cfg[resource]
-                userid   = resource_cfg[resource].get ('username', userid)
-                home     = resource_cfg[resource].get ('home',     home)
-                queue    = resource_cfg[resource].get ('queue',    queue)
-                print walltime
-                walltime = resource_cfg[resource].get ('walltime', walltime)
-                print walltime
-            else :
-                troy._logger.warn ("no resource config for '%s'" % resource)
+            # we apply username to home dir template
+            home     = home % resource_cfg
 
 
             # FIXME
@@ -139,7 +123,6 @@ class PLUGIN_CLASS (troy.PluginBase):
             sp_pm    = sp.PilotManager (session   = self._sp, 
                                         resource_configurations = [FGCONF, XSEDECONF])
             sp_pilot = sp_pm.submit_pilots (pilot_descr)
-
 
             sp_um.add_pilots (sp_pilot)
 

@@ -2,21 +2,21 @@
 {
     "*.futuregrid.org" : {
         "type"     : ["pbs+ssh", "ssh"],
-        "home"     : "/N/u/%(user)s/",
+        "home"     : "/N/u/%(username)s/",
         "queue"    : "interactive",
         "walltime" : 600
     },
         
     "stampede.tacc.utexas.edu" : {
         "type"     : ["slurm+ssh", "ssh"],
-        "home"     : "/N/u/%(user)s/",
+        "home"     : "/N/u/%(username)s/",
         "queue"    : "batch",
         "walltime" : 600
     },
         
     "localhost"    : {
         "type"     : ["ssh", "fork"],
-        "home"     : "/home/%(user)s/"
+        "home"     : "/home/%(username)s/"
     }
 }
 

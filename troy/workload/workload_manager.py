@@ -353,6 +353,32 @@ class WorkloadManager (tu.Timed) :
         # make sure manager is initialized
         self._init_plugins ()
 
+        # now that the units are bound and about to be dispatched, we can fix the
+        # resource placeholders in the unit descriptions
+        for (task_id, task) in workload.tasks.iteritems() :
+            for (unit_id, unit) in task.units.iteritems() :
+
+                # get troys idea of resource configuration
+                pilot_id     = unit.pilot_id
+                pilot        = troy.Pilot (self.session, pilot_id)
+                resource_cfg = self.session.get_resource_config (pilot.resource)
+
+                for key, val in resource_cfg.iteritems() :
+                    print "%s\t: %s" % (key, val)
+
+                # and merge it conservatively into the pilot config
+                ru.dict_merge (unit.description, resource_cfg, policy='preserve')
+
+                # expand values with resource config settings
+                for key, val in unit.description.iteritems() :
+                    if  isinstance (val, basestring) :
+                        # allow three levels of nesting.  There must be a better
+                        # way... *scraytch*
+                        unit.description[key] = unit.description[key] % resource_cfg
+                        unit.description[key] = unit.description[key] % resource_cfg
+                        unit.description[key] = unit.description[key] % resource_cfg
+
+
       # # we don't really know if the dispatcher plugin will perform the
       # # stage-in operations in time - so we trigger it manually here.
       # # Eventually, this should get a new task state (same for stage-out)

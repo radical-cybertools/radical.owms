@@ -84,42 +84,14 @@ class PLUGIN_CLASS (troy.PluginBase):
                 raise RuntimeError ("Can only provision pilots in BOUND state (%s)" % troy_pilot.state)
 
             # translate information into bigjob speak
-            pilot_descr                     = pilot_module.PilotComputeDescription ()
-            pilot_descr.service_url         = troy_pilot.resource
+            pilot_descr  = pilot_module.PilotComputeDescription ()
+          # pilot_descr.service_url         = troy_pilot.resource
             pilot_descr.number_of_processes = troy_pilot.description['size']
-            pilot_descr.walltime            = troy_pilot.description['wall_time']
+            pilot_descr.walltime            = troy_pilot.description['walltime']
+            pilot_descr.resource_url        = troy_pilot.resource
+            pilot_descr.working_directory   = "%s/troy_agents/" % troy_pilot.description['home']
+            pilot_descr.queue               = troy_pilot.description['queue']
 
-            # FIXME: HACK
-            pilot_descr.queue               = self.cfg.get ('queue', None)
-            pilot_descr.walltime            = 300
-
-            resource_url = saga.Url (troy_pilot.resource)
-            userid       = getpass.getuser()
-            home         = None
-            queue        = None
-            walltime     = 24 * 60 # 1 day as default
-
-            for key in self.troy_cfg.keys () :
-
-                if  key.startswith ('compute:')        and \
-                    'endpoint' in self.troy_cfg[key] and \
-                    self.troy_cfg[key]['endpoint']  == resource_url.host :
-
-                    userid   = self.troy_cfg[key].get ('username', userid)
-                    home     = self.troy_cfg[key].get ('home',     home)
-                    queue    = self.troy_cfg[key].get ('queue',    queue)
-                    walltime = self.troy_cfg[key].get ('walltime', walltime)
-
-                    break
-
-            if  not home :
-                troy._logger.error ("no home dir in config for bj on %s" % resource_url
-                                   +" - assume local $HOME (%s)" % os.environ['HOME'])
-                home = os.environ['HOME']
-
-            pilot_descr.working_directory = "%s/troy_agents/" % home
-            pilot_descr.queue             = queue
-            pilot_descr.wall_time         = 300
 
             # and create the pilot
             bj_pilot = self.cp_service.create_pilot (pilot_descr)

@@ -286,6 +286,25 @@ class OverlayManager (tu.Timed) :
         # make sure manager is initialized
         self._init_plugins ()
 
+        # now that the pilots are bound and about to be dispatched, we can fix the
+        # resource placeholders in the pilot descriptions
+        for pilot_id, pilot in overlay.pilots.iteritems() :
+
+            # get troys idea of resource configuration
+            resource_cfg = self.session.get_resource_config (pilot.resource)
+
+            # and merge it conservatively into the pilot config
+            ru.dict_merge (pilot.description, resource_cfg, policy='preserve')
+
+            # expand values with resource config settings
+            for key, val in pilot.description.iteritems() :
+                if  isinstance (val, basestring) :
+                    pilot.description[key] = val % resource_cfg
+
+            import pprint
+            pprint.pprint (pilot.description)
+
+
         # hand over control over overlay to the provisioner plugin, so it can do
         # what it has to do.
         overlay.timed_method ('provision', [], 

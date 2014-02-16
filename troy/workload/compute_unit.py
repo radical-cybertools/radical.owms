@@ -95,7 +95,7 @@ class ComputeUnit (tu.Properties, tu.Timed) :
         self.register_property ('working_directory')
         self.register_property ('project')
         self.register_property ('queue')
-        self.register_property ('wall_time_limit')
+        self.register_property ('walltime')
         self.register_property ('affinity_datacenter_label')
         self.register_property ('affinity_machine_label')
 

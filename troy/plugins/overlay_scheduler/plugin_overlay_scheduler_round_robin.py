@@ -64,7 +64,8 @@ class PLUGIN_CLASS (troy.PluginBase):
             pilot = overlay.pilots[pid]
             pilot._bind (resource)
 
-            troy._logger.info ('overlay  schedule : schedule pilot %s to %s' % (resource, pilot.id))
+            troy._logger.info ('overlay  schedule : bind pilot %s to %s' \
+                            % (pilot.id, resource))
 
 
 # ------------------------------------------------------------------------------

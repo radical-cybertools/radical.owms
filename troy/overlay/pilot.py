@@ -84,7 +84,7 @@ class Pilot (tu.Properties, tu.Timed) :
         # info from backend - wishes
         self.register_property ('project')
         self.register_property ('queue')
-        self.register_property ('wall_time_limit')
+        self.register_property ('walltime')
         self.register_property ('affinity_datacenter_label')
         self.register_property ('affinity_machine_label')
          
@@ -250,7 +250,7 @@ class Pilot (tu.Properties, tu.Timed) :
                        'working_directory',        
                        'project',                 
                        'queue',                   
-                       'wall_time_limit',           
+                       'walltime',           
                        'affinity_datacenter_label', 
                        'affinity_machine_label'   ] :
 
@@ -338,20 +338,6 @@ class Pilot (tu.Properties, tu.Timed) :
 
                 # this will trigger registered callbacks
                 self.set_property (new_key, description[descr_key])
-
-
-    # --------------------------------------------------------------------------
-    #
-    def __str__ (self) :
-
-        return str(self.description)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def __repr__ (self) :
-
-        return str(self.description)
 
 
 # ------------------------------------------------------------------------------
