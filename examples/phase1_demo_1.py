@@ -18,6 +18,8 @@ import getpass
 #
 if __name__ == '__main__':
 
+    session = troy.Session ()
+
     radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner',
                    'Andre Luckow',     'Matteo Turilli',     'Melissa Romanus',
                    'Ashley Zebrowski', 'Dinesh Ganapathi',   'Mark Santcroos',
@@ -26,17 +28,17 @@ if __name__ == '__main__':
     radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner']
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (dispatcher='sinon')
+    workload_mgr = troy.WorkloadManager (session, dispatcher='sagapilot')
 
     # Responsible for managing the pilot overlay
-    overlay_mgr = troy.OverlayManager (provisioner=troy.AUTOMATIC)
+    overlay_mgr = troy.OverlayManager (session, provisioner='sagapilot')
 
     # Planning makes initial mapping of workload to overlay
-    planner = troy.Planner('maxcores')
-    #planner = troy.Planner('bundles')
+    planner = troy.Planner (session, derive='maxcores')
+  # planner = troy.Planner (session, derive='bundles')
 
     # TROY data structure that holds the tasks and their relations
-    workload    = troy.Workload ()
+    workload = troy.Workload (session)
 
     # Create a task for every radicalist
     for r in radicalists:
@@ -57,7 +59,7 @@ if __name__ == '__main__':
     overlay_descr = planner.derive_overlay (workload.id)
 
     # get overlay for that description
-    overlay = troy.Overlay (overlay_descr)
+    overlay = troy.Overlay (session, overlay_descr)
 
     # Translate 1 workload into N ComputeUnits and N DataUnits
     workload_mgr.translate_workload(workload.id, overlay.id)
@@ -85,10 +87,7 @@ if __name__ == '__main__':
         troy._logger.info ("whats up, buddy? (workload state: %s)" % workload.state)
         time.sleep(1)
 
-    if 'merzky' in getpass.getuser():
-        troy._logger.info ("ok, German Skripter, lets see what you got (workload state: %s)" % workload.state)
-    else:
-        troy._logger.info ("ok, buddy, lets see what you got (workload state: %s)" % workload.state)
+    troy._logger.info ("ok, buddy, lets see what you got (workload state: %s)" % workload.state)
 
     if workload.state == troy.DONE :
         troy._logger.info ("game over")
@@ -106,15 +105,6 @@ if __name__ == '__main__':
             print "u_id", u_id
             unit = task.units[u_id]
             print unit.description
-
-        #print workload.units[t].description
-        
-
-        #print t.tasks
-        #print t.description
-        #for u in t.units:
-        #print j
-        #print j.tasks()
 
     workload_mgr.cancel_workload (workload.id)   # same as workload.cancel ()
     overlay_mgr .cancel_overlay  (overlay.id)

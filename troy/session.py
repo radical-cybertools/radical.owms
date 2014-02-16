@@ -220,6 +220,9 @@ class Session (saga.Session, tu.Timed) :
             troy._logger.debug ('merge resource config for %s' % resource)
             ru.dict_merge (ret, resource_cfg[resource], policy='overwrite')
 
+        # make sure the hostname is in the config
+        ret['hostname'] = resource
+
         return ret
 
 

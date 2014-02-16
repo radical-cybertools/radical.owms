@@ -89,35 +89,18 @@ class PLUGIN_CLASS (troy.PluginBase):
             if  troy_pilot.state not in [BOUND] :
                 raise RuntimeError ("Can only provision BOUND pilots (%s)" % troy_pilot.state)
 
-            # translate information into sagapilot speak
-            pilot_descr          = sp.ComputePilotDescription()
-            pilot_descr.cores    = troy_pilot.description['size']
-
-            # set some stupid defaults in case we don't find a resource config
-            username     = getpass.getuser()
-            home         = os.environ['HOME']
-            queue        = None
-            walltime     = 24 * 60 # 1 day as default
+            # translate information into bigjob speak
+            pilot_descr = sp.ComputePilotDescription ()
+            pilot_descr.resource            = troy_pilot.description['hostname']
+            pilot_descr.cores               = troy_pilot.description['size']
+            pilot_descr.runtime             = troy_pilot.description['walltime']
+            pilot_descr.queue               = troy_pilot.description['queue']
+            pilot_descr.working_directory   = "%s/troy_agents/" % troy_pilot.description['home']
 
             troy._logger.info ('overlay  provision: provision   pilot  %s : %s ' \
-                            % (pid, resource))
+                            % (pid, troy_pilot.resource))
 
-            # get troys idea of resource configuration
-            resource_cfg = self.session.get_resource_config (troy_pilot.resource)
-            username = resource_cfg.get ('username', username)
-            home     = resource_cfg.get ('home',     home)
-            queue    = resource_cfg.get ('queue',    queue)
-            walltime = resource_cfg.get ('walltime', walltime)
-
-            # we apply username to home dir template
-            home     = home % resource_cfg
-
-
-            # FIXME
-            pilot_descr.resource = resource
-            pilot_descr.runtime  = walltime
-            pilot_descr.queue    = queue
-
+            # and create the pilot overlay
             sp_um    = sp.UnitManager  (session   = self._sp, 
                                         scheduler = 'direct_submission')
             sp_pm    = sp.PilotManager (session   = self._sp, 

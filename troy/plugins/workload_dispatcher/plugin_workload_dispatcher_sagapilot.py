@@ -93,22 +93,24 @@ class PLUGIN_CLASS (troy.PluginBase):
                 troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
                                 % (uid, pilot._get_instance('sagapilot')[1]))
                 
-                # translate our information into bigjob speak, and dispatch
+                # translate our information into sagapilot speak, and dispatch
                 # a cu for the CU
+
+                keymap = {
+                    'tag'               : 'name', 
+                    'executable'        : 'executable', 
+                    'arguments'         : 'arguments', 
+                    'environment'       : 'environment', 
+                    'cores'             : 'cores', 
+                  # 'inputs'            : 'input_data', 
+                  # 'outputs'           : 'output_data', 
+                    'working_directory' : 'working_directory_priv'
+                  }
+
                 sp_cu_descr = sp.ComputeUnitDescription ()
                 for key in unit_descr :
-
-                    # ignore Troy level keys
-                    # FIXME: this should be a positive filter, not a negative
-                    # one, to shield against evolving troy...
-                    if  key in ['tag', 'inputs', 'outputs', 'stdin', 'stdout'] :
-                        continue
-
-                    elif key in ['working_directory'] :
-                        sp_cu_descr['WorkingDirectoryPriv'] = unit_descr[key]
-
-                    else :
-                        sp_cu_descr[key] = unit_descr[key]
+                    if  key in keymap :
+                        sp_cu_descr[keymap[key]] = unit_descr[key]
 
 
                 # FIXME: sanity check for pilot type
@@ -158,7 +160,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         info = {'uid'              : sp_cu.uid,
                 'description'      : sp_cu.description,
                 'state'            : sp_cu.state,
-                'state_details'    : sp_cu.state_details,
+                'log'              : sp_cu.log,
                 'execution_details': sp_cu.execution_details,
                 'submission_time'  : sp_cu.submission_time,
                 'start_time'       : sp_cu.start_time,
@@ -178,7 +180,7 @@ class PLUGIN_CLASS (troy.PluginBase):
                               sp.states.UNKNOWN             : UNKNOWN}.get (info['state'], UNKNOWN)
 
       # print 'unit_get_info: %s' % info
-        # unit_get_info: {'state_details'     : None, 
+        # unit_get_info: {'log'               : None, 
         #                 'state'             : 'Done', 
         #                 'uid'               : '52f22c8af2291a13649baf23', 
         #                 'submission_time'   : datetime.datetime(2014, 2, 5, 12, 20, 26, 744000), 
