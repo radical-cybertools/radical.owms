@@ -15,15 +15,11 @@ PLUGIN_DESCRIPTION = {
     'description' : 'this is an empty scheduler which basically does nothing.'
   }
 
-_idx = 0
+_idx  = 0
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (object) :
-    """
-    This class implements the (empty) round_robin overlay scheduler algorithm for
-    TROY.
-    """
+class PLUGIN_CLASS (troy.PluginBase):
 
     __metaclass__ = ru.Singleton
 
@@ -32,22 +28,22 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
 
     # --------------------------------------------------------------------------
     #
-    def init (self, cfg):
+    def init (self):
 
-        troy._logger.info ("init the round_robin overlay scheduler plugin")
-        
-        self.cfg = cfg.as_dict ().get (self.name, {})
+        print self.cfg
+        print self.global_cfg
 
         if 'resources'    in self.cfg :
             self.resources = self.cfg['resources'].split (',')
+            troy._logger.debug ("round_robin over %s" % self.resources )
         else :
             self.resources = ['fork://localhost']
+            troy._logger.debug ("round_robin on localhost only")
 
 
     # --------------------------------------------------------------------------
@@ -55,6 +51,10 @@ class PLUGIN_CLASS (object) :
     def schedule (self, overlay) :
 
         global _idx
+
+        if  not len(self.resources) :
+            raise RuntimeError ("No resources to schedule over")
+
 
         for pid in overlay.pilots.keys() :
 

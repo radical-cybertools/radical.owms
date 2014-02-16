@@ -24,11 +24,17 @@ of previous installations removed:
 
 pip uninstall troy; rm -rf ./build; pip install .
 
+
 ### Configuration
 
-You need a configuration file in the location "~/.troy.cfg".
-An example is provided in this directory ("dot_troy_example.cfg"), you can copy
+You can use a configuration file in the location "~/.troy.cfg".
+An example is provided in `examples/troy.cfg`, you can copy
 that to "~/.troy.cfg" and customize to your environment.
+
+Available configuration options are explained in more detailed 
+in the Troy library documentation, and apply mostly to the Troy 
+plugins.
+
 
 ### Note to developers:
 
@@ -71,5 +77,5 @@ git push origin                        # sync with github
 git branch -d feature/world_domination # remove feature branch
 ```
 
-If unsure about anything, as Andre ;)
+If unsure about anything, ask Andre ;)
 

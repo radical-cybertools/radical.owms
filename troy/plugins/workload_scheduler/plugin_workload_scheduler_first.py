@@ -10,7 +10,7 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'workload_scheduler', 
-    'name'        : 'default', 
+    'name'        : 'first', 
     'version'     : '0.1',
     'description' : 'this is an empty scheduler which basically does nothing.'
   }
@@ -18,11 +18,7 @@ PLUGIN_DESCRIPTION = {
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (object) :
-    """
-    This class implements the (empty) default workload scheduler algorithm for
-    TROY.
-    """
+class PLUGIN_CLASS (troy.PluginBase):
 
     __metaclass__ = ru.Singleton
 
@@ -31,17 +27,7 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
-
-
-    # --------------------------------------------------------------------------
-    #
-    def init (self, cfg):
-
-        troy._logger.info ("init the default wokload scheduler plugin")
-        
-        self.cfg = cfg.as_dict ().get (self.name, {})
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
 
     # --------------------------------------------------------------------------
@@ -51,10 +37,12 @@ class PLUGIN_CLASS (object) :
         # schedule to first available pilot
 
         if  not overlay.pilots.keys() :
-            raise RuntimeError ('no pilots in overlay')
+            troy._logger.warn ("no pilots in overlay")
+            return
 
+        # schedule to first pilot
         pilot_id = overlay.pilots.keys()[0]
-        # schedule to first 'next' pilot
+
         for tid in workload.tasks.keys () :
 
             task = workload.tasks[tid]
@@ -64,9 +52,6 @@ class PLUGIN_CLASS (object) :
                 troy._logger.info ("workload schedule : assign unit %-18s to %s" % (unit_id, pilot_id))
                 unit = task.units[unit_id]
                 unit._bind (pilot_id)
-
-                troy._logger.info ("workload schedule : assign unit %-18s to %s" % (unit_id, pilot_id))
-        
 
 
 # ------------------------------------------------------------------------------

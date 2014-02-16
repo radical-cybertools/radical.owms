@@ -1,8 +1,10 @@
 
 
+import os
+import saga
 import pilot         as pilot_module
-import radical.utils as ru
 
+import radical.utils as ru
 from   troy.constants import *
 import troy
 
@@ -19,10 +21,7 @@ PLUGIN_DESCRIPTION = {
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (object) :
-    """
-    This class implements the bigjob_pilot workload dispatcher for TROY.
-    """
+class PLUGIN_CLASS (troy.PluginBase):
 
     __metaclass__ = ru.Singleton
 
@@ -35,22 +34,10 @@ class PLUGIN_CLASS (object) :
         initialization
         """
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
-
-    # --------------------------------------------------------------------------
-    #
-    def init (self, cfg):
-        """
-        invoked by user of plugin, i.e. a workload manager.  May get invoked
-        multiple times -- plugins are singletons, and thus shared amongst all
-        workload managers!
-        """
-
-        troy._logger.info ("init the bigjob_pilot workload dispatcher plugin")
-        
-        self.cfg = cfg.as_dict ().get (self.name, {})
+        # cache saga dirs for file staging
+        self._dir_cache = dict()
 
 
     # --------------------------------------------------------------------------
@@ -81,7 +68,7 @@ class PLUGIN_CLASS (object) :
 
                 # reconnect to the given pilot -- this is likely to pull the
                 # instance from a cache, so should not cost too much.
-                pilot      = troy.Pilot (pilot_id, _instance_type='bigjob_pilot')
+                pilot      = troy.Pilot (overlay.session, pilot_id, _instance_type='bigjob_pilot')
                 troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
                                 % (uid, pilot._get_instance('bigjob_pilot')))
                 
@@ -117,8 +104,8 @@ class PLUGIN_CLASS (object) :
         troy.Unit doesn't have that instance anymore...
         """
 
-        bj_cu = pilot_module.ComputeUnit (cu_url=native_id)
         troy._logger.debug ("reconnect to bigjob_pilot subjob %s" % native_id)
+        bj_cu = pilot_module.ComputeUnit (cu_url=native_id)
 
         return bj_cu
 
@@ -154,11 +141,12 @@ class PLUGIN_CLASS (object) :
 
     # --------------------------------------------------------------------------
     #
-    def unit_cancel (self, sj) :
+    def unit_cancel (self, unit) :
         """
         bye bye bye Junimond, es ist vorbei, bye bye...
         """
 
+        sj = unit._get_instance ('bigjob_pilot')
         sj.cancel ()
 
 

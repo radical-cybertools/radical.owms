@@ -1,4 +1,8 @@
 
+__author__ = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__ = "MIT"
+
 
 import radical.utils as ru
 
@@ -7,6 +11,21 @@ import troy
 
 from   bundle import BundleManager
 
+"""
+Notes
+
+. Bundles is ortogonal to other functionalities. E.g. we might want to have
+  a planner that uses some specific algorithms in order to define a min/max
+  for the walltime of a pilot. These algorithm are mutually exclusive and, as
+  such, they need to be incapsulated into a plugin, possibly loaded and
+  unloaded during the same session. The problem is that both these plugings
+  may need bundled functionalities in order to work properly. We may want to
+  fugure out implementations that do not need bundles but I would not put
+  bundles into their own plugin. This is way too complex and leads to
+  collapsing the concept of code isolation (e.g. block, module) into that of
+  plugin, somehting that seems to me overengineering.
+
+"""
 
 # ------------------------------------------------------------------------------
 #
@@ -20,10 +39,7 @@ PLUGIN_DESCRIPTION = {
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS(object):
-    """
-    This class implements the default planner for TROY.
-    """
+class PLUGIN_CLASS (troy.PluginBase):
 
     __metaclass__ = ru.Singleton
 
@@ -32,19 +48,14 @@ class PLUGIN_CLASS(object):
     #
     def __init__(self):
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
 
     # --------------------------------------------------------------------------
     #
-    def init(self, cfg):
+    def init(self):
 
-        troy._logger.info ("init the bundle planner plugin")
-        
-        self.global_cfg = cfg
-        self.cfg        = cfg.as_dict ().get (self.name, {})
-
+        troy._logger.debug ("init plugin %s (bundles)" % self.name)
         self.init_bundles()
 
 
@@ -59,11 +70,11 @@ class PLUGIN_CLASS(object):
 
         self.bm = BundleManager()
 
-        cg = self.global_cfg.get_config('bundle')
+        cg = self.session.cfg.get_config('bundle')
         finished_job_trace = cg['finished_job_trace'].get_value()
 
-        for sect in self.global_cfg.compute_sections:
-            cs = self.global_cfg.get_config(sect)
+        for sect in self.session.cfg.compute_sections:
+            cs = self.session.cfg.get_config(sect)
 
             cred = { 'port': int(cs['port'].get_value()),
                      'hostname': cs['endpoint'].get_value(),
@@ -133,8 +144,7 @@ class PLUGIN_CLASS(object):
         # TODO: How to communicate back to application?
         self.check_resource_availability(ovl_descr)
 
-        # Create an overlay
-        return troy.Overlay(ovl_descr)
+        return ovl_descr
 
 
 

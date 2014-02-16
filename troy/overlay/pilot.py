@@ -16,7 +16,7 @@ Represent a pilot, as element of a troy.Overlay.
 
 # ------------------------------------------------------------------------------
 #
-class Pilot (tu.Properties) :
+class Pilot (tu.Properties, tu.Timed) :
     """
     """
 
@@ -24,20 +24,23 @@ class Pilot (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, param, _overlay=None, _instance_type=None) :
+    def __init__ (self, session, param, _overlay=None, _instance_type=None) :
         """
         Create a new pilot according to a description, or reconnect to with an ID.
 
         Each new pilot is assigned a new ID.
         """
 
+        self.session = session
+        self.overlay = _overlay
+
         if isinstance (param, basestring) :
-            pid       = param
+            self.id   = param
             descr     = troy.PilotDescription ()
             reconnect = True
 
         elif isinstance (param, troy.PilotDescription) :
-            pid       = ru.generate_id ('p.')
+            self.id   = ru.generate_id ('p.')
             descr     = param
             reconnect = False
 
@@ -46,6 +49,12 @@ class Pilot (tu.Properties) :
                              "description (troy.PilotDescription), not '%s'" \
                           % type(param))
 
+
+        tu.Timed.__init__            (self, 'troy.Pilot', self.id)
+        self.session.timed_component (self, 'troy.Pilot', self.id)
+
+        if  self.overlay :
+            self.overlay.timed_component (self, 'troy.Pilot', self.id)
 
         tu.Properties.__init__ (self, descr)
 
@@ -80,15 +89,13 @@ class Pilot (tu.Properties) :
         self.register_property ('affinity_machine_label')
          
         # initialize essential properties
-        self.id             = pid
         self.state          = DESCRIBED
         self.description    = descr
-        self.overlay        = _overlay
+        self.resource       = None
 
         # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks
 
-        self._resource      = None
         self._provisioner   = None
         self._instance      = None
         self._instance_type = None
@@ -101,15 +108,16 @@ class Pilot (tu.Properties) :
 
             self.id,             self.native_id, \
             self._provisioner,   self._instance, \
-            self._instance_type, self._state =   \
-                    self._instance_cache.get (instance_id = self.id, 
-                                              native_id   = self.native_id)
+            self._instance_type, self._state,    \
+            self.resource = self._instance_cache.get (instance_id = self.id, 
+                                                      native_id   = self.native_id)
 
             if  not self._instance :
-                raise ValueError ("Could not reconnect to unit %s" % uid)
+                troy._logger.warn ("Could not reconnect to pilot %s (%s)" % (self.id, self.native_id))
 
-            # refresh pilot information and state from the backend
-            self._update_properties ()
+            else :
+                # refresh pilot information and state from the backend
+                self._update_properties ()
 
 
         # register in cache for later reconnect
@@ -121,7 +129,8 @@ class Pilot (tu.Properties) :
                                                      self._provisioner,    
                                                      self._instance, 
                                                      self._instance_type, 
-                                                     self.state])
+                                                     self.state, 
+                                                     self.resource])
 
 
     # --------------------------------------------------------------------------
@@ -157,9 +166,20 @@ class Pilot (tu.Properties) :
 
         if  self.state not in [DESCRIBED] :
             raise RuntimeError ("Can only bind pilots in DESCRIBED state (%s)" % self.state)
-            
-        self._resource = resource
-        self.state     = BOUND
+
+        self.resource = resource
+        self.state    = BOUND
+
+        # update cache
+        self._instance_cache.put (instance_id = self.id, 
+                                  native_id   = self.native_id,
+                                  instance    = [self.id, 
+                                                 self.native_id, 
+                                                 self._provisioner,    
+                                                 self._instance, 
+                                                 self._instance_type, 
+                                                 self.state, 
+                                                 self.resource])
 
 
     # --------------------------------------------------------------------------
@@ -186,7 +206,8 @@ class Pilot (tu.Properties) :
                                                  self._provisioner,    
                                                  self._instance, 
                                                  self._instance_type, 
-                                                 self.state])
+                                                 self.state, 
+                                                 self.resource])
 
 
     # --------------------------------------------------------------------------
@@ -238,7 +259,7 @@ class Pilot (tu.Properties) :
             # attrib interface is not calling getters (duh!).
             return self.get_property (key)
 
-        if  key == 'resource' : return self._resource
+        if  key == 'resource' : return self.resource
         if  key == 'instance' : return self._instance
 
         # check if the info were available via the original description
@@ -288,6 +309,7 @@ class Pilot (tu.Properties) :
                   'last_contact'         : 'last_contact',
                   'stopped'              : 'stopped',
                   'end_queue_time'       : 'end_queue_time',
+                  'resource'             : 'native_resource', # FIXME?
                   'processes_per_node'   : 'processes_per_node',
                   'number_of_processes'  : 'slots',
                   'working_directory'    : 'working_directory',
@@ -298,8 +320,8 @@ class Pilot (tu.Properties) :
         # now that we have fresh info, lets update all pilot properties
         for info_key in self._pilot_info :
 
-            if  info_key in keymap : new_key = keymap[info_key]
-            else                   : new_key =        info_key
+            # translate key if needed
+            new_key = keymap.get (info_key, info_key)
 
             # this will trigger registered callbacks
             self.set_property (new_key, self._pilot_info[info_key])
@@ -308,13 +330,11 @@ class Pilot (tu.Properties) :
         # also, flatten the description into the pilot properties
         if  'description' in self._pilot_info :
 
-            # WHAT.THE.FUCK ...
-            description = eval(self._pilot_info['description']) 
+            description = self._pilot_info['description']
 
             for descr_key in description : 
 
-                if  descr_key in keymap : new_key = keymap[descr_key]
-                else                    : new_key =        descr_key
+                new_key = keymap.get (descr_key, descr_key)
 
                 # this will trigger registered callbacks
                 self.set_property (new_key, description[descr_key])

@@ -1,4 +1,8 @@
 
+__author__ = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__ = "MIT"
+
 
 import radical.utils as ru
 
@@ -10,18 +14,15 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'planner',
-    'name'        : 'default',
+    'name'        : 'maxcores',
     'version'     : '0.1',
-    'description' : 'This is the default planner.'
+    'description' : 'This is the default planner, which plans an maximum sized overlay'
   }
 
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS(object):
-    """
-    This class implements the default planner for TROY.
-    """
+class PLUGIN_CLASS (troy.PluginBase):
 
     __metaclass__ = ru.Singleton
 
@@ -30,17 +31,7 @@ class PLUGIN_CLASS(object):
     #
     def __init__(self):
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
-
-
-    # --------------------------------------------------------------------------
-    #
-    def init (self, cfg):
-
-        troy._logger.info ("init the default planner plugin")
-        
-        self.cfg = cfg.as_dict ().get (self.name, {})
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
 
     # --------------------------------------------------------------------------
@@ -48,7 +39,7 @@ class PLUGIN_CLASS(object):
     def expand_workload(self, workload):
 
         # Do nothing for now
-        
+
         troy._logger.info ("planner  expand wl: expand workload : %s" % workload)
 
 
@@ -56,18 +47,19 @@ class PLUGIN_CLASS(object):
     #
     def derive_overlay(self, workload):
 
-        ovl_descr = troy.OverlayDescription (
-            {
-                # Ask for as many pilots as tasks
-                'cores' : len(workload.tasks), 
-                # Minutes obviously
-                'wall_time' : (1 << 1) + (1 << 3) + (1 << 5)
-            })
+        # Ask for as many pilots as tasks*cores
+        cores = 0
+
+        for task_id in workload.tasks :
+            cores += workload.tasks[task_id].cores
+
+        ovl_descr = troy.OverlayDescription ({'cores'     : cores,
+                                              'wall_time' : (1 << 1) + (1 << 3) + (1 << 5)})
 
         troy._logger.info ("planner  derive ol: derive overlay for workload: %s" % ovl_descr)
 
-        # Create an overlay
-        return troy.Overlay(ovl_descr)
+        return ovl_descr
 
 
 # ------------------------------------------------------------------------------
+

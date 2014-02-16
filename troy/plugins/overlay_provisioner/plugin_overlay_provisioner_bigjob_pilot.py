@@ -1,5 +1,9 @@
 
+
 import os
+import saga
+import getpass
+
 import pilot         as pilot_module
 import radical.utils as ru
 
@@ -18,11 +22,7 @@ PLUGIN_DESCRIPTION = {
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (object) :
-    """
-    This class implements the bigjob_pilot overlay provisioner for
-    TROY.
-    """
+class PLUGIN_CLASS (troy.PluginBase):
 
     __metaclass__ = ru.Singleton
 
@@ -35,30 +35,33 @@ class PLUGIN_CLASS (object) :
         initialization
         """
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
 
     # --------------------------------------------------------------------------
     #
-    def init (self, cfg):
+    def init (self):
         """
         invoked by user of plugin, i.e. a overlay manager.  May get invoked
         multiple times -- plugins are singletons, and thus shared amongst all
         overlay managers!
         """
 
-        troy._logger.info ("init the bigjob_pilot overlay provisioner plugin")
-        
-        self.cfg = cfg.as_dict ().get (self.name, {})
+        self._coord = None
 
-        if  not 'COORDINATION_URL' in os.environ :
+        if  'coordination_url' in self.cfg :
+            self._coord = self.cfg['coordination_url']
+
+        elif 'COORDINATION_URL' in os.environ :
+            self._coord = os.environ['COORDINATION_URL'] 
+
+        else :
             troy._logger.error ("No COORDINATION_URL set for bigjob_pilot backend")
             troy._logger.info  ("example: export COORDINATION_URL=redis://<pass>@gw68.quarry.iu.teragrid.org:6379")
             troy._logger.info  ("Contact Radica@Ritgers for the redis password")
-            raise RuntimeError ("Cannot use bigjob_pilot backend - no COORDINATION_URL set -- see debug log for details")
+            raise RuntimeError ("Cannot use bigjob_pilot backend - no COORDINATION_URL -- see debug log for details")
 
-        self._coord     = os.environ['COORDINATION_URL'] 
+        troy._logger.debug ('using bj coordination url %s' % self._coord)
         self.cp_service = pilot_module.PilotComputeService (self._coord)
 
 
@@ -74,16 +77,49 @@ class PLUGIN_CLASS (object) :
         # we simply assign all pilots to localhost
         for pid in overlay.pilots.keys() :
 
-            pilot = overlay.pilots[pid]
+            troy_pilot = overlay.pilots[pid]
  
             # only BOUND pilots have a target resource assigned.
-            if  pilot.state not in [BOUND] :
-                raise RuntimeError ("Can only provision pilots in BOUND state (%s)" % pilot.state)
+            if  troy_pilot.state not in [BOUND] :
+                raise RuntimeError ("Can only provision pilots in BOUND state (%s)" % troy_pilot.state)
 
             # translate information into bigjob speak
             pilot_descr                     = pilot_module.PilotComputeDescription ()
-            pilot_descr.service_url         = pilot._resource
-            pilot_descr.number_of_processes = pilot.description['size']
+            pilot_descr.service_url         = troy_pilot.resource
+            pilot_descr.number_of_processes = troy_pilot.description['size']
+            pilot_descr.walltime            = troy_pilot.description['wall_time']
+
+            # FIXME: HACK
+            pilot_descr.queue               = self.cfg.get ('queue', None)
+            pilot_descr.walltime            = 300
+
+            resource_url = saga.Url (troy_pilot.resource)
+            userid       = getpass.getuser()
+            home         = None
+            queue        = None
+            walltime     = 24 * 60 # 1 day as default
+
+            for key in self.global_cfg.keys () :
+
+                if  key.startswith ('compute:')        and \
+                    'endpoint' in self.global_cfg[key] and \
+                    self.global_cfg[key]['endpoint']  == resource_url.host :
+
+                    userid   = self.global_cfg[key].get ('username', userid)
+                    home     = self.global_cfg[key].get ('home',     home)
+                    queue    = self.global_cfg[key].get ('queue',    queue)
+                    walltime = self.global_cfg[key].get ('walltime', walltime)
+
+                    break
+
+            if  not home :
+                troy._logger.error ("no home dir in config for bj on %s" % resource_url
+                                   +" - assume local $HOME (%s)" % os.environ['HOME'])
+                home = os.environ['HOME']
+
+            pilot_descr.working_directory = "%s/troy_agents/" % home
+            pilot_descr.queue             = queue
+            pilot_descr.wall_time         = 300
 
             # and create the pilot
             bj_pilot = self.cp_service.create_pilot (pilot_descr)
@@ -91,13 +127,13 @@ class PLUGIN_CLASS (object) :
             # register the backend pilot with the troy pilot instance -- that
             # instance will decide how long the pilot handle is kept alive, or
             # when to do a reconnect
-            pilot._set_instance (instance_type = 'bigjob_pilot', 
-                                 provisioner   = self, 
-                                 instance      = bj_pilot, 
-                                 native_id     = bj_pilot.get_url ())
+            troy_pilot._set_instance (instance_type = 'bigjob_pilot', 
+                                      provisioner   = self, 
+                                      instance      = bj_pilot, 
+                                      native_id     = bj_pilot.get_url ())
 
             troy._logger.info ('overlay  provision: provision pilot  %s : %s ' \
-                            % (pilot, pilot._get_instance ('bigjob_pilot')))
+                            % (troy_pilot, troy_pilot._get_instance ('bigjob_pilot')))
 
 
     # --------------------------------------------------------------------------
@@ -132,8 +168,37 @@ class PLUGIN_CLASS (object) :
  
         info['units'] = dict ()
         for bj_unit in bj_units :
-            unit = troy.ComputeUnit (_native_id=bj_unit.get_url (), _pilot_id=pilot.id)
+            unit = troy.ComputeUnit (pilot.session, 
+                                     _native_id=bj_unit.get_url (), 
+                                     _pilot_id=pilot.id)
             info['units'][unit.id] = unit
+
+        if  'description' in info :
+            # what the fuck?
+            info['description'] = eval(info['description'])
+
+        # register bigjob events when they have a valid time stamp.  This may
+        # register them multiple times though, but duplication is filtered out
+        # on time keeping level
+        details = bj_pilot.get_details ()
+        import pprint
+        pprint.pprint (details)
+        
+        if 'start_time' in details and details['start_time'] :
+            pilot.timed_event ('submission', 'bigjob', details['start_time'])
+
+        if 'end_queue_time' in details and details['end_queue_time'] :
+            pilot.timed_event ('start', 'bigjob', details['end_queue_time'])
+
+        if 'end_time' in details and details['end_time'] :
+            pilot.timed_event ('stop', 'bigjob', details['end_time'])
+
+        if 'last_contact' in details and details['last_contact'] :
+            pilot.timed_event ('heartbeat', 'bigjob', details['last_contact'])
+
+        if 'start_staging_time' in details and details['start_staging_time'] :
+            pilot.timed_event ('start_staging', 'bigjob', details['start_staging_time'])
+
  
         # translate bj state to troy state
         # hahaha python switch statement hahahahaha

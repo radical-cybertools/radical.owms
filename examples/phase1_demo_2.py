@@ -5,9 +5,7 @@ __license__   = "MIT"
 
 
 """
-    Demo application for 1 feb 2014
-    - Bag of Task (BoT)
-
+Demo application for 1 feb 2014 - Bag of Task (BoT)
 """
 
 import sys
@@ -15,16 +13,29 @@ import time
 import troy
 import getpass
 
+
+PLUGIN_PLANNER              = 'concurrent'
+PLUGIN_OVERLAY_SCHEDULER    = 'round_robin'
+PLUGIN_OVERLAY_TRANSLATOR   = troy.AUTOMATIC
+PLUGIN_OVERLAY_PROVISIONER  = 'bigjob_pilot'
+PLUGIN_WORKLOAD_SCHEDULER   = troy.AUTOMATIC
+PLUGIN_WORKLOAD_DISPATCHER  = 'bigjob_pilot' # troy.AUTOMATIC # 'sinon'
+
+WORKDIR                     = '/N/u/merzky/troy_demo/'
+WORKDIR                     = '/home/merzky/troy_demo/'
+
+
 # ------------------------------------------------------------------------------
 def create_task_description (r, msg) :
     """
     litte helper which creates a task description for a radical member greeting
     """
 
-    task_descr            = troy.TaskDescription ()
-    task_descr.tag        = "%s" % r
-    task_descr.executable = '/bin/echo'
-    task_descr.arguments  = ['Hello', msg, r, '!']
+    task_descr                   = troy.TaskDescription ()
+    task_descr.tag               = "%s" % r
+    task_descr.executable        = '/bin/echo'
+    task_descr.arguments         = ['Hello', msg, r, '!']
+    task_descr.working_directory = WORKDIR
 
     return task_descr
 
@@ -42,35 +53,28 @@ if __name__ == '__main__' :
     radical_oldfarts = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner',
                         'Andre Luckow',     'Matteo Turilli']
 
-    # the troy session gives us access to the troy configuration
-    session = troy.Session ()
-    config  = session.cfg.get_config_as_dict ()
+    radical_students = ['Melissa Romanus',  'Ashley Zebrowski',   'Dinesh Ganapathi']
+    radical_oldfarts = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner']
 
-    if 'demo2' in config : demo_cfg = config['demo2']
-    else                 : demo_cfg = dict ()
+    # create a session with custom config options
+    session = troy.Session ({'concurrent_planner' : {'concurrency' : '100'}})
 
-    # get plugin configuration
-    planner_plugin = demo_cfg.get ('planner',             'default')
-    osched_plugin  = demo_cfg.get ('overlay_scheduler',   'default')
-    otrans_plugin  = demo_cfg.get ('overlay_translator',  'default')
-    oprov_plugin   = demo_cfg.get ('overlay_provisioner', 'default')
-    wsched_plugin  = demo_cfg.get ('workload_scheduler',  'default')
-    wdisp_plugin   = demo_cfg.get ('workload_dispatcher', 'default')
-
-
-    # create planner, overlay and workload manager, with plugins as above
-    planner      = troy.Planner         (planner     = planner_plugin)
-    overlay_mgr  = troy.OverlayManager  (scheduler   =  osched_plugin,
-                                         translator  =  otrans_plugin, 
-                                         provisioner =   oprov_plugin)
-    workload_mgr = troy.WorkloadManager (scheduler   =  wsched_plugin, 
-                                         dispatcher  =   wdisp_plugin)
+    # create planner, overlay and workload manager, with plugins as configured
+    planner      = troy.Planner         (session     = session                   ,
+                                         planner     = PLUGIN_PLANNER            )
+    workload_mgr = troy.WorkloadManager (session     = session                   ,
+                                         scheduler   = PLUGIN_WORKLOAD_SCHEDULER , 
+                                         dispatcher  = PLUGIN_WORKLOAD_DISPATCHER)
+    overlay_mgr  = troy.OverlayManager  (session     = session                   ,
+                                         scheduler   = PLUGIN_OVERLAY_SCHEDULER  ,
+                                         translator  = PLUGIN_OVERLAY_TRANSLATOR ,
+                                         provisioner = PLUGIN_OVERLAY_PROVISIONER)
 
 
     # --------------------------------------------------------------------------
     # Create the student workload first.  Makes sense, amiright?
     # Create two task for every radical student.  They love getting more tasks!
-    workload_1 = troy.Workload ()
+    workload_1 = troy.Workload (session=session)
 
     for r in radical_students :
         workload_1.add_task (create_task_description (r+'_1', 'student       '))
@@ -79,30 +83,33 @@ if __name__ == '__main__' :
 
     # Initial description of the overlay based on the workload, and translate the
     # overlay into N pilot descriptions.
-    overlay_id = planner.derive_overlay (workload_1.id)
-    overlay_mgr.translate_overlay       (overlay_id)
+    overlay_descr = planner.derive_overlay (workload_1.id)
+    overlay       = troy.Overlay           (session, overlay_descr)
+
+    # make sure the overlay is properly represented by pilots
+    overlay_mgr.translate_overlay   (overlay.id)
 
 
     # Translate 1 workload into N tasks and then M ComputeUnits, and bind them 
     # to specific pilots (which are not yet running, thus early binding)
     planner.expand_workload         (workload_1.id)
-    workload_mgr.translate_workload (workload_1.id, overlay_id)
-    workload_mgr.bind_workload      (workload_1.id, overlay_id, bind_mode=troy.EARLY)
+    workload_mgr.translate_workload (workload_1.id, overlay.id)
+    workload_mgr.bind_workload      (workload_1.id, overlay.id, bind_mode=troy.EARLY)
 
     # Schedule pilots on the set of target resources, then instantiate Pilots as
     # scheduled
-    overlay_mgr.schedule_overlay   (overlay_id)
-    overlay_mgr.provision_overlay  (overlay_id)
+    overlay_mgr.schedule_overlay   (overlay.id)
+    overlay_mgr.provision_overlay  (overlay.id)
 
     # ready to dispatch first workload on the overlay
-    workload_mgr.dispatch_workload (workload_1.id, overlay_id)
+    workload_mgr.dispatch_workload (workload_1.id, overlay.id)
 
 
     # --------------------------------------------------------------------------
     # Now take care of the oldfart workload -- not so many tasks for the old
     # people, and we lazily reuse the same overlay -- which is running, so,
     # late binding in this case.
-    workload_2 = troy.Workload ()
+    workload_2 = troy.Workload (session)
 
     for r in radical_oldfarts :
         workload_2.add_task (create_task_description (r, 'oldfart       '))
@@ -112,9 +119,9 @@ if __name__ == '__main__' :
     # dispatch it, too.  We could have used
     # different plugins here...
     planner.expand_workload         (workload_2.id)
-    workload_mgr.translate_workload (workload_2.id, overlay_id)
-    workload_mgr.bind_workload      (workload_2.id, overlay_id, bind_mode=troy.LATE)
-    workload_mgr.dispatch_workload  (workload_2.id, overlay_id)
+    workload_mgr.translate_workload (workload_2.id, overlay.id)
+    workload_mgr.bind_workload      (workload_2.id, overlay.id, bind_mode=troy.LATE)
+    workload_mgr.dispatch_workload  (workload_2.id, overlay.id)
 
 
     # --------------------------------------------------------------------------
@@ -150,7 +157,16 @@ if __name__ == '__main__' :
     # We are done -- clean up
     workload_mgr.cancel_workload (workload_1.id)
     workload_mgr.cancel_workload (workload_2.id)
-    overlay_mgr .cancel_overlay  (overlay_id)
+    overlay_mgr .cancel_overlay  (overlay.id)
+
+
+    # --------------------------------------------------------------------------
+    # We are done -- save traces
+  # workload_mgr.timed_dump ()
+  # workload_mgr.timed_store ('mongodb://localhost/timing/')
+    session.timed_dump ()
+  # session.timed_store ('mongodb://localhost/timing/')
+    session.timed_store ('mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/timing/')
 
 
     # --------------------------------------------------------------------------

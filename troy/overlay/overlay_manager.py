@@ -17,7 +17,7 @@ Manages the pilot-based overlays for TROY.
 
 # -----------------------------------------------------------------------------
 #
-class OverlayManager (object) :
+class OverlayManager (tu.Timed) :
     """
     Generates and instantiates an overlay. An overlay consists of pilot
     descriptions and instances.
@@ -51,11 +51,11 @@ class OverlayManager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, inspector   = 'default',
-                        translator  = 'default',
-                        scheduler   = 'default',
-                        provisioner = 'default', 
-                        session     = None) :
+    def __init__ (self, session     = None, 
+                        inspector   = AUTOMATIC,
+                        translator  = AUTOMATIC,
+                        scheduler   = AUTOMATIC,
+                        provisioner = AUTOMATIC) :
         """
         Create a new overlay manager instance.
 
@@ -64,28 +64,77 @@ class OverlayManager (object) :
         the pilots of the Overlay managed by the OverlayManager.
         """
 
-        if  not session :
-            session = troy.Session ()
+        if  session : self.session = session
+        else:         self.session = troy.Session ()
 
-        # initialize state, load plugins
-        self._session     = session
+
+        # We leave actual plugin initialization for later, in case a strategy
+        # wants to alter / complete the plugin selection
+
+        self.plugins = dict ()
+        self.plugins['inspector' ]  = inspector
+        self.plugins['translator']  = translator
+        self.plugins['scheduler' ]  = scheduler
+        self.plugins['provisioner'] = provisioner
+
+        self._plugin_mgr = None
+
+        self.id = ru.generate_id ('olm.')
+
+        tu.Timed.__init__            (self, 'troy.OverlayManager', self.id)
+        self.session.timed_component (self, 'troy.OverlayManager', self.id)
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _init_plugins (self, workload_mgr=None) :
+
+        if  self._plugin_mgr :
+            # we don't allow changes once plugins are loaded and used, for state
+            # consistency.  If a workload_manager was given, warn for possible
+            # configuration violation.
+            if  workload_mgr :
+                troy._logger.warning ("Ignore overlay_mgr re-initialization")
+            return
+
+        # for each plugin set to 'AUTOMATIC', do the clever thing
+        #
+        if  self.plugins['inspector' ]  == AUTOMATIC :
+            self.plugins['inspector' ]  = 'reflect'
+        if  self.plugins['translator']  == AUTOMATIC :
+            self.plugins['translator']  = 'max_pilot_size'
+        if  self.plugins['scheduler' ]  == AUTOMATIC :
+            self.plugins['scheduler' ]  = 'local'
+
+        # if AUTOMATIC, try to match the provisioner plugin with the workload
+        # dispatcher plugin
+        if  self.plugins['provisioner']  == AUTOMATIC :
+            if  workload_mgr :
+                self.plugins['provisioner'] = workload_mgr.plugins['dispatcher']
+        if  self.plugins['provisioner']  == AUTOMATIC :
+            self.plugins['provisioner']  = 'local'
+
+      # troy._logger.debug ("initializing overlay  manager (%s)" % self.plugins)
+
         self._plugin_mgr  = ru.PluginManager ('troy')
 
         # FIXME: error handling
-        self._inspector   = self._plugin_mgr.load ('overlay_inspector',   inspector)
-        self._translator  = self._plugin_mgr.load ('overlay_translator',  translator)
-        self._scheduler   = self._plugin_mgr.load ('overlay_scheduler',   scheduler)
-        self._provisioner = self._plugin_mgr.load ('overlay_provisioner', provisioner)
+        self._inspector   = self._plugin_mgr.load ('overlay_inspector',   self.plugins['inspector'  ])
+        self._translator  = self._plugin_mgr.load ('overlay_translator',  self.plugins['translator' ])
+        self._scheduler   = self._plugin_mgr.load ('overlay_scheduler',   self.plugins['scheduler'  ])
+        self._provisioner = self._plugin_mgr.load ('overlay_provisioner', self.plugins['provisioner'])
 
         if  not self._inspector   : raise RuntimeError ("Could not load inspector   plugin")
         if  not self._translator  : raise RuntimeError ("Could not load translator  plugin")
         if  not self._scheduler   : raise RuntimeError ("Could not load scheduler   plugin")
         if  not self._provisioner : raise RuntimeError ("Could not load provisioner plugin")
 
-        self._inspector   .init (session.cfg)
-        self._translator  .init (session.cfg)
-        self._scheduler   .init (session.cfg)
-        self._provisioner .init (session.cfg)
+        self._inspector  .init_plugin (self.session)
+        self._translator .init_plugin (self.session)
+        self._scheduler  .init_plugin (self.session)
+        self._provisioner.init_plugin (self.session)
+
+        troy._logger.info ("initialized  overlay manager (%s)" % self.plugins)
 
 
     # --------------------------------------------------------------------------
@@ -141,7 +190,7 @@ class OverlayManager (object) :
     # --------------------------------------------------------------------------
     #
     @classmethod
-    def get_overlay (cls, overlay_id) :
+    def get_overlay (cls, overlay_id, _manager=None) :
         """
         We don't care about locking at this point -- so we simply release the
         overlay immediately...
@@ -152,10 +201,13 @@ class OverlayManager (object) :
         if  not overlay_id.startswith ('ol.') :
             raise ValueError ("'%s' does not represent a overlay" % overlay_id)
 
-        ol = ru.Registry.acquire (overlay_id, ru.READONLY)
+        overlay = ru.Registry.acquire (overlay_id, ru.READONLY)
         ru.Registry.release (overlay_id)
 
-        return ol
+        if  _manager :
+            _manager.timed_component (overlay, 'troy.Overlay', overlay_id)
+
+        return overlay
 
 
     # --------------------------------------------------------------------------
@@ -171,13 +223,19 @@ class OverlayManager (object) :
 
         overlay = self.get_overlay (overlay_id)
 
+        self.timed_component (overlay, 'troy.Overlay', overlay.id)
+
         # make sure the overlay is 'fresh', so we can translate it it
         if  overlay.state != DESCRIBED :
             raise ValueError ("overlay '%s' not in DESCRIBED state" % overlay.id)
 
+        # make sure manager is initialized
+        self._init_plugins ()
+
         # hand over control over overlay to the scheduler plugin, so it can do
         # what it has to do.
-        self._translator.translate (overlay)
+        overlay.timed_method ('translate', [], 
+                              self._translator.translate, [overlay])
 
         # mark overlay as 'translated'
         overlay.state = TRANSLATED
@@ -196,13 +254,19 @@ class OverlayManager (object) :
 
         overlay = self.get_overlay (overlay_id)
 
+        self.timed_component (overlay, 'troy.Overlay', overlay.id)
+
         # make sure the overlay is 'fresh', so we can schedule it
         if  overlay.state != TRANSLATED :
             raise ValueError ("overlay '%s' not in TRANSLATED state" % overlay.id)
 
+        # make sure manager is initialized
+        self._init_plugins ()
+
         # hand over control over overlay to the scheduler plugin, so it can do
         # what it has to do.
-        self._scheduler.schedule (overlay)
+        overlay.timed_method ('schedule', [], 
+                              self._scheduler.schedule, [overlay])
 
         # mark overlay as 'scheduled'
         overlay.state = SCHEDULED
@@ -220,13 +284,19 @@ class OverlayManager (object) :
 
         overlay = self.get_overlay (overlay_id)
 
+        self.timed_component (overlay, 'troy.Overlay', overlay.id)
+
         # make sure the overlay is 'fresh', so we can schedule it
         if  overlay.state != SCHEDULED :
             raise ValueError ("overlay '%s' not in SCHEDULED state" % overlay.id)
 
+        # make sure manager is initialized
+        self._init_plugins ()
+
         # hand over control over overlay to the provisioner plugin, so it can do
         # what it has to do.
-        self._provisioner.provision (overlay)
+        overlay.timed_method ('provision', [], 
+                              self._provisioner.provision, [overlay])
 
         # mark overlay as 'provisioned'
         overlay.state = PROVISIONED
@@ -240,6 +310,10 @@ class OverlayManager (object) :
         """
 
         overlay = self.get_overlay (overlay_id)
+
+        self.timed_component (overlay, 'troy.Overlay', overlay.id)
+
+        overlay.timed_method ('cancel', [], overlay.cancel)
         overlay.cancel ()
 
 

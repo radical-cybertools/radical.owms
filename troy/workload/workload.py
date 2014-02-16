@@ -4,6 +4,8 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
+import time
+
 import radical.utils      as ru
 import troy.utils         as tu
 from   troy.constants import *
@@ -13,7 +15,7 @@ import troy
 # ------------------------------------------------------------------------------
 #
 @ru.Lockable  # needed locks for the ru.Registry
-class Workload (tu.Properties) :
+class Workload (tu.Properties, tu.Timed) :
     """
     The `Workload` class represents a workload which is managed by Troy.  It
     contains a set of :class:`Tasks`, and a set of :class:`Relation`s between
@@ -73,12 +75,47 @@ class Workload (tu.Properties) :
     a newly `DESCRIBED` task is added to a `SCHEDULED` workload.   Those
     feedback loops are considered out-of-scope for Troy at this point, so that
     state transitions are considered irreversible.  
+
+    Workload Partitions
+    -------------------
+
+    A Troy Planner (or in fact any other algorithm in Troy) can partition
+    a workload.  Workload Partitions are sub-workloads which have to run
+    sequentially -- i.e. partition[0] has to be completed before partition[1]
+    can start.  Task dependencies provide boundaries to the possible
+    partitioning schemes, but partitions can also be defined in the absence of
+    task dependencies, for example to ensure efficient usage of certain overlay
+    structures.
+
+    A troy workload maintains a set of partitions, and any algorithm, in
+    particular the troy.strategy and the workload.dispatcher plugins, may or may
+    not honor the defined partitions -- the plugin documentation should document
+    if partitions are honored or not.
+
+    Partitions are provided as `workload.partitions`, which is a list of
+    partition IDs, which can be translated to `troy.Workload` instances via
+    `troy.WorkloadManager.get_workload (workload.partitions[0])` etc.  That list
+    will contain at least one partition, the original workload itself --
+    algorithms can thus transparently operate over partitioned and unpartitioned
+    workloads.  It is guaranteed that the union of all partitions is equivalent
+    to the complete original workload, i.e. that it contains all tasks of the
+    workload.  The partitions and the original workload share their tasks, i.e.
+    when a task is run and enters `DONE` state in a partition, it is also in
+    `DONE` state in the original workload, and vice versa.  Partition states
+    follow the rules for workload states above.  The overall workload state is
+    not affected by the partitioning of the workload.
+
+    Note that partitions may create garbage collection cycles -- this will be
+    changed in future versions of Troy.
     """
+
+    # FIXME: if the original workload gets, for example, BOUND, then all
+    # partitions should be marked as BOUND.
 
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self) :
+    def __init__ (self, session, task_descriptions=None) :
         """
         Create a new workload instance.
 
@@ -88,22 +125,36 @@ class Workload (tu.Properties) :
         additional id parameter, to reconnect to the thus identified workload
         instances.  
         """
-        
-        wl_id = ru.generate_id ('wl.')
+
+        self.session = session
+
+        self.id = ru.generate_id ('wl.')
+
+        tu.Timed.__init__            (self, 'troy.Workload', self.id)
+        self.session.timed_component (self, 'troy.Workload', self.id)
 
         tu.Properties.__init__ (self)
+
 
         # register properties, initialize state
         self.register_property ('id')
         self.register_property ('state')
         self.register_property ('tasks')
         self.register_property ('relations')
+        self.register_property ('partitions')
+        self.register_property ('manager')
 
         # initialize essential properties
-        self.id        = wl_id
-        self.state     = DESCRIBED
-        self.tasks     = dict()
-        self.relations = list()
+        self.state = UNKNOWN
+        self._set_state (DESCRIBED)
+
+        self.tasks      = dict()
+        self.relations  = list()
+        self.partitions = list()
+
+
+        # initialize partitions
+        self.partitions = [self.id]
 
         self.register_property_updater ('state', self.get_state)
 
@@ -112,6 +163,16 @@ class Workload (tu.Properties) :
 
         # register this instance, so that workload can be passed around by id.
         troy.WorkloadManager.register_workload (self)
+
+        # fill the workload with given task descriptions
+        if  task_descriptions :
+            if  not isinstance (task_descriptions, list) :
+                task_descriptions = [task_descriptions]
+
+            for task_descr in task_descriptions :
+                self.add_task (task_descr)
+
+        
 
 
     # --------------------------------------------------------------------------
@@ -142,7 +203,7 @@ class Workload (tu.Properties) :
                 task.cancel ()
 
             # and update state
-            self.state = CANCELED
+            self._set_state (CANCELED)
 
 
     # --------------------------------------------------------------------------
@@ -171,12 +232,14 @@ class Workload (tu.Properties) :
             if  not isinstance (d, troy.TaskDescription) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
-            # FIXME: add sanity checks for task syntax / semantics
-            task = troy.Task (d, _manager=self)
-
-            if task.tag in self.tasks :
-                raise ValueError ("Task with tag '%s' already exists" % task.tag)
+            if d.tag in self.tasks :
+                raise ValueError ("Task with tag '%s' already exists" % d.tag)
             
+            # FIXME: add sanity checks for task syntax / semantics
+            task = troy.Task (self.session, d, _workload=self)
+        
+            self.timed_component (task, 'troy.Task', task.id)
+
             self.tasks [d.tag] = task
             ret.append (task.id)
 
@@ -239,6 +302,18 @@ class Workload (tu.Properties) :
 
     # --------------------------------------------------------------------------
     #
+    def _set_state (self, new_state) :
+        """
+        Private method which updates the workload state, and logs the event time
+        """
+
+        if  self.state != new_state :
+            self.state  = new_state
+            self.timed_event ('state', [new_state])
+
+
+    # --------------------------------------------------------------------------
+    #
     def get_state (self) :
         """
         The workload state is a wonderous thing -- it is sometimes atomic, and
@@ -290,34 +365,43 @@ class Workload (tu.Properties) :
           # print 'ts: %s' % task.state
 
         if UNKNOWN in task_states :
-            self.state = UNKNOWN
+            self._set_state (UNKNOWN)
 
         elif FAILED in task_states :
-            self.state = FAILED
+            self._set_state (FAILED)
 
         elif CANCELED in task_states :
-            self.state = CANCELED
+            self._set_state (CANCELED)
 
         elif DESCRIBED in task_states :
-            self.state = TRANSLATED
+            self._set_state (TRANSLATED)
 
         elif TRANSLATED in task_states :
-            self.state = TRANSLATED
+            self._set_state (TRANSLATED)
 
         elif BOUND in task_states :
-            self.state = BOUND
+            self._set_state (BOUND)
 
         elif DISPATCHED in task_states :
-            self.state = DISPATCHED
+            self._set_state (DISPATCHED)
 
         else :
-            self.state = DONE
+            self._set_state (DONE)
             for s in task_states :
                 if s != DONE :
-                    self.state = UNKNOWN
+                    self._set_state (UNKNOWN)
 
         troy._logger.debug ('wl   state %-6s: %-10s %s' % (self.id, self.state, str(task_states)))
         return self.state
+
+
+    # --------------------------------------------------------------------------
+    #
+    def wait (self) :
+
+        while self.state not in [troy.DONE, troy.FAILED, troy.CANCELED]:
+            troy._logger.info ("waiting for workload (state: %s)" % self.state)
+            time.sleep(1)
 
 
     # --------------------------------------------------------------------------

@@ -16,6 +16,20 @@ __license__   = "MIT"
 
 # ------------------------------------------------------------------------------
 #
+# Plugin selection wildcards
+#
+DEFAULT      = 'default'     # use default plugin as configured by Troy
+
+# Why do we need an alias auto for AUTO?! 
+# Could we change AUTOMATIC to DEFAULT? Just naming so definitevely a third 
+# order concern.
+
+AUTO         = 'auto'        # leave plugin selection to current Troy strategy
+AUTOMATIC    =  AUTO         # alias
+
+
+# ------------------------------------------------------------------------------
+#
 # workload states
 #
 DESCRIBED    = 'Described'   # tasks known
@@ -175,6 +189,7 @@ LATE             = 'Late'
 #
 UPPER_LIMIT      = 'Upper'
 LOWER_LIMIT      = 'Lower'
+UNLIMITED        = 'Unlimited'
 
 
 # ------------------------------------------------------------------------------

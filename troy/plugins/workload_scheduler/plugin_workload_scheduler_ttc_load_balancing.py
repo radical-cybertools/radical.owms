@@ -10,7 +10,7 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'workload_scheduler', 
-    'name'        : 'debug', 
+    'name'        : 'ttc_load_balancing', 
     'version'     : '0.01',
     'description' : 'debug scheduler, throws out tons of info'
   }
@@ -19,11 +19,7 @@ _idx = 0
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (object) :
-    """
-    This class implements the (trivial) debug workload scheduler algorithm for
-    TROY.
-    """
+class PLUGIN_CLASS (troy.PluginBase):
 
     __metaclass__ = ru.Singleton
 
@@ -32,17 +28,7 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
-
-
-    # --------------------------------------------------------------------------
-    #
-    def init (self, cfg):
-
-        troy._logger.info ("init the debug workload scheduler plugin")
-        
-        self.cfg = cfg.as_dict ().get (self.name, {})
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
 
     # --------------------------------------------------------------------------
@@ -61,7 +47,7 @@ class PLUGIN_CLASS (object) :
                 print unit.description
                 # this is hacky as all get-out but this IS a WIP... TODO
                 try:
-                    unit.description._ttc = int(unit.description.arguments[0])
+                    unit.description._ttc = int(unit.description.walltime)
                 except:
                     pass
 

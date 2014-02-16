@@ -10,18 +10,15 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'workload_translator', 
-    'name'        : 'default', 
+    'name'        : 'direct', 
     'version'     : '0.1',
-    'description' : 'this is an empty translator which basically does nothing.'
+    'description' : 'this is a sime translator which defines one CU per task.'
   }
 
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (object) :
-    """
-    This class implements the (empty) default workload translator for TROY.
-    """
+class PLUGIN_CLASS (troy.PluginBase):
 
     __metaclass__ = ru.Singleton
     
@@ -30,17 +27,7 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
-
-
-    # --------------------------------------------------------------------------
-    #
-    def init (self, cfg):
-
-        troy._logger.info ("init the default wokload translator plugin")
-        
-        self.cfg = cfg.as_dict ().get (self.name, {})
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
 
     # --------------------------------------------------------------------------
@@ -57,11 +44,11 @@ class PLUGIN_CLASS (object) :
             # this translator adds a TTC estimate -- for now, it assumes
             # something stupid, like the number of characters in the arguments
             # representing estimated TTC in seconds...
+            # This is required by the load balancing scheduler
             cu_descr._ttc = int(len(str(cu_descr.arguments)))
 
-            cu_id    = task._add_unit (cu_descr)
+            cu_id = task._add_unit (cu_descr)
             troy._logger.info ('workload translate: derive unit %-18s for %s' % (cu_id, task.id))
-
 
 
 # ------------------------------------------------------------------------------

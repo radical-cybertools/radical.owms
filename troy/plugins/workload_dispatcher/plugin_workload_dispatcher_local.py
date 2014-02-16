@@ -1,5 +1,8 @@
 
 
+import os
+import saga
+
 import radical.utils as ru
 
 from   troy.constants import *
@@ -10,18 +13,15 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'workload_dispatcher', 
-    'name'        : 'default', 
+    'name'        : 'local', 
     'version'     : '0.1',
-    'description' : 'this is an empty dispatcher which basically does nothing.'
+    'description' : 'this is a simple dispatcher which forks CUs locally.'
   }
 
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (object) :
-    """
-    This class implements the (empty) default workload dispatcher for TROY.
-    """
+class PLUGIN_CLASS (troy.PluginBase):
 
     __metaclass__ = ru.Singleton
 
@@ -29,18 +29,15 @@ class PLUGIN_CLASS (object) :
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
+        """
+        invoked when plugin is loaded. Only do sanity checks, no other
+        initialization
+        """
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
-
-    # --------------------------------------------------------------------------
-    #
-    def init (self, cfg):
-
-        troy._logger.info ("init the default workload dispatcher plugin")
-        
-        self.cfg = cfg.as_dict ().get (self.name, {})
+        # cache saga dirs for file staging
+        self._dir_cache = dict()
 
 
     # --------------------------------------------------------------------------
@@ -49,13 +46,17 @@ class PLUGIN_CLASS (object) :
 
         for tid in workload.tasks.keys () :
 
-            t = workload.tasks[tid]
+            task = workload.tasks[tid]
 
-            for unit_id in t['units'] :
-                unit       = t['units'][unit_id]
-                unit_descr = unit.description
+            for unit_id in task['units'] :
+                unit     = task['units'][unit_id]
+
+                if  not unit.staged_in and task.description.inputs :
+                    raise RuntimeError ("cannot dispatch %s - stage-in not done" % unit.id)
+
+                unit_descr     = unit.description
                 pid            = unit.pilot_id
-                pilot          = troy.Pilot (pid)
+                pilot          = troy.Pilot (overlay.session, pid)
                 pilot_instance = pilot._get_instance ('default')
                 unit_instance  = pilot_instance.submit_unit (unit_descr)
                 troy._logger.info ('workload dispatch : dispatch %-23s to %s' % (unit_id, pid))
@@ -90,11 +91,10 @@ class PLUGIN_CLASS (object) :
 
     # --------------------------------------------------------------------------
     #
-    def unit_cancel (self, u) :
+    def unit_cancel (self, unit) :
 
+        u = unit._get_instance ('default')
         u.cancel ()
-
-
 
 
 # ------------------------------------------------------------------------------

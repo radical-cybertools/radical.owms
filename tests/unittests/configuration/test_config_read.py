@@ -19,9 +19,9 @@ def test_config_read():
 
     os.environ ['TROY_CONFIG'] = "%s/troy.cfg" % os.path.dirname (__file__)
 
-    configurable  =  troy.Configuration ()
-    config        =  configurable.get_config ('general')
-    lucky         =  config['i_feel_lucky'].get_value ()
+    configurable = troy.Configuration ()
+    config       = configurable.get_config ('general')
+    outdir       = config['output_directory'].get_value ()
 
-    assert (lucky == 'yes'), "Don't feeling lucky apparently!"
+    assert (outdir == '/Users/mark/agent'), "%s != DEBUG" % (loglevel)
 

@@ -13,7 +13,7 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'overlay_provisioner', 
-    'name'        : 'default', 
+    'name'        : 'local', 
     'version'     : '0.1',
     'description' : 'this is a scheduler which provisions no pilots.'
   }
@@ -53,28 +53,41 @@ class _Unit (object) :
         troy._logger.debug ("new     unit %s" % (self.id))
 
 
+
     def run (self) :
 
         assert (self.state == _NEW)
 
-        exe          =           self.descr['executable']
-        args         = ' '.join (self.descr['arguments'])
-        env_list     =           self.descr['environment']
-        env          = dict()
+        env = dict()
 
-        for env_entry in env_list :
+        for key in os.environ.keys() :
+            env[key] = os.environ[key]
+
+        for env_entry in self.descr['environment'] :
             key, val = env_entry.split ('=', 1)
             env[key] = val
 
+        pwd     = self.descr.get ('working_directory', '.')
+        try :
+            os.makedirs (pwd)
+        except :
+            pass
 
-        command      = "%s %s" % (exe, args)
-        self._proc   = subprocess.Popen (command, shell=True, env=env, 
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
+        args = ""
+        for arg in self.descr['arguments'] :
+            args += "%s " % arg
+
+        command = "cd %s ; %s %s" % (pwd, self.descr['executable'], args.strip())
+
+        troy._logger.debug ("running unit %s (%s)" % (self.id, command))
+
+        self._proc   = subprocess.Popen ([command], env=env,
+                                         shell=True,
+                                         stdout=subprocess.PIPE,
+                                         stderr=subprocess.PIPE)
         self.state   = _RUNNING
         self.start   = time.time()
 
-        troy._logger.debug ("running unit %s (%s)" % (self.id, command))
 
 
     def get_state (self) :
@@ -91,6 +104,12 @@ class _Unit (object) :
                     self._state = _DONE
                 else :
                     self._state = _FAILED
+
+                out, err = self._proc.communicate()
+                troy._logger.debug ("unit finished: %s" % self.id)
+                troy._logger.debug ("     exitcode: %s" % self.retval)
+                troy._logger.debug ("     output  : %s" % out)
+                troy._logger.debug ("     error   : %s" % err)
 
         return self._state
 
@@ -168,7 +187,7 @@ class _Pilot (object) :
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (object) :
+class PLUGIN_CLASS (troy.PluginBase):
     """
     This class implements the defaul overlay provisioner for TROY.  It simply
     assumes that the application is its own pilot, and does not create a new
@@ -182,19 +201,10 @@ class PLUGIN_CLASS (object) :
     #
     def __init__ (self) :
 
-        self.description = PLUGIN_DESCRIPTION
-        self.name        = "%(name)s_%(type)s" % self.description
-        self.pilots      = dict()
-        self.state       = _NEW
+        troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
-
-    # --------------------------------------------------------------------------
-    #
-    def init (self, cfg):
-
-        troy._logger.info ("init the default overlay provisioner plugin")
-        
-        self.cfg = cfg.as_dict ().get (self.name, {})
+        self.pilots = dict()
+        self.state  = _NEW
 
 
     # --------------------------------------------------------------------------
@@ -250,7 +260,8 @@ class PLUGIN_CLASS (object) :
         info['units'] = dict()
 
         for unit_id in p.list_units () :
-            unit = troy.ComputeUnit (_native_id=unit_id, _pilot_id=pilot.id)
+            unit = troy.ComputeUnit (pilot.session, 
+                                     _native_id=unit_id, _pilot_id=pilot.id)
             info['units'][unit.id] = unit
 
         # hahaha python switch statement hahahahaha

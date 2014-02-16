@@ -12,10 +12,10 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-class WorkloadManager (object) :
+class WorkloadManager (tu.Timed) :
     """
     The `WorkloadManager` class, as its name suggests, manages :class:`Workload`
-    instances, i.e. translates, schedules and enacts those instances.  
+    instances, i.e. translates, schedules and enacts those instances.
 
     The internal state of the workload manager is not open for inspection -- but
     the workloads it manages can be exposed for inspection, on request
@@ -29,56 +29,146 @@ class WorkloadManager (object) :
     we want to get any meaningful feedback loop.  Easiest and cleanest is
     probably to allow to repeatedly run through earlier stages again -- DONE
     tasks will then simply be ignored...
+
+    Notes
+
+    . I agree that iterative scheduling has to be implemented. The state model
+      of the workload could be extended by adding a RESCHEDULING state. In a
+      synchronos model:
+      - the manager should 'monitor' the state of its pilots
+      - react to a well-defined set of states by transitioning the workload
+        into a RESCHEDULING state
+      - chose another resource if available or create a new (pilots of an)
+        overlay
+      - call the scheduler to get a scheduling map of the remaining task (I
+        agree, the tasks in state done should be disregarded)
+      - enact the scheduling map on the new (pilots of an) overlay.
+
+    . The workload should be open to inspection only to the components of TROY,
+      to to the application layer.
+
     """
 
     # FIXME: state checks ignore PLANNED state...
 
     # this map is used to translate between troy unit IDs and native backend
-    # IDs. 
+    # IDs.
     _unit_id_map = dict ()
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, inspector  = 'default', 
-                        translator = 'default',
-                        scheduler  = 'default',
-                        dispatcher = 'default', 
-                        session    = None) :
+    def __init__ (self, session     = None, 
+                        inspector   = AUTOMATIC,
+                        translator  = AUTOMATIC,
+                        scheduler   = AUTOMATIC,
+                        dispatcher  = AUTOMATIC) :
         """
-        Create a new workload manager instance.  
+        Create a new workload manager instance.
 
         Use default plugins if not indicated otherwise
         """
 
-        if  not session :
-            session = troy.Session ()
+        if  session : self.session = session
+        else:         self.session = troy.Session ()
 
-        # initialize state, load plugins
-        self._session     = session
-        self._plugin_mgr  = ru.PluginManager ('troy')
+        self._stager = None
+
+
+        # We leave actual plugin initialization for later, in case a strategy
+        # wants to alter / complete the plugin selection
+
+        self.plugins = dict ()
+        self.plugins['inspector' ] = inspector
+        self.plugins['translator'] = translator
+        self.plugins['scheduler' ] = scheduler
+        self.plugins['dispatcher'] = dispatcher
+
+        self._plugin_mgr = None
+
+        self.id = ru.generate_id ('wlm.')
+
+        tu.Timed.__init__             (self, 'troy.WorkloadManager', self.id)
+        self.session.timed_component  (self, 'troy.WorkloadManager', self.id)
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _init_plugins (self) :
+
+        if  self._plugin_mgr :
+            # we don't allow changes once plugins are loaded and used, for state
+            # consistency
+            # NOTES: Does this mean that we cannot unload/load plugin within
+            #        the same workload manager? If so, why do we need a plugin
+            #        manager at all?
+            return
+
+        # for each plugin set to 'AUTOMATIC', do the clever thing
+        # TODO: We should probably move all this to a configuration file. I
+        #       changed scheduler to round_robin because first kind of drug
+        #       every run with multiple pilots. This is bad(tm).
+
+        if  self.plugins['inspector' ]  == AUTOMATIC :
+            self.plugins['inspector' ]  = 'reflect'
+        if  self.plugins['translator']  == AUTOMATIC :
+            self.plugins['translator']  = 'direct'
+        if  self.plugins['scheduler' ]  == AUTOMATIC :
+            self.plugins['scheduler' ]  = 'round_robin'
+        if  self.plugins['dispatcher']  == AUTOMATIC :
+            self.plugins['dispatcher']  = 'local'
+
+        # troy._logger.debug ("initializing workload manager (%s)" % self.plugins)
+
+        # load plugins
+        self._plugin_mgr = ru.PluginManager ('troy')
 
         # FIXME: error handling
-        self._inspector   = self._plugin_mgr.load  ('workload_inspector',  inspector)
-        self._translator  = self._plugin_mgr.load  ('workload_translator', translator)
-        self._scheduler   = self._plugin_mgr.load  ('workload_scheduler',  scheduler)
-        self._dispatcher  = self._plugin_mgr.load  ('workload_dispatcher', dispatcher)
+        self._inspector  = self._plugin_mgr.load  ('workload_inspector',  self.plugins['inspector' ])
+        self._translator = self._plugin_mgr.load  ('workload_translator', self.plugins['translator'])
+        self._scheduler  = self._plugin_mgr.load  ('workload_scheduler',  self.plugins['scheduler' ])
+        self._dispatcher = self._plugin_mgr.load  ('workload_dispatcher', self.plugins['dispatcher'])
 
         if  not self._inspector  : raise RuntimeError ("Could not load inspector  plugin")
         if  not self._translator : raise RuntimeError ("Could not load translator plugin")
         if  not self._scheduler  : raise RuntimeError ("Could not load scheduler  plugin")
         if  not self._dispatcher : raise RuntimeError ("Could not load dispatcher plugin")
 
-        self._inspector .init (session.cfg)
-        self._translator.init (session.cfg)
-        self._scheduler .init (session.cfg)
-        self._dispatcher.init (session.cfg)
+        self._inspector .init_plugin (self.session)
+        self._translator.init_plugin (self.session)
+        self._scheduler .init_plugin (self.session)
+        self._dispatcher.init_plugin (self.session)
 
+        troy._logger.info ("initialized  workload manager (%s)" % self.plugins)
 
     # --------------------------------------------------------------------------
     #
     @classmethod
     def register_workload (cls, workload) :
-        ru.Registry.register (workload)
+        """
+        Notes
+
+        . What exactly does classmethod do. I saw the documentation in
+          signatures.py but I did not manage to understand it.
+
+        . What cls stands for? It is puzzling as when registering a
+          workload in the examples we pass a single parameter. I suspect it
+          has to do with classmethod and type registration. What exactly buy
+          us a part oscurity and a very gray area in the phylosophy of
+          language design?
+
+        """
+
+        if  isinstance (workload, list) :
+            workloads =  workload
+        else :
+            workloads = [workload]
+
+        for workload in workloads :
+
+            if  not isinstance (workload, troy.Workload) :
+                raise TypeError ('expected troy.Workload instance, not %s' % type(workload))
+
+            ru.Registry.register (workload)
 
 
     # --------------------------------------------------------------------------
@@ -91,10 +181,27 @@ class WorkloadManager (object) :
     # --------------------------------------------------------------------------
     #
     @classmethod
-    def get_workload (cls, workload_id) :
+    def get_workload (cls, workload_id, _manager=None) :
         """
         We don't care about locking at this point -- so we simply release the
         workload immediately...
+
+        Questions
+
+        . I remember we discussed this previously but I forgot about why we
+          we decided to pass IDs instead of objects. Having a syntactic check
+          on workload seems ugly and somewhat fragile. I would think a type
+          checking would be more robust.
+
+        . Why do we need to lock the acquising in readonly mode of a
+          workload_id? I dag out the code for Registry.acquire and I see that
+          'The registry will thus ensure that a consumer will always see
+          instances which are not changed by a third party over the scope of
+          a lease'. The access to the workload description submitted by the
+          application layer is confined by desing to the planner. Why should
+          we care about concurrent (especially readonly) access and possible
+          modification to the workload?
+
         """
         if  not workload_id :
             return None
@@ -102,10 +209,13 @@ class WorkloadManager (object) :
         if  not workload_id.startswith ('wl.') :
             raise ValueError ("'%s' does not represent a workload" % workload_id)
 
-        wl = ru.Registry.acquire (workload_id, ru.READONLY)
+        workload = ru.Registry.acquire (workload_id, ru.READONLY)
         ru.Registry.release (workload_id)
 
-        return wl
+        if  _manager :
+            _manager.timed_component (workload, 'troy.Workload', workload_id)
+
+        return workload
 
 
     # --------------------------------------------------------------------------
@@ -140,15 +250,16 @@ class WorkloadManager (object) :
 
             # lookup id
             if  not unit_id in cls._unit_id_map :
-                import pprint
-                pprint.pprint (cls._unit_id_map)
+              # import pprint
+              # pprint.pprint (cls._unit_id_map)
                 raise ValueError ("no such unit known '%s'" % unit_id)
             return cls._unit_id_map[unit_id]
 
 
     # --------------------------------------------------------------------------
     #
-    def translate_workload (self, workload_id, overlay=None) :
+    def translate_workload (self, workload_id, overlay_id=None) :
+        # FIXME: is empty overlay valid?
         """
         Translate the referenced workload, i.e. transform its tasks into
         ComputeUnit and DataUnit descriptions.
@@ -159,18 +270,29 @@ class WorkloadManager (object) :
         translator changes and/or annotates the given workload.
         """
 
-        workload = self.get_workload (workload_id)
+
+        workload = troy.WorkloadManager.get_workload (workload_id, _manager=self)
+        overlay  = troy.OverlayManager .get_overlay  (overlay_id,  _manager=self)
 
         # make sure the workflow is 'fresh', so we can translate it
         if  workload.state not in [DESCRIBED, PLANNED] :
             raise ValueError ("workload '%s' not in DESCRIBED nor PLANNED state" % workload.id)
 
+        # make sure manager is initialized
+        self._init_plugins ()
+
         # hand over control over workload to the translator plugin, so it can do
         # what it has to do.
-        self._translator.translate (workload, overlay)
+        workload.timed_method ('translate', [], 
+                               self._translator.translate, [workload, overlay])
+
 
         # mark workload as 'translated'
-        workload.state = TRANSLATED
+        workload._set_state (TRANSLATED)
+
+        for partition_id in workload.partitions :
+            partition = self.get_workload (partition_id)
+            partition._set_state (TRANSLATED)
 
 
     # --------------------------------------------------------------------------
@@ -191,7 +313,6 @@ class WorkloadManager (object) :
         in the case of late binding.  Partially dispatched overlays will not be
         usable in either case -- for those, the binding parameter must be left
         unspecified (i.e. `None`).
-        
         """
 
         workload = self.get_workload (workload_id)
@@ -205,22 +326,23 @@ class WorkloadManager (object) :
             raise ValueError ("workload '%s' not in TRANSLATED state" % workload.id)
 
         # make sure we can honor the requested scheduling mode
-        if  bind_mode == EARLY : 
-            if  overlay.state != TRANSLATED :
-                raise ValueError ("overlay '%s' not in TRANSLATED state, cannot " \
+        if  bind_mode == EARLY :
+            if  overlay.state not in [TRANSLATED, SCHEDULED] :
+                raise ValueError ("overlay '%s' not in TRANSLATED or SCHEDULED state, cannot " \
                                   "do early binding" % str(overlay.id))
 
-        elif bind_mode == LATE : 
-            if  overlay.state != BOUND   and \
-                overlay.state != PROVISIONED :
+        elif bind_mode == LATE :
+            if  overlay.state != PROVISIONED :
                 raise ValueError ( "overlay '%s' neither scheduled nor " % str(overlay.id) \
-                                 + "dispateched, cannot do late binding")
-                                 
+                                 + "dispatched, cannot do late binding")
+
+        # make sure manager is initialized
+        self._init_plugins ()
 
         # hand over control over workload (and overlay) to the scheduler plugin,
         # so it can do what it has to do.
-        self._scheduler.schedule (workload, overlay)
-
+        workload.timed_method ('schedule', [overlay.id], 
+                               self._scheduler.schedule, [workload, overlay])
 
     # --------------------------------------------------------------------------
     #
@@ -242,12 +364,25 @@ class WorkloadManager (object) :
         if  workload.state != BOUND :
             raise ValueError ("workload '%s' not in BOUND state" % workload.id)
 
+        # make sure manager is initialized
+        self._init_plugins ()
+
+      # # we don't really know if the dispatcher plugin will perform the
+      # # stage-in operations in time - so we trigger it manually here.
+      # # Eventually, this should get a new task state (same for stage-out)
+      # self.stage_in_workload (workload)
+
         # hand over control over workload to the dispatcher plugin, so it can do
         # what it has to do.
-        self._dispatcher.dispatch (workload, overlay)
+        workload.timed_method ('dispatch', [overlay.id], 
+                               self._dispatcher.dispatch, [workload, overlay])
 
         # mark workload as 'scheduled'
-        workload.state = DISPATCHED
+        workload._set_state (DISPATCHED)
+
+        for partition_id in workload.partitions :
+            partition = self.get_workload (partition_id)
+            partition._set_state (DISPATCHED)
 
 
     # --------------------------------------------------------------------------
@@ -258,7 +393,37 @@ class WorkloadManager (object) :
         """
 
         workload = self.get_workload (workload_id)
-        workload.cancel ()
+        workload.timed_method ('cancel', [], workload.cancel)
+
+
+    # --------------------------------------------------------------------------
+    #
+    def stage_in_workload (self, workload_id) :
+        """
+        trigger stage-in for all workload tasks
+        """
+
+        if  not self._stager :
+            self._stager = troy.DataStager (self.session)
+
+        workload = self.get_workload (workload_id)
+        workload.timed_method ('stage_in_workload', [], 
+                               self._stager.stage_in_workload, [workload])
+
+
+    # --------------------------------------------------------------------------
+    #
+    def stage_out_workload (self, workload_id) :
+        """
+        trigger stage-out for all workload tasks
+        """
+
+        if  not self._stager :
+            self._stager = troy.DataStager (self.session)
+
+        workload = self.get_workload (workload_id)
+        workload.timed_method ('stage_out_workload', [], 
+                               self._stager.stage_out_workload, [workload])
 
 
 # ------------------------------------------------------------------------------

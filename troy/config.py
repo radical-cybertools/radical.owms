@@ -40,7 +40,7 @@ import radical.utils.singleton as rus
 # h_flag=True
 #
 
-class Configuration(ruc.Configurable):
+class Configuration (ruc.Configurable):
 
     __metaclass__ = rus.Singleton    
 
@@ -70,15 +70,6 @@ class Configuration(ruc.Configurable):
             'default'       : '0',
             'valid_options' : ['0', '1', '2', '3'],
             'documentation' : 'Verbosity mode',
-            'env_variable'  : ''
-        }, {
-            # i_feel_lucky
-            'category'      : 'general',
-            'name'          : 'i_feel_lucky',
-            'type'          : str,
-            'default'       : 'no',
-            'valid_options' : ['yes', 'no'],
-            'documentation' : 'Need I say more?',
             'env_variable'  : ''
         }]
 
