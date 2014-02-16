@@ -27,6 +27,8 @@ if __name__ == '__main__':
                    'Vishal Shah',      'Radicalobot']
     radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner']
 
+    session = troy.Session ()
+
     # Responsible for application workload
     workload_mgr = troy.WorkloadManager (session, dispatcher='sagapilot')
 
@@ -108,3 +110,4 @@ if __name__ == '__main__':
 
     workload_mgr.cancel_workload (workload.id)   # same as workload.cancel ()
     overlay_mgr .cancel_overlay  (overlay.id)
+

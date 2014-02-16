@@ -189,17 +189,17 @@ class PLUGIN_CLASS (troy.PluginBase):
         #                 'start_time'        : datetime.datetime(2014, 2, 5, 12, 20, 40, 884000), 
         #                 'description'       : <sagapilot.compute_unit_description.ComputeUnitDescription object at 0x27ea990>}
 
-        # register sinon events when they have a valid time stamp.  This may
+        # register sagapilot events when they have a valid time stamp.  This may
         # register them multiple times though, but duplication is filtered out
         # on time keeping level
         if 'submission_time' in info and info['submission_time'] :
-            unit.timed_event ('submission', 'sinon', info['submission_time'])
+            unit.timed_event ('submission', 'sagapilot', info['submission_time'])
 
         if 'start_time' in info and info['start_time'] :
-            unit.timed_event ('start', 'sinon', info['start_time'])
+            unit.timed_event ('start', 'sagapilot', info['start_time'])
 
         if 'stop_time' in info and info['stop_time'] :
-            unit.timed_event ('stop', 'sinon', info['stop_time'])
+            unit.timed_event ('stop', 'sagapilot', info['stop_time'])
 
 
         return info

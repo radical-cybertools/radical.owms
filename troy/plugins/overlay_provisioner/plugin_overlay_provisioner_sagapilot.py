@@ -200,7 +200,7 @@ class PLUGIN_CLASS (troy.PluginBase):
       #  'resource_detail' : {'cores_per_node': 4, 'nodes': [u'localhost']},
       #  'start_time'       : datetime.datetime(2014, 2, 5, 13, 4, 56, 145000),
       #  'state'            : 'Provisioned',
-      #  'state_detail'    : [u"Created agent directory 'file://localhost/home/merzky/troy_agents/pilot-52f236e4f2291a42e669a2b0/'",
+      #  'log'              : [u"Created agent directory 'file://localhost/home/merzky/troy_agents/pilot-52f236e4f2291a42e669a2b0/'",
       #                        u"Copied 'file://localhost//home/merzky/saga/troy/ve/bin/bootstrap-and-run-agent' script to agent directory",
       #                        u"Copied 'file://localhost//home/merzky/saga/troy/ve/local/lib/python2.7/site-packages/sagapilot-0.4-py2.7.egg/sagapilot/agent/sagapilot-agent.py' script to agent directory",
       #                        u"Pilot Job successfully submitted with JobID '[fork://localhost]-[20505]'"],
@@ -223,10 +223,9 @@ class PLUGIN_CLASS (troy.PluginBase):
         if 'stop_time' in info and info['stop_time'] :
             pilot.timed_event ('stop', 'sagapilot', info['stop_time'])
 
-        if 'state_detail' in info :
-            for state_detail in info['state_detail'] :
-                pilot.timed_event ('state_detail', ['sagapilot', state_detail], -1)
-
+        if 'log' in info :
+            for log in info['log'] :
+                pilot.timed_event ('state_detail', ['sagapilot', log], -1)
 
         return info
  
