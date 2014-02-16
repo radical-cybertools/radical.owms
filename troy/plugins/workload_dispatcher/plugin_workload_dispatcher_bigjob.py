@@ -83,6 +83,8 @@ class PLUGIN_CLASS (troy.PluginBase):
 
                     bj_cu_descr[key] = unit_descr[key]
 
+                print "creating unit with '%s'" % bj_cu_descr
+
                 # FIXME: sanity check for pilot type
                 bj_pilot  = pilot._get_instance ('bigjob')
                 bj_cu     = bj_pilot.submit_compute_unit (bj_cu_descr)

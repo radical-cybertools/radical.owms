@@ -93,6 +93,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
 
             # and create the pilot
+            print "creating pilot with '%s'" % pilot_descr
             bj_pilot = self.cp_service.create_pilot (pilot_descr)
 
             # register the backend pilot with the troy pilot instance -- that
@@ -152,8 +153,8 @@ class PLUGIN_CLASS (troy.PluginBase):
         # register them multiple times though, but duplication is filtered out
         # on time keeping level
         details = bj_pilot.get_details ()
-        import pprint
-        pprint.pprint (details)
+      # import pprint
+      # pprint.pprint (details)
         
         if 'start_time' in details and details['start_time'] :
             pilot.timed_event ('submission', 'bigjob', details['start_time'])

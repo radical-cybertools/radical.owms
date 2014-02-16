@@ -369,6 +369,10 @@ class WorkloadManager (tu.Timed) :
                 # expand values with resource config settings
                 ru.dict_stringexpand (unit.description, resource_cfg)
 
+                print 1
+                print unit.description
+                print 2
+
 
       # # we don't really know if the dispatcher plugin will perform the
       # # stage-in operations in time - so we trigger it manually here.

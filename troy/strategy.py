@@ -27,7 +27,7 @@ def execute_workload (workload, planner, overlay_mgr, workload_mgr,
         raise RuntimeError ("Could not load troy strategy plugin")
 
     # for initialization, we re-use the planner session
-    strategy.init_plugin (planner._session)
+    strategy.init_plugin (planner.session, 'strategy')
 
     # this method accepts workloads and workload IDs
     if  isinstance   (workload, basestring) :

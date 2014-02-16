@@ -46,6 +46,7 @@ def _format_log_level (log_level) :
 _troy_config_skeleton = {
         'log_level'                : int( 0),
         'resource_config'          : None,
+        'resources'                : dict(),
         'planner'                : {
             'expand'               : dict(),
             'derive'               : dict(),
@@ -63,8 +64,9 @@ _troy_config_skeleton = {
             'workload_transformer' : dict(),
             'workload_translator'  : dict(),
         },
-        'resources'                : dict(),
-        'application'              : dict(),
+        'strategy'               : {
+            'strategy'             : dict(),
+        },
     }
 
 
@@ -168,8 +170,10 @@ class Session (saga.Session, tu.Timed) :
                         % (':'.join (path), current_path))
 
             if  not isinstance (current_cfg[elem], dict) :
-              # print elem
-              # print current_cfg.keys()
+                print path
+                print elem
+                print type(current_cfg[elem])
+                print current_cfg.keys()
                 raise TypeError ('no config dict "%s" beneath %s' \
                         % (':'.join (path), current_path))
 
