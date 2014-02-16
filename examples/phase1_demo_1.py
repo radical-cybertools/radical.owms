@@ -25,18 +25,20 @@ if __name__ == '__main__':
                    'Vishal Shah',      'Radicalobot']
     radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner']
 
+    session = troy.Session ()
+
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (dispatcher='sinon')
+    workload_mgr = troy.WorkloadManager (session, dispatcher='sinon')
 
     # Responsible for managing the pilot overlay
-    overlay_mgr = troy.OverlayManager (provisioner=troy.AUTOMATIC)
+    overlay_mgr = troy.OverlayManager (session, provisioner='sinon')
 
     # Planning makes initial mapping of workload to overlay
-    planner = troy.Planner('maxcores')
+    planner = troy.Planner(session, 'maxcores')
     #planner = troy.Planner('bundles')
 
     # TROY data structure that holds the tasks and their relations
-    workload    = troy.Workload ()
+    workload    = troy.Workload (session)
 
     # Create a task for every radicalist
     for r in radicalists:
@@ -57,7 +59,7 @@ if __name__ == '__main__':
     overlay_descr = planner.derive_overlay (workload.id)
 
     # get overlay for that description
-    overlay = troy.Overlay (overlay_descr)
+    overlay = troy.Overlay (session, overlay_descr)
 
     # Translate 1 workload into N ComputeUnits and N DataUnits
     workload_mgr.translate_workload(workload.id, overlay.id)
@@ -118,3 +120,4 @@ if __name__ == '__main__':
 
     workload_mgr.cancel_workload (workload.id)   # same as workload.cancel ()
     overlay_mgr .cancel_overlay  (overlay.id)
+

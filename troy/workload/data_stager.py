@@ -49,10 +49,7 @@ class DataStager (object) :
         FIXME
         """
 
-        if  session :
-            self._session = session
-        else:
-            self._session = troy.Session ()
+        self.session = session
 
         # cache saga dirs for file staging
         self._dir_cache = dict()
@@ -188,7 +185,7 @@ class DataStager (object) :
         # if needed, create a dir handle to the target resource and cache it
         if  not str(resource) in self._dir_cache :
             self._dir_cache[str(resource)] = \
-                 saga.filesystem.Directory (resource_url, session=self._session)
+                 saga.filesystem.Directory (resource_url, session=self.session)
 
         # use cached dir handle, point it to the target dir (create as needed), 
         # and copy the file
@@ -295,7 +292,7 @@ class DataStager (object) :
         # if needed, create a dir handle to the target resource and cache it
         if  not str(resource) in self._dir_cache :
             self._dir_cache[str(resource)] = \
-                 saga.filesystem.Directory (resource_url, session=self._session)
+                 saga.filesystem.Directory (resource_url, session=self.session)
 
         # use cached dir handle, point it to the target dir (create as needed), 
         # and copy the file

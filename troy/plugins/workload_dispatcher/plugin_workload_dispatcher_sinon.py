@@ -159,7 +159,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         info = {'uid'              : sinon_cu.uid,
                 'description'      : sinon_cu.description,
                 'state'            : sinon_cu.state,
-                'state_details'    : sinon_cu.state_details,
+                'log'              : sinon_cu.log,
                 'execution_details': sinon_cu.execution_details,
                 'submission_time'  : sinon_cu.submission_time,
                 'start_time'       : sinon_cu.start_time,
@@ -171,14 +171,13 @@ class PLUGIN_CLASS (troy.PluginBase):
             # hahaha python switch statement hahahahaha
             info['state'] =  {sinon.states.PENDING  : PENDING, 
                               sinon.states.RUNNING  : RUNNING, 
-                              sinon.states.ACTIVE   : RUNNING, 
                               sinon.states.DONE     : DONE, 
                               sinon.states.CANCELED : CANCELED, 
                               sinon.states.FAILED   : FAILED, 
                               sinon.states.UNKNOWN  : UNKNOWN}.get (info['state'], UNKNOWN)
 
       # print 'unit_get_info: %s' % info
-        # unit_get_info: {'state_details'     : None, 
+        # unit_get_info: {'log'               : None, 
         #                 'state'             : 'Done', 
         #                 'uid'               : '52f22c8af2291a13649baf23', 
         #                 'submission_time'   : datetime.datetime(2014, 2, 5, 12, 20, 26, 744000), 

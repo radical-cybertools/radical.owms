@@ -43,16 +43,19 @@ if __name__ == '__main__':
         tmp.write   ("%s\n" % r)
         tmp.close   ()
 
+    session = troy.Session ()
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (dispatcher = 'local')
+    workload_mgr = troy.WorkloadManager (session, 
+                                         dispatcher = 'local')
 
     # Responsible for managing the pilot overlay
-    overlay_mgr = troy.OverlayManager (scheduler    = 'round_robin', 
+    overlay_mgr = troy.OverlayManager (session, 
+                                       scheduler    = 'round_robin', 
                                        provisioner  = troy.AUTOMATIC)
 
     # Planning makes initial mapping of workload to overlay
-    planner = troy.Planner (planner='concurrent')
+    planner = troy.Planner (session, planner='concurrent')
 
     # Create a task for every radicalist
     task_descriptions = list()
@@ -73,7 +76,7 @@ if __name__ == '__main__':
         task_descriptions.append (task_descr)
 
 
-    workload = troy.Workload (task_descriptions)
+    workload = troy.Workload (session, task_descriptions)
 
     # execute the workload with the given execution strategy
     troy.execute_workload (workload.id, planner, overlay_mgr, workload_mgr, strategy='basic')

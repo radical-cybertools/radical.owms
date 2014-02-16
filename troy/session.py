@@ -48,12 +48,7 @@ class Session (saga.Session, tu.Timed) :
                 log_level  =  cfg['troy']['log_level']
                 troy._logger.setLevel (log_level)
 
-        troy._logger.critical ("session id: %s" % self.id)
-
-        import traceback
-        for line in traceback.format_stack():
-            print line.strip()
-
+        troy._logger.info ("session id: %s" % self.id)
 
 
     # --------------------------------------------------------------------------

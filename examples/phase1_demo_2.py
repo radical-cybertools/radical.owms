@@ -17,9 +17,9 @@ import getpass
 PLUGIN_PLANNER              = 'concurrent'
 PLUGIN_OVERLAY_SCHEDULER    = 'round_robin'
 PLUGIN_OVERLAY_TRANSLATOR   = troy.AUTOMATIC
-PLUGIN_OVERLAY_PROVISIONER  = 'bigjob_pilot'
+PLUGIN_OVERLAY_PROVISIONER  = 'sinon'
 PLUGIN_WORKLOAD_SCHEDULER   = troy.AUTOMATIC
-PLUGIN_WORKLOAD_DISPATCHER  = 'bigjob_pilot' # troy.AUTOMATIC # 'sinon'
+PLUGIN_WORKLOAD_DISPATCHER  = 'sinon' # troy.AUTOMATIC # 'sinon'
 
 WORKDIR                     = '/N/u/merzky/troy_demo/'
 WORKDIR                     = '/home/merzky/troy_demo/'
