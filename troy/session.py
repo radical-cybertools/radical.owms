@@ -161,15 +161,15 @@ class Session (saga.Session, tu.Timed) :
                 if  idx == len(path)-1 :
                     return dict()
 
-                print elem
-                print current_cfg.keys()
-                pprint.pprint (self.cfg)
+              # print elem
+              # print current_cfg.keys()
+              # pprint.pprint (self.cfg)
                 raise RuntimeError ('no config "%s" beneath %s' \
                         % (':'.join (path), current_path))
 
             if  not isinstance (current_cfg[elem], dict) :
-                print elem
-                print current_cfg.keys()
+              # print elem
+              # print current_cfg.keys()
                 raise TypeError ('no config dict "%s" beneath %s' \
                         % (':'.join (path), current_path))
 

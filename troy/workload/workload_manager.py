@@ -363,9 +363,6 @@ class WorkloadManager (tu.Timed) :
                 pilot        = troy.Pilot (self.session, pilot_id)
                 resource_cfg = self.session.get_resource_config (pilot.resource)
 
-                for key, val in resource_cfg.iteritems() :
-                    print "%s\t: %s" % (key, val)
-
                 # and merge it conservatively into the pilot config
                 ru.dict_merge (unit.description, resource_cfg, policy='preserve')
 

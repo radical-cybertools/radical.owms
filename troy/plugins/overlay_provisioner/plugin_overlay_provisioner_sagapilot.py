@@ -91,11 +91,11 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             # translate information into bigjob speak
             pilot_descr = sp.ComputePilotDescription ()
-            pilot_descr.resource            = troy_pilot.description['hostname']
-            pilot_descr.cores               = troy_pilot.description['size']
-            pilot_descr.runtime             = troy_pilot.description['walltime']
-            pilot_descr.queue               = troy_pilot.description['queue']
-            pilot_descr.working_directory   = "%s/troy_agents/" % troy_pilot.description['home']
+            pilot_descr.resource = troy_pilot.description['hostname']
+            pilot_descr.cores    = troy_pilot.description['size']
+            pilot_descr.runtime  = troy_pilot.description['walltime']
+            pilot_descr.queue    = troy_pilot.description['queue']
+            pilot_descr.sandbox  = "%s/troy_agents/" % troy_pilot.description['home']
 
             troy._logger.info ('overlay  provision: provision   pilot  %s : %s ' \
                             % (pid, troy_pilot.resource))
