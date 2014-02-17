@@ -1,0 +1,96 @@
+
+{
+    # variables which will vary for different experiment runs
+    "steps"         : 256,
+    "bag_size"      : 5,
+    "pilot_size"    : 4,
+    "pilot_backend" : "sagapilot",
+    "concurrency"   : 100,
+  # "resource_list" : "ssh://localhost,fork://localhost",
+    "resource_list" : "pbs+ssh://sierra.futuregrid.org/",
+    "local_appdir"  : "/home/merzky/saga/troy.doc/examples/tutorial/",
+
+    # build up demo id from those variables.  That will be folded into the 
+    # session id, so the final ID will contain thise information, but will 
+    # also be unique
+    "demo_id"       : "demo_%(steps)d_%(pilot_backend)s_%(pilot_size)d_%(concurrency)d",
+
+
+    # We add some additional, app specific information to the 
+    # troy resource config, so that we can use placeholder
+    # like '%(mdrun)s' in our workload descriptions.
+    # This section *must* be named `resources`.
+    "resources" : {
+        # Mark installed gromacs on futuregrid
+        "*.futuregrid.org" : {
+            "mdrun"        : "/N/u/marksant/bin/mdrun"
+        },
+        # stampede has mdrun in path (module loads in bashrc)
+        "stampede.*" : {
+            "mdrun"        : "mdrun"
+        },
+        # localhost has mdrun in path
+        "localhost" : {
+            "mdrun"        : "mdrun"
+        }
+    },
+    
+
+    # We also want to configure troy.
+    # Just selecting a strategy is actually sufficient, but we 
+    # also select some plugins and stuff -- because we can!
+    # These sections *must* bre named as they are
+    "session_id"                     : "%(demo_id)s",
+    "plugin_strategy"                : "basic_late_binding",
+
+    "log_level"                      : "DEBUG",
+
+    "planner"        : {
+        "plugin_planner_derive"      : "concurrent",
+        "derive"       : {
+            "concurrent" : {
+                "concurrency"        : "%(concurrency)d"
+            }
+        }
+    },
+
+    "overlay_manager" : {
+        "plugin_overlay_translator"  : "max_pilot_size",
+        "plugin_overlay_scheduler"   : "round_robin",
+        "plugin_overlay_provisioner" : "%(pilot_backend)s",
+        "overlay_translator" : {
+            "max_pilot_size"    : {
+                "pilot_size"         : "%(pilot_size)d"
+            }
+        },
+        "overlay_scheduler" : {
+            "round_robin"     : {
+                "resources"          : "%(resource_list)s"
+            }
+        },
+        "overlay_provisioner"      : {
+            "bigjob"               : {
+                "coordination_url" : "redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379"
+            },
+            "sagapilot"            : {
+                "coordination_url" : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/"
+            #   "coordination_url" : "mongodb://localhost/"
+            }
+        }
+    },
+
+    "workload_manager" : {
+        "plugin_workload_scheduler"  : "round_robin",
+        "plugin_workload_dispatcher" : "%(pilot_backend)s",
+        "workload_dispatcher"      : {
+            "bigjob"               : {
+                "coordination_url" : "redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379"
+            },
+            "sagapilot"            : {
+                "coordination_url" : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/"
+            #   "coordination_url" : "mongodb://localhost/"
+            }
+        }
+    }
+}
+

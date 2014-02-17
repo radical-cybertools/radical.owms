@@ -41,20 +41,9 @@ class TaskDescription (tu.Properties) :
         self.inputs            = list()
         self.outputs           = list()
 
+        self.description       = descr
+
         tu.Properties.__init__ (self, descr)
-
-    # --------------------------------------------------------------------------
-    #
-    def __str__ (self) :
-
-        return str(self.as_dict ())
-
-
-    # --------------------------------------------------------------------------
-    #
-    def __repr__ (self) :
-
-        return self.description
 
 
 # ------------------------------------------------------------------------------

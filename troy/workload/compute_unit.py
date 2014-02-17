@@ -67,13 +67,16 @@ class ComputeUnit (tu.Properties, tu.Timed) :
         tu.Timed.__init__            (self, 'troy.Unit', self.id)
         self.session.timed_component (self, 'troy.Unit', self.id)
 
+        # make sure we don't inherit IDs
+        if  'id' in descr :
+            del (descr['id'])
+
         # set properties which are known from the description
         tu.Properties.__init__ (self, descr)
 
         # register properties
         self.register_property ('id')
         self.register_property ('state')
-        self.register_property ('description')
         self.register_property ('pilot_id')
         self.register_property ('task')
         self.register_property ('native_id')
@@ -102,7 +105,6 @@ class ComputeUnit (tu.Properties, tu.Timed) :
         # initialized essential properties
         self.native_id         = native_id
         self.state             = DESCRIBED
-        self.description       = descr
         self.pilot_id          = _pilot_id
         self.task              = _task
 
@@ -162,6 +164,42 @@ class ComputeUnit (tu.Properties, tu.Timed) :
         """
 
         self.cancel ()
+
+
+    # --------------------------------------------------------------------------
+    #
+    def merge_description (self, source) :
+        """
+        merge additional information into the unit description -- such as
+        resource information, or application specific data
+        """
+
+        # we only allow this in DESCRIBED or BOUND state
+        if  not self.state in [DESCRIBED, BOUND] :
+            raise RuntimeError ('unit is not in DESCRIBED state (%s)' \
+                             % self.state)
+
+        ud_dict = self.as_dict ()
+
+        ru.dict_merge        (ud_dict, source, policy='overwrite')
+        ud_dict['xxx'] = "foo_%(local_appdir)s_bar_%(cardinal)s"
+        ru.dict_stringexpand (ud_dict)
+        ru.dict_stringexpand (ud_dict, self.session.cfg)
+
+      # print '-------------'
+      # import pprint
+      # pprint.pprint (ud_dict)
+      # print '-------------'
+      # pprint.pprint (self.session.cfg)
+      # print '-------------'
+      # exit()
+
+        for (key, val) in ud_dict.iteritems () :
+            try :
+                self.set_attribute (key, val)
+            except :
+                pass
+
 
 
     # --------------------------------------------------------------------------
@@ -265,11 +303,6 @@ class ComputeUnit (tu.Properties, tu.Timed) :
 
         if  key == 'instance' : return self._instance
 
-        # check if the info were available via the original description
-        if  self.description and \
-            key in self.description :
-            return self.description[key]
-
 
         # else we need to ask the unit dispatcher plugin -- but that is 
         # only available/usable after dispatching
@@ -324,24 +357,8 @@ class ComputeUnit (tu.Properties, tu.Timed) :
             if  info_key in keymap : new_key = keymap[info_key]
             else                   : new_key =        info_key
 
-          # print 'KEY: %s - %s' % (info_key, new_key)
-
             # this will trigger registered callbacks
             self.set_property (new_key, self._unit_info[info_key])
-
-
-    # --------------------------------------------------------------------------
-    #
-    def __str__ (self) :
-
-        return '%-7s: %s' % (self.id, self.description)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def __repr__ (self) :
-
-        return str(self)
 
 
 # ------------------------------------------------------------------------------

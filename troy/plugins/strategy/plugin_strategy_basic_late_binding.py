@@ -40,10 +40,6 @@ class PLUGIN_CLASS (troy.PluginBase):
         concurrently, etc.
         """
 
-        # first, we set the 'AUTO' plugins to the troy defaults.  The managers
-        # would do that anyways, but we want to explicitly make this part of the
-        # strategy.
-
         troy._logger.info ('troy default strategy : strategize workload %s!' % workload_id)
         workload = workload_mgr.get_workload (workload_id)
 

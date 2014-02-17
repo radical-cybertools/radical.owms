@@ -5,8 +5,35 @@ __license__   = "MIT"
 
 
 import radical.utils as ru
-
 import troy
+
+# ------------------------------------------------------------------------------
+#
+def manage_workload (workload_description, config_file) :
+
+    session      = troy.Session         (config_file)
+    planner      = troy.Planner         (session)
+    overlay_mgr  = troy.OverlayManager  (session)
+    workload_mgr = troy.WorkloadManager (session)
+
+
+    strategy = troy.AUTOMATIC
+    if  'plugin_strategy' in session.cfg :
+        strategy = session.cfg['plugin_strategy']
+
+    if  strategy == troy.AUTOMATIC :
+        strategy =  'basic_late_binding'
+
+    workload = workload_mgr.parse_workload (workload_description)
+
+    return troy.execute_workload (workload, planner, 
+                                  overlay_mgr, workload_mgr,
+                                  strategy)
+
+
+
+
+
 
 
 # ------------------------------------------------------------------------------

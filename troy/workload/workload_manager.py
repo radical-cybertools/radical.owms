@@ -50,7 +50,7 @@ class WorkloadManager (tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, session     = None, 
+    def __init__ (self, session,
                         translator  = AUTOMATIC,
                         scheduler   = AUTOMATIC,
                         dispatcher  = AUTOMATIC) :
@@ -60,26 +60,41 @@ class WorkloadManager (tu.Timed) :
         Use default plugins if not indicated otherwise
         """
 
-        if  session : self.session = session
-        else:         self.session = troy.Session ()
+        self.session = session
+        self.id      = ru.generate_id ('wlm.')
 
-        self._stager = None
+        tu.Timed.__init__             (self, 'troy.WorkloadManager', self.id)
+        self.session.timed_component  (self, 'troy.WorkloadManager', self.id)
 
+        self._stager     = None
+        self._plugin_mgr = None
+        self.plugins     = dict ()
 
+        # setup plugins from aruments
+        #
         # We leave actual plugin initialization for later, in case a strategy
         # wants to alter / complete the plugin selection
-
-        self.plugins = dict ()
+        #
+        # FIXME: we don't need no stupid arguments, ey!  Just use
+        #        AUTOMATIC by default...
         self.plugins['translator'] = translator
         self.plugins['scheduler' ] = scheduler
         self.plugins['dispatcher'] = dispatcher
 
-        self._plugin_mgr = None
 
-        self.id = ru.generate_id ('wlm.')
+        # lets see if there are any plugin preferences in the config
+        # note that config settings supercede arguments!
+        cfg = session.get_config ('workload_manager')
 
-        tu.Timed.__init__             (self, 'troy.WorkloadManager', self.id)
-        self.session.timed_component  (self, 'troy.WorkloadManager', self.id)
+        if  'plugin_workload_translator' in cfg : 
+            self.plugins['translator']   =  cfg['plugin_workload_translator']
+        if  'plugin_workload_scheduler'  in cfg : 
+            self.plugins['scheduler' ]   =  cfg['plugin_workload_scheduler' ]
+        if  'plugin_workload_dispatcher' in cfg : 
+            self.plugins['dispatcher']   =  cfg['plugin_workload_dispatcher']
+
+
+
 
 
     # --------------------------------------------------------------------------
@@ -124,14 +139,14 @@ class WorkloadManager (tu.Timed) :
         self._scheduler .init_plugin (self.session, 'workload_manager')
         self._dispatcher.init_plugin (self.session, 'workload_manager')
 
-      # # parser plugins are somewhat different, as we load all parsers we can
-      # # find.  On any incoming workload, we'll try one after the other
-      # self._parsers = list()
-      # for parser_plugin_name in self._plugin_mgr.list ('workload_parser') :
-      #     parser = self._plugin_mgr.load (parser_plugin_name)
-      #     if parser :
-      #         parser.init_plugin (self.session)
-      #         self._parsers.append (parser)
+        # parser plugins are somewhat different, as we load all parsers we can
+        # find.  On any incoming workload, we'll try one after the other
+        self._parsers = list()
+        for parser_plugin_name in self._plugin_mgr.list ('workload_parser') :
+            parser = self._plugin_mgr.load ('workload_parser', parser_plugin_name)
+            if parser :
+                parser.init_plugin (self.session, 'workload_manager')
+                self._parsers.append (parser)
 
         troy._logger.info ("initialized  workload manager (%s)" % self.plugins)
 
@@ -245,8 +260,6 @@ class WorkloadManager (tu.Timed) :
 
             # lookup id
             if  not unit_id in cls._unit_id_map :
-              # import pprint
-              # pprint.pprint (cls._unit_id_map)
                 raise ValueError ("no such unit known '%s'" % unit_id)
             return cls._unit_id_map[unit_id]
 
@@ -262,7 +275,42 @@ class WorkloadManager (tu.Timed) :
         # make sure manager is initialized
         self._init_plugins ()
 
-        workload = troy.Workload (task_descriptions)
+        # see if the workload_description points to a file.  If so, read the
+        # content and use that as the actual description string
+        try :
+            with open (workload_description, "r") as descr_file:
+                workload_description = descr_file.read ()
+        except Exception as e :
+            # leave any error handling to the parsers -- what do we know..
+            troy._logger.warn ("cannot read WL description at '%s'" \
+                            % workload_description)
+
+
+        # try one parser after the other, until one can handle the workload
+        # description
+        task_descriptions     = None  # list of task descriptions
+        relation_descriptions = None  # list of reation descriptions
+
+        for parser in self._parsers :
+            troy._logger.debug ("trying parser %s" % parser.name)
+
+            if True :
+          # try :
+                task_descriptions, relation_descriptions = parser.parse (workload_description)
+          # except Exception as e :
+          #     troy._logger.warn ("parser %s failed: %s" % (parser.name, e))
+          # else :
+          #     # success!
+          #     break
+
+        if  not task_descriptions  and \
+            not relation_descriptions :
+            raise ValueError ("Could not parse workload description\n----\n%s\n----\n" \
+                            % workload_description)
+
+        workload = troy.Workload (self.session, 
+                                  task_descriptions,
+                                  relation_descriptions)
 
         return workload.id
 
@@ -414,15 +462,8 @@ class WorkloadManager (tu.Timed) :
                 pilot        = troy.Pilot (self.session, pilot_id)
                 resource_cfg = self.session.get_resource_config (pilot.resource)
 
-                # and merge it conservatively into the pilot config
-                ru.dict_merge (unit.description, resource_cfg, policy='preserve')
-
-                # expand values with resource config settings
-                ru.dict_stringexpand (unit.description, resource_cfg)
-
-                print 1
-                print unit.description
-                print 2
+                # and merge it conservatively into the unit config
+                unit.merge_description (resource_cfg)
 
 
       # # we don't really know if the dispatcher plugin will perform the

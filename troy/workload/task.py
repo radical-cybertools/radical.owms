@@ -51,6 +51,24 @@ class Task (tu.Properties, tu.Timed) :
         self.session  = session
         self.workload = _workload
 
+        tu.Properties.__init__ (self, descr)
+
+        # register properties
+        self.register_property ('id')
+        self.register_property ('state')
+        self.register_property ('tag')
+        self.register_property ('cardinality')
+        self.register_property ('units')
+        self.register_property ('workload')
+
+        # initialize essential properties
+        self.state       = DESCRIBED
+        self.tag         = descr.get ('tag', None)
+        self.units       = dict()
+
+        # FIXME: complete attribute list, dig properties from description,
+        # perform sanity checks
+
         # initialize state
         self.id   = ru.generate_id ('t.')
 
@@ -60,27 +78,6 @@ class Task (tu.Properties, tu.Timed) :
         if  self.workload :
             self.workload.timed_component (self, 'troy.Task', self.id)
 
-        if  not 'tag' in descr :
-            raise ValueError ("no 'tag' in TaskDescription")
-
-        tu.Properties.__init__ (self, descr)
-
-        # register properties
-        self.register_property ('id')
-        self.register_property ('state')
-        self.register_property ('tag')
-        self.register_property ('description')
-        self.register_property ('units')
-        self.register_property ('workload')
-
-        # initialize essential properties
-        self.state       = DESCRIBED
-        self.tag         = descr.tag
-        self.description = descr
-        self.units       = dict()
-
-        # FIXME: complete attribute list, dig properties from description,
-        # perform sanity checks
 
         self.register_property_updater ('state', self.get_state)
 
@@ -172,12 +169,10 @@ class Task (tu.Properties, tu.Timed) :
 
         # final states are never left
         if  self.state in [DONE, FAILED, CANCELED] :
-          # print "ts -> unchanged %s (final)" % self.state
             return self.state
 
         # if there are no units, then there was no further state transition
         if  not len(self.units) :
-          # print "ts -> unchanged %s (no units)" % self.state
             return self.state
         
         # only DISPATCHED and RUNNING are left -- state depends on unit states
@@ -185,7 +180,6 @@ class Task (tu.Properties, tu.Timed) :
         for tid in self.units.keys () :
             unit       = self.units[tid]
             unit_states.append (unit.state)
-          # print 'us %s: %s' % (unit.id, unit.state)
 
         if  UNKNOWN in unit_states :
             self.state = UNKNOWN
@@ -217,19 +211,6 @@ class Task (tu.Properties, tu.Timed) :
 
         return self.state
 
-
-    # --------------------------------------------------------------------------
-    #
-    def __str__ (self) :
-
-        return '%-7s: %s' % (self.id, self.description)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def __repr__ (self) :
-
-        return str(self)
 
 
 # ------------------------------------------------------------------------------

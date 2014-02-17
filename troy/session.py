@@ -52,17 +52,17 @@ _troy_config_skeleton = {
             'derive'               : dict(),
         },
         'overlay_manager'        : {
-            'overlay_dispatcher'   : dict(),
-            'overlay_provisioner'  : dict(),
-            'overlay_scheduler'    : dict(),
-            'overlay_transformer'  : dict(),
             'overlay_translator'   : dict(),
+            'overlay_transformer'  : dict(),
+            'overlay_scheduler'    : dict(),
+            'overlay_provisioner'  : dict(),
         },
         'workload_manager'       : {
-            'workload_dispatcher'  : dict(),
-            'workload_scheduler'   : dict(),
-            'workload_transformer' : dict(),
+            'workload_parser'      : dict(),
             'workload_translator'  : dict(),
+            'workload_transformer' : dict(),
+            'workload_scheduler'   : dict(),
+            'workload_dispatcher'  : dict(),
         },
         'strategy'               : {
             'strategy'             : dict(),
@@ -85,7 +85,16 @@ class Session (saga.Session, tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, user_cfg={}, default=True) :
+    def __init__ (self, user_cfg=None, default=True) :
+
+        if  user_cfg :
+            if  isinstance (user_cfg, basestring) :
+                user_cfg  = ru.read_json (user_cfg)
+            elif isinstance (user_cfg, dict) :
+                # just use it
+                pass
+            else :
+                raise TypeError ("user_cfg must be filename or dict")
 
         # FIXME: the whole config setup should be moved to troy/config.py, once
         # we converged on a format on radical level... 
@@ -93,14 +102,7 @@ class Session (saga.Session, tu.Timed) :
         # set saga apitype for clean inheritance (cpi to api mapping relies on
         # _apitype)
         self._apitype = 'saga.Session'
-
-        self.id = ru.generate_id ('session.', mode=ru.ID_UNIQUE)
-        
-        tu.Timed.__init__ (self, 'troy.Session', self.id)
-        self.timed_method ('saga.Session', ['init'],  
-                           saga.Session.__init__, [self, default])
-
-        self.user_cfg   = user_cfg
+        self.user_cfg = user_cfg
 
         # read the ~/.troy.cfg, which uses ini format
         self.cfg = ru.read_json_str ("%s/.troy.json" % os.environ['HOME'])
@@ -135,12 +137,22 @@ class Session (saga.Session, tu.Timed) :
 
         # we set the log level as indicated in the troy config or user
         # config
-        if  'troy' in self.cfg :
-            if 'log_level' in cfg['troy'] :
-                log_level  =  cfg['troy']['log_level']
-                troy._logger.setLevel (log_level)
+        if 'log_level' in self.cfg :
+            log_level  =  self.cfg['log_level']
+            troy._logger.setLevel (log_level)
 
+        # now that config parsing is done, we can create the session ID
+        session_id_stub = "session."
+        if 'session_id' in self.cfg :
+            session_id_stub =  self.cfg['session_id']
+
+        self.id = ru.generate_id (session_id_stub, mode=ru.ID_UNIQUE)
         troy._logger.info ("session id: %s" % self.id)
+        
+        tu.Timed.__init__ (self, 'troy.Session', self.id)
+        self.timed_method ('saga.Session', ['init'],  
+                           saga.Session.__init__, [self, default])
+
 
 
     # --------------------------------------------------------------------------
@@ -163,17 +175,10 @@ class Session (saga.Session, tu.Timed) :
                 if  idx == len(path)-1 :
                     return dict()
 
-              # print elem
-              # print current_cfg.keys()
-              # pprint.pprint (self.cfg)
                 raise RuntimeError ('no config "%s" beneath %s' \
                         % (':'.join (path), current_path))
 
             if  not isinstance (current_cfg[elem], dict) :
-                print path
-                print elem
-                print type(current_cfg[elem])
-                print current_cfg.keys()
                 raise TypeError ('no config dict "%s" beneath %s' \
                         % (':'.join (path), current_path))
 
@@ -237,6 +242,10 @@ class Session (saga.Session, tu.Timed) :
         if  not self.cfg :
             raise RuntimeError ('Troy found no configuration')
 
+        # expand config with itself, to satisfy parameteter replacements where
+        # possible
+        ru.dict_stringexpand (self.cfg)
+
         # merge with the skeleton to make sure all keys exist and are set to
         # defaults
         ru.dict_merge (self.cfg, _troy_config_skeleton)
@@ -248,8 +257,8 @@ class Session (saga.Session, tu.Timed) :
                            _resource_config_skeleton, 
                            policy='preserve')
 
-      # print "-----------------------------"
-      # pprint.pprint (self.cfg)
+        print "-----------------------------"
+        pprint.pprint (self.cfg)
 
 
 # ------------------------------------------------------------------------------

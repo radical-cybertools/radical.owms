@@ -117,9 +117,7 @@ class DataStager (object) :
         # resource config, merge it conservatively into the pilot config, and
         # expand values with resource config settings
         resource_cfg = unit.session.get_resource_config (resource)
-        ru.dict_merge        (unit.description, resource_cfg, policy='preserve')
-        ru.dict_stringexpand (unit.description, resource_cfg)
-
+        unit.merge_description (resource_cfg)
         workdir = unit.working_directory
 
         # sanity checks
@@ -235,9 +233,7 @@ class DataStager (object) :
         # resource config, merge it conservatively into the pilot config, and
         # expand values with resource config settings
         resource_cfg = unit.session.get_resource_config (resource)
-        ru.dict_merge        (unit.description, resource_cfg, policy='preserve')
-        ru.dict_stringexpand (unit.description, resource_cfg)
-
+        unit.merge_description (resource_cfg)
         workdir = unit.working_directory
 
         # sanity checks

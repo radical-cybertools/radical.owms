@@ -157,6 +157,7 @@ setup_args = {
         "troy.plugins.workload_scheduler",
         "troy.plugins.workload_translator",
         "troy.plugins.workload_dispatcher",
+        "troy.plugins.workload_parser",
         "troy.external",
         "troy.external.bundle",
         "troy.external.bundle.src",

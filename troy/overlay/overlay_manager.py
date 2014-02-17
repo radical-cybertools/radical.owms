@@ -51,7 +51,7 @@ class OverlayManager (tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, session     = None, 
+    def __init__ (self, session, 
                         translator  = AUTOMATIC,
                         scheduler   = AUTOMATIC,
                         provisioner = AUTOMATIC) :
@@ -63,24 +63,37 @@ class OverlayManager (tu.Timed) :
         the pilots of the Overlay managed by the OverlayManager.
         """
 
-        if  session : self.session = session
-        else:         self.session = troy.Session ()
+        self.session = session
+        self.id      = ru.generate_id ('olm.')
 
+        tu.Timed.__init__            (self, 'troy.OverlayManager', self.id)
+        self.session.timed_component (self, 'troy.OverlayManager', self.id)
 
+        self._plugin_mgr = None
+        self.plugins     = dict ()
+
+        # setup plugins from aruments
+        #
         # We leave actual plugin initialization for later, in case a strategy
         # wants to alter / complete the plugin selection
-
-        self.plugins = dict ()
+        #
+        # FIXME: we don't need no stupid arguments, ey!  Just use
+        #        AUTOMATIC by default...
         self.plugins['translator']  = translator
         self.plugins['scheduler' ]  = scheduler
         self.plugins['provisioner'] = provisioner
 
-        self._plugin_mgr = None
 
-        self.id = ru.generate_id ('olm.')
+        # lets see if there are any plugin preferences in the config
+        # note that config settings supercede arguments!
+        cfg = session.get_config ('overlay_manager')
 
-        tu.Timed.__init__            (self, 'troy.OverlayManager', self.id)
-        self.session.timed_component (self, 'troy.OverlayManager', self.id)
+        if  'plugin_overlay_translator'  in cfg : 
+            self.plugins['translator' ]  =  cfg['plugin_overlay_translator' ]
+        if  'plugin_overlay_scheduler'   in cfg : 
+            self.plugins['scheduler'  ]  =  cfg['plugin_overlay_scheduler'  ]
+        if  'plugin_overlay_provisioner' in cfg : 
+            self.plugins['provisioner']  =  cfg['plugin_overlay_provisioner']
 
 
     # --------------------------------------------------------------------------
@@ -294,10 +307,7 @@ class OverlayManager (tu.Timed) :
             resource_cfg = self.session.get_resource_config (pilot.resource)
 
             # and merge it conservatively into the pilot config
-            ru.dict_merge (pilot.description, resource_cfg, policy='preserve')
-
-            # expand values with resource config settings
-            ru.dict_stringexpand (pilot.description, resource_cfg)
+            pilot.merge_description (resource_cfg)
 
 
         # hand over control over overlay to the provisioner plugin, so it can do
