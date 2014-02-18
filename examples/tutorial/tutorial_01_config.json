@@ -3,12 +3,16 @@
     # variables which will vary for different experiment runs
     "steps"         : 256,
     "bag_size"      : 5,
+    "local_appdir"  : "/home/merzky/saga/troy.doc/examples/tutorial/",
+
+    # 
     "pilot_size"    : 4,
     "pilot_backend" : "sagapilot",
+    troy.manage_workload (workload_description = workload_description,
+                          config_file          = application_config)
     "concurrency"   : 100,
   # "resource_list" : "ssh://localhost,fork://localhost",
     "resource_list" : "pbs+ssh://sierra.futuregrid.org/",
-    "local_appdir"  : "/home/merzky/saga/troy.doc/examples/tutorial/",
 
     # build up demo id from those variables.  That will be folded into the 
     # session id, so the final ID will contain thise information, but will 
@@ -34,7 +38,7 @@
             "mdrun"        : "mdrun"
         }
     },
-    
+
 
     # We also want to configure troy.
     # Just selecting a strategy is actually sufficient, but we 
@@ -45,6 +49,7 @@
 
     "log_level"                      : "DEBUG",
 
+    # into planner.cfg
     "planner"        : {
         "plugin_planner_derive"      : "concurrent",
         "derive"       : {
@@ -54,6 +59,7 @@
         }
     },
 
+    # into overlay_manager.cfg
     "overlay_manager" : {
         "plugin_overlay_translator"  : "max_pilot_size",
         "plugin_overlay_scheduler"   : "round_robin",
@@ -79,6 +85,7 @@
         }
     },
 
+    # into overlay_manager.cfg
     "workload_manager" : {
         "plugin_workload_scheduler"  : "round_robin",
         "plugin_workload_dispatcher" : "%(pilot_backend)s",

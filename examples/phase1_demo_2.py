@@ -65,7 +65,8 @@ if __name__ == '__main__' :
         'overlay_manager' : {
             'overlay_scheduler' : {
                 'round_robin' : {
-                    'resources' : "pbs+ssh://sierra.futuregrid.org"
+                  # 'resources' : "pbs+ssh://sierra.futuregrid.org"
+                    'resources' : "fork://localhost"
                     }
                 }
             }

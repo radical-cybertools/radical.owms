@@ -231,6 +231,9 @@ class Workload (tu.Properties, tu.Timed) :
         # check type, content and uniqueness for each task
         for d in descr :
 
+            if  isinstance (d, dict) :
+                d = troy.TaskDescription (d)
+
             if  not isinstance (d, troy.TaskDescription) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
