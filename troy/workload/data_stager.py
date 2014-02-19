@@ -228,13 +228,7 @@ class DataStager (object) :
 
         pilot    = troy.Pilot (unit.session, unit.pilot_id)
         resource = pilot.resource
-
-        # fix the resource placeholders in the unit descriptions.  Get the troy
-        # resource config, merge it conservatively into the pilot config, and
-        # expand values with resource config settings
-        resource_cfg = unit.session.get_resource_config (resource)
-        unit.merge_description (resource_cfg)
-        workdir = unit.working_directory
+        workdir  = unit.working_directory
 
         # sanity checks
         if  not workdir :

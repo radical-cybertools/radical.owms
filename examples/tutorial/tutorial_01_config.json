@@ -5,15 +5,6 @@
     "bag_size"      : 5,
     "local_appdir"  : "/home/merzky/saga/troy.doc/examples/tutorial/",
 
-    # 
-    "pilot_size"    : 4,
-    "pilot_backend" : "sagapilot",
-    troy.manage_workload (workload_description = workload_description,
-                          config_file          = application_config)
-    "concurrency"   : 100,
-  # "resource_list" : "ssh://localhost,fork://localhost",
-    "resource_list" : "pbs+ssh://sierra.futuregrid.org/",
-
     # build up demo id from those variables.  That will be folded into the 
     # session id, so the final ID will contain thise information, but will 
     # also be unique
@@ -40,64 +31,9 @@
     },
 
 
-    # We also want to configure troy.
-    # Just selecting a strategy is actually sufficient, but we 
-    # also select some plugins and stuff -- because we can!
-    # These sections *must* bre named as they are
+    # We also want to configure some things in troy.
     "session_id"                     : "%(demo_id)s",
     "plugin_strategy"                : "basic_late_binding",
 
-    "log_level"                      : "DEBUG",
-
-    # into planner.cfg
-    "planner"        : {
-        "plugin_planner_derive"      : "concurrent",
-        "derive"       : {
-            "concurrent" : {
-                "concurrency"        : "%(concurrency)d"
-            }
-        }
-    },
-
-    # into overlay_manager.cfg
-    "overlay_manager" : {
-        "plugin_overlay_translator"  : "max_pilot_size",
-        "plugin_overlay_scheduler"   : "round_robin",
-        "plugin_overlay_provisioner" : "%(pilot_backend)s",
-        "overlay_translator" : {
-            "max_pilot_size"    : {
-                "pilot_size"         : "%(pilot_size)d"
-            }
-        },
-        "overlay_scheduler" : {
-            "round_robin"     : {
-                "resources"          : "%(resource_list)s"
-            }
-        },
-        "overlay_provisioner"      : {
-            "bigjob"               : {
-                "coordination_url" : "redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379"
-            },
-            "sagapilot"            : {
-                "coordination_url" : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/"
-            #   "coordination_url" : "mongodb://localhost/"
-            }
-        }
-    },
-
-    # into overlay_manager.cfg
-    "workload_manager" : {
-        "plugin_workload_scheduler"  : "round_robin",
-        "plugin_workload_dispatcher" : "%(pilot_backend)s",
-        "workload_dispatcher"      : {
-            "bigjob"               : {
-                "coordination_url" : "redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379"
-            },
-            "sagapilot"            : {
-                "coordination_url" : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/"
-            #   "coordination_url" : "mongodb://localhost/"
-            }
-        }
-    }
 }
 

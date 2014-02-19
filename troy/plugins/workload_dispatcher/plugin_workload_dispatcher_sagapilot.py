@@ -160,6 +160,8 @@ class PLUGIN_CLASS (troy.PluginBase):
         info = {'uid'              : sp_cu.uid,
                 'description'      : sp_cu.description,
                 'state'            : sp_cu.state,
+                'stdout'           : sp_cu.stdout,
+                'stderr'           : sp_cu.stderr,
                 'log'              : sp_cu.log,
                 'execution_details': sp_cu.execution_details,
                 'submission_time'  : sp_cu.submission_time,
@@ -200,6 +202,12 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         if 'stop_time' in info and info['stop_time'] :
             unit.timed_event ('stop', 'sagapilot', info['stop_time'])
+
+        if  info['state'] == FAILED :
+            troy._logger.error ('CU %s failed' % unit.id)
+            troy._logger.info ('log: \n----\n%s\n---\n' % info['log'])
+            troy._logger.info ('stderr: \n----\n%s\n---\n' % info['stderr'])
+            troy._logger.info ('stdout: \n----\n%s\n---\n' % info['stdout'])
 
 
         return info

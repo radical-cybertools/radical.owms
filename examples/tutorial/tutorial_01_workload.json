@@ -8,10 +8,10 @@
   "tasks" : [ # tasks
   {           # task 1
     "cardinality"       : "%(bag_size)d",
-    "executable"        : "/bin/echo",
-    "arguments"         : ["%(mdrun)s", "topol.tpr"],
-  # "executable"        : "%(mdrun)s",
-  # "arguments"         : ["topol.tpr"],
+  # "executable"        : "/bin/echo",
+  # "arguments"         : ["%(mdrun)s", "topol.tpr"],
+    "executable"        : "%(mdrun)s",
+    "arguments"         : ["topol.tpr"],
     "working_directory" : "%(home)s/troy_tutorial/troy_tutorial_01_%(cardinal)d/",
     "inputs"            : ["%(local_appdir)s/input/topol.tpr > topol.tpr"],
     "outputs"           : ["output/%(demo_id)s_state.cpt.%(cardinal)d   < state.cpt",

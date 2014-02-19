@@ -1,0 +1,63 @@
+
+
+{
+    "pilot_size"    : 4,
+    "pilot_backend" : "sagapilot",
+    "concurrency"   : 100,
+  # "resource_list" : "ssh://localhost,fork://localhost",
+    "resource_list" : "pbs+ssh://india.futuregrid.org/",
+
+    "log_level"                      : "DEBUG",
+
+    # into planner.cfg
+    "planner"        : {
+        "plugin_planner_derive"      : "concurrent",
+        "derive"       : {
+            "concurrent" : {
+                "concurrency"        : "%(concurrency)d"
+            }
+        }
+    },
+
+    # into overlay_manager.cfg
+    "overlay_manager" : {
+        "plugin_overlay_translator"  : "max_pilot_size",
+        "plugin_overlay_scheduler"   : "round_robin",
+        "plugin_overlay_provisioner" : "%(pilot_backend)s",
+        "overlay_translator" : {
+            "max_pilot_size"    : {
+                "pilot_size"         : "%(pilot_size)d"
+            }
+        },
+        "overlay_scheduler" : {
+            "round_robin"     : {
+                "resources"          : "%(resource_list)s"
+            }
+        },
+        "overlay_provisioner"      : {
+            "bigjob"               : {
+                "coordination_url" : "redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379"
+            },
+            "sagapilot"            : {
+                "coordination_url" : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/"
+            #   "coordination_url" : "mongodb://localhost/"
+            }
+        }
+    },
+
+    # into overlay_manager.cfg
+    "workload_manager" : {
+        "plugin_workload_scheduler"  : "round_robin",
+        "plugin_workload_dispatcher" : "%(pilot_backend)s",
+        "workload_dispatcher"      : {
+            "bigjob"               : {
+                "coordination_url" : "redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379"
+            },
+            "sagapilot"            : {
+                "coordination_url" : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/"
+            #   "coordination_url" : "mongodb://localhost/"
+            }
+        }
+    }
+}
+

@@ -43,7 +43,7 @@ def _format_log_level (log_level) :
 # 'workload_manager:dispatcher', but any sub-dict beneath that entry would be
 # permitted, such as for the dispatcher plugins.
 
-_troy_config_skeleton = {
+_config_skeleton = {
         'log_level'                : int( 0),
         'resource_config'          : None,
         'resources'                : dict(),
@@ -87,68 +87,47 @@ class Session (saga.Session, tu.Timed) :
     #
     def __init__ (self, user_cfg=None, default=True) :
 
-        if  user_cfg :
-            if  isinstance (user_cfg, basestring) :
-                user_cfg  = ru.read_json (user_cfg)
-            elif isinstance (user_cfg, dict) :
-                # just use it
-                pass
-            else :
-                raise TypeError ("user_cfg must be filename or dict")
-
-        # FIXME: the whole config setup should be moved to troy/config.py, once
-        # we converged on a format on radical level... 
 
         # set saga apitype for clean inheritance (cpi to api mapping relies on
         # _apitype)
         self._apitype = 'saga.Session'
-        self.user_cfg = user_cfg
 
-        # read the ~/.troy.cfg, which uses ini format
-        self.cfg = ru.read_json_str ("%s/.troy.json" % os.environ['HOME'])
-        self._check_config ()
+        resource_cfg = "%s/resources.json" % os.path.dirname (troy.__file__)
+        config_dir   = "%s/.troy"          % os.environ.get  ('HOME', '/etc/')
+        config_env   = "%s"                % os.environ.get  ('TROY_CONFIG', None)
 
-        # read the json formatted resource config
-        resource_cfg_file = "%s/resource.json" % os.path.dirname (troy.__file__)
-        resource_cfg      = ru.read_json_str (resource_cfg_file)
+        # we read our base config from $HOME/troy/* by default, but also accept
+        # other locations if $TROY_CONFIG is set.  Items later in the list below
+        # overwrite earlier ones.
+        self.cfg = tu.get_config ([_config_skeleton,
+                                   resource_cfg    , 
+                                   config_dir      ,
+                                   config_env      , 
+                                   user_cfg        ])
 
-        if  not 'resources' in self.cfg :
-            self.cfg['resources'] = dict()
+        # make sure that the resource sections in the config have the minimal
+        # set of entries
+        self._dump()
+        for res_name in self.cfg['resources'] :
+            ru.dict_merge (self.cfg['resources'][res_name], 
+                           _resource_config_skeleton, 
+                           policy='preserve')
 
-        # overwrite whatever existed in troy.conf.
-        ru.dict_merge (self.cfg['resources'], resource_cfg, policy='overwrite')
-        self._check_config ()
-
-
-        # if the troy.cfg also has a user specified resource config, read that
-        # and merge it in
-        if  'resource_config' in self.cfg and self.cfg['resource_config'] :
-
-            resource_user_cfg_file = self.cfg['resource_config']
-            resource_user_cfg      = ru.read_json_str (resource_user_cfg_file)
-            ru.dict_merge (self.cfg['resources'], resource_user_cfg, 
-                           policy='overwrite')
-            self._check_config ()
+        print "-----------------------------"
+        pprint.pprint (self.cfg)
 
 
-        # the user config is passed as python dict, and merged into the config.
-        ru.dict_merge (self.cfg, user_cfg, policy='overwrite')
-        self._check_config ()
 
         # we set the log level as indicated in the troy config or user
-        # config
-        if 'log_level' in self.cfg :
-            log_level  =  self.cfg['log_level']
-            troy._logger.setLevel (log_level)
+        # config, fallback being log level ERROR
+        troy._logger.setLevel (self.cfg.get ('log_level', 'ERROR'))
 
         # now that config parsing is done, we can create the session ID
-        session_id_stub = "session."
-        if 'session_id' in self.cfg :
-            session_id_stub =  self.cfg['session_id']
-
-        self.id = ru.generate_id (session_id_stub, mode=ru.ID_UNIQUE)
+        session_id_stub = self.cfg.get ("session_id", "session.")
+        self.id         = ru.generate_id (session_id_stub, mode=ru.ID_UNIQUE)
         troy._logger.info ("session id: %s" % self.id)
         
+        # and initialize the inherited saga session
         tu.Timed.__init__ (self, 'troy.Session', self.id)
         self.timed_method ('saga.Session', ['init'],  
                            saga.Session.__init__, [self, default])
@@ -192,6 +171,8 @@ class Session (saga.Session, tu.Timed) :
     #
     def get_resource_config (self, resource) :
 
+        print 'get resource config %s' % resource
+
         # resources may be in fact URLs -- but resource configs use host
         # names as keys.  So we check if the URL is well formed and attempt
         # to extract the host
@@ -232,33 +213,19 @@ class Session (saga.Session, tu.Timed) :
         # make sure the hostname is in the config
         ret['hostname'] = resource
 
-        return ret
+        import pprint
+        pprint.pprint (ret)
 
+        return ret
 
     # --------------------------------------------------------------------------
     #
-    def _check_config (self) :
+    def _dump (self) :
 
-        if  not self.cfg :
-            raise RuntimeError ('Troy found no configuration')
-
-        # expand config with itself, to satisfy parameteter replacements where
-        # possible
-        ru.dict_stringexpand (self.cfg)
-
-        # merge with the skeleton to make sure all keys exist and are set to
-        # defaults
-        ru.dict_merge (self.cfg, _troy_config_skeleton)
-
-        # we now know we have a resource dict -- handle all resource configs
-        # simmilarly: merge conservatively with skeleton to ensure completeness...
-        for res_name in self.cfg['resources'] :
-            ru.dict_merge (self.cfg['resources'][res_name], 
-                           _resource_config_skeleton, 
-                           policy='preserve')
-
-        print "-----------------------------"
+        print ' -------------------------------------'
+        import pprint 
         pprint.pprint (self.cfg)
+        print ' -------------------------------------'
 
 
 # ------------------------------------------------------------------------------

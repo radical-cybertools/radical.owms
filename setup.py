@@ -168,7 +168,7 @@ setup_args = {
         "troy.bundle_wrapper",
     ],
     'scripts'          : ['bin/owms.py'],
-    'package_data'     : {'' : ['VERSION', 'resource.json']},
+    'package_data'     : {'' : ['VERSION', 'resources.json']},
     'cmdclass'         : {
         'test'         : our_test,
     },
