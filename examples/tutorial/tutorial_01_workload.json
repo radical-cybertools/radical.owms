@@ -7,7 +7,7 @@
 {             # workload
   "tasks" : [ # tasks
   {           # task 1
-    "cardinality"       : "%(bag_size)d",
+    "cardinality"       : "%(bag_size)s",
   # "executable"        : "/bin/echo",
   # "arguments"         : ["%(mdrun)s", "topol.tpr"],
     "executable"        : "%(mdrun)s",

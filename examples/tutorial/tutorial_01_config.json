@@ -1,15 +1,18 @@
 
 {
     # variables which will vary for different experiment runs
-    "steps"         : 256,
-    "bag_size"      : 5,
-    "local_appdir"  : "/home/merzky/saga/troy.doc/examples/tutorial/",
+    "steps"           : 256,
+    "bag_size"        : 5,
+    "local_appdir"    : "/home/merzky/saga/troy.doc/examples/tutorial/",
 
     # build up demo id from those variables.  That will be folded into the 
     # session id, so the final ID will contain thise information, but will 
-    # also be unique
-    "demo_id"       : "demo_%(steps)d_%(pilot_backend)s_%(pilot_size)d_%(concurrency)d",
+    # also be unique  
+    "demo_id"         : "glomacs_%(steps)s_%(bag_size)s",
 
+    # We also want to configure some things in troy.
+    "session_id"      : "%(demo_id)s",
+    "plugin_strategy" : "basic_late_binding",
 
     # We add some additional, app specific information to the 
     # troy resource config, so that we can use placeholder
@@ -28,12 +31,6 @@
         "localhost" : {
             "mdrun"        : "mdrun"
         }
-    },
-
-
-    # We also want to configure some things in troy.
-    "session_id"                     : "%(demo_id)s",
-    "plugin_strategy"                : "basic_late_binding",
-
+    }
 }
 

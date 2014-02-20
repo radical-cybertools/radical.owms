@@ -117,6 +117,11 @@ class PLUGIN_CLASS (troy.PluginBase):
                 [sp_um, sp_pm, sp_pilot] = pilot._get_instance ('sagapilot')
                 sp_cu = sp_um.submit_units (sp_cu_descr)
 
+                print "***********************************************************"
+                print "submit unit"
+                print sp_cu_descr
+                print "***********************************************************"
+
                 # attach the backend instance to the unit, for later state
                 # checks etc. We leave it up to the unit to decide if it wants
                 # to cache the instance, or just the ID and then later
@@ -156,6 +161,11 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         # find out what we can about the pilot...
         [sp_um, sp_cu] = unit._get_instance ('sagapilot')
+
+        print "***********************************************************"
+        print "state"
+        print sp_cu.state
+        print "***********************************************************"
 
         info = {'uid'              : sp_cu.uid,
                 'description'      : sp_cu.description,

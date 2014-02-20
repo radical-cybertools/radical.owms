@@ -66,6 +66,11 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         self._sp  = sp.Session (database_url = self._coord)
 
+        print "***********************************************************"
+        print "self._coord"
+        print  self._coord
+        print "***********************************************************"
+
 
     # --------------------------------------------------------------------------
     #
@@ -100,6 +105,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             troy._logger.info ('overlay  provision: provision   pilot  %s : %s ' \
                             % (pid, troy_pilot.resource))
 
+
             # and create the pilot overlay
             sp_um    = sp.UnitManager  (session   = self._sp, 
                                         scheduler = 'direct_submission')
@@ -113,6 +119,13 @@ class PLUGIN_CLASS (troy.PluginBase):
                                       provisioner   = self, 
                                       instance      = [sp_um,     sp_pm,     sp_pilot], 
                                       native_id     = [sp_um.uid, sp_pm.uid, sp_pilot.uid])
+
+            print "***********************************************************"
+            print "submit pilot"
+            print FGCONF
+            print XSEDECONF
+            print pilot_descr
+            print "***********************************************************"
 
             troy._logger.info ('overlay  provision: provisioned pilot  %s : %s (%s)' \
                             % (troy_pilot, 
