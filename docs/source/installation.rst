@@ -24,7 +24,7 @@ Additional packages:
 * BigJob (https://pypi.python.org/pypi/BigJob)
 * paramiko (https://pypi.python.org/pypi/paramiko)
 
-Please note: You will need to install at least one pilot framework - sagapilot,  BigJob, or both.
+.. note:: You will need to install at least one pilot framework - sagapilot,  BigJob, or both.
 
 Installation from GitHub
 ========================
@@ -45,7 +45,7 @@ been installed properly. In the same virtualenv, run:
 
     troy-version
 
-This should return the version of the SAGA-Pilot installation, e.g., `0.X.Y`.
+This should return the version of the TROY installation, e.g., `0.X.Y`.
 
 Installation from Source
 ========================

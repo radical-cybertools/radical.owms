@@ -31,6 +31,7 @@ Contents:
    tutorial/index.rst
    library/index.rst
    plugins/index.rst
+   testing.rst
    developers/index.rst
 
 
