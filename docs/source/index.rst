@@ -30,6 +30,7 @@ Contents:
    configuration.rst
    tutorial/index.rst
    library/index.rst
+   plugins/index.rst
    developers/index.rst
 
 
