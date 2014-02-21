@@ -26,7 +26,8 @@ Contents:
    :maxdepth: 3
 
    troy.rst
-   cookbook.rst
+   installation.rst
+   configuration.rst
    tutorial/index.rst
    library/index.rst
    developers/index.rst
