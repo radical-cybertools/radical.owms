@@ -39,13 +39,13 @@ from plugin_base    import PluginBase
 # ------------------------------------------------------------------------------
 
 import os
+import radical.utils        as ru
 import radical.utils.logger as rul
 
-version = open (os.path.dirname (os.path.abspath (__file__)) + "/VERSION", 'r').read().strip()
-"""
-Please always note the Troy version when opening tickets or asking for support
-on the Troy mailing lists!
-"""
+pwd     = os.path.dirname (__file__)
+root    = "%s/.." % pwd
+short_version, long_version, branch = ru.get_version ([root, pwd])
+version = long_version
 
 # FIXME: the logger init will require a 'classical' troy config, which is
 # different from the json based config we use now.   May need updating once the
