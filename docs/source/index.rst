@@ -3,7 +3,7 @@
 Troy |version| documentation
 ############################
 
-TROY is the Tiered Resource OverlaY.
+TROY (Tiered Resource OverlaY) is a workload manager that leverages pilot overlays as resource layer. As a workload manager, TROY translates tasks into Compute Units (CUs) and soon also into Data Units (DUs). As a overlay manager, TROY describes and submits pilotjobs on Distributed Computing Infrastructures (DCIs) - FutureGrid, XSEDE, and in a near future OSG. Once the scheduled pilot job(s) become available on one or more DCIs, TROY schedules the CUs (and DUs) of a workload on those pilots for execution. TROY takes also care of staging data in and out of the DCI before and after the execution of the tasks of the workload(s).
 
 **Get involved or contact us:**
 
@@ -23,7 +23,7 @@ Contents:
 
 .. toctree::
    :numbered:
-   :maxdepth: 3
+   :maxdepth: 2
 
    troy.rst
    installation.rst
@@ -40,4 +40,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
