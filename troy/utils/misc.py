@@ -35,11 +35,11 @@ def get_config (params) :
 
     for param in params :
 
-        if  not param : 
+        if  not param or None == param : 
 
-            # we accept None's, to save some repetetetetive 
-            # checks on the calling side
-            pass
+            # we silently accept None's, to save some 
+            # repetetetetive checks on the calling side
+            continue
 
 
         elif isinstance (param, dict) :
