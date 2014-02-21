@@ -1,11 +1,10 @@
-******************************
-TROY - Tiered Resource OverlaY
-******************************
-.. automodule:: troy
+.. _chapter_introduction:
 
-What is it
-==========
-TROY is a workload manager that leverages pilot overlays as resource layer. As a workload manager, TROY translates tasks into Compute Units (CUs) and soon also into Data Units (DUs). As a overlay manager, TROY describes and submits pilotjobs on Distributed Computing Infrastructures (DCIs) - FutureGrid, XSEDE, and in a near future OSG. Once the scheduled pilot job(s) become available on one or more DCIs, TROY schedules the CUs (and DUs) of a workload on those pilots for execution. TROY takes also care of staging data in and out of the DCI before and after the execution of the tasks of the workload(s).
+******************************
+Introduction
+******************************
+
+TROY (Tiered Resource OverlaY) is a workload manager that leverages pilot overlays as resource layer. As a workload manager, TROY translates tasks into Compute Units (CUs) and soon also into Data Units (DUs). As a overlay manager, TROY describes and submits pilotjobs on Distributed Computing Infrastructures (DCIs) - FutureGrid, XSEDE, and in a near future OSG. Once the scheduled pilot job(s) become available on one or more DCIs, TROY schedules the CUs (and DUs) of a workload on those pilots for execution. TROY takes also care of staging data in and out of the DCI before and after the execution of the tasks of the workload(s).
 
 Why TROY
 ========
@@ -17,7 +16,7 @@ TROY offers:
 
 Architecture
 ============
-TROY is modular and plugin based. Modular because each type of functionality is isolated into a dedicated module - i.e. a box in the architecture diagram; plugin based because for each module, different algorithm to implement the desired functionality is coded into a plugin. So, for example, scheduling CUs over an overlay is a functionality ecampsualted into a dedicated module - the Unit Scheduler - and implemented by means of plugins, one for each scheduling algorightm. 
+TROY is modular and plugin based. Modular because each type of functionality is isolated into a dedicated module - i.e. a box in the architecture diagram; plugin based because for each module, different algorithms that implement the desired functionality are coded into a plugin. So, for example, scheduling CUs over an overlay is a functionality ecampsualted into a dedicated module - the Unit Scheduler - and implemented by means of plugins, one for each scheduling algorightm. 
 
 .. image:: images/troy_architecture.png
 
@@ -27,5 +26,4 @@ TROY is modular and plugin based. Modular because each type of functionality is 
 * **Unit Dispatcher**. It intefaces with a pilot system  and takes care of distributing the units over one or more pilots by following the mapping produced by the Unit Shceduler. Currently, two pilot systems are supported: sagapilot and BigJob.
 * **Overlay Manager**. Takes care of describing and managing the overlays necessary to execute one or more workloads. Typical properties used to describe the pilot(s) composing an overlay are: number of cores, duration, and location. Location - where the pilot(s) will be scheduled and then run - can be decided statically when one or more resource endpoints are provided by the user, or dynamically when the state of the DCI(s) is polled in order to derive load, queue length, availability, and so on. Dynamic decisions are currently not implemented and in the future other types of containers could be used alongside pilots like, for example, virtual machines.
 * **Pilot Scheduler**. Takes a set of pilots and a set of resources as input and returns a mapping of each pilot over each resource, depending on the chosen scheduling algorithm. *Round Robin* is currently the only scheduling plugin implemented for remote resources. A *local* plugin is available to run the workload on a local machine for testing purposes.
-* **Pilot Provisioner**. It interfaces with a pilot system to schedule a set of pilots over a set of resources by following the mapping produced by the Pilot Scheduler. Currently, two pilot systems are supported: sagapilot and BigJob. 
-
+* **Pilot Provisioner**. It interfaces with a pilot system to schedule a set of pilots over a set of resources by following the mapping produced by the Pilot Scheduler. Currently, two pilot systems are supported: sagapilot and BigJob.
