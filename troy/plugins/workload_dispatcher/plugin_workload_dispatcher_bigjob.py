@@ -63,7 +63,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
 
                 # get the unit description, and the target pilot ID
-                unit_descr = unit.description
+                unit_descr = unit.as_dict ()
                 pilot_id   = unit['pilot_id']
 
                 # reconnect to the given pilot -- this is likely to pull the
@@ -83,7 +83,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
                     bj_cu_descr[key] = unit_descr[key]
 
-                print "creating unit with '%s'" % bj_cu_descr
+              # print "creating unit with '%s'" % bj_cu_descr
 
                 # FIXME: sanity check for pilot type
                 bj_pilot  = pilot._get_instance ('bigjob')

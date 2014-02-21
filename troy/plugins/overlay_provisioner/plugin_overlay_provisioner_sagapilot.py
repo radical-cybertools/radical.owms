@@ -100,6 +100,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             troy._logger.info ('overlay  provision: provision   pilot  %s : %s ' \
                             % (pid, troy_pilot.resource))
 
+
             # and create the pilot overlay
             sp_um    = sp.UnitManager  (session   = self._sp, 
                                         scheduler = 'direct_submission')

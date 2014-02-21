@@ -34,7 +34,7 @@ class Pilot (tu.Properties, tu.Timed) :
         self.session = session
         self.overlay = _overlay
 
-        if isinstance (param, basestring) :
+        if  isinstance (param, basestring) :
             self.id   = param
             descr     = troy.PilotDescription ()
             reconnect = True
@@ -141,6 +141,27 @@ class Pilot (tu.Properties, tu.Timed) :
         """
 
         self.cancel ()
+
+
+    # --------------------------------------------------------------------------
+    #
+    def merge_description (self, source) :
+        """
+        merge additional information into the pilot description -- such as
+        resource information, or application specific data
+        """
+
+        # we only allow this in DESCRIBED or BOUND state
+        if  not self.state in [DESCRIBED, BOUND] :
+            raise RuntimeError ('pilot is not in DESCRIBED state (%s)' \
+                             % self.state)
+
+        pd_dict = self.description.as_dict ()
+        ru.dict_merge        (pd_dict, source, policy='overwrite')
+        ru.dict_stringexpand (pd_dict)
+        ru.dict_stringexpand (pd_dict, self.session.cfg)
+
+        self.description = troy.PilotDescription (pd_dict)
 
 
     # --------------------------------------------------------------------------

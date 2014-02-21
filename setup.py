@@ -209,6 +209,7 @@ setup_args = {
         "troy.plugins.workload_scheduler",
         "troy.plugins.workload_translator",
         "troy.plugins.workload_dispatcher",
+        "troy.plugins.workload_parser",
         "troy.external",
         "troy.external.bundle",
         "troy.external.bundle.src",
@@ -219,7 +220,7 @@ setup_args = {
         "troy.bundle_wrapper",
     ],
     'scripts'          : ['bin/owms.py'],
-    'package_data'     : {'' : ['VERSION', 'resource.json']},
+    'package_data'     : {'' : ['VERSION', 'resources.json']},
     'cmdclass'         : {
         'test'         : our_test,
     },

@@ -54,7 +54,12 @@ class PLUGIN_CLASS (troy.PluginBase):
                 if  not unit.staged_in and task.description.inputs :
                     raise RuntimeError ("cannot dispatch %s - stage-in not done" % unit.id)
 
-                unit_descr     = unit.description
+                unit_descr     = unit.as_dict ()
+
+              # print "----------------------------------"
+              # print unit_descr
+              # print "----------------------------------"
+
                 pid            = unit.pilot_id
                 pilot          = troy.Pilot (overlay.session, pid)
                 pilot_instance = pilot._get_instance ('default')

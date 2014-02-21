@@ -117,9 +117,7 @@ class DataStager (object) :
         # resource config, merge it conservatively into the pilot config, and
         # expand values with resource config settings
         resource_cfg = unit.session.get_resource_config (resource)
-        ru.dict_merge        (unit.description, resource_cfg, policy='preserve')
-        ru.dict_stringexpand (unit.description, resource_cfg)
-
+        unit.merge_description (resource_cfg)
         workdir = unit.working_directory
 
         # sanity checks
@@ -230,15 +228,7 @@ class DataStager (object) :
 
         pilot    = troy.Pilot (unit.session, unit.pilot_id)
         resource = pilot.resource
-
-        # fix the resource placeholders in the unit descriptions.  Get the troy
-        # resource config, merge it conservatively into the pilot config, and
-        # expand values with resource config settings
-        resource_cfg = unit.session.get_resource_config (resource)
-        ru.dict_merge        (unit.description, resource_cfg, policy='preserve')
-        ru.dict_stringexpand (unit.description, resource_cfg)
-
-        workdir = unit.working_directory
+        workdir  = unit.working_directory
 
         # sanity checks
         if  not workdir :
@@ -314,7 +304,7 @@ class DataStager (object) :
         # and copy the file
         src_dir = self._dir_cache[str(resource)]
         src_dir.change_dir (src_dir_url.path)
-        src_dir.copy       (src_url, tgt_url)
+        src_dir.copy       (src_url, tgt_url, saga.filesystem.CREATE_PARENTS)
 
 
 # ------------------------------------------------------------------------------

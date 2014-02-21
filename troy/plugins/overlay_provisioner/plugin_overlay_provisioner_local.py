@@ -108,8 +108,8 @@ class _Unit (object) :
                 out, err = self._proc.communicate()
                 troy._logger.debug ("unit finished: %s" % self.id)
                 troy._logger.debug ("     exitcode: %s" % self.retval)
-                troy._logger.debug ("     output  : %s" % out)
-                troy._logger.debug ("     error   : %s" % err)
+                troy._logger.debug ("     output  : %s" % out[-1024:])
+                troy._logger.debug ("     error   : %s" % err[-1024:])
 
         return self._state
 

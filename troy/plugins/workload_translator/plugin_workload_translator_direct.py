@@ -39,7 +39,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             task = workload.tasks[tid]
 
             # we simply and stupidly translate one task into one unit description
-            cu_descr = troy.ComputeUnitDescription (task.description.as_dict ())
+            cu_descr = troy.ComputeUnitDescription (task.as_dict ())
 
             # this translator adds a TTC estimate -- for now, it assumes
             # something stupid, like the number of characters in the arguments

@@ -1,0 +1,49 @@
+
+{
+    # frequently changing variables
+    "hosts"       :  "pbs+ssh://sierra.futuregrid.org",
+    "pilot_size"  :  "8",
+    "concurrency" :  "100",
+
+    # plugin configurations
+    "planner"                      : {
+        "derive"                   : {
+            "concurrent"           : {
+                "concurrency"      : "%(concurrency)s"
+            }
+        }
+    },
+  
+    "overlay_manager"              : {
+        "overlay_provisioner"      : {
+            "bigjob"               : {
+                "coordination_url" : "redis://%(redis_passwd)s-REdIS@gw68.quarry.iu.teragrid.org:6379"
+            },
+            "sagapilot"            : {
+                "coordination_url" : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/"
+            }
+        },
+        "overlay_scheduler"        : {
+            "round_robin"          : {
+                "resources"        : "%(hosts)s"
+            }
+        },
+        "overlay_translator"       : {
+            "max_pilot_size"       : {
+                "pilot_size"       : "%(pilot_size)s"
+            }
+        }
+    },
+  
+    "workload_manager"             : {
+        "workload_dispatcher"      : {
+            "bigjob"               : {
+                "coordination_url" : "redis://%(redis_passwd)s@gw68.quarry.iu.teragrid.org:6379"
+            },
+            "sagapilot"            : {
+                "coordination_url" : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/"
+            }
+        }
+    }
+}
+

@@ -93,7 +93,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
 
             # and create the pilot
-            print "creating pilot with '%s'" % pilot_descr
+          # print "creating pilot with '%s'" % pilot_descr
             bj_pilot = self.cp_service.create_pilot (pilot_descr)
 
             # register the backend pilot with the troy pilot instance -- that

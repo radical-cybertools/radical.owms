@@ -1,0 +1,47 @@
+
+{
+    # variables which will vary for different experiment runs
+    "steps"            : 256,
+    "bag_size"         : 5,
+    "local_appdir"     : "/home/merzky/troy/examples/tutorial/",
+
+    # build up demo id from those variables.  That will be folded into the 
+    # session id, so the final ID will contain thise information, but will 
+    # also be unique  
+    "demo_id"          : "glomacs_%(steps)s_%(bag_size)s",
+
+
+    # We also want to configure some things in troy.
+    "session_id"       : "%(demo_id)s",
+    "pilot_backend"    : "sagapilot",
+    "plugin_strategy"  : "basic_late_binding",
+
+    "workload_manager" : {
+        "plugin_workload_dispatcher" : "%(pilot_backend)s"
+    },
+    "overlay_manager"  : {
+        "plugin_overlay_scheduler"   : "round_robin",
+        "plugin_overlay_provisioner" : "%(pilot_backend)s"
+    },
+
+
+    # We add some additional, app specific information to the 
+    # troy resource config, so that we can use placeholder
+    # like '%(mdrun)s' in our workload descriptions.
+    # This section *must* be named `resources`.
+    "resources" : {
+        # Mark installed gromacs on futuregrid
+        "*.futuregrid.org" : {
+            "mdrun"        : "/N/u/marksant/bin/mdrun"
+        },
+        # stampede has mdrun in path (module loads in bashrc)
+        "stampede.*" : {
+            "mdrun"        : "mdrun"
+        },
+        # localhost has mdrun in path
+        "localhost" : {
+            "mdrun"        : "mdrun"
+        }
+    }
+}
+

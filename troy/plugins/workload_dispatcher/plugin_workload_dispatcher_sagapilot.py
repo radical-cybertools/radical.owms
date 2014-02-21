@@ -84,7 +84,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
 
                 # get the unit description, and the target pilot ID
-                unit_descr = unit.description
+                unit_descr = unit.as_dict ()
                 pilot_id   = unit['pilot_id']
 
                 # reconnect to the given pilot -- this is likely to pull the
@@ -160,6 +160,8 @@ class PLUGIN_CLASS (troy.PluginBase):
         info = {'uid'              : sp_cu.uid,
                 'description'      : sp_cu.description,
                 'state'            : sp_cu.state,
+                'stdout'           : sp_cu.stdout,
+                'stderr'           : sp_cu.stderr,
                 'log'              : sp_cu.log,
                 'execution_details': sp_cu.execution_details,
                 'submission_time'  : sp_cu.submission_time,
@@ -169,15 +171,19 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         # translate sagapilot state to troy state
         if  'state' in info :
+            troy._logger.debug ('sagalilot level cu state: %s' % info['state'])
             # hahaha python switch statement hahahahaha
-            info['state'] =  {sp.states.PENDING             : PENDING, 
-                              sp.states.TRANSFERRING_INPUT  : RUNNING, 
-                              sp.states.RUNNING             : RUNNING, 
-                              sp.states.TRANSFERRING_OUTPUT : RUNNING, 
-                              sp.states.DONE                : DONE, 
-                              sp.states.CANCELED            : CANCELED, 
-                              sp.states.FAILED              : FAILED, 
-                              sp.states.UNKNOWN             : UNKNOWN}.get (info['state'], UNKNOWN)
+            info['state'] =  {sp.states.PENDING                 : PENDING, 
+                              sp.states.PENDING_EXECUTION       : PENDING, 
+                              sp.states.PENDING_INPUT_TRANSFER  : RUNNING, 
+                              sp.states.TRANSFERRING_INPUT      : RUNNING, 
+                              sp.states.RUNNING                 : RUNNING, 
+                              sp.states.PENDING_OUTPUT_TRANSFER : RUNNING, 
+                              sp.states.TRANSFERRING_OUTPUT     : RUNNING, 
+                              sp.states.DONE                    : DONE, 
+                              sp.states.CANCELED                : CANCELED, 
+                              sp.states.FAILED                  : FAILED, 
+                              sp.states.UNKNOWN                 : UNKNOWN}.get (info['state'], UNKNOWN)
 
       # print 'unit_get_info: %s' % info
         # unit_get_info: {'log'               : None, 
@@ -200,6 +206,12 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         if 'stop_time' in info and info['stop_time'] :
             unit.timed_event ('stop', 'sagapilot', info['stop_time'])
+
+        if  info['state'] == FAILED :
+            troy._logger.error ('CU %s failed' % unit.id)
+            troy._logger.info ('log: \n----\n%s\n---\n' % info['log'])
+            troy._logger.info ('stderr: \n----\n%s\n---\n' % info['stderr'])
+            troy._logger.info ('stdout: \n----\n%s\n---\n' % info['stdout'])
 
 
         return info

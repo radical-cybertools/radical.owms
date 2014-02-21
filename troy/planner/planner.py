@@ -30,27 +30,43 @@ class Planner (tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, session=None, expand=AUTOMATIC, derive=AUTOMATIC) :
+    def __init__ (self, session, expand=AUTOMATIC, 
+                                 derive=AUTOMATIC) :
         """
         Create a new planner instance for this workload.
 
         Use the default planner plugin if not indicated otherwise
         """
 
-        if  session : self.session = session
-        else:         self.session = troy.Session ()
-
-
-        self.id = ru.generate_id ('planner.')
+        self.session = session
+        self.id      = ru.generate_id ('planner.')
 
         tu.Timed.__init__            (self, 'troy.Planner', self.id)
         self.session.timed_component (self, 'troy.Planner', self.id)
 
+        self._plugin_mgr = None
         self.plugins = dict ()
+
+
+        # setup plugins from aruments
+        #
+        # We leave actual plugin initialization for later, in case a strategy
+        # wants to alter / complete the plugin selection
+        #
+        # FIXME: we don't need no stupid arguments, ey!  Just use
+        #        AUTOMATIC by default...
         self.plugins['expand' ] = expand
         self.plugins['derive' ] = derive
 
-        self._plugin_mgr = None
+        # lets see if there are any plugin preferences in the config
+        # note that config settings supercede arguments!
+        cfg = session.get_config ('planner')
+
+        if  'plugin_planner_derive' in cfg : 
+            self.plugins['derive']  =  cfg['plugin_planner_derive']
+        if  'plugin_planner_expand' in cfg : 
+            self.plugins['expand']  =  cfg['plugin_planner_expand']
+
 
 
     # --------------------------------------------------------------------------
@@ -68,7 +84,7 @@ class Planner (tu.Timed) :
         if  self.plugins['derive' ]  == AUTOMATIC :
             self.plugins['derive' ]  = 'maxcores'
         if  self.plugins['expand' ]  == AUTOMATIC :
-            self.plugins['expand' ]  = 'noop'
+            self.plugins['expand' ]  = 'cardinal'
 
 
         # load plugins
