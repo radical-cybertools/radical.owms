@@ -1,10 +1,15 @@
 
 {
+    # frequently changing variables
+    "hosts"       :  "pbs+ssh://sierra.futuregrid.org",
+    "pilot_size"  :  "1",
+    "concurrency" :  "100",
+
     # plugin configurations
     "planner"                      : {
         "derive"                   : {
             "concurrent"           : {
-                "concurrency"      : 100
+                "concurrency"      : "%(concurrency)s"
             }
         }
     },
@@ -22,8 +27,12 @@
         },
         "overlay_scheduler"        : {
             "round_robin"          : {
-              # "resources"        : "pbs+ssh://sierra.futuregrid.org"
-                "resources"        : "fork://localhost"
+                "resources"        : "%(hosts)s"
+            }
+        },
+        "overlay_translator"       : {
+            "max_pilot_size"       : {
+                "pilot_size"       : "%(pilot_size)s"
             }
         }
     },

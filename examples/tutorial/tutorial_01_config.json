@@ -3,7 +3,7 @@
     # variables which will vary for different experiment runs
     "steps"            : 256,
     "bag_size"         : 5,
-    "local_appdir"     : "/home/merzky/saga/troy.doc/examples/tutorial/",
+    "local_appdir"     : "/home/merzky/troy/examples/tutorial/",
 
     # build up demo id from those variables.  That will be folded into the 
     # session id, so the final ID will contain thise information, but will 
@@ -13,7 +13,7 @@
 
     # We also want to configure some things in troy.
     "session_id"       : "%(demo_id)s",
-    "pilot_backend"    : "bigjob",
+    "pilot_backend"    : "sagapilot",
     "plugin_strategy"  : "basic_late_binding",
     "workload_manager" : {
         "plugin_workload_dispatcher" : "%(pilot_backend)s"
