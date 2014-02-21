@@ -4,7 +4,7 @@
 Introduction
 ******************************
 
-TROY (Tiered Resource OverlaY) is a workload management system [#f1]_ [#f2]_ [#f3]_ [#f4]_ that leverages pilot overlays [#f5]_ [#f6]_ as resource layer. As a workload management system, TROY translates tasks into Compute Units (CUs) and in a near future also into Data Units (DUs). As a overlay management system, TROY describes and submits pilotjobs on Distributed Computing Infrastructures (DCIs) - FutureGrid, XSEDE, and in a near future OSG. Once the scheduled pilot job(s) become available on one or more DCIs, TROY schedules the CUs (and DUs) of a workload on those pilots for execution. TROY takes also care of staging data in and out of the DCI before and after the execution of the tasks of the workload(s).
+TROY (Tiered Resource OverlaY) is a Workload Management System (WMS) [#f1]_ [#f2]_ [#f3]_ [#f4]_ that leverages and Overlay Management System (OMS) [#f5]_ [#f6]_ to create its resource layers. As a WMS, TROY translates tasks into Compute Units (CUs) and in a near future also into Data Units (DUs). As a OMS, TROY describes and submits pilotjobs on Distributed Computing Infrastructures (DCIs) - FutureGrid, XSEDE, and in a near future also OSG. Once the scheduled pilot job(s) become available on one or more DCIs, TROY schedules the CUs (and DUs) of a workload on those pilots for execution. TROY takes also care of staging data in and out of the DCI before and after the execution of the tasks of the workload(s).
 
 Why TROY
 ========
