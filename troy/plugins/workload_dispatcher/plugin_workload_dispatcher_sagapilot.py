@@ -171,15 +171,19 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         # translate sagapilot state to troy state
         if  'state' in info :
+            troy._logger.debug ('sagalilot level cu state: %s' % info['state'])
             # hahaha python switch statement hahahahaha
-            info['state'] =  {sp.states.PENDING             : PENDING, 
-                              sp.states.TRANSFERRING_INPUT  : RUNNING, 
-                              sp.states.RUNNING             : RUNNING, 
-                              sp.states.TRANSFERRING_OUTPUT : RUNNING, 
-                              sp.states.DONE                : DONE, 
-                              sp.states.CANCELED            : CANCELED, 
-                              sp.states.FAILED              : FAILED, 
-                              sp.states.UNKNOWN             : UNKNOWN}.get (info['state'], UNKNOWN)
+            info['state'] =  {sp.states.PENDING                 : PENDING, 
+                              sp.states.PENDING_EXECUTION       : PENDING, 
+                              sp.states.PENDING_INPUT_TRANSFER  : RUNNING, 
+                              sp.states.TRANSFERRING_INPUT      : RUNNING, 
+                              sp.states.RUNNING                 : RUNNING, 
+                              sp.states.PENDING_OUTPUT_TRANSFER : RUNNING, 
+                              sp.states.TRANSFERRING_OUTPUT     : RUNNING, 
+                              sp.states.DONE                    : DONE, 
+                              sp.states.CANCELED                : CANCELED, 
+                              sp.states.FAILED                  : FAILED, 
+                              sp.states.UNKNOWN                 : UNKNOWN}.get (info['state'], UNKNOWN)
 
       # print 'unit_get_info: %s' % info
         # unit_get_info: {'log'               : None, 

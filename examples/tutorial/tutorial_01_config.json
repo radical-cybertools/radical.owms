@@ -15,10 +15,12 @@
     "session_id"       : "%(demo_id)s",
     "pilot_backend"    : "sagapilot",
     "plugin_strategy"  : "basic_late_binding",
+
     "workload_manager" : {
         "plugin_workload_dispatcher" : "%(pilot_backend)s"
     },
     "overlay_manager"  : {
+        "plugin_overlay_scheduler"   : "round_robin",
         "plugin_overlay_provisioner" : "%(pilot_backend)s"
     },
 
