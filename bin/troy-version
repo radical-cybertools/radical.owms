@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# -----------------------------------------------------------------------------
+# Original author: Ole Weidner (ole.weidner@rutgers.edu)
+# Edited by: TROY development team.
+# Copyright 2013, radical@rutgers.edu
+# License under the MIT License
+#
+# This script returns the version of TROY.
+#
+python -c "import troy; print troy.version"
