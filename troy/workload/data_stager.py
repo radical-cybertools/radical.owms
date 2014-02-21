@@ -304,7 +304,7 @@ class DataStager (object) :
         # and copy the file
         src_dir = self._dir_cache[str(resource)]
         src_dir.change_dir (src_dir_url.path)
-        src_dir.copy       (src_url, tgt_url)
+        src_dir.copy       (src_url, tgt_url, saga.filesystem.CREATE_PARENTS)
 
 
 # ------------------------------------------------------------------------------

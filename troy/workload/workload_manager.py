@@ -93,6 +93,12 @@ class WorkloadManager (tu.Timed) :
         if  'plugin_workload_dispatcher' in cfg : 
             self.plugins['dispatcher']   =  cfg['plugin_workload_dispatcher']
 
+      # import pprint
+      # pprint.pprint (session.cfg)
+      # pprint.pprint (cfg)
+      # pprint.pprint(self.plugins)
+      # sys.exit(0)
+
 
 
 

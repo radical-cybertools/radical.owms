@@ -4,6 +4,7 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
+import copy
 import radical.utils as ru
 
 from   troy.constants import *
@@ -52,12 +53,11 @@ class PLUGIN_CLASS (troy.PluginBase):
             if  'cardinality' in task_dict :
                 cardinality = int(task_dict['cardinality'])
 
-                new_task_dict = task.as_dict ()
-                new_task_dict['cardinality'] = 1 # avoid repeated expansion
-
                 for c in range(cardinality) :
 
-                    new_task_dict['cardinal'] = c
+                    new_task_dict = copy.deepcopy(task_dict)
+                    new_task_dict['cardinality'] = 1 # avoid repeated expansion
+                    new_task_dict['cardinal']    = c
                     task_descriptions.append (troy.TaskDescription (new_task_dict))
 
             else :

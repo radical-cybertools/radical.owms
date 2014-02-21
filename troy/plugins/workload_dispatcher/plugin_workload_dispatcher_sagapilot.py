@@ -84,7 +84,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
 
                 # get the unit description, and the target pilot ID
-                unit_descr = unit.description
+                unit_descr = unit.as_dict ()
                 pilot_id   = unit['pilot_id']
 
                 # reconnect to the given pilot -- this is likely to pull the
@@ -116,11 +116,6 @@ class PLUGIN_CLASS (troy.PluginBase):
                 # FIXME: sanity check for pilot type
                 [sp_um, sp_pm, sp_pilot] = pilot._get_instance ('sagapilot')
                 sp_cu = sp_um.submit_units (sp_cu_descr)
-
-                print "***********************************************************"
-                print "submit unit"
-                print sp_cu_descr
-                print "***********************************************************"
 
                 # attach the backend instance to the unit, for later state
                 # checks etc. We leave it up to the unit to decide if it wants
@@ -161,11 +156,6 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         # find out what we can about the pilot...
         [sp_um, sp_cu] = unit._get_instance ('sagapilot')
-
-        print "***********************************************************"
-        print "state"
-        print sp_cu.state
-        print "***********************************************************"
 
         info = {'uid'              : sp_cu.uid,
                 'description'      : sp_cu.description,

@@ -9,9 +9,9 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-def manage_workload (workload_description, config_file) :
+def manage_workload (workload, config) :
 
-    session      = troy.Session         (config_file)
+    session      = troy.Session         (config)
     planner      = troy.Planner         (session)
     overlay_mgr  = troy.OverlayManager  (session)
     workload_mgr = troy.WorkloadManager (session)
@@ -24,9 +24,11 @@ def manage_workload (workload_description, config_file) :
     if  strategy == troy.AUTOMATIC :
         strategy =  'basic_late_binding'
 
-    workload = workload_mgr.parse_workload (workload_description)
+    # FIXME: we should also accept workload instances or json strings -- bext
+    # put that flexibility into parse_workload
+    parsed_workload = workload_mgr.parse_workload (workload)
 
-    return troy.execute_workload (workload, planner, 
+    return troy.execute_workload (parsed_workload, planner, 
                                   overlay_mgr, workload_mgr,
                                   strategy)
 

@@ -238,7 +238,7 @@ class Workload (tu.Properties, tu.Timed) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
             # FIXME: add sanity checks for task syntax / semantics
-            task = troy.Task (self.session, d, _workload=self)
+            task = troy.Task (self.session, descr=d, _workload=self)
         
             self.timed_component (task, 'troy.Task', task.id)
 

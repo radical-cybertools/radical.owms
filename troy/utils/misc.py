@@ -59,8 +59,8 @@ def get_config (params) :
             if  os.path.isdir (param) :
                 # config dir
                 cfg_files = glob.glob ("%s/*" % param)
-                print 'is dir %s/*' % param
-                print cfg_files
+              # print 'is dir %s/*' % param
+              # print cfg_files
 
             elif os.path.isfile (param) :
                 # single config file
@@ -80,9 +80,12 @@ def get_config (params) :
                 except Exception as e :
                     troy._logger.warning ("skipping config in %s (%s)" % (cfg_file, e))
 
-                import pprint
-                pprint.pprint (cfg_dict)
-                print '================'
+              # import pprint
+              # print '================'
+              # print cfg_file
+              # pprint.pprint (cfg_dict)
+              # print '================'
+
                 ru.dict_merge (ret, cfg_dict, policy='overwrite')
 
 
@@ -91,7 +94,9 @@ def get_config (params) :
             raise TypeError ("get_config parameter must be (list of) dict or "
                              "string, not %s" % type(param))
 
-    print ret
+  # print '================================'
+  # pprint.pprint (ret)
+  # print '================================'
 
     # expand config(s) before returning
     ru.dict_stringexpand (ret)

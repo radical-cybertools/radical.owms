@@ -32,14 +32,14 @@ def usage (msg) :
 #
 if __name__ == '__main__':
 
-    if len(sys.argv) != 3 : usage ('parameter mismatch') 
+    if len(sys.argv) < 3 : usage ('parameter mismatch') 
     if 'help' in sys.argv : usage ()
         
     workload_description = sys.argv[1]
-    application_config   = sys.argv[2]
+    application_configs  = sys.argv[2:]
 
-    troy.manage_workload (workload_description = workload_description,
-                          config_file          = application_config)
+    troy.manage_workload (workload = workload_description,
+                          config   = application_configs)
 
     # Woohooo!  Magic has happened!
 

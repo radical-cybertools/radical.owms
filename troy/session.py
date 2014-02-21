@@ -8,7 +8,6 @@ import radical.utils as ru
 import os
 import re
 import fnmatch
-import pprint
 import saga
 import troy
 import logging
@@ -87,6 +86,10 @@ class Session (saga.Session, tu.Timed) :
     #
     def __init__ (self, user_cfg=None, default=True) :
 
+        # accept any number of user configs
+        if  not isinstance (user_cfg, list) :
+            user_cfg = [user_cfg]
+
 
         # set saga apitype for clean inheritance (cpi to api mapping relies on
         # _apitype)
@@ -102,20 +105,14 @@ class Session (saga.Session, tu.Timed) :
         self.cfg = tu.get_config ([_config_skeleton,
                                    resource_cfg    , 
                                    config_dir      ,
-                                   config_env      , 
-                                   user_cfg        ])
+                                   config_env      ] + user_cfg)
 
         # make sure that the resource sections in the config have the minimal
         # set of entries
-        self._dump()
         for res_name in self.cfg['resources'] :
             ru.dict_merge (self.cfg['resources'][res_name], 
                            _resource_config_skeleton, 
                            policy='preserve')
-
-        print "-----------------------------"
-        pprint.pprint (self.cfg)
-
 
 
         # we set the log level as indicated in the troy config or user
@@ -132,7 +129,18 @@ class Session (saga.Session, tu.Timed) :
         self.timed_method ('saga.Session', ['init'],  
                            saga.Session.__init__, [self, default])
 
+      # print '--------------------------------'
+      # self._dump()
+      # print '--------------------------------'
+      # sys.exit()
 
+
+    # --------------------------------------------------------------------------
+    #
+    def __deepcopy__ (self, other) :
+        # FIXME
+
+        return self
 
     # --------------------------------------------------------------------------
     #
@@ -171,8 +179,6 @@ class Session (saga.Session, tu.Timed) :
     #
     def get_resource_config (self, resource) :
 
-        print 'get resource config %s' % resource
-
         # resources may be in fact URLs -- but resource configs use host
         # names as keys.  So we check if the URL is well formed and attempt
         # to extract the host
@@ -206,15 +212,13 @@ class Session (saga.Session, tu.Timed) :
 
         # check if we have an exact match for the resource name.  This upersedes
         # the wildcard entries
+
         if  resource in resource_cfg :
             troy._logger.debug ('merge resource config for %s' % resource)
             ru.dict_merge (ret, resource_cfg[resource], policy='overwrite')
 
         # make sure the hostname is in the config
         ret['hostname'] = resource
-
-        import pprint
-        pprint.pprint (ret)
 
         return ret
 

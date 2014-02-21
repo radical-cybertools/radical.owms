@@ -182,7 +182,6 @@ class ComputeUnit (tu.Properties, tu.Timed) :
         ud_dict = self.as_dict ()
 
         ru.dict_merge        (ud_dict, source, policy='overwrite')
-        ud_dict['xxx'] = "foo_%(local_appdir)s_bar_%(cardinal)s"
         ru.dict_stringexpand (ud_dict)
         ru.dict_stringexpand (ud_dict, self.session.cfg)
 

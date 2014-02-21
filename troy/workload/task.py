@@ -48,8 +48,8 @@ class Task (tu.Properties, tu.Timed) :
         to reconnect to the thus identified task instance.  
         """
 
+
         self.session  = session
-        self.workload = _workload
 
         tu.Properties.__init__ (self, descr)
 
@@ -61,10 +61,12 @@ class Task (tu.Properties, tu.Timed) :
         self.register_property ('units')
         self.register_property ('workload')
 
+
         # initialize essential properties
         self.state       = DESCRIBED
         self.tag         = descr.get ('tag', None)
         self.units       = dict()
+        self.workload    = _workload
 
         # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks
