@@ -117,7 +117,11 @@ class Session (saga.Session, tu.Timed) :
 
         # we set the log level as indicated in the troy config or user
         # config, fallback being log level ERROR
-        troy._logger.setLevel (self.cfg.get ('log_level', 'ERROR'))
+        log_level = 'ERROR'
+        log_level = self.cfg.get   ('log_level',    log_level)
+        log_level = os.environ.get ('TROY_VERBOSE', log_level)
+        troy._logger.setLevel (log_level)
+
 
         # now that config parsing is done, we can create the session ID
         session_id_stub = self.cfg.get ("session_id", "session.")
@@ -129,9 +133,9 @@ class Session (saga.Session, tu.Timed) :
         self.timed_method ('saga.Session', ['init'],  
                            saga.Session.__init__, [self, default])
 
-      # print '--------------------------------'
-      # self._dump()
-      # print '--------------------------------'
+        print '--------------------------------'
+        self._dump()
+        print '--------------------------------'
       # sys.exit()
 
 
