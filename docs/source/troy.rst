@@ -5,15 +5,15 @@ TROY - Tiered Resource OverlaY
 
 What is it
 ==========
-TROY is a workload manager that uses pilot overlays as resource layer. As a workload manager, TROY takes care of translating tasks into Compute Units (CUs) and (soon) Data Units (DUs). As a overlay manager, TROY describes and submits pilotjobs on Distributed Computing Infrastructures (DCIs) - FutureGrid, XSEDE, and (soon) OSG. Once the scheduled pilotjobs becomes available on the remote DCI, TROY schedules the CUs (and DUs) of a workload on those pilots for execution.
+TROY is a workload manager that leverages pilot overlays as resource layer. As a workload manager, TROY translates tasks into Compute Units (CUs) and soon also into Data Units (DUs). As a overlay manager, TROY describes and submits pilotjobs on Distributed Computing Infrastructures (DCIs) - FutureGrid, XSEDE, and in a near future OSG. Once the scheduled pilot job(s) become available on one or more DCIs, TROY schedules the CUs (and DUs) of a workload on those pilots for execution. TROY takes also care of staging data in and out of the DCI before and after the execution of the tasks of the workload(s).
 
 Why TROY
 ========
 TROY offers:
 
 * **Convenience**. Automation of several activities required by the execution of workloads by means of pilotjobs. Such activities are: (I) the management - descripiton, scheduling, monitoring, and cancelling - of pilot-based overlays; and (II) the management - i.e. description, binding, execution on one or more pilotjobs, and data staging in/out - of Comput Units (CUs). Automating such activities becomes particularly critical when considering scaling for both the workload - number of tasks, complexity of the relationship among them - and overlay - multiple pilotjobs, running on multiple resources or multiple DCIs. 
-* **Functionalities**. 
-* **Performance**.
+* **Functionalities**. Execution of a workload by means of multiple strategies, allowing control over: number of workloads, data staging in/out, number of pilots to use, degree of concurrency of a bag of tasks, number of targeted resources, cross-domain DCIs, type of scheduling algorithms for both CUs and pilotjobs, type of pilot system to use.
+* **Performance**. Fine tuning of the workload execution depending on the number of tasks and the number of pilots so to optimize the workload execution. Programmatic early binding on CUs to pilots in order to optimize pilot allocation and utilization, especially when executing ensambles and other types of 'multi-staged' workloads. In a near future, leveraging of information from the resource layer - i.e. DCIs - in order to reduce queuing time.
 
 Architecture
 ============
