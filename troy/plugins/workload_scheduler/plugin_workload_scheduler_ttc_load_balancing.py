@@ -34,44 +34,44 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def schedule (self, workload, overlay) :
-        print "########################################"
-        print "# Unit information"
-        print "########################################"
+      # print "########################################"
+      # print "# Unit information"
+      # print "########################################"
         
         for t_id in workload.tasks.keys():
-            print "t_id", t_id
+          # print "t_id", t_id
             task = workload.tasks[t_id]
             for u_id in task.units.keys():
-                print "u_id", u_id
+              # print "u_id", u_id
                 unit = task.units[u_id]
-                print unit.description
+              # print unit.description
                 # this is hacky as all get-out but this IS a WIP... TODO
                 try:
                     unit.description._ttc = int(unit.description.walltime)
                 except:
                     pass
 
-        print "########################################"
-        print "# Pilot information"
-        print "########################################"
+      # print "########################################"
+      # print "# Pilot information"
+      # print "########################################"
 
         for p_id in overlay.pilots.keys():
-            print "p_id", p_id
+          # print "p_id", p_id
             pilot = overlay.pilots[p_id]
-            print pilot
+          # print pilot
             if pilot.units:
-                print " -------- pilot %s" % p_id
+              # print " -------- pilot %s" % p_id
                 import pprint
                 pprint.pprint (pilot)
                 pprint.pprint (pilot.units)
                 for u_id in pilot.units.keys():
-                    print "u_id", u_id
+                  # print "u_id", u_id
                     unit = pilot.units[u_id]
-                    print unit
+                  # print unit
 
-        print "#########################################"
-        print "# Beginning Scheduling in Debug Scheduler" 
-        print "#########################################"
+      # print "#########################################"
+      # print "# Beginning Scheduling in Debug Scheduler" 
+      # print "#########################################"
 
         # mark pilots
         for p_id in overlay.pilots:
@@ -88,7 +88,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             # print pilot info
             for p_id in overlay.pilots:
-                print p_id, overlay.pilots[p_id].est_begin
+              # print p_id, overlay.pilots[p_id].est_begin
 
             task = workload.tasks[t_id]
             for u_id in task.units:
@@ -105,7 +105,7 @@ class PLUGIN_CLASS (troy.PluginBase):
                 # assign task to the soonest available pilot
                 unit._bind(p_optimal)
                 overlay.pilots[p_optimal].est_begin+=int(unit.description._ttc)
-                print "assigning task to pilot:", p_optimal
+                troy.logger.debug ("assigning unit %s to pilot %s" % (u_id, p_optimal))
 
         # # schedule to first 'next' pilot
         # for tid in workload.tasks:
