@@ -1,8 +1,8 @@
 .. _chapter_configuration:
 
-*************
+********************************************************************************
 Configuration
-*************
+********************************************************************************
 
 Troy is designed to become a very flexible and powerful software, which operates
 wich provides a diverse set of algorithms and strategies to execute very diverse
@@ -22,7 +22,7 @@ different ways settings can be communicated to Troy.
 
 
 Configuration Mechanism
-=======================
+========================================
 
 Troy pulls config settings from different locations, in this order
 
@@ -41,38 +41,37 @@ configuration, or for details of some known and frequently used target resourecs
 
 
 Required Configuration Settings
-===============================
+========================================
 
 In order to create a pilot overlay on some target resources, Troy needs to know
 some details about those resources, such as `username`, `queue` to be used, etc.
 While some of those information are stored in an internal troy configuration
-file (file:`troy/resources.json`), others need to be provided by the user.
-A typical configuration file for a local machine and some futuregrid machines
-may look like:
+file, others need to be provided by the user.  A typical configuration file for
+a local machine and some futuregrid machines may look like:
 
 .. code-block:: python
 
     # $HOME/troy/resource.json
     {
-        "hosts"     : "pbs+ssh://sierra.futuregrid.org,ssh://lakota",
+        "hosts"                     : "pbs+ssh://sierra.futuregrid.org,ssh://lakota",
 
         # augment the troy resource configuration
-        "resources" : {
+        "resources"                 : {
     
             # add a local resource for testing -- it does not use any queuing
             # system
-            "lakota" : {
-                "type"     : ["ssh"],
-                "home"     : "/home/%(username)s/"
-                "username" : "surehand"
+            "lakota"                : {
+                "type"              : ["ssh"],
+                "home"              : "/home/%(username)s/"
+                "username"          : "surehand"
             },
     
             # change some user specific variable for existing troy config entries
-            "*.futuregrid.org" : {
-                "username" : "winnetou"
+            "*.futuregrid.org"      : {
+                "username"          : "winnetou"
             },
             "sierra.futuregrid.org" : {
-                "queue"    : "batch"
+                "queue"             : "batch"
             }
         }
     }
@@ -141,14 +140,14 @@ respective Troy plugins.  Note again the use of placeholders.
           settings fro Troy and Troy plugins below.
 
 
-Referencing Troy Settings in Workload Descriptions
-==================================================
+Referencing Settings in Workloads
+========================================
 
 
 
 
 Additional Configuration Settings
-=================================
+========================================
 
 There are two main types of configurations in Troy: those which apply to Troy
 plugins, and those which apply to Troy internals, such as the selection of
@@ -161,18 +160,18 @@ settings, with their default values:
     {
         "plugin_strategy"                : "basic_late_binding",
 
-        "planner" : {
+        "planner"                        : {
             "plugin_planner_derive"      : "maxcores",
             "plugin_planner_expand"      : "noop"
         },
 
-        "workload_manager" : {
+        "workload_manager"               : {
             "plugin_workload_translator" : "direct",
             "plugin_workload_scheduler"  : "round_robin",
             "plugin_workload_dispatcher" : "local"
         },
 
-        "overlay_manager"  : {
+        "overlay_manager"                : {
             "plugin_overlay_translator"  : "max_pilot_size",
             "plugin_overlay_scheduler"   : "round_robin",
             "plugin_overlay_provisioner" : "local"
@@ -183,6 +182,36 @@ settings, with their default values:
 The list of available plugins is available 'FIXME: here`; for each plugin, the
 respective configuration section is structured like:
 
+.. code-block:: python
+     
+    {
+        "plugin_scope"                   : {
+            "plugin_type"                : {
+                "plugin_name"            : {
+                    "plugin_setting"     : "value"
+                }
+            }
+        }
+    }
 
+
+
+or as illustrated by example:
+
+.. code-block:: python
+     
+    {
+        "workload_manager"               : {
+            "plugin_workload_dispatcher" : {
+                "sagapilot"              : {
+                    "coordination_url"   : "redis://localhost"
+                }
+            }
+        }
+    }
+
+You will recognize this structure from the `Required Configuration Settings`
+section.  The list of configurable options is for each plugin documented on the
+respective plugin page, see 'FIXME: here`.
 
 

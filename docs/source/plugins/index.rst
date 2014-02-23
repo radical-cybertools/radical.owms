@@ -1,14 +1,13 @@
 
 .. _chapter_plugin_reference:
 
-****************
+********************************************************************************
 Plugin Reference
-****************
+********************************************************************************
 
 This is the documentation of the Troy Plugins
 
 .. toctree::
-   :numbered:
 
    strategy_plugins.rst
    parser_plugins.rst

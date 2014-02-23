@@ -1,8 +1,8 @@
 .. _chapter_installation:
 
-************
+********************************************************************************
 Installation
-************
+********************************************************************************
 
 Currently, TROY can only be installed via pip directly from GitHub. In a near
 future TROY will be available from the `pypi repository
@@ -10,7 +10,7 @@ future TROY will be available from the `pypi repository
 
 
 Requirements 
-============
+========================================
 
 TROY relies on a set of external software packages, both core and additional.
 The core dependencies are installed automatically as dependencies, while the
@@ -33,30 +33,30 @@ Additional dependencies:
 
 
 Installation from GitHub
-========================
+========================================
 
 To install TROY from the stable (main) branch in a virtual environment, 
 open a terminal and run:
 
 .. code-block:: bash
 
-    virtualenv $HOME/myenv
-    source $HOME/myenv/bin/activate
-    pip install --upgrade -e git://github.com/saga-project/troy.git@master#egg=troy
+    > virtualenv $HOME/myenv
+    > source $HOME/myenv/bin/activate
+    > pip install --upgrade -e git://github.com/saga-project/troy.git@master#egg=troy
 
 Next, you can do a quick sanity check to make sure that the the packages have
 been installed properly. In the same virtualenv, run:
 
 .. code-block:: bash
 
-    # troy-version
+    > troy-version
     0.0.1-569-gd89bdc0-master
 
 This should return the version of the TROY installation, similar to the above.
 
 
 Installation from Source
-========================
+========================================
 
 If you are planning to contribute to the TROY codebase, you can download
 and install TROY directly from the sources.
@@ -65,7 +65,7 @@ First, you need to check out the sources from GitHub.
 
 .. code-block:: bash
 
-    # git clone git@github.com:saga-project/troy.git
+    > git clone git@github.com:saga-project/troy.git
     Cloning into 'troy'...
     remote: Reusing existing pack: 4665, done.
     remote: Counting objects: 218, done.
@@ -74,14 +74,14 @@ First, you need to check out the sources from GitHub.
     Receiving objects: 100% (4883/4883), 4.23 MiB | 433.00 KiB/s, done.
     Resolving deltas: 100% (3115/3115), done.
     Checking connectivity... done
-    # cd troy
+    > cd troy
 
 Next, run the installer directly from the source directoy (assuming you have 
 set up a virtualenv):
 
 .. code-block:: bash
  
-    # pip install --upgrade .
+    > pip install --upgrade .
 
     Unpacking /home/merzky/saga/troy
     Running setup.py egg_info for package from file:///home/user/troy/

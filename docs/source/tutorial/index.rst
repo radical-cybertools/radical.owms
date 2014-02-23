@@ -1,12 +1,11 @@
 
 .. _chapter_tutorial:
 
-********
+********************************************************************************
 Tutorial
-********
+********************************************************************************
 
-This Troy tutorial will ...
-
+This Tutorial will introduce the different usage modes of Troy, by example.  
 
 **Prerequisites:**
 
@@ -25,8 +24,9 @@ This Troy tutorial will ...
 **Contents:**
 
 .. toctree::
-   :numbered:
    :maxdepth: 1
 
    part1
+   part2
+   part3
 

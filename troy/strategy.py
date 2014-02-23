@@ -10,6 +10,9 @@ import troy
 # ------------------------------------------------------------------------------
 #
 def manage_workload (workload, config) :
+    """
+    Parse and execute a given workload (see `execute_workload()`)
+    """
 
     session      = troy.Session         (config)
     planner      = troy.Planner         (session)

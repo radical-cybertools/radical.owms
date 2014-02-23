@@ -8,7 +8,6 @@ Library Reference
 This is the Troy library reference
 
 .. toctree::
-   :numbered:
 
    session.rst
    context.rst

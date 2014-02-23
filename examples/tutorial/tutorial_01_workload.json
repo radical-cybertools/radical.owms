@@ -1,25 +1,26 @@
 
 # cardinality: the task is run that many times
-# all string based values will be expanded with mactching values from the
-# application config.  For example, if the applation config sets `n_tasks : 10`,
-# then `"cardinality" : "%(n_tasks)s"` will expand to `"cardinality" : "10"`.
+# all string based values will be expanded with matching values from 
+# the application config.  For example, if the application config sets 
+#     "bag_size"    : 10
+# then 
+#     "cardinality" : "%(bag_size)s"
+# will expand to 
+#     "cardinality" : "10"
 
-{             # workload
-  "tasks" : [ # tasks
-  {           # task 1
-    "cardinality"       : "%(bag_size)s",
-  # "executable"        : "/bin/echo",
-  # "arguments"         : ["%(mdrun)s", "topol.tpr"],
-    "executable"        : "%(mdrun)s",
-  # "arguments"         : ["topol.tpr"],
-    "working_directory" : "%(home)s/troy_tutorial/troy_tutorial_01_%(cardinal)s/",
-    "inputs"            : ["%(local_appdir)s/input/topol.tpr > topol.tpr"],
-    "outputs"           : ["output/%(demo_id)s_state.cpt.%(cardinal)s   < state.cpt",
-                           "output/%(demo_id)s_confout.gro.%(cardinal)s < confout.gro",
-                           "output/%(demo_id)s_ener.edr.%(cardinal)s    < ener.edr",
-                           "output/%(demo_id)s_traj.trr.%(cardinal)s    < traj.trr",
-                           "output/%(demo_id)s_md.log.%(cardinal)s      < md.log"]
-  }           # task 1
-  ]           # tasks
-}             # workload
+{
+  "tasks" : [
+    {
+      "cardinality"       : "%(bag_size)s",
+      "executable"        : "%(mdrun)s",
+      "working_directory" : "%(home)s/troy_tutorial/troy_tutorial_01_%(cardinal)s/",
+      "inputs"            : ["%(local_appdir)s/input/topol.tpr > topol.tpr"],
+      "outputs"           : ["output/%(session_id)s_state.cpt.%(cardinal)s   < state.cpt",
+                             "output/%(session_id)s_confout.gro.%(cardinal)s < confout.gro",
+                             "output/%(session_id)s_ener.edr.%(cardinal)s    < ener.edr",
+                             "output/%(session_id)s_traj.trr.%(cardinal)s    < traj.trr",
+                             "output/%(session_id)s_md.log.%(cardinal)s      < md.log"]
+    }
+  ]
+}
 
