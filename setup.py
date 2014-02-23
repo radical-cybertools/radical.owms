@@ -90,7 +90,7 @@ def get_version (paths=None):
 
                 # the git check failed -- its likely that we are called from
                 # a tarball, so use ./VERSION instead
-                out=open ("%s/VERSION" % srcroot, 'r').read().strip()
+                out=open ("%s/VERSION" % paths[0], 'r').read().strip()
 
 
             pattern = re.compile ('(?P<long>(?P<short>[\d\.]+)\D.*)(\s+\*\s+(?P<branch>\S+))?')
