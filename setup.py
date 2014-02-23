@@ -176,7 +176,7 @@ setup_args = {
   # At the moment, the radical.utils plugin manager has trouble when any plugin
   # fails to load.  Until that is fixed, we have to make sure that all
   # dependencies are met -- so we add the all for the time being.
-    'install_requires' : ['saga-python', 'radical.utils', 'bigjob', 'paramiko'],
+    'install_requires' : ['saga-python', 'radical.utils', 'bigjob', 'pymongo', 'paramiko'],
     'extras_require'   : {
         'sagapilot'    :  ["sagapilot"],
         'bigjob'       :  ["bigjob"],
