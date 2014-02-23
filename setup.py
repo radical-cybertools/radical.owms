@@ -219,7 +219,7 @@ setup_args = {
         "troy.external.bundle.src.bundle.example",
         "troy.bundle_wrapper",
     ],
-    'scripts'          : ['bin/owms.py'],
+    'scripts'          : ['bin/owms.py', 'bin/troy-version'],
     'package_data'     : {'' : ['VERSION', 'resources.json']},
     'cmdclass'         : {
         'test'         : our_test,
