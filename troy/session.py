@@ -133,9 +133,9 @@ class Session (saga.Session, tu.Timed) :
         self.timed_method ('saga.Session', ['init'],  
                            saga.Session.__init__, [self, default])
 
-        print '--------------------------------'
-        self._dump()
-        print '--------------------------------'
+      # print '--------------------------------'
+      # self._dump()
+      # print '--------------------------------'
       # sys.exit()
 
 
@@ -162,6 +162,7 @@ class Session (saga.Session, tu.Timed) :
         for idx, elem in enumerate(path) :
 
             if  not elem in current_cfg :
+
                 # if this is the last path element, return an empty dict
                 if  idx == len(path)-1 :
                     return dict()

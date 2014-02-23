@@ -161,11 +161,11 @@ almost empty though:
         "pilot_size"    : "8",
         "concurrency"   : "100",
         "pilot_backend" : "sagapilot",
-        "strategy"      : "basic_late_binding",
+        "troy_strategy" : "basic_late_binding",
     
     
         # troy plugin selection
-        "plugin_strategy"                : "%(strategy)s",
+        "plugin_strategy"                : "%(troy_strategy)s",
     
         "planner"                        : {
             "plugin_planner_expand"      : "cardinal",

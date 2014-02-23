@@ -6,11 +6,11 @@
     "pilot_size"    : "8",
     "concurrency"   : "100",
     "pilot_backend" : "sagapilot",
-    "strategy"      : "basic_late_binding",
+    "troy_strategy" : "basic_late_binding",
 
 
     # troy plugin selection
-    "plugin_strategy"                : "%(strategy)s",
+    "plugin_strategy"                : "%(troy_strategy)s",
 
     "workload_manager"               : {
         "plugin_workload_scheduler"  : "round_robin",
