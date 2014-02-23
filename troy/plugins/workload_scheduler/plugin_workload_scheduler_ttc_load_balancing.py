@@ -87,7 +87,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         for t_id in workload.tasks:
 
             # print pilot info
-            for p_id in overlay.pilots:
+            #for p_id in overlay.pilots:
               # print p_id, overlay.pilots[p_id].est_begin
 
             task = workload.tasks[t_id]
