@@ -9,20 +9,7 @@
     "troy_strategy" : "basic_late_binding",
 
 
-    # troy plugin selection
-    "plugin_strategy"                : "%(troy_strategy)s",
-
-    "workload_manager"               : {
-        "plugin_workload_scheduler"  : "round_robin",
-        "plugin_workload_dispatcher" : "%(pilot_backend)s"
-    },
-    "overlay_manager"                : {
-        "plugin_overlay_scheduler"   : "round_robin",
-        "plugin_overlay_provisioner" : "%(pilot_backend)s"
-    },
-
-
-    # plugin configurations
+    # troy plugin selection & plugin configurations
     "planner"                        : {
         "derive"                     : {
             "concurrent"             : {
@@ -32,6 +19,8 @@
     },
   
     "overlay_manager"                : {
+        "plugin_overlay_scheduler"   : "round_robin",
+        "plugin_overlay_provisioner" : "%(pilot_backend)s",
         "overlay_provisioner"        : {
             "bigjob"                 : {
                 "coordination_url"   : "redis://%(redis_passwd)s-REdIS@gw68.quarry.iu.teragrid.org:6379"
@@ -53,6 +42,8 @@
     },
   
     "workload_manager"             : {
+        "plugin_workload_scheduler"  : "round_robin",
+        "plugin_workload_dispatcher" : "%(pilot_backend)s",
         "workload_dispatcher"      : {
             "bigjob"               : {
                 "coordination_url" : "redis://%(redis_passwd)s@gw68.quarry.iu.teragrid.org:6379"
