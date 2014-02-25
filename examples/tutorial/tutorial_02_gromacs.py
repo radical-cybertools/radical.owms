@@ -31,7 +31,7 @@ task_descr.outputs =  ["output/%(session_id)s_state.cpt.%(cardinal)s   < state.c
                        "output/%(session_id)s_ener.edr.%(cardinal)s    < ener.edr",
                        "output/%(session_id)s_traj.trr.%(cardinal)s    < traj.trr",
                        "output/%(session_id)s_md.log.%(cardinal)s      < md.log"]
-task_descr.working_directory = "%(home)s/troy_tutorial/troy_tutorial_01_%(cardinal)s/"
+task_descr.working_directory = "%(home)s/troy_tutorial/troy_tutorial_02_%(cardinal)s/"
 
 print task_descr
 
