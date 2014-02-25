@@ -1,61 +1,45 @@
+
 .. _chapter_configuration:
 
-********************************************************************************
+*************
 Configuration
-********************************************************************************
+*************
 
-Troy is designed to become a very flexible and powerful software, which operates
-wich provides a diverse set of algorithms and strategies to execute very diverse
-workloads over very diverse types of infrastructures.  While Troy will
-eventually grow into a state where it can gather all required informations and
-settings on its own, it is at the moment dependent on a number of external
-configuration settings.
+In order to use TROY, the user needs to: 
 
-This chapter describes various types of settings.  The total amount may look
-daunting to the new users -- but in fact the number of *required* settings is
-fairly small.   So this chapter will first focus on the required settings to get
-the tutorial examples working, and will then cover the complete set of Troy
-configuration settings in more detail.
+* Copy or write a set of configuration files.
+* Add some mandatory configuration parameters to one or more of these files.
 
-Before describing the setting options, however, we will shortly descrive the
-different ways settings can be communicated to Troy.
+This chapter describes the configuration mechanism of TROY and offers sample files with both **mandatory** and **optional** configuration parameters.
+
+.. note:: Due to its flexibility, composability, and large set of capabilities, TROY depends on a number of configuration parameters. Such dependency is planned to be progressively reduced along the TROY development roadmap.
 
 
 Configuration Mechanism
-========================================
+=======================
+TROY pulls config settings from different locations, in this order:
 
-Troy pulls config settings from different locations, in this order
+1. any config files in `$(HOME)/.troy/`
+2. any files or directory pointed to by `$TROY_CONFIG`
+3. any configuration passed to a class:`troy.Session` constructor
 
-* any config files in `$(HOME)/.troy/`
-* any files or directory pointed to by `$TROY_CONFIG`
-* any configuration passed to a class:`troy.Session` constructor
+Configuration files are expected to be in `JSON` format -- Python-like comments are allowed though.  When passing settings to a `troy.Session`, one can pass a list of configuration locations (files or directories), or directly a Python dictionary with the respective settings.
 
-Configuration files are expected to be in `JSON` format -- python like comments
-are allowed though.  When passing settings to a `troy.Session`, one can pass
-a list of configuration locations (files or directories), or directly a Python
-dictionary with the respective settings.
-
-Additionally, Troy uses a number of internal configurations, be it for default
-configuration, or for details of some known and frequently used target resourecs
-(motly on FutureGrid and XSEDE).
+Additionally, TROY uses a number of internal configurations, be it for default
+configuration, or for details of some known and frequently used target resources (mostly on FutureGrid and XSEDE).
 
 
 Required Configuration Settings
-========================================
-
-In order to create a pilot overlay on some target resources, Troy needs to know
-some details about those resources, such as `username`, `queue` to be used, etc.
-While some of those information are stored in an internal troy configuration
-file, others need to be provided by the user.  A typical configuration file for
-a local machine and some futuregrid machines may look like:
+===============================
+In order to create a pilot overlay on some target resources, TROY needs to know some details about those resources, such as `username`, `queue` to be used, etc. While some of those information are stored in an internal TROY configuration file, others need to be provided by the user.  A typical configuration file for a local machine and some FutureGrid machines may look like:
 
 .. code-block:: python
 
-    # $HOME/troy/resource.json
+    # $HOME/.troy/resource.json
     {
         "hosts"                     : "pbs+ssh://sierra.futuregrid.org,ssh://lakota",
 
-        # augment the troy resource configuration
+        # augment the TROY resource configuration
         "resources"                 : {
     
             # add a local resource for testing -- it does not use any queuing
@@ -66,7 +50,7 @@ a local machine and some futuregrid machines may look like:
                 "username"          : "surehand"
             },
     
-            # change some user specific variable for existing troy config entries
+            # change some user specific variable for existing TROY config entries
             "*.futuregrid.org"      : {
                 "username"          : "winnetou"
             },
@@ -76,27 +60,15 @@ a local machine and some futuregrid machines may look like:
         }
     }
 
+.. note:: You may use **placeholders** in configuration strings. For example:  `"/home/%(username)s/"`. Placeholders can refer to top-level settings in other configuration sources, or to configuration settings for specific resources. For example, the `hosts` setting is later referenced in the `resources` settings for the overlay scheduler plugin. For more details, see below.
 
-.. note:: You may use some placeholders in configuration strings, like above in
-          `"/home/%(username)s/"` -- those placeholders can refer to top-level 
-          settings in other configuration sources, or from settings sections for 
-          specific resources.  For example, the `hosts` setting is later
-          referenced in the `resources` settings for the overlay scheduler
-          plugin, see below.
+.. note:: You may also use **wildcards** to specify settings for classes of resources. For example: `"*.futuregrid.org"`.  Wildcards are only evaluated for resource config sections.
 
-.. note:: You may also use wildcards to specify settings for classes of resources, such as
-          used above for `"*.futuregrid.org"`.  Wildcards are only evaluated for resource
-          config sections.
-
-
-Beyond providing information about the target resources, Troy may also require
-users to provide settings for the used pilot backends.  Both currently supported
-backends, `saga-pilot` and `bigjob`, require for example a coordination URL.
-Further, Troy needs to know what target resources are considered eligible for
-use.
+Beyond providing information about the target resources, TROY may also require
+users to provide settings for the pilot backends. Both the backends that are currently supported - i.e., `sagapilot` and `BigJob` - require, for example, a coordination URL. Further, TROY needs to know what target resources are considered eligible for use.
 
 The example configuration section below shows how to pass those settings to
-respective Troy plugins.  Note again the use of placeholders.
+respective TROY plugins. Note again the use of placeholders.
 
 .. code-block:: python
 
@@ -134,26 +106,19 @@ respective Troy plugins.  Note again the use of placeholders.
         }
     }
 
-
-.. note:: Those settings should be sufficient to run the Troy tutorial
-          examples.  Beyond that this chapter provides details on additional 
-          settings fro Troy and Troy plugins below.
-
+.. note:: These settings should be sufficient to run the examples in the TROY tutorial. Beyond that, the rest of this Chapter provides details on additional settings for TROY and its plugins.
 
 Referencing Settings in Workloads
-========================================
-
+=================================
 
 
 
 Additional Configuration Settings
-========================================
-
-There are two main types of configurations in Troy: those which apply to Troy
-plugins, and those which apply to Troy internals, such as the selection of
-plugins.  The config snippet below shows the complete set of plugin selection
+=================================
+There are two main types of configurations in TROY: Those which apply to TROY
+plugins, and those which apply to TROY internals, such as the selection of
+plugins. The config snippet below shows the complete set of plugin selection
 settings, with their default values:
-
 
 .. code-block:: python
      
@@ -179,8 +144,8 @@ settings, with their default values:
     }
 
 
-The list of available plugins is available 'FIXME: here`; for each plugin, the
-respective configuration section is structured like:
+The list of available plugins cab found 'FIXME: here`. For each plugin, the
+respective configuration section is structured as follow:
 
 .. code-block:: python
      
@@ -194,9 +159,7 @@ respective configuration section is structured like:
         }
     }
 
-
-
-or as illustrated by example:
+Here a concrete example:
 
 .. code-block:: python
      
@@ -210,8 +173,4 @@ or as illustrated by example:
         }
     }
 
-You will recognize this structure from the `Required Configuration Settings`
-section.  The list of configurable options is for each plugin documented on the
-respective plugin page, see 'FIXME: here`.
-
-
+You will recognize this structure from the Section `Required Configuration Settings`. The list of configurable options is for each plugin documented on the respective plugin page, see 'FIXME: here`.
