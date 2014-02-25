@@ -19,11 +19,11 @@ Configuration Mechanism
 =======================
 TROY pulls config settings from different locations, in this order:
 
-1. any config files in `$(HOME)/.TROY/`
+1. any config files in `$(HOME)/.troy/`
 2. any files or directory pointed to by `$TROY_CONFIG`
-3. any configuration passed to a class:`TROY.Session` constructor
+3. any configuration passed to a class:`troy.Session` constructor
 
-Configuration files are expected to be in `JSON` format -- Python-like comments are allowed though.  When passing settings to a `TROY.Session`, one can pass a list of configuration locations (files or directories), or directly a Python dictionary with the respective settings.
+Configuration files are expected to be in `JSON` format -- Python-like comments are allowed though.  When passing settings to a `troy.Session`, one can pass a list of configuration locations (files or directories), or directly a Python dictionary with the respective settings.
 
 Additionally, TROY uses a number of internal configurations, be it for default
 configuration, or for details of some known and frequently used target resources (mostly on FutureGrid and XSEDE).
@@ -35,7 +35,7 @@ In order to create a pilot overlay on some target resources, TROY needs to know 
 
 .. code-block:: python
 
-    # $HOME/TROY/resource.json
+    # $HOME/.troy/resource.json
     {
         "hosts"                     : "pbs+ssh://sierra.futuregrid.org,ssh://lakota",
 
@@ -72,7 +72,7 @@ respective TROY plugins. Note again the use of placeholders.
 
 .. code-block:: python
 
-    # $HOME/.TROY/pilots.config
+    # $HOME/.troy/pilots.config
     {
         "redis_password"               : "secret",
         "bigjob_coordination_url"      : "redis://%(redis_passwd)s-REdIS@gw68.quarry.iu.teragrid.org:6379",
