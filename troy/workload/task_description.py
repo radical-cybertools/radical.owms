@@ -30,6 +30,7 @@ class TaskDescription (tu.Properties) :
 
         # set property defaults
         self.tag               = None
+        self.cardinality       = 1
         self.executable        = None
         self.arguments         = list()
         self.stdin             = None

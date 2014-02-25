@@ -44,7 +44,7 @@ def manage_workload (workload, config) :
 # ------------------------------------------------------------------------------
 #
 def execute_workload (workload, planner, overlay_mgr, workload_mgr, 
-                      strategy='default') : 
+                      strategy=troy.AUTOMATIC) : 
 
     """
     Execute the given workload -- i.e., translate, bind and dispatch it, and
