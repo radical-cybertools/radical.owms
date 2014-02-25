@@ -2,7 +2,6 @@
     # variables we want to vary for each experiment run
     "steps"            : 256,
     "bag_size"         : 5,
-    "local_appdir"     : "/Users/mark/proj/troy/troy/examples/tutorial",
 
     # build up a unique session id from those variables.  This 
     # ID will be used by try to identify this run

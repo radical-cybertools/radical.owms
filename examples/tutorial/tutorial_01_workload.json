@@ -14,7 +14,7 @@
       "cardinality"       : "%(bag_size)s",
       "executable"        : "%(mdrun)s",
       "working_directory" : "%(home)s/troy_tutorial/troy_tutorial_01_%(cardinal)s/",
-      "inputs"            : ["%(local_appdir)s/input/topol.tpr > topol.tpr"],
+      "inputs"            : ["input/topol.tpr > topol.tpr"],
       "outputs"           : ["output/%(session_id)s_state.cpt.%(cardinal)s   < state.cpt",
                              "output/%(session_id)s_confout.gro.%(cardinal)s < confout.gro",
                              "output/%(session_id)s_ener.edr.%(cardinal)s    < ener.edr",

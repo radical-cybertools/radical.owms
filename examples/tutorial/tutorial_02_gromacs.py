@@ -8,32 +8,40 @@ import sys
 import troy
 
 #
-# Configure session
+# Configure session, get application config elements
 #
 config = sys.argv[1:]
 session = troy.Session(config)
-planner = troy.Planner(session)
-overlay_mgr = troy.OverlayManager(session)
-workload_mgr = troy.WorkloadManager(session)
+strategy = session.cfg['troy_strategy']
+
 
 #
-# define tasks
+# define tasks and construct workload
 #
 task_descr = troy.TaskDescription()
 task_descr.executable =  "%(mdrun)s"
-task_descr.cardinality = 5
-task_descr.inputs =  ["%(local_appdir)s/input/topol.tpr > topol.tpr"]
+task_descr.cardinality = "%(bag_size)s"
+task_descr.inputs =  ["input/topol.tpr > topol.tpr"]
 task_descr.outputs =  ["output/%(session_id)s_state.cpt.%(cardinal)s   < state.cpt",
                        "output/%(session_id)s_confout.gro.%(cardinal)s < confout.gro",
                        "output/%(session_id)s_ener.edr.%(cardinal)s    < ener.edr",
                        "output/%(session_id)s_traj.trr.%(cardinal)s    < traj.trr",
                        "output/%(session_id)s_md.log.%(cardinal)s      < md.log"]
 task_descr.working_directory = "%(home)s/troy_tutorial/troy_tutorial_02_%(cardinal)s/"
+workload = troy.Workload (session, task_descr)
+
+# create managers within session (and its configs)
+#
+planner = troy.Planner(session)
+overlay_mgr = troy.OverlayManager(session)
+workload_mgr = troy.WorkloadManager(session)
+
 
 #
-# construct and execute workload
+# execute workload
 #
-workload = troy.Workload (session, task_descr)
-troy.execute_workload (workload, planner, overlay_mgr, workload_mgr)
+troy.execute_workload (workload, planner, overlay_mgr, workload_mgr,
+                       strategy=strategy)
 
 # Woohooo!  Magic has happened!
+

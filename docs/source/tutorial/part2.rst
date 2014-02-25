@@ -79,7 +79,7 @@ format.  An exemplary description is provided with the tutorial code, as
           "cardinality"       : "%(bag_size)s",
           "executable"        : "%(mdrun)s",
           "working_directory" : "%(home)s/troy_tutorial/troy_tutorial_01_%(cardinal)s/",
-          "inputs"            : ["%(local_appdir)s/input/topol.tpr > topol.tpr"],
+          "inputs"            : ["input/topol.tpr > topol.tpr"],
           "outputs"           : ["output/%(demo_id)s_state.cpt.%(cardinal)s   < state.cpt",
                                  "output/%(demo_id)s_confout.gro.%(cardinal)s < confout.gro",
                                  "output/%(demo_id)s_ener.edr.%(cardinal)s    < ener.edr",
@@ -122,7 +122,6 @@ transformations:
         dir should point to *your* local copy of the Troy tutorial.
         "steps"            : 256,
         "bag_size"         : 5,
-        "local_appdir"     : "/home/winnetou/troy/examples/tutorial/",
     
         # build up a unique session id from those variables.  This 
         # ID will be used by try to identify this run
