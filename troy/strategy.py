@@ -54,8 +54,8 @@ def execute_workload (workload, planner, overlay_mgr, workload_mgr,
 
     if  strategy == troy.AUTOMATIC :
 
-        if  'plugin_strategy' in session.cfg :
-            strategy = session.cfg['plugin_strategy']
+        if  'plugin_strategy' in workload.session.cfg :
+            strategy = workload.session.cfg['plugin_strategy']
         else :
             strategy =  'basic_late_binding'
 
