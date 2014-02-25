@@ -52,7 +52,7 @@ been installed properly. In the same virtualenv, run:
 
 This should return the version of the TROY installation, similar to the above.
 
-To install sagapilot one or more pilot frameworks see:
+To install one or more pilot frameworks see:
 
 *  Sagapilot (http://saga-pilot.readthedocs.org/en/latest/installation.html#id1)
 *  BigJob (http://saga-project.github.io/BigJob/)
