@@ -135,10 +135,10 @@ class Session (saga.Session, tu.Timed) :
         self.timed_method ('saga.Session', ['init'],  
                            saga.Session.__init__, [self, default])
 
-        print '--------------------------------'
-        self._dump()
-        print '--------------------------------'
-      # sys.exit()
+        #print '--------------------------------'
+        #self._dump()
+        #print '--------------------------------'
+        # sys.exit()
 
 
     # --------------------------------------------------------------------------
