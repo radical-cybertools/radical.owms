@@ -1,65 +1,65 @@
 
 Part 1: Introduction
-********************
+========================================
 
 The Troy Python module provides ...
 
 
 Installation
-============
+----------------------------------------
 
 .. warning:: Troy requires **Python >= 2.5**. It won't work with an older version of Python.
 
-Install Virtualenv
-------------------
 
-A small Python command-line tool called `virtualenv <http://www.python.org/>`_
-allows you to create a local Python environment (sandbox) in user space, which 
-allows you to install additional Python packages without having to be 'root'.
+For detailed installation instructions, see `FIXME: here`.  For the scope of the
+tutorial you can, however, follow the simple receipe below to set up t roy and
+its dependencies.
 
-To create your local Python environment run the following command (you can install virtualenv on most systems via apt-get or yum, etc.):
 
 .. code-block:: bash
 
-   virtualenv $HOME/tutorial
+    # sanity checks
+    > python -V ; which virtualenv 
+    Python 2.7
+    /usr/local/python/2.7/bin/virtualenv
 
-If you don't have virtualenv installed and you don't have root access on your machine, you can use the following script instead:
+    # create and use the virtualenv
+    > virtualenv ~/tutorial
+    PYTHONHOME is set.  You *must* activate the virtualenv before using it
+    New python executable in ~/tutorial/bin/python
+    Installing setuptools............done.
+    Installing pip...............done.
+    > source ~/tutorial/bin/activate
 
-.. code-block:: bash
+    # install radical.utils from devel branch
+    > pip install git+git://github.com/saga-project/radical.utils.git@devel
+    ...
 
-   curl --insecure -s https://raw.github.com/pypa/virtualenv/master/virtualenv.py | python - $HOME/tutorial
+    # install saga-pilot from master branch
+    > pip install git+git://github.com/saga-project/saga-pilot.git@master
+    ...
 
-.. note:: If you have multiple Python versions installed on your system, you can use the ``virtualenv --python=PYTHON_EXE`` flag to force virtualenv to use a specific version.
+    # install troy from master branch, this will pull the remaining dependencies
+    > pip install git+git://github.com/saga-project/troy.git@master
+    ...
 
-Next, you need to activate your Python environment in order to make it work:
+    # ready to run the tutorial -- set verbosity to see things happening:
+    # log levels: DEBUG, INFO, WARN, ERROR, CRITICAL
+    > export TROY_VERBOSE=INFO
 
-.. code-block:: bash
-
-   source $HOME/tutorial/bin/activate
-
-Activating the virtualenv is very important. If you don't activate your virtualenv, the rest of this tutorial will not work. You can usually tell that your environment is activated properly if your bash command-line prompt starts with ``(tutorial)``.
-
-
-Install Troy
-------------
-
-The latest troy module is available via the `Python Package Index <https://pypi.python.org/pypi/troy>`_  (PyPi). PyPi packages are installed very similar to Linux deb or rpm packages with a tool called ``pip`` (which stands for "pip installs packages"). Pip is installed by default in your virtualenv, so in order to install Troy, the only thing you have to do is this:
-
-.. code-block:: bash
-
-   pip install troy
-
-You will see some downloading and unpacking action and if everything worked ok, the last two lines should look like this:
-
-.. code-block:: none
-
-   Finished processing dependencies for troy==0.1
 
 To make sure that your installation works, run the following command to check if
 the troy module can be imported by the interpreter (the output of the
 command below should be version number of the troy module):
 
+
 .. code-block:: bash
 
-   python -c "import troy; print troy.version"
+   > python -c "import troy; print troy.version"
+   2014:02:23 20:05:40 MainThread   troy.logger           : [INFO    ] troy            version: 0.0.1-569-gd89bdc0-devel
+   0.0.1-569-gd89bdc0-master
+
+
+The log message is triggered by setting `TROY_VERBOSE` to `INFO` or higher -- it
+won't appear otherwise.
 

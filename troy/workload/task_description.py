@@ -32,7 +32,6 @@ class TaskDescription (tu.Properties) :
         self.tag               = None
         self.executable        = None
         self.arguments         = list()
-      # self.working_directory = '/tmp/troy.%s/' % os.getuid ()
         self.stdin             = None
         self.stdout            = None
 
@@ -42,19 +41,6 @@ class TaskDescription (tu.Properties) :
         self.outputs           = list()
 
         tu.Properties.__init__ (self, descr)
-
-    # --------------------------------------------------------------------------
-    #
-    def __str__ (self) :
-
-        return str(self.as_dict ())
-
-
-    # --------------------------------------------------------------------------
-    #
-    def __repr__ (self) :
-
-        return self.description
 
 
 # ------------------------------------------------------------------------------

@@ -9,11 +9,11 @@ import troy
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
-    'type'        : 'planner',
+    'type'        : 'derive',
     'name'        : 'concurrent',
     'version'     : '0.1',
-    'description' : 'This is the concurrent planner, plans the overlay ' \
-                    'for concurrent workload partitions'
+    'description' : 'This plugin derives an overlay for partial concurrent ' \
+                    'workload execution'
   }
 
 
@@ -29,15 +29,6 @@ class PLUGIN_CLASS (troy.PluginBase):
     def __init__(self):
 
         troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def expand_workload(self, workload):
-
-        # Do nothing for now
-        
-        troy._logger.info ("planner  expand wl: expand workload : %s" % workload)
 
 
     # --------------------------------------------------------------------------
@@ -101,8 +92,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         for tid in c_partition.tasks :
             cores += c_partition.tasks[tid].cores
 
-        ovl_descr = troy.OverlayDescription ({'cores'     : cores, 
-                                              'wall_time' : 1}) # FIXME: use task description
+        ovl_descr = troy.OverlayDescription ({'cores' : cores})
 
         troy._logger.info ("planner  derive ol: derive overlay for workload: %s" % ovl_descr)
 

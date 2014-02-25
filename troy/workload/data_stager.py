@@ -44,7 +44,7 @@ class DataStager (object) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, session=None) : 
+    def __init__ (self, session) : 
         """
         FIXME
         """
@@ -90,14 +90,14 @@ class DataStager (object) :
 
         for task_id in workload.tasks :
             self._stage_in_task (workload.tasks[task_id])
-        return
+
 
     # -------------------------------
     def _stage_in_task (self, task) :
 
         for unit_id in task.units :
             self._stage_in_unit (task.units[unit_id])
-        return
+
 
     # -------------------------------
     def _stage_in_unit (self, unit) :
@@ -112,7 +112,13 @@ class DataStager (object) :
 
         pilot    = troy.Pilot (unit.session, unit.pilot_id)
         resource = pilot.resource
-        workdir  = unit.working_directory
+
+        # fix the resource placeholders in the unit descriptions.  Get the troy
+        # resource config, merge it conservatively into the pilot config, and
+        # expand values with resource config settings
+        resource_cfg = unit.session.get_resource_config (resource)
+        unit.merge_description (resource_cfg)
+        workdir = unit.working_directory
 
         # sanity checks
         if  not workdir :
@@ -298,7 +304,7 @@ class DataStager (object) :
         # and copy the file
         src_dir = self._dir_cache[str(resource)]
         src_dir.change_dir (src_dir_url.path)
-        src_dir.copy       (src_url, tgt_url)
+        src_dir.copy       (src_url, tgt_url, saga.filesystem.CREATE_PARENTS)
 
 
 # ------------------------------------------------------------------------------

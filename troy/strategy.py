@@ -5,8 +5,40 @@ __license__   = "MIT"
 
 
 import radical.utils as ru
-
 import troy
+
+# ------------------------------------------------------------------------------
+#
+def manage_workload (workload, config) :
+    """
+    Parse and execute a given workload (see `execute_workload()`)
+    """
+
+    session      = troy.Session         (config)
+    planner      = troy.Planner         (session)
+    overlay_mgr  = troy.OverlayManager  (session)
+    workload_mgr = troy.WorkloadManager (session)
+
+
+    strategy = troy.AUTOMATIC
+    if  'plugin_strategy' in session.cfg :
+        strategy = session.cfg['plugin_strategy']
+
+    if  strategy == troy.AUTOMATIC :
+        strategy =  'basic_late_binding'
+
+    # FIXME: we should also accept workload instances or json strings -- bext
+    # put that flexibility into parse_workload
+    parsed_workload = workload_mgr.parse_workload (workload)
+
+    return troy.execute_workload (parsed_workload, planner, 
+                                  overlay_mgr, workload_mgr,
+                                  strategy)
+
+
+
+
+
 
 
 # ------------------------------------------------------------------------------
@@ -27,7 +59,7 @@ def execute_workload (workload, planner, overlay_mgr, workload_mgr,
         raise RuntimeError ("Could not load troy strategy plugin")
 
     # for initialization, we re-use the planner session
-    strategy.init_plugin (planner.session)
+    strategy.init_plugin (planner.session, 'strategy')
 
     # this method accepts workloads and workload IDs
     if  isinstance   (workload, basestring) :

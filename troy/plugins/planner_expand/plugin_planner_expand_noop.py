@@ -1,4 +1,8 @@
 
+__author__    = "TROY Development Team"
+__copyright__ = "Copyright 2013, RADICAL"
+__license__   = "MIT"
+
 
 import radical.utils as ru
 
@@ -9,10 +13,10 @@ import troy
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
-    'type'        : 'workload_inspector', 
-    'name'        : 'reflect', 
+    'type'        : 'expand',
+    'name'        : 'noop',
     'version'     : '0.1',
-    'description' : 'this is an empty inspector which basically does nothing.'
+    'description' : 'This is the default workload expander, which does nothing'
   }
 
 
@@ -25,17 +29,18 @@ class PLUGIN_CLASS (troy.PluginBase):
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self) :
+    def __init__(self):
 
         troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
 
     # --------------------------------------------------------------------------
     #
-    def inspect (self, workload) :
+    def expand_workload(self, workload):
 
-        troy._logger.info ('workload inspect : inspect workload ;)')
-        return workload
+        # Do nothing for now
+
+        troy._logger.info ("planner  expand wl: noop expand workload : %s" % workload)
 
 
 # ------------------------------------------------------------------------------

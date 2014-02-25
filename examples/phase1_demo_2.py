@@ -14,15 +14,12 @@ import troy
 import getpass
 
 
-PLUGIN_PLANNER              = 'concurrent'
+PLUGIN_OVERLAY_DERIVE       = 'concurrent'
 PLUGIN_OVERLAY_SCHEDULER    = 'round_robin'
 PLUGIN_OVERLAY_TRANSLATOR   = troy.AUTOMATIC
-PLUGIN_OVERLAY_PROVISIONER  = 'sinon'
+PLUGIN_OVERLAY_PROVISIONER  = 'bigjob'
 PLUGIN_WORKLOAD_SCHEDULER   = troy.AUTOMATIC
-PLUGIN_WORKLOAD_DISPATCHER  = 'sinon' # troy.AUTOMATIC # 'sinon'
-
-WORKDIR                     = '/N/u/merzky/troy_demo/'
-WORKDIR                     = '/home/merzky/troy_demo/'
+PLUGIN_WORKLOAD_DISPATCHER  = 'bigjob'
 
 
 # ------------------------------------------------------------------------------
@@ -35,7 +32,7 @@ def create_task_description (r, msg) :
     task_descr.tag               = "%s" % r
     task_descr.executable        = '/bin/echo'
     task_descr.arguments         = ['Hello', msg, r, '!']
-    task_descr.working_directory = WORKDIR
+    task_descr.working_directory = "%(home)s/troy_demo"
 
     return task_descr
 
@@ -57,11 +54,27 @@ if __name__ == '__main__' :
     radical_oldfarts = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner']
 
     # create a session with custom config options
-    session = troy.Session ({'concurrent_planner' : {'concurrency' : '100'}})
+    session = troy.Session ({
+        'planner' : {
+            'derive' : { 
+                'concurrent' : {
+                    'concurrency' : '100'
+                    }
+                }
+            }, 
+        'overlay_manager' : {
+            'overlay_scheduler' : {
+                'round_robin' : {
+                  # 'resources' : "pbs+ssh://sierra.futuregrid.org"
+                    'resources' : "fork://localhost"
+                    }
+                }
+            }
+        })
 
     # create planner, overlay and workload manager, with plugins as configured
     planner      = troy.Planner         (session     = session                   ,
-                                         planner     = PLUGIN_PLANNER            )
+                                         derive      = PLUGIN_OVERLAY_DERIVE     )
     workload_mgr = troy.WorkloadManager (session     = session                   ,
                                          scheduler   = PLUGIN_WORKLOAD_SCHEDULER , 
                                          dispatcher  = PLUGIN_WORKLOAD_DISPATCHER)

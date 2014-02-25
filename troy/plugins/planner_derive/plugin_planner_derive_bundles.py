@@ -30,10 +30,10 @@ Notes
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
-    'type'        : 'planner',
+    'type'        : 'derive',
     'name'        : 'bundles',
     'version'     : '0.1',
-    'description' : 'This is the bundles planner.'
+    'description' : 'This plugin derives an overlay from bundles information.'
   }
 
 
@@ -70,10 +70,11 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         self.bm = BundleManager()
 
-        cg = self.session.cfg.get_config('bundle')
-        finished_job_trace = cg['finished_job_trace'].get_value()
+        cg = self.session.get_config ('troy:bundle')
+        finished_job_trace = cg['finished_job_trace']
 
-        for sect in self.session.cfg.compute_sections:
+        # FIXME: not sure if the new resource config contains all needed data...
+        for sect in self.session.get_config ('troy:resources'):
             cs = self.session.cfg.get_config(sect)
 
             cred = { 'port': int(cs['port'].get_value()),
@@ -95,7 +96,7 @@ class PLUGIN_CLASS (troy.PluginBase):
     #
     def check_resource_availability(self, overlay_desc):
 
-        resource_request = { 'p_procs': overlay_desc.cores, 'est_runtime': overlay_desc.wall_time }
+        resource_request = { 'p_procs': overlay_desc.cores, 'est_runtime': overlay_desc.walltime }
 
         predictions = {}
         for cluster in self.cluster_list:
@@ -105,13 +106,6 @@ class PLUGIN_CLASS (troy.PluginBase):
         usable = filter(lambda x: x != -1, predictions.values())
         if not usable:
             raise RuntimeError ('No resources available that can fulfill this request!')
-
-    # --------------------------------------------------------------------------
-    #
-    def expand_workload(self, workload):
-
-        # Do nothing for now
-        troy._logger.info("expand workload: %s" %  workload)
 
     # --------------------------------------------------------------------------
     #
@@ -133,8 +127,6 @@ class PLUGIN_CLASS (troy.PluginBase):
             {
                 # Ask for as many pilots as tasks
                 'cores' : cores,
-                # Minutes obviously
-                'wall_time' : (1 << 1) + (1 << 3) + (1 << 5)
             })
 
         troy._logger.info('planner derive ol: derive overlay for workload: '

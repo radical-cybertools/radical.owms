@@ -34,7 +34,7 @@ class Pilot (tu.Properties, tu.Timed) :
         self.session = session
         self.overlay = _overlay
 
-        if isinstance (param, basestring) :
+        if  isinstance (param, basestring) :
             self.id   = param
             descr     = troy.PilotDescription ()
             reconnect = True
@@ -84,7 +84,7 @@ class Pilot (tu.Properties, tu.Timed) :
         # info from backend - wishes
         self.register_property ('project')
         self.register_property ('queue')
-        self.register_property ('wall_time_limit')
+        self.register_property ('walltime')
         self.register_property ('affinity_datacenter_label')
         self.register_property ('affinity_machine_label')
          
@@ -141,6 +141,27 @@ class Pilot (tu.Properties, tu.Timed) :
         """
 
         self.cancel ()
+
+
+    # --------------------------------------------------------------------------
+    #
+    def merge_description (self, source) :
+        """
+        merge additional information into the pilot description -- such as
+        resource information, or application specific data
+        """
+
+        # we only allow this in DESCRIBED or BOUND state
+        if  not self.state in [DESCRIBED, BOUND] :
+            raise RuntimeError ('pilot is not in DESCRIBED state (%s)' \
+                             % self.state)
+
+        pd_dict = self.description.as_dict ()
+        ru.dict_merge        (pd_dict, source, policy='overwrite')
+        ru.dict_stringexpand (pd_dict)
+        ru.dict_stringexpand (pd_dict, self.session.cfg)
+
+        self.description = troy.PilotDescription (pd_dict)
 
 
     # --------------------------------------------------------------------------
@@ -250,7 +271,7 @@ class Pilot (tu.Properties, tu.Timed) :
                        'working_directory',        
                        'project',                 
                        'queue',                   
-                       'wall_time_limit',           
+                       'walltime',           
                        'affinity_datacenter_label', 
                        'affinity_machine_label'   ] :
 
@@ -338,20 +359,6 @@ class Pilot (tu.Properties, tu.Timed) :
 
                 # this will trigger registered callbacks
                 self.set_property (new_key, description[descr_key])
-
-
-    # --------------------------------------------------------------------------
-    #
-    def __str__ (self) :
-
-        return str(self.description)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def __repr__ (self) :
-
-        return str(self.description)
 
 
 # ------------------------------------------------------------------------------

@@ -99,8 +99,9 @@ if __name__ == '__main__':
     # TROY CONFIGURATION: what plugins are being used, whet resources are
     # targeted, etc
     #
-    resources      = "slurm+ssh://stampede.tacc.utexas.edu"
-  # resources      = "pbs+ssh://india.futuregrid.org"
+  # resources      = "slurm+ssh://tg803521@stampede.tacc.utexas.edu,pbs+ssh://merzky@india.futuregrid.org"
+  # resources      = "slurm+ssh://stampede.tacc.utexas.edu"
+    resources      = "pbs+ssh://india.futuregrid.org"
   # resources      = "pbs+ssh://hotel.futuregrid.org"
   # resources      = "pbs+ssh://alamo.futuregrid.org"
   # resources      = "pbs+ssh://sierra.futuregrid.org"
@@ -114,7 +115,7 @@ if __name__ == '__main__':
     plugin_overlay_scheduler   = 'round_robin'         # rr, local
     plugin_overlay_provisioner = pilot_backend         # sinon, bj, local
     plugin_workload_translator = troy.AUTOMATIC        # direct
-    plugin_workload_scheduler  = 'ttc_load_balancing'  # rr, first, ttc
+    plugin_workload_scheduler  = 'round_robin'         # rr, first, ttc
     plugin_workload_dispatcher = pilot_backend         # sinon, bj, local
 
     # Create a session for TROY, and configure some plugins
@@ -135,9 +136,9 @@ if __name__ == '__main__':
     # Also add some security credentials to the session (we assume ssh keys set
     # up for this demo, so only need to specify the user name on the target
     # resource).
-    c1         = troy.Context ('ssh')
-    c1.user_id = remote_user
-    session.add_context (c1)
+  # c1         = troy.Context ('ssh')
+  # c1.user_id = remote_user
+  # session.add_context (c1)
 
 
     # --------------------------------------------------------------------------
@@ -151,16 +152,17 @@ if __name__ == '__main__':
 
         task_descr                   = troy.TaskDescription()
         task_descr.tag               = "%d" % n
-        task_descr.executable        = mdrun
-        task_descr.arguments         = ['-nsteps', steps]
-        task_descr.working_directory = "%s/troy_demo/tasks/%d/" % (remote_home, n)
-        task_descr.inputs            = ['input/topol.tpr > topol.tpr']
-        task_descr.outputs           = ['output/%s_state.cpt.%d   < state.cpt'   % (demo_id, n),
-                                        'output/%s_confout.gro.%d < confout.gro' % (demo_id, n),
-                                        'output/%s_ener.edr.%d    < ener.edr'    % (demo_id, n),
-                                        'output/%s_traj.trr.%d    < traj.trr'    % (demo_id, n),
-                                        'output/%s_md.log.%d      < md.log'      % (demo_id, n),
-                                       ]
+      # task_descr.executable        = mdrun
+        task_descr.executable        = "/bin/echo"
+        task_descr.arguments         = ['hello troy']
+      # task_descr.working_directory = "%s/troy_demo/tasks/%d/" % (remote_home, n)
+      # task_descr.inputs            = ['input/topol.tpr > topol.tpr']
+      # task_descr.outputs           = ['output/%s_state.cpt.%d   < state.cpt'   % (demo_id, n),
+      #                                 'output/%s_confout.gro.%d < confout.gro' % (demo_id, n),
+      #                                 'output/%s_ener.edr.%d    < ener.edr'    % (demo_id, n),
+      #                                 'output/%s_traj.trr.%d    < traj.trr'    % (demo_id, n),
+      #                                 'output/%s_md.log.%d      < md.log'      % (demo_id, n),
+      #                                ]
 
         task_descriptions.append (task_descr)
 

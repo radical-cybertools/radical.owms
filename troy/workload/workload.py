@@ -115,7 +115,7 @@ class Workload (tu.Properties, tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, session, task_descriptions=None) :
+    def __init__ (self, session, task_descriptions=None, relation_descriptions=None) :
         """
         Create a new workload instance.
 
@@ -164,13 +164,12 @@ class Workload (tu.Properties, tu.Timed) :
         # register this instance, so that workload can be passed around by id.
         troy.WorkloadManager.register_workload (self)
 
-        # fill the workload with given task descriptions
+        # fill the workload with given task and relation descriptions
         if  task_descriptions :
-            if  not isinstance (task_descriptions, list) :
-                task_descriptions = [task_descriptions]
+            self.add_task (task_descriptions)
 
-            for task_descr in task_descriptions :
-                self.add_task (task_descr)
+        if  relation_descriptions :
+            self.add_relation (relation_descriptions)
 
         
 
@@ -181,6 +180,9 @@ class Workload (tu.Properties, tu.Timed) :
         """
         Destructor -- cancels the workload
         """
+
+        # AM: is this really wanted?  Will break on long-running workloads.
+        # OTOH, of course, we have no means to reconnect...
 
         self.cancel ()
 
@@ -219,9 +221,9 @@ class Workload (tu.Properties, tu.Timed) :
             raise RuntimeError ("workload is not in DESCRIBED state (%s) -- cannot add tasks" % self.state) 
 
         # handle scalar and list uniformly
-        bulk = False
-        if  type(descr) != list :
-            bulk  = True
+        bulk = True
+        if  not isinstance (descr, list) :
+            bulk  = False
             descr = [descr]
 
         ret = []
@@ -229,25 +231,23 @@ class Workload (tu.Properties, tu.Timed) :
         # check type, content and uniqueness for each task
         for d in descr :
 
+            if  isinstance (d, dict) :
+                d = troy.TaskDescription (d)
+
             if  not isinstance (d, troy.TaskDescription) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
-            if d.tag in self.tasks :
-                raise ValueError ("Task with tag '%s' already exists" % d.tag)
-            
             # FIXME: add sanity checks for task syntax / semantics
-            task = troy.Task (self.session, d, _workload=self)
+            task = troy.Task (self.session, descr=d, _workload=self)
         
             self.timed_component (task, 'troy.Task', task.id)
 
-            self.tasks [d.tag] = task
+            self.tasks [task.id] = task
             ret.append (task.id)
 
 
-        if  bulk :
-            return ret
-        else :
-            return ret[0]
+        if  bulk : return ret
+        else     : return ret[0]
 
 
     # --------------------------------------------------------------------------
@@ -266,13 +266,14 @@ class Workload (tu.Properties, tu.Timed) :
             raise RuntimeError ("workload is not in DESCRIBED state -- cannot add relation")
 
         # handle scalar and list uniformly
-        bulk = False
-        if  type(descr) != list :
-            bulk  = True
+        bulk = True
+        if  not isinstance (descr, list) :
+            bulk  = False
             descr = [descr]
 
         # check type, uniqueness and validity for each relation
         ret = []
+
         for d in descr :
 
             if  not isinstance (d, troy.RelationDescription) :
@@ -293,11 +294,8 @@ class Workload (tu.Properties, tu.Timed) :
 
             ret.append (r.id)
 
-
-        if  bulk :
-            return ret
-        else :
-            return ret[0]
+        if  bulk : return ret
+        else     : return ret[0]
 
 
     # --------------------------------------------------------------------------
@@ -362,7 +360,6 @@ class Workload (tu.Properties, tu.Timed) :
         for tid in self.tasks.keys () :
             task = self.tasks[tid]
             task_states.append (task.state)
-          # print 'ts: %s' % task.state
 
         if UNKNOWN in task_states :
             self._set_state (UNKNOWN)
@@ -402,21 +399,6 @@ class Workload (tu.Properties, tu.Timed) :
         while self.state not in [troy.DONE, troy.FAILED, troy.CANCELED]:
             troy._logger.info ("waiting for workload (state: %s)" % self.state)
             time.sleep(1)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def __str__ (self) :
-
-        import pprint
-        return "%-7s : %s" % (self.id, str(pprint.pformat ([self.tasks, self.relations])))
-
-
-    # --------------------------------------------------------------------------
-    #
-    def __repr__ (self) :
-
-        return str(self)
 
 
 # ------------------------------------------------------------------------------

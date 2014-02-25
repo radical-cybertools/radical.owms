@@ -35,9 +35,6 @@ class PLUGIN_CLASS (troy.PluginBase):
     #
     def init (self):
 
-        print self.cfg
-        print self.global_cfg
-
         if 'resources'    in self.cfg :
             self.resources = self.cfg['resources'].split (',')
             troy._logger.debug ("round_robin over %s" % self.resources )
@@ -67,7 +64,8 @@ class PLUGIN_CLASS (troy.PluginBase):
             pilot = overlay.pilots[pid]
             pilot._bind (resource)
 
-            troy._logger.info ('overlay  schedule : schedule pilot %s to %s' % (resource, pilot.id))
+            troy._logger.info ('overlay  schedule : bind pilot %s to %s' \
+                            % (pilot.id, resource))
 
 
 # ------------------------------------------------------------------------------

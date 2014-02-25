@@ -1,5 +1,5 @@
 
-__author__    = "Andre Merzky, Ole Weidneri, Matteo Turilli"
+__author__    = "RADICAL Team"
 __copyright__ = "Copyright 2013, RADICAL Research, Rutgers University"
 __license__   = "MIT"
 
@@ -12,66 +12,119 @@ import subprocess
 
 from setuptools import setup, Command
 
+srcroot = 'troy'
+name    = 'TROY'
+lname   = name.lower()
 
-#-----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 #
 # versioning mechanism:
 #
-#   - short_version:  1.2.3 - is used for installation
-#   - long_version:  v1.2.3-9-g0684b06  - is used as runtime (ru.version)
-#   - both are derived from the last git tag
-#   - the file troy/VERSION is created with the long_version, und used
-#     by ru.__init__.py to provide the runtime version information.
+#   - short_version:  1.2.3                   - is used for installation
+#   - long_version:   1.2.3-9-g0684b06-devel  - is used as runtime (ru.version)
+#   - both are derived from the last git tag and branch information
+#   - VERSION files are created on demand, with the long_version
 #
-def get_version():
-
-    short_version = None  # 0.4.0
-    long_version  = None  # 0.4.0-9-g0684b06
-    branch_name   = None  # devel
+# can't use radical.utils versioning detection, as radical.utils is only
+# below specified as dependency :/
+def get_version (paths=None):
+    """
+    paths:
+        a VERSION file containing the long version is created in every directpry
+        listed in paths.  Those VERSION files are used when they exist to get
+        the version numbers, if they exist prior to calling this method.  If 
+        not, we cd into the first path, try to get version numbers from git tags 
+        in that location, and create the VERSION files in all dirst given in 
+        paths.
+    """
 
     try:
-        import subprocess as sp
-        import re
 
-        srcroot       = os.path.dirname (os.path.abspath (__file__))
-        VERSION_MATCH = re.compile (r'(([\d\.]+)\D.*)(\s+(\S+))?')
+        if  None == paths :
+            # by default, get version for myself
+            pwd     = os.path.dirname (__file__)
+            root    = "%s/.." % pwd
+            paths = [root, pwd]
 
-        # attempt to get version information from git
-        p   = sp.Popen ('cd %s ; ' \
-                        'git describe --tags --always ; ' \
-                        'git branch --contains | grep -e "^\*" | cut -f 2 -d " "' % srcroot,
-                        stdout=sp.PIPE, stderr=sp.STDOUT, shell=True)
-        out = p.communicate()[0]
+        if  not isinstance (paths, list) :
+            paths = [paths]
+
+        # if in any of the paths a VERSION file exists, we use the long version
+        # in there.
+        long_version  = None
+        short_version = None
+        branch_name   = None
+
+        for path in paths :
+            try :
+                filename = "%s/VERSION" % path
+                with open (filename) as f :
+                    lines = [line.strip() for line in f.readlines()]
+
+                    if len(lines) >= 1 : long_version  = lines[0]
+                    if len(lines) >= 2 : short_version = lines[1]
+                    if len(lines) >= 3 : branch_name   = lines[2]
+
+                    if  long_version :
+                        print 'reading  %s' % filename
+                        break
+
+            except Exception as e :
+                pass
+
+        # if we didn't find it, get it from git 
+        if  not long_version :
+
+            import subprocess as sp
+            import re
+
+            # make sure we look at the right git repo
+            if  len(paths) :
+                git_cd  = "cd %s ;" % paths[0]
+
+            # attempt to get version information from git
+            p   = sp.Popen ('%s'\
+                            'git describe --tags --always ; ' \
+                            'git branch   --contains | grep -e "^\*"' % git_cd,
+                            stdout=sp.PIPE, stderr=sp.STDOUT, shell=True)
+            out = p.communicate()[0]
+
+            if  p.returncode != 0 or not out :
+
+                # the git check failed -- its likely that we are called from
+                # a tarball, so use ./VERSION instead
+                out=open ("%s/VERSION" % paths[0], 'r').read().strip()
 
 
-        if  p.returncode != 0 or not out :
+            pattern = re.compile ('(?P<long>(?P<short>[\d\.]+).*?)(\s+\*\s+(?P<branch>\S+))?$')
+            match   = pattern.search (out)
 
-            # the git check failed -- its likely that we are called from
-            # a tarball, so use ./VERSION instead
-            out=open ("%s/VERSION" % srcroot, 'r').read().strip()
+            if  match :
+                long_version  = match.group ('long')
+                short_version = match.group ('short')
+                branch_name   = match.group ('branch')
+                print 'inspecting git for version info'
 
+            else :
+                import sys
+                sys.stderr.write ("Cannot determine version from git or ./VERSION\n")
+                sys.exit (-1)
+                
 
-        # from the full string, extract short and long versions
-        v = VERSION_MATCH.search (out)
-        if v:
-            long_version  = v.groups ()[0]
-            short_version = v.groups ()[1]
-            branch_name   = v.groups ()[3]
-
-
-        # sanity check if we got *something*
-        if  not short_version or not long_version :
-            sys.stderr.write ("Cannot determine version from git or ./VERSION\n")
-            import sys
-            sys.exit (-1)
-
-        if  branch_name :
-            long_version = "%s-%s" % (long_version, branch_name)
+            if  branch_name :
+                long_version = "%s-%s" % (long_version, branch_name)
 
 
         # make sure the version files exist for the runtime version inspection
-        open (     '%s/VERSION' % srcroot, 'w').write (long_version+"\n")
-        open ('%s/troy/VERSION' % srcroot, 'w').write (long_version+"\n")
+        for path in paths :
+            vpath = '%s/VERSION' % path
+            print 'creating %s'  % vpath
+            with open (vpath, 'w') as f :
+                f.write (long_version  + "\n")
+                f.write (short_version + "\n")
+                f.write (branch_name   + "\n")
+    
+        return short_version, long_version, branch_name
 
 
     except Exception as e :
@@ -79,16 +132,20 @@ def get_version():
         import sys
         sys.exit (-1)
 
-    return short_version, long_version
 
-
-short_version, long_version = get_version ()
+#-----------------------------------------------------------------------------
+# get version info -- this will create VERSION and srcroot/VERSION
+root     = os.path.dirname (__file__)
+if  not root :
+    root = os.getcwd()
+src_dir  = "%s/%s" % (root, srcroot)
+short_version, long_version, branch = get_version ([root, src_dir])
 
 
 #-----------------------------------------------------------------------------
 # check python version. we need > 2.5, <3.x
 if  sys.hexversion < 0x02050000 or sys.hexversion >= 0x03000000:
-    raise RuntimeError("Troy requires Python 2.x (2.5 or higher)")
+    raise RuntimeError("%s requires Python 2.x (2.5 or higher)" % name)
 
 
 #-----------------------------------------------------------------------------
@@ -112,7 +169,7 @@ def read(*rnames):
 
 #-----------------------------------------------------------------------------
 setup_args = {
-    'name'             : "troy",
+    'name'             : name,
     'version'          : short_version,
     'description'      : "Tiered Resource OverlaY",
     'long_description' : (read('README.md') + '\n\n' + read('CHANGES.md')),
@@ -138,7 +195,7 @@ setup_args = {
         'Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX',
-        'Operating System :: Unix',
+        'Operating System :: Unix'
     ],
     'packages'         : [
         "troy",
@@ -149,15 +206,15 @@ setup_args = {
         "troy.workload",
         "troy.plugins",
         "troy.plugins.strategy",
-        "troy.plugins.planner",
-        "troy.plugins.overlay_inspector",
+        "troy.plugins.planner_derive",
+        "troy.plugins.planner_expand",
         "troy.plugins.overlay_translator",
         "troy.plugins.overlay_scheduler",
         "troy.plugins.overlay_provisioner",
-        "troy.plugins.workload_inspector",
         "troy.plugins.workload_scheduler",
         "troy.plugins.workload_translator",
         "troy.plugins.workload_dispatcher",
+        "troy.plugins.workload_parser",
         "troy.external",
         "troy.external.bundle",
         "troy.external.bundle.src",
@@ -167,8 +224,8 @@ setup_args = {
         "troy.external.bundle.src.bundle.example",
         "troy.bundle_wrapper",
     ],
-    'scripts'          : ['bin/owms.py'],
-    'package_data'     : {'' : ['VERSION']},
+    'scripts'          : ['bin/owms.py', 'bin/troy-version'],
+    'package_data'     : {'' : ['VERSION', 'resources.json']},
     'cmdclass'         : {
         'test'         : our_test,
     },

@@ -63,7 +63,7 @@ copyright = u'2012, The SAGA Project'
 #
 # The short X.Y version - get this directly from TROY !
 import troy
-version = troy.version
+version = troy.short_version
 # The full version, including alpha/beta/rc tags.
 release = troy.version
 

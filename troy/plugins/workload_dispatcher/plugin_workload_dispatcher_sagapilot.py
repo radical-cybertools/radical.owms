@@ -1,8 +1,7 @@
 
 
 import os
-import sinon
-
+import sagapilot     as sp
 import radical.utils as ru
 from   troy.constants import *
 import troy
@@ -12,9 +11,9 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'workload_dispatcher', 
-    'name'        : 'sinon', 
+    'name'        : 'sagapilot', 
     'version'     : '0.1',
-    'description' : 'this is a dispatcher which submits to sinon pilots.'
+    'description' : 'this is a dispatcher which submits to sagapilot pilots.'
   }
 
 
@@ -54,12 +53,12 @@ class PLUGIN_CLASS (troy.PluginBase):
             self._coord = os.environ['COORDINATION_URL'] 
 
         else :
-            troy._logger.error ("No COORDINATION_URL set for sinon backend")
+            troy._logger.error ("No COORDINATION_URL set for sagapilot backend")
             troy._logger.info  ("example: export COORDINATION_URL=redis://<pass>@gw68.quarry.iu.teragrid.org:6379")
             troy._logger.info  ("Contact Radica@Ritgers for the redis password")
-            raise RuntimeError ("Cannot use sinon backend - no COORDINATION_URL -- see debug log for details")
+            raise RuntimeError ("Cannot use sagapilot backend - no COORDINATION_URL -- see debug log for details")
 
-        self._sinon  = sinon.Session (database_url = self._coord)
+        self._sp  = sp.Session (database_url = self._coord)
 
 
     # --------------------------------------------------------------------------
@@ -85,44 +84,46 @@ class PLUGIN_CLASS (troy.PluginBase):
 
 
                 # get the unit description, and the target pilot ID
-                unit_descr = unit.description
+                unit_descr = unit.as_dict ()
                 pilot_id   = unit['pilot_id']
 
                 # reconnect to the given pilot -- this is likely to pull the
                 # instance from a cache, so should not cost too much.
-                pilot      = troy.Pilot (self.session, pilot_id, _instance_type='sinon')
+                pilot      = troy.Pilot (self.session, pilot_id, _instance_type='sagapilot')
                 troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
-                                % (uid, pilot._get_instance('sinon')[1]))
+                                % (uid, pilot._get_instance('sagapilot')[1]))
                 
-                # translate our information into bigjob speak, and dispatch
+                # translate our information into sagapilot speak, and dispatch
                 # a cu for the CU
-                sinon_cu_descr = sinon.ComputeUnitDescription ()
+
+                keymap = {
+                    'tag'               : 'name', 
+                    'executable'        : 'executable', 
+                    'arguments'         : 'arguments', 
+                    'environment'       : 'environment', 
+                    'cores'             : 'cores', 
+                  # 'inputs'            : 'input_data', 
+                  # 'outputs'           : 'output_data', 
+                    'working_directory' : 'working_directory_priv'
+                  }
+
+                sp_cu_descr = sp.ComputeUnitDescription ()
                 for key in unit_descr :
-
-                    # ignore Troy level keys
-                    # FIXME: this should be a positive filter, not a negative
-                    # one, to shield against evolving troy...
-                    if  key in ['tag', 'inputs', 'outputs', 'stdin', 'stdout'] :
-                        continue
-
-                    elif key in ['working_directory'] :
-                        sinon_cu_descr['WorkingDirectoryPriv'] = unit_descr[key]
-
-                    else :
-                        sinon_cu_descr[key] = unit_descr[key]
+                    if  key in keymap :
+                        sp_cu_descr[keymap[key]] = unit_descr[key]
 
 
                 # FIXME: sanity check for pilot type
-                [sinon_um, sinon_pm, sinon_pilot] = pilot._get_instance ('sinon')
-                sinon_cu = sinon_um.submit_units (sinon_cu_descr)
+                [sp_um, sp_pm, sp_pilot] = pilot._get_instance ('sagapilot')
+                sp_cu = sp_um.submit_units (sp_cu_descr)
 
                 # attach the backend instance to the unit, for later state
                 # checks etc. We leave it up to the unit to decide if it wants
                 # to cache the instance, or just the ID and then later
                 # reconnect.
-                unit._set_instance ('sinon', self, 
-                                    instance  = [sinon_um,     sinon_cu],
-                                    native_id = [sinon_um.uid, sinon_cu.uid])
+                unit._set_instance ('sagapilot', self, 
+                                    instance  = [sp_um,     sp_cu],
+                                    native_id = [sp_um.uid, sp_cu.uid])
 
 
     # --------------------------------------------------------------------------
@@ -134,14 +135,14 @@ class PLUGIN_CLASS (troy.PluginBase):
         troy.Unit doesn't have that instance anymore...
         """
 
-        troy._logger.debug ("reconnect to sinon cu %s" % native_id)
-        sinon_um_id = native_id[0]
-        sinon_cu_id = native_id[1]
+        troy._logger.debug ("reconnect to sagapilot cu %s" % native_id)
+        sp_um_id = native_id[0]
+        sp_cu_id = native_id[1]
 
-        sinon_um    = self._sinon.get_unit_managers (sinon_um_id)
-        sinon_cu    = sinon_um.get_units (sinon_cu_id)
+        sp_um    = self._sp.get_unit_managers (sp_um_id)
+        sp_cu    = sp_um.get_units (sp_cu_id)
 
-        return [sinon_um, sinon_cu]
+        return [sp_um, sp_cu]
 
 
     # --------------------------------------------------------------------------
@@ -154,27 +155,35 @@ class PLUGIN_CLASS (troy.PluginBase):
         """
 
         # find out what we can about the pilot...
-        [sinon_um, sinon_cu] = unit._get_instance ('sinon')
+        [sp_um, sp_cu] = unit._get_instance ('sagapilot')
 
-        info = {'uid'              : sinon_cu.uid,
-                'description'      : sinon_cu.description,
-                'state'            : sinon_cu.state,
-                'log'              : sinon_cu.log,
-                'execution_details': sinon_cu.execution_details,
-                'submission_time'  : sinon_cu.submission_time,
-                'start_time'       : sinon_cu.start_time,
-                'stop_time'        : sinon_cu.stop_time}
+        info = {'uid'              : sp_cu.uid,
+                'description'      : sp_cu.description,
+                'state'            : sp_cu.state,
+                'stdout'           : sp_cu.stdout,
+                'stderr'           : sp_cu.stderr,
+                'log'              : sp_cu.log,
+                'execution_details': sp_cu.execution_details,
+                'submission_time'  : sp_cu.submission_time,
+                'start_time'       : sp_cu.start_time,
+                'stop_time'        : sp_cu.stop_time}
 
 
-        # translate sinon state to troy state
+        # translate sagapilot state to troy state
         if  'state' in info :
+            troy._logger.debug ('sagalilot level cu state: %s' % info['state'])
             # hahaha python switch statement hahahahaha
-            info['state'] =  {sinon.states.PENDING  : PENDING, 
-                              sinon.states.RUNNING  : RUNNING, 
-                              sinon.states.DONE     : DONE, 
-                              sinon.states.CANCELED : CANCELED, 
-                              sinon.states.FAILED   : FAILED, 
-                              sinon.states.UNKNOWN  : UNKNOWN}.get (info['state'], UNKNOWN)
+            info['state'] =  {sp.states.PENDING                 : PENDING, 
+                              sp.states.PENDING_EXECUTION       : PENDING, 
+                              sp.states.PENDING_INPUT_TRANSFER  : RUNNING, 
+                              sp.states.TRANSFERRING_INPUT      : RUNNING, 
+                              sp.states.RUNNING                 : RUNNING, 
+                              sp.states.PENDING_OUTPUT_TRANSFER : RUNNING, 
+                              sp.states.TRANSFERRING_OUTPUT     : RUNNING, 
+                              sp.states.DONE                    : DONE, 
+                              sp.states.CANCELED                : CANCELED, 
+                              sp.states.FAILED                  : FAILED, 
+                              sp.states.UNKNOWN                 : UNKNOWN}.get (info['state'], UNKNOWN)
 
       # print 'unit_get_info: %s' % info
         # unit_get_info: {'log'               : None, 
@@ -186,17 +195,23 @@ class PLUGIN_CLASS (troy.PluginBase):
         #                 'start_time'        : datetime.datetime(2014, 2, 5, 12, 20, 40, 884000), 
         #                 'description'       : <sagapilot.compute_unit_description.ComputeUnitDescription object at 0x27ea990>}
 
-        # register sinon events when they have a valid time stamp.  This may
+        # register sagapilot events when they have a valid time stamp.  This may
         # register them multiple times though, but duplication is filtered out
         # on time keeping level
         if 'submission_time' in info and info['submission_time'] :
-            unit.timed_event ('submission', 'sinon', info['submission_time'])
+            unit.timed_event ('submission', 'sagapilot', info['submission_time'])
 
         if 'start_time' in info and info['start_time'] :
-            unit.timed_event ('start', 'sinon', info['start_time'])
+            unit.timed_event ('start', 'sagapilot', info['start_time'])
 
         if 'stop_time' in info and info['stop_time'] :
-            unit.timed_event ('stop', 'sinon', info['stop_time'])
+            unit.timed_event ('stop', 'sagapilot', info['stop_time'])
+
+        if  info['state'] == FAILED :
+            troy._logger.error ('CU %s failed' % unit.id)
+            troy._logger.info ('log: \n----\n%s\n---\n' % info['log'])
+            troy._logger.info ('stderr: \n----\n%s\n---\n' % info['stderr'])
+            troy._logger.info ('stdout: \n----\n%s\n---\n' % info['stdout'])
 
 
         return info
@@ -209,8 +224,8 @@ class PLUGIN_CLASS (troy.PluginBase):
         bye bye bye Junimond, es ist vorbei, bye bye...
         """
 
-        [sinon_um, sinon_cu] = unit._get_instance ('sinon')
-        sinon_cu.cancel ()
+        [sp_um, sp_cu] = unit._get_instance ('sagapilot')
+        sp_cu.cancel ()
 
 
 # ------------------------------------------------------------------------------

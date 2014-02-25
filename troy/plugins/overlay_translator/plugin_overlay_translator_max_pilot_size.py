@@ -61,8 +61,8 @@ class PLUGIN_CLASS (troy.PluginBase):
         pilot_cnt = 0
         while (pilot_cnt * pilot_size) < overlay.description.cores :
 
-            pilot_descr = troy.PilotDescription ({'size'      : pilot_size,
-                                                  'wall_time' : overlay.description.wall_time})
+            pilot_descr = troy.PilotDescription ({'size'     : pilot_size,
+                                                  'walltime' : overlay.description.walltime})
             pilot_id    = overlay._add_pilot (pilot_descr)
             pilot_cnt  += 1
             troy._logger.info ("overlay  translate: define   pilot %3d: %s (%s)" % (1, pilot_id, pilot_descr))

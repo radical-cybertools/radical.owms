@@ -1,14 +1,14 @@
 
 .. _chapter_plugin_writing
 
-***************************
-Writing SAGA-Python Plugins
-***************************
+********************
+Writing Troy Plugins
+********************
 
 .. note::
 
-   This part of the SAGA-Python documentation is not for *users* of SAGA-Python,
-   but rather for implementors of backend plugins.
+   This part of the Troy documentation is not for *users* of Troy, but rather
+   for implementors of Troy plugins.
 
 
 
@@ -20,19 +20,33 @@ Plugin Structure
 A Troy plugin is a Python module with well defined structure.  The
 module must expose a class ``PLUGIN_CLASS``, and a dictionary ``PLUGIN_DESCRIPTION``, similar to this::
 
+    import troy
+
     PLUGIN_DESCRIPTION = {
-        'type'        : 'planner',
-        'name'        : 'bundles',
+        'type'        : 'overlay_provisioner',
+        'name'        : 'azure',
         'version'     : '0.1',
-        'description' : 'This is the bundles planner.'
+        'description' : 'This is the Azure VM provisioner.'
       }
 
-    class PLUGIN_CLASS (object) :
-        pass
+    class PLUGIN_CLASS (troy.PluginBase) :
+
+        def __init__ (self) :
+            troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
+
+        def init (self) :
+            # this method is optional, do some env checking here if needed
+            pass
+
+        def provision (self, overlay) :
+            # this is a method specfic to the overlay_provisioner plugin type
+            raise RuntimeError ("not implemented")
+        
 
 What specific methods a plugin has to implement depends on the respective plugin
 type -- simplest approach is to copy the respective default plugin and customize
 the existing methods.
+
 
 
 .. _plugin_registration:
@@ -46,27 +60,17 @@ same naming scheme.
 
 
 
-.. _plugin_state:
-
-Plugin State
-------------
-
-The used plugin manager considers plugins to be singletons -- i.e. they will be
-loaded only *once* per application lifetime, and any plugin invokation will use
-the very same instance.  That makes it easy to maintain state over multiple
-calls -- but plugin developers need to consciously shield invokations from side
-effects of earlier calls.
-  
-
 .. _plugin_exceptions:
 
 Exception Handling
 ------------------
 
-Plugins should never to terminate an application -- while Troy does not prevent
-intentional aborts (for example via `sys.exit()`), Troy will convert any
-exceptions raised in the plugins into warnings, and will attempt to continue
-operation.
+Plugins should never to terminate an application, e.g. via `sys.exit()`.
+Instead, plugins should raise exceptions, preferably native python exceptions
+such as `RunttimError` or `TypeError` etc.  Troy may convert any plugin
+exceptions into warnings, and attempt may attempt to continue operation.  Troy
+may also try to call the plugin again.
+
 
 
 .. _plugin_logging:

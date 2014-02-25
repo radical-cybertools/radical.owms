@@ -2,7 +2,6 @@
 
 import time
 import troy
-import pprint
 import pymongo
 import weakref
 import datetime

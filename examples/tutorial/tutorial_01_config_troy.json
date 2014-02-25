@@ -1,0 +1,61 @@
+
+# tutorial_01_config_troy.json
+{
+    # frequently changing variables
+    "hosts"         : "pbs+ssh://sierra.futuregrid.org",
+    "pilot_size"    : "8",
+    "concurrency"   : "100",
+    "pilot_backend" : "sagapilot",
+    "troy_strategy" : "basic_late_binding",
+
+
+    # troy plugin selection & plugin configurations
+    "planner"                        : {
+        "derive"                     : {
+            "concurrent"             : {
+                "concurrency"        : "%(concurrency)s"
+            }
+        }
+    },
+  
+    "overlay_manager"                : {
+
+        # plugin selection for overlay manager
+        "plugin_overlay_scheduler"   : "round_robin",
+        "plugin_overlay_provisioner" : "%(pilot_backend)s",
+
+        # plugin configuration for overlay manager
+        "overlay_provisioner"        : {
+            "bigjob"                 : {
+                "coordination_url"   : "redis://%(redis_passwd)s-REdIS@gw68.quarry.iu.teragrid.org:6379"
+            },
+            "sagapilot"              : {
+                "coordination_url"   : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/"
+            }
+        },
+        "overlay_scheduler"          : {
+            "round_robin"            : {
+                "resources"          : "%(hosts)s"
+            }
+        },
+        "overlay_translator"         : {
+            "max_pilot_size"         : {
+                "pilot_size"         : "%(pilot_size)s"
+            }
+        }
+    },
+  
+    "workload_manager"             : {
+        "plugin_workload_scheduler"  : "round_robin",
+        "plugin_workload_dispatcher" : "%(pilot_backend)s",
+        "workload_dispatcher"      : {
+            "bigjob"               : {
+                "coordination_url" : "redis://%(redis_passwd)s@gw68.quarry.iu.teragrid.org:6379"
+            },
+            "sagapilot"            : {
+                "coordination_url" : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/"
+            }
+        }
+    }
+}
+

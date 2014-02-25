@@ -46,16 +46,15 @@ if __name__ == '__main__':
     session = troy.Session ()
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (session, 
-                                         dispatcher = 'local')
+    workload_mgr = troy.WorkloadManager (session, dispatcher = 'sagapilot')
 
     # Responsible for managing the pilot overlay
     overlay_mgr = troy.OverlayManager (session, 
                                        scheduler    = 'round_robin', 
-                                       provisioner  = troy.AUTOMATIC)
+                                       provisioner  = 'sagapilot')
 
     # Planning makes initial mapping of workload to overlay
-    planner = troy.Planner (session, planner='concurrent')
+    planner = troy.Planner (session, derive = 'concurrent')
 
     # Create a task for every radicalist
     task_descriptions = list()
@@ -70,8 +69,9 @@ if __name__ == '__main__':
 
         task_descr.inputs            = ["%s > %s" % (fin,  'input')]
         task_descr.outputs           = ["%s < %s" % (fout, 'output')]
-        task_descr.working_directory = "/N/u/merzky/troy_demo/tasks/%s/" % fnames[r]
-        task_descr.working_directory = "/home/merzky/troy_demo/tasks/%s/" % fnames[r]
+        task_descr.working_directory = "%%(home)s/troy_demo/tasks/%s/" % fnames[r]
+
+        print task_descr
 
         task_descriptions.append (task_descr)
 

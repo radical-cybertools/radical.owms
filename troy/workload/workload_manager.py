@@ -17,10 +17,6 @@ class WorkloadManager (tu.Timed) :
     The `WorkloadManager` class, as its name suggests, manages :class:`Workload`
     instances, i.e. translates, schedules and enacts those instances.
 
-    The internal state of the workload manager is not open for inspection -- but
-    the workloads it manages can be exposed for inspection, on request
-    (:func:`inspect_workload()`).
-
     FIXME: how are race conditions handled -- like, a workload is scheduled on
     an overlay, but before dispatching, a pilot in that overlay disappears?
     I guess we should add the option to schedule a single unit, or reschedule
@@ -44,9 +40,6 @@ class WorkloadManager (tu.Timed) :
         agree, the tasks in state done should be disregarded)
       - enact the scheduling map on the new (pilots of an) overlay.
 
-    . The workload should be open to inspection only to the components of TROY,
-      to to the application layer.
-
     """
 
     # FIXME: state checks ignore PLANNED state...
@@ -57,8 +50,7 @@ class WorkloadManager (tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, session     = None, 
-                        inspector   = AUTOMATIC,
+    def __init__ (self, session,
                         translator  = AUTOMATIC,
                         scheduler   = AUTOMATIC,
                         dispatcher  = AUTOMATIC) :
@@ -68,27 +60,47 @@ class WorkloadManager (tu.Timed) :
         Use default plugins if not indicated otherwise
         """
 
-        if  session : self.session = session
-        else:         self.session = troy.Session ()
+        self.session = session
+        self.id      = ru.generate_id ('wlm.')
 
-        self._stager = None
+        tu.Timed.__init__             (self, 'troy.WorkloadManager', self.id)
+        self.session.timed_component  (self, 'troy.WorkloadManager', self.id)
 
+        self._stager     = None
+        self._plugin_mgr = None
+        self.plugins     = dict ()
 
+        # setup plugins from aruments
+        #
         # We leave actual plugin initialization for later, in case a strategy
         # wants to alter / complete the plugin selection
-
-        self.plugins = dict ()
-        self.plugins['inspector' ] = inspector
+        #
+        # FIXME: we don't need no stupid arguments, ey!  Just use
+        #        AUTOMATIC by default...
         self.plugins['translator'] = translator
         self.plugins['scheduler' ] = scheduler
         self.plugins['dispatcher'] = dispatcher
 
-        self._plugin_mgr = None
 
-        self.id = ru.generate_id ('wlm.')
+        # lets see if there are any plugin preferences in the config
+        # note that config settings supercede arguments!
+        cfg = session.get_config ('workload_manager')
 
-        tu.Timed.__init__             (self, 'troy.WorkloadManager', self.id)
-        self.session.timed_component  (self, 'troy.WorkloadManager', self.id)
+        if  'plugin_workload_translator' in cfg : 
+            self.plugins['translator']   =  cfg['plugin_workload_translator']
+        if  'plugin_workload_scheduler'  in cfg : 
+            self.plugins['scheduler' ]   =  cfg['plugin_workload_scheduler' ]
+        if  'plugin_workload_dispatcher' in cfg : 
+            self.plugins['dispatcher']   =  cfg['plugin_workload_dispatcher']
+
+      # import pprint
+      # pprint.pprint (session.cfg)
+      # pprint.pprint (cfg)
+      # pprint.pprint(self.plugins)
+      # sys.exit(0)
+
+
+
 
 
     # --------------------------------------------------------------------------
@@ -108,8 +120,6 @@ class WorkloadManager (tu.Timed) :
         #       changed scheduler to round_robin because first kind of drug
         #       every run with multiple pilots. This is bad(tm).
 
-        if  self.plugins['inspector' ]  == AUTOMATIC :
-            self.plugins['inspector' ]  = 'reflect'
         if  self.plugins['translator']  == AUTOMATIC :
             self.plugins['translator']  = 'direct'
         if  self.plugins['scheduler' ]  == AUTOMATIC :
@@ -123,20 +133,26 @@ class WorkloadManager (tu.Timed) :
         self._plugin_mgr = ru.PluginManager ('troy')
 
         # FIXME: error handling
-        self._inspector  = self._plugin_mgr.load  ('workload_inspector',  self.plugins['inspector' ])
         self._translator = self._plugin_mgr.load  ('workload_translator', self.plugins['translator'])
         self._scheduler  = self._plugin_mgr.load  ('workload_scheduler',  self.plugins['scheduler' ])
         self._dispatcher = self._plugin_mgr.load  ('workload_dispatcher', self.plugins['dispatcher'])
 
-        if  not self._inspector  : raise RuntimeError ("Could not load inspector  plugin")
         if  not self._translator : raise RuntimeError ("Could not load translator plugin")
         if  not self._scheduler  : raise RuntimeError ("Could not load scheduler  plugin")
         if  not self._dispatcher : raise RuntimeError ("Could not load dispatcher plugin")
 
-        self._inspector .init_plugin (self.session)
-        self._translator.init_plugin (self.session)
-        self._scheduler .init_plugin (self.session)
-        self._dispatcher.init_plugin (self.session)
+        self._translator.init_plugin (self.session, 'workload_manager')
+        self._scheduler .init_plugin (self.session, 'workload_manager')
+        self._dispatcher.init_plugin (self.session, 'workload_manager')
+
+        # parser plugins are somewhat different, as we load all parsers we can
+        # find.  On any incoming workload, we'll try one after the other
+        self._parsers = list()
+        for parser_plugin_name in self._plugin_mgr.list ('workload_parser') :
+            parser = self._plugin_mgr.load ('workload_parser', parser_plugin_name)
+            if parser :
+                parser.init_plugin (self.session, 'workload_manager')
+                self._parsers.append (parser)
 
         troy._logger.info ("initialized  workload manager (%s)" % self.plugins)
 
@@ -250,10 +266,85 @@ class WorkloadManager (tu.Timed) :
 
             # lookup id
             if  not unit_id in cls._unit_id_map :
-              # import pprint
-              # pprint.pprint (cls._unit_id_map)
                 raise ValueError ("no such unit known '%s'" % unit_id)
             return cls._unit_id_map[unit_id]
+
+
+    # --------------------------------------------------------------------------
+    #
+    def parse_workload (self, workload_description) :
+        """
+        Parse a json workload description, convert into a set of
+        task_descriptions and relation_descriptions
+        """
+
+        # make sure manager is initialized
+        self._init_plugins ()
+
+        # see if the workload_description points to a file.  If so, read the
+        # content and use that as the actual description string
+        try :
+            with open (workload_description, "r") as descr_file:
+                workload_description = descr_file.read ()
+        except Exception as e :
+            # leave any error handling to the parsers -- what do we know..
+            troy._logger.warn ("cannot read WL description at '%s'" \
+                            % workload_description)
+
+
+        # try one parser after the other, until one can handle the workload
+        # description
+        task_descriptions     = None  # list of task descriptions
+        relation_descriptions = None  # list of reation descriptions
+
+        for parser in self._parsers :
+            troy._logger.debug ("trying parser %s" % parser.name)
+
+            if True :
+          # try :
+                task_descriptions, relation_descriptions = parser.parse (workload_description)
+          # except Exception as e :
+          #     troy._logger.warn ("parser %s failed: %s" % (parser.name, e))
+          # else :
+          #     # success!
+          #     break
+
+        if  not task_descriptions  and \
+            not relation_descriptions :
+            raise ValueError ("Could not parse workload description\n----\n%s\n----\n" \
+                            % workload_description)
+
+        workload = troy.Workload (self.session, 
+                                  task_descriptions,
+                                  relation_descriptions)
+
+        return workload.id
+
+
+    # --------------------------------------------------------------------------
+    #
+    def create_workload (self, task_descriptions=None,
+                         relation_descriptions=None) :
+        """
+        Notes
+
+        . This methods breaks the design choice of having the planner as the
+          entry point to TROY - i.e. the interface with the application layer.
+          Following that design choice would require to move this method to
+          the planner. You can see the consequences of breaking the design in
+          the current demo: They create the workload by first instatiating
+          a workload manager. This should not be the case. They should
+          instantiate a planner.
+
+        - AM: Hmm, we do that via the WL manager to keep ownership of the
+          workload with that WL manager -- otherwise the planner would initially
+          own the workload, and would hand off ownership to the WL manager
+          later.  Is this acceptable then?
+        """
+
+        workload = troy.Workload (task_descriptions, relation_descriptions)
+
+        return workload.id
 
 
     # --------------------------------------------------------------------------
@@ -366,6 +457,20 @@ class WorkloadManager (tu.Timed) :
 
         # make sure manager is initialized
         self._init_plugins ()
+
+        # now that the units are bound and about to be dispatched, we can fix the
+        # resource placeholders in the unit descriptions
+        for (task_id, task) in workload.tasks.iteritems() :
+            for (unit_id, unit) in task.units.iteritems() :
+
+                # get troys idea of resource configuration
+                pilot_id     = unit.pilot_id
+                pilot        = troy.Pilot (self.session, pilot_id)
+                resource_cfg = self.session.get_resource_config (pilot.resource)
+
+                # and merge it conservatively into the unit config
+                unit.merge_description (resource_cfg)
+
 
       # # we don't really know if the dispatcher plugin will perform the
       # # stage-in operations in time - so we trigger it manually here.

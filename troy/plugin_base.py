@@ -12,26 +12,26 @@ class PluginBase (object) :
     def __init__ (self, description) :
 
         self.description = description
-        self.name        = "%(type)s_%(name)s" % self.description
+        self.type        = "%(type)s"          % description
+        self.name        = "%(name)s"          % description
+        self.longname    = "%(type)s_%(name)s" % description
+        self.config_path = "%(type)s:%(name)s" % description
 
 
     # --------------------------------------------------------------------------
     #
-    def init_plugin (self, session):
+    def init_plugin (self, session, scope) :
 
-        troy._logger.info ("init plugin %s" % (self.name))
-
-        self.session    = session
-        self.global_cfg = session.cfg.as_dict ()
-
-        # merge user configuration into global_config
-        self.global_cfg.update (session.user_cfg)
-
-        self.cfg        = self.global_cfg.get (self.name, dict())
+        self.session  = session
+        self.troy_cfg = session.get_config ()
+        self.cfg      = session.get_config ("%s:%s" % (scope, self.config_path))
 
         # call plugin.init() as plugin initializer -- if that does not exist,
         # the init() method from below is called as a fallback
+
+        troy._logger.info ("init plugin %s" % (self.longname))
         self.init ()
+
 
 
     # --------------------------------------------------------------------------
