@@ -52,6 +52,13 @@ def execute_workload (workload, planner, overlay_mgr, workload_mgr,
     need to plan, translate, schedule and dispatch an overlay, obviously...
     """
 
+    if  strategy == troy.AUTOMATIC :
+
+        if  'plugin_strategy' in session.cfg :
+            strategy = session.cfg['plugin_strategy']
+        else :
+            strategy =  'basic_late_binding'
+
     plugin_mgr = ru.PluginManager ('troy')
     strategy   = plugin_mgr.load  ('strategy', strategy)
 
