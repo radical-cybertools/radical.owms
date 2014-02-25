@@ -4,10 +4,8 @@ __author__    = "TROY Development Team"
 __copyright__ = "Copyright 2014, RADICAL"
 __license__   = "MIT"
 
-
 import sys
 import troy
-
 
 #
 # Configure session
@@ -22,7 +20,6 @@ workload_mgr = troy.WorkloadManager(session)
 # define tasks
 #
 task_descr = troy.TaskDescription()
-#task_descr.tag = "%s" % r
 task_descr.executable =  "%(mdrun)s"
 task_descr.cardinality = 10
 task_descr.inputs =  ["%(local_appdir)s/input/topol.tpr > topol.tpr"]
@@ -33,14 +30,10 @@ task_descr.outputs =  ["output/%(session_id)s_state.cpt.%(cardinal)s   < state.c
                        "output/%(session_id)s_md.log.%(cardinal)s      < md.log"]
 task_descr.working_directory = "%(home)s/troy_tutorial/troy_tutorial_02_%(cardinal)s/"
 
-print task_descr
-
 #
 # construct and execute workload
 #
 workload = troy.Workload (session, task_descr)
-#strategy = 'basic'
 troy.execute_workload (workload, planner, overlay_mgr, workload_mgr)
 
 # Woohooo!  Magic has happened!
-
