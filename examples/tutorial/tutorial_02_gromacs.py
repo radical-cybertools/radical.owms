@@ -21,7 +21,7 @@ workload_mgr = troy.WorkloadManager(session)
 #
 task_descr = troy.TaskDescription()
 task_descr.executable =  "%(mdrun)s"
-task_descr.cardinality = 10
+task_descr.cardinality = 5
 task_descr.inputs =  ["%(local_appdir)s/input/topol.tpr > topol.tpr"]
 task_descr.outputs =  ["output/%(session_id)s_state.cpt.%(cardinal)s   < state.cpt",
                        "output/%(session_id)s_confout.gro.%(cardinal)s < confout.gro",
