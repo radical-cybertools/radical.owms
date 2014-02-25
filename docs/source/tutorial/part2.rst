@@ -20,7 +20,7 @@ The used python program, in its entirety, is:
                           config   = sys.argv[2:])
     
 
-You can run this example with:
+After checking the configuration files, you can run this example with:
 
 
 .. code-block:: bash
@@ -56,7 +56,7 @@ Troy Workload Descriptions
 Troy is designed to understand a multitude of workload descriptions -- but at
 the moment is really only equipped to accept descriptions in its own JSON
 format.  An exemplary description is provided with the tutorial code, as
-`FIXME:examples/tutorial/tutorial_01_workload.json`
+`FIXME:examples/tutorial/tutorial_01_workload.json`.
 
 
 .. code-block:: python
@@ -69,6 +69,8 @@ format.  An exemplary description is provided with the tutorial code, as
     #     "cardinality" : "%(bag_size)s"
     # will expand to 
     #     "cardinality" : "10"
+    # 
+    # Note that the output data will be stored in `output`, relative to pwd.
     
     {
       "tasks" : 
@@ -110,13 +112,14 @@ application config file.
 And indeed, looking closer at the config files given as command line arguments,
 we find exactly those information.  Here is the application config, which
 contains parametrization and placeholder values for workload expansion and
-transormations:
+transformations:
 
 .. code-block:: python
 
     # tutorial_01_config.json
     {
-        # variables we want to vary for each experiment run
+        # variables we want to vary for each experiment run.  The application
+        dir should point to *your* local copy of the Troy tutorial.
         "steps"            : 256,
         "bag_size"         : 5,
         "local_appdir"     : "/home/winnetou/troy/examples/tutorial/",

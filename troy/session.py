@@ -112,7 +112,8 @@ class Session (saga.Session, tu.Timed) :
         for res_name in self.cfg['resources'] :
             ru.dict_merge (self.cfg['resources'][res_name], 
                            _resource_config_skeleton, 
-                           policy='preserve')
+                           policy='preserve', 
+                           logger=troy.logger)
 
 
         # we set the log level as indicated in the troy config or user
@@ -133,9 +134,9 @@ class Session (saga.Session, tu.Timed) :
         self.timed_method ('saga.Session', ['init'],  
                            saga.Session.__init__, [self, default])
 
-      # print '--------------------------------'
-      # self._dump()
-      # print '--------------------------------'
+        print '--------------------------------'
+        self._dump()
+        print '--------------------------------'
       # sys.exit()
 
 
@@ -213,14 +214,18 @@ class Session (saga.Session, tu.Timed) :
                 if  resource_pattern.match (resource):
                     troy._logger.debug ('merge resource pattern %s for %s' \
                                      % (resource_key, resource))
-                    ru.dict_merge (ret, resource_cfg[resource_key], policy='overwrite')
+                    ru.dict_merge (ret, resource_cfg[resource_key],
+                                   policy='overwrite', 
+                                   logger=troy.logger)
 
         # check if we have an exact match for the resource name.  This upersedes
         # the wildcard entries
 
         if  resource in resource_cfg :
             troy._logger.debug ('merge resource config for %s' % resource)
-            ru.dict_merge (ret, resource_cfg[resource], policy='overwrite')
+            ru.dict_merge (ret, resource_cfg[resource], 
+                          policy='overwrite', 
+                          logger=troy.logger)
 
         # make sure the hostname is in the config
         ret['hostname'] = resource

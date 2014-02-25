@@ -1,5 +1,5 @@
 
-__author__    = "Andre Merzky, Ole Weidneri, Matteo Turilli"
+__author__    = "RADICAL Team"
 __copyright__ = "Copyright 2013, RADICAL Research, Rutgers University"
 __license__   = "MIT"
 
@@ -12,6 +12,9 @@ import subprocess
 
 from setuptools import setup, Command
 
+srcroot = 'troy'
+name    = 'TROY'
+lname   = name.lower()
 
 # ------------------------------------------------------------------------------
 #
@@ -22,7 +25,7 @@ from setuptools import setup, Command
 #   - both are derived from the last git tag and branch information
 #   - VERSION files are created on demand, with the long_version
 #
-# can't use troy or radical.utils versioning detection, as radical.utils is only
+# can't use radical.utils versioning detection, as radical.utils is only
 # below specified as dependency :/
 def get_version (paths=None):
     """
@@ -93,7 +96,7 @@ def get_version (paths=None):
                 out=open ("%s/VERSION" % paths[0], 'r').read().strip()
 
 
-            pattern = re.compile ('(?P<long>(?P<short>[\d\.]+)\D.*)(\s+\*\s+(?P<branch>\S+))?')
+            pattern = re.compile ('(?P<long>(?P<short>[\d\.]+).*?)(\s+\*\s+(?P<branch>\S+))?$')
             match   = pattern.search (out)
 
             if  match :
@@ -131,16 +134,18 @@ def get_version (paths=None):
 
 
 #-----------------------------------------------------------------------------
-# get version info -- this will create VERSION and troy/VERSION
+# get version info -- this will create VERSION and srcroot/VERSION
 root     = os.path.dirname (__file__)
-troy_dir = "%s/troy" % root
-short_version, long_version, branch = get_version ([root, troy_dir])
+if  not root :
+    root = os.getcwd()
+src_dir  = "%s/%s" % (root, srcroot)
+short_version, long_version, branch = get_version ([root, src_dir])
 
 
 #-----------------------------------------------------------------------------
 # check python version. we need > 2.5, <3.x
 if  sys.hexversion < 0x02050000 or sys.hexversion >= 0x03000000:
-    raise RuntimeError("Troy requires Python 2.x (2.5 or higher)")
+    raise RuntimeError("%s requires Python 2.x (2.5 or higher)" % name)
 
 
 #-----------------------------------------------------------------------------
@@ -164,7 +169,7 @@ def read(*rnames):
 
 #-----------------------------------------------------------------------------
 setup_args = {
-    'name'             : "troy",
+    'name'             : name,
     'version'          : short_version,
     'description'      : "Tiered Resource OverlaY",
     'long_description' : (read('README.md') + '\n\n' + read('CHANGES.md')),
@@ -190,7 +195,7 @@ setup_args = {
         'Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX',
-        'Operating System :: Unix',
+        'Operating System :: Unix'
     ],
     'packages'         : [
         "troy",
