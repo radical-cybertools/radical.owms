@@ -3,11 +3,12 @@
     # variables we want to vary for each experiment run
     "steps"            : 256,
     "bag_size"         : 5,
-    "local_appdir"     : "/home/merzky/saga/troy/examples/tutorial/",
+    #"local_appdir"     : "/home/merzky/saga/troy/examples/tutorial/",
+    "local_appdir"     : "/Users/mark/proj/troy/troy/examples/tutorial",
 
     # build up a unique session id from those variables.  This 
     # ID will be used by try to identify this run
-    "session_id"       : "glomacs_%(steps)s_%(bag_size)s",
+    "session_id"       : "gromacs_%(steps)s_%(bag_size)s",
 
 
     # We add some additional, app specific information to the 
