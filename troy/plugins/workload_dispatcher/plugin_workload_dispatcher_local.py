@@ -51,7 +51,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             for unit_id in task['units'] :
                 unit     = task['units'][unit_id]
 
-                if  not unit.staged_in and task.description.inputs :
+                if  not unit.staged_in and task.as_dict ()['inputs'] :
                     raise RuntimeError ("cannot dispatch %s - stage-in not done" % unit.id)
 
                 unit_descr     = unit.as_dict ()
