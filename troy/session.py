@@ -9,9 +9,10 @@ import os
 import re
 import fnmatch
 import saga
-import troy
 import logging
 import radical.utils as ru
+
+import troy
 import troy.utils    as tu
 
 
@@ -113,7 +114,7 @@ class Session (saga.Session, tu.Timed) :
             ru.dict_merge (self.cfg['resources'][res_name], 
                            _resource_config_skeleton, 
                            policy='preserve', 
-                           logger=troy.logger)
+                           logger=troy._logger)
 
 
         # we set the log level as indicated in the troy config or user
@@ -216,7 +217,7 @@ class Session (saga.Session, tu.Timed) :
                                      % (resource_key, resource))
                     ru.dict_merge (ret, resource_cfg[resource_key],
                                    policy='overwrite', 
-                                   logger=troy.logger)
+                                   logger=troy._logger)
 
         # check if we have an exact match for the resource name.  This upersedes
         # the wildcard entries
@@ -225,7 +226,7 @@ class Session (saga.Session, tu.Timed) :
             troy._logger.debug ('merge resource config for %s' % resource)
             ru.dict_merge (ret, resource_cfg[resource], 
                           policy='overwrite', 
-                          logger=troy.logger)
+                          logger=troy._logger)
 
         # make sure the hostname is in the config
         ret['hostname'] = resource
