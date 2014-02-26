@@ -5,7 +5,6 @@
 
         # add a user host
         "boskop" : {
-            "type"     : ["ssh"],
             "home"     : "/home/%(username)s/"
         },
 
