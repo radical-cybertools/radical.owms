@@ -12,7 +12,9 @@ Please follow the instructions to install TROY from GitHub at :ref:`installation
 
 Configuration
 =============
+TROY offers a powerful configuration subsystem that allows the users to leverage all the functionalities it exposes. Said that, most of the configuration parameters are set to sensible defaults so that the user has to set explicitly only those parameters for which no defaults can be provided - e.g. credentials and login names on the targeted DCIs or parameters relative to the workload she wants to execute.
 
+Detailed documentation about TROY configuration subsystem can be found :ref:`chapter_configuration`. For this tutorial we 
 
 
 Execution of a Bag of Tasks
