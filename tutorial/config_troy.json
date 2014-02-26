@@ -2,7 +2,8 @@
 # tutorial_01_config_troy.json
 {
     # frequently changing variables
-    "hosts"         : "pbs+ssh://sierra.futuregrid.org",
+  # "hosts"         : "pbs+ssh://sierra.futuregrid.org",
+    "hosts"         : "pbs+ssh://stampede.tacc.utexas.edu",
     "pilot_size"    : "8",
     "concurrency"   : "100",
     "pilot_backend" : "sagapilot",
