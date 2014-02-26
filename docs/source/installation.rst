@@ -29,10 +29,10 @@ Additional dependencies:
 
 .. note:: You will need to install at least one pilot framework - sagapilot, BigJob, or both.  If neither is installed, a fake `local` backend will be used to run workloads on the local machine.
 
+.. _installation_for_github:
 
 Installation from GitHub
 ========================
-.. _installation_for_github:
 
 To install TROY from the stable (main) branch in a virtual environment, you will need to install at least three distinct python packages:
 
