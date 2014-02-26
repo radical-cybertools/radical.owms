@@ -78,7 +78,8 @@ def get_config (params) :
                     cfg_dict = ru.read_json (cfg_file)
                     troy._logger.info ("reading  config in %s" % cfg_file)
                 except Exception as e :
-                    troy._logger.warning ("skipping config in %s (%s)" % (cfg_file, e))
+                    troy._logger.critical ("skipping config in %s (%s)" % (cfg_file, e))
+                    raise
 
               # import pprint
               # print '================'
