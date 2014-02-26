@@ -32,8 +32,14 @@ Additional dependencies:
 
 Installation from GitHub
 ========================
+.. _installation_for_github:
 
-To install TROY from the stable (main) branch in a virtual environment, 
+To install TROY from the stable (main) branch in a virtual environment, you will need to install at least three distinct python packages:
+
+* TROY;
+* saga-pilot and/or BigJob; and
+* saga-python.
+
 open a terminal and run:
 
 .. code-block:: bash
@@ -42,8 +48,7 @@ open a terminal and run:
     > source $HOME/myenv/bin/activate
     > pip install --upgrade -e git://github.com/saga-project/troy.git@master#egg=troy
 
-Next, you can do a quick sanity check to make sure that the the packages have
-been installed properly. In the same virtualenv, run:
+Once the installation process has completed, you can do a quick sanity check to make sure that the the packages have been installed properly. In the same virtualenv, run:
 
 .. code-block:: bash
 
@@ -56,6 +61,13 @@ To install one or more pilot frameworks see:
 
 *  Sagapilot (http://saga-pilot.readthedocs.org/en/latest/installation.html#id1)
 *  BigJob (http://saga-project.github.io/BigJob/)
+
+Finally, to install saga-python run in your terminal:
+
+.. code-block:: bash
+
+    > pip install --upgrade -e git://github.com/saga-project/saga-python.git@master#egg=saga-python 
+    
 
 Installation from Source
 ========================

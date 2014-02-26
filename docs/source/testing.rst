@@ -24,23 +24,23 @@ Remote Testing
 ==============
 The TROY unit tests use pilot agents launched on the local machine (`localhost`) by default. However, it is possible to run a subset of the  unit tests (``troy/tests/remote/``) on a remote machine. Remote testing can  be controlled via a set of environment variables:
 
-+----------------------------------------+---------------------------------------------------------------+
-| Environment Variable                   | What                                                          |
-+========================================+===============================================================+
-| ``SAGAPILOT_TEST_REMOTE_RESOURCE``     | The name (key) of the resource.                               |
-+----------------------------------------+---------------------------------------------------------------+
-| ``SAGAPILOT_TEST_REMOTE_SSH_USER_ID``  | The user ID on the remote system.                             |
-+----------------------------------------+---------------------------------------------------------------+
-| ``SAGAPILOT_TEST_REMOTE_SSH_USER_KEY`` | The SSH key to use for the connection.                        |
-+----------------------------------------+---------------------------------------------------------------+
-| ``SAGAPILOT_TEST_REMOTE_WORKDIR``      | The working directory on the remote system.                   |
-+----------------------------------------+---------------------------------------------------------------+
-| ``SAGAPILOT_TEST_REMOTE_CORES``        | The number of cores to allocate.                              |
-+----------------------------------------+---------------------------------------------------------------+
-| ``SAGAPILOT_TEST_REMOTE_NUM_CUS``      | The number of Compute Units to run.                           |
-+----------------------------------------+---------------------------------------------------------------+
-| ``SAGAPILOT_TEST_TIMEOUT``             | Set a timeout in minutes after which the tests will terminate.|
-+----------------------------------------+---------------------------------------------------------------+
+	+----------------------------------------+---------------------------------------------------------------+
+	| Environment Variable                   | What                                                          |
+	+========================================+===============================================================+
+	| ``SAGAPILOT_TEST_REMOTE_RESOURCE``     | The name (key) of the resource.                               |
+	+----------------------------------------+---------------------------------------------------------------+
+	| ``SAGAPILOT_TEST_REMOTE_SSH_USER_ID``  | The user ID on the remote system.                             |
+	+----------------------------------------+---------------------------------------------------------------+
+	| ``SAGAPILOT_TEST_REMOTE_SSH_USER_KEY`` | The SSH key to use for the connection.                        |
+	+----------------------------------------+---------------------------------------------------------------+
+	| ``SAGAPILOT_TEST_REMOTE_WORKDIR``      | The working directory on the remote system.                   |
+	+----------------------------------------+---------------------------------------------------------------+
+	| ``SAGAPILOT_TEST_REMOTE_CORES``        | The number of cores to allocate.                              |
+	+----------------------------------------+---------------------------------------------------------------+
+	| ``SAGAPILOT_TEST_REMOTE_NUM_CUS``      | The number of Compute Units to run.                           |
+	+----------------------------------------+---------------------------------------------------------------+
+	| ``SAGAPILOT_TEST_TIMEOUT``             | Set a timeout in minutes after which the tests will terminate.|
+	+----------------------------------------+---------------------------------------------------------------+
 
 So if for example you want to run the unit tests on Futuregrid's `India cluster <http://manual.futuregrid.org/hardware.html>`_, run:
 
