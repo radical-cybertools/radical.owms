@@ -21,14 +21,16 @@ docs:
 	make -C docs html
 	
 	echo "make tutorial tarball"
-	cd tutorial                                                  ; \
-    rm -f     troy_tutorial_examples.tgz                         ; \
-    rm -rf    troy_tutorial_examples/                            ; \
-    mkdir     troy_tutorial_examples/                            ; \
-    cp *.py   troy_tutorial_examples/                            ; \
-    cp *.json troy_tutorial_examples/                            ; \
-    tar zcvf  troy_tutorial_examples.tgz troy_tutorial_examples/ ; \
-    rm -rf    troy_tutorial_examples/
+	cd tutorial                                                   ; \
+    rm -f      troy_tutorial_examples.tgz                         ; \
+    rm -rf     troy_tutorial_examples/                            ; \
+    mkdir      troy_tutorial_examples/                            ; \
+    mkdir      troy_tutorial_examples/input/                      ; \
+    cp input/* troy_tutorial_examples/input/                      ; \
+    cp *.py    troy_tutorial_examples/                            ; \
+    cp *.json  troy_tutorial_examples/                            ; \
+    tar zcvf   troy_tutorial_examples.tgz troy_tutorial_examples/ ; \
+    rm -rf     troy_tutorial_examples/
 
 
 
