@@ -40,8 +40,8 @@ of the TROY Library Reference and Plugin Documentation once completing this
 tutorial, for further guidelines and more in-depths information.
 
 .. note:: Once an execution strategy is created, and it proves useful to you for
-repeated use, you may consider to put it into a **TROY strategy plugin**.  That
-will make your application code simpler, and easier for others to use.
+   repeated use, you may consider to put it into a **TROY strategy plugin**.  That
+   will make your application code simpler, and easier for others to use.
 
 
 The TROY Manager Classes
