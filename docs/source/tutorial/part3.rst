@@ -1,23 +1,17 @@
-.. _chapter_tutorial_01:
+.. _chapter_tutorial_03:
 
 **********************
 TROY Tutorial - Part 3
 **********************
 
-The second part showed how workloads can be created programatically in TROY, and
-it hinted at the existence of several manager classes: :class:`troy.Planner`,
-:class:`troy.WorkloadManager`, and :class:`troy.OverlayManager`.  This last part
-of the tutorial will expand on the capabilities of those managers, and show how
-those provide very fine grained control over the execution strategy of the
-application workload.  If you look at `tutorial_03.py`, all  code beginning from
-line 50 downwards is basically replacing this single line from `tutorial_02.py`:
+The second part of this tutorial illustrated how workloads can be created programmatically in TROY, and it hinted at the existence of several manager classes: :class:`troy.Planner`, :class:`troy.WorkloadManager`, and :class:`troy.OverlayManager`.  The third and last part of this tutorial will expand on the capabilities of those managers, and show how they provide very fine grained control over the execution strategy of the workload of a distributed application. If you look at `tutorial_03.py`, all  code beginning from line 50 downwards is basically replacing this single line from `tutorial_02.py`:
 
 .. code-block:: python
+
     troy.execute_workload (workload, planner, overlay_mgr, workload_mgr,
                            strategy=strategy)
 
-You can run `tutorial_03.py` exactly like the previous version from part 2, it
-will accept the same config settings:
+You can run ``tutorial_03.py`` exactly like ``tutorial_03.py`` as it will accept the same config settings:
 
 .. code-block:: bash
 
@@ -28,8 +22,7 @@ will accept the same config settings:
 Note that the code in `tutorial_03.py` is implementing exactly the execution
 strategy which was previously encapsulated in the used strategy plugin.  
 
-**At this point, please skim through that code (and comments!) to get an idea on
-the type of actions the execution strategy is comprised of.**
+**At this point, please skim through that code (and comments!) to get an idea on the type of actions the execution strategy is comprised of.**
 
 There are two major aspects to designing an execution strategy: the setup and
 configuration of the TROY manager classes, to make them fit for purpose; and the

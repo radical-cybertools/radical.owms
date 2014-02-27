@@ -9,11 +9,6 @@ a very simple application that executes a bag of tasks on a remote DCI. You will
 go through three phases, starting from installing TROY, then configuring it, and
 finally running your application.
 
-Installation
-============
-Please follow the instructions to install TROY from GitHub at
-:ref:`installation_from_github`.
-
 Execution of a Bag of Tasks
 ===========================
 We start by looking at **what** TROY can do for you, then we move on and see
@@ -21,19 +16,24 @@ We start by looking at **what** TROY can do for you, then we move on and see
 running an instance of gromacs with an input file and producing some output
 files, do the following:
 
-1. Move into the directory ``tutorial``;
-2. Use your preferred editor to edit the file ``config_application.json``;
-3. Enter your username in where you see: ``"username" : "<your_user_name>"``;
-4. Enter 10 in: ``"bag_size" : <number_of_task>``;
-5. Save the file;
-6. Run the following commands:
+1. Use your preferred editor to edit the file ``config_application.json``;
+2. Enter your username in where you see: ``"username" : "<your_user_name>"``;
+3. Enter 10 in: ``"bag_size" : <number_of_tasks>``;
+4. Save the file;
+5. Run the following commands:
 
 .. code-block:: bash
 
 	> export TROY_VERBOSE=INFO
 	> python tutorial_01.py workload_gromacs.json config_application.json config_troy.json
 
-The output of your distributed application is in the directory ``output``.
+The output of your distributed application is in the directory ``output``:
+
+.. code-block:: bash
+
+	> cd output
+	> ls -al
+	> cd ..
 
 Now, to understand why this is cool, let's have a look at the code we have executed:
 
@@ -68,7 +68,7 @@ Obviously, for this one-liner to trigger that activity chain meaningfully, there
 must be a number of things going on. If you need just to run a bag of task this
 is everything you need to know, and you can stop the tutorial here. 
 
-If, however, you want to do more, if you need to decide how many pilots to
+However, if you want to do more, if you need to decide how many pilots to
 run, to programmatically define your application and workload, to tweak the
 degree of concurrency of your tasks, or to choose alternative scheduling
 algorithms both for your tasks and for your pilots, possibly across multiple

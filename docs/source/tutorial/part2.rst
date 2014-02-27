@@ -1,4 +1,4 @@
-.. _chapter_tutorial_01:
+.. _chapter_tutorial_02:
 
 **********************
 TROY Tutorial - Part 2
@@ -9,9 +9,10 @@ part of this tutorial will show you how TROY can be used programmatically
 so to gain control over the many aspects involved into executing a
 distributed application.
 
-We will do two things, we will construct our own workload in python (and
-therefore no longer need the workload file ``workload_gromacs.json``), and
-consecutively we will experiment with different execution strategies.
+We will do two things: 
+
+1. Construct our own workload in python (and therefore no longer need the workload file ``workload_gromacs.json``); and
+2. experiment with different execution strategies.
 
 Where the python file for Part 1 was very simple, ``tutorial_02.py`` is a
 bit more elaborate (but still relatively simple!).
@@ -31,8 +32,10 @@ Starting a Session
     session  = troy.Session (configs)
 
 Here we get the files that were passed as command line arguments and create
-a TROY session with of it.
-A session is TODO
+a TROY session with of it.  A :class:`troy.Session` is essentially a container
+for TROY configuration settings, and for security contexts (which are not
+discussed in this Tutorial).
+
 
 Constructing a Workload
 =======================
@@ -135,7 +138,7 @@ Now that we have run the tutorial with the default 'Late Binding'
 Execution Strategy we will change the strategy to 'Early Binding'
 and investigate the effect.
 
-We change the line displayed above into as shown below.
+We change the line displayed above into the one shown below by editing the file ``tutorial_02.py``:
 
 .. code-block:: python
 
@@ -157,4 +160,5 @@ Now that we have changed the strategy, we can run the program again by:
 .. code-block:: bash
 
     > python tutorial_02.py config_application.json config_troy.json
-
+    
+    
