@@ -57,7 +57,7 @@ Once the installation process has completed, you can do a quick sanity check to 
 
 This should return the version of the TROY installation, similar to the above.
 
-To install one or more pilot frameworks see:
+To install one or more pilot frameworks see the following instructions but please **DO NOT CREATE A NEW VIRTUAL ENVIRONMENT** with commands like ``virtualenv $HOME/myenv``:
 
 *  Sagapilot (http://saga-pilot.readthedocs.org/en/latest/installation.html#id1)
 *  BigJob (http://saga-project.github.io/BigJob/)
