@@ -9,8 +9,8 @@ part of this tutorial will show you how TROY can be used programmatically
 so to gain control over the many aspects involved into executing a
 distributed application.
 
-We will do two things, we will construct our own workload (and therefore no
-longer need the workload file ``workload_gromacs.json``) in python, and
+We will do two things, we will construct our own workload in python (and
+therefore no longer need the workload file ``workload_gromacs.json``), and
 consecutively we will experiment with different execution strategies.
 
 Where the python file for Part 1 was very simple, ``tutorial_02.py`` is a
@@ -65,7 +65,9 @@ is different, I'm sure you will see the similarity.
     workload = troy.Workload (session, task_descr)
 
 With this call, the task description is associated with the session and a
-workload handle is returned.
+workload handle is returned.  Some placeholders in the task description
+attributes are replaced with the session configuration settings at this point,
+others are only replaced later, during workload execution.
 
 
 Managing Managers and Submission
@@ -83,7 +85,7 @@ Managing Managers and Submission
 The architecture of TROY <link> is very modular and consists of many
 components that can be configured and used independently.
 Here we create a Planner, Overlay Manager and Workload Manager using the
-configuration that we had associated to the session.
+configuration that we had associated with the session.
 
 .. code-block:: python
 
@@ -143,7 +145,7 @@ This is all that is required to in theory make drastic changes to the
 (policy of) the execution.
 
 Note that a change with the same effect could also have been made in
-the configuration, specifically in ``config_troy.json`` (line 13):
+the configuration, specifically in ``config_troy.json`` (line 13).
 
 .. code-block:: json
 
@@ -155,3 +157,4 @@ Now that we have changed the strategy, we can run the program again by:
 .. code-block:: bash
 
     > python tutorial_02.py config_application.json config_troy.json
+
