@@ -340,7 +340,9 @@ expanded in the settings for the bigjob coordination URL, and will not be shared
 if you pass your config files to other users, or if you push them into a code
 repository.
 
-You may have noted that we set a TROY **strategy** plugin, to the value
-``basic_late_binding``:  that is the point where we want to look deeper into
-Troy's internals in the next tutorial section :ref:`chapter_tutorial_02`.
+.. You may have noted that we set a TROY **strategy** plugin, to the value
+   ``basic_late_binding``:  that is the point where we want to look deeper into
+   Troy's internals in the next tutorial section :ref:`chapter_tutorial_02`.
 
+We will look deeper into Troy's internals in the next tutorial section
+:ref:`chapter_tutorial_02`.

@@ -9,10 +9,9 @@ part of this tutorial will show you how TROY can be used programmatically
 so to gain control over the many aspects involved into executing a
 distributed application.
 
-We will do two things: 
-
-1. Construct our own workload in python (and therefore no longer need the workload file ``workload_gromacs.json``); and
-2. experiment with different execution strategies.
+.. We will do two things:
+   1. Construct our own workload in python (and therefore no longer need the workload file ``workload_gromacs.json``); and
+   2. experiment with different execution strategies.
 
 Where the python file for Part 1 was very simple, ``tutorial_02.py`` is a
 bit more elaborate (but still relatively simple!).
@@ -119,46 +118,3 @@ workload inside our application).
 
 Sit back, relax, and enjoy the horses do the work!
 The execution should look similar to that of earlier runs.
-
-Execution Strategies
-====================
-
-You may remember that we ended Part 1 of this tutorial with a reference to
-execution strategies.
-There was one piece of code of Part 2 that we did not touch upon yet.
-
-.. code-block:: python
-
-    strategy = session.cfg.get ('troy_strategy', troy.AUTOMATIC)
-
-The line above tries to get the strategy from the config. If it is not
-set, it falls back to automatic setting.
-
-Now that we have run the tutorial with the default 'Late Binding'
-Execution Strategy we will change the strategy to 'Early Binding'
-and investigate the effect.
-
-We change the line displayed above into the one shown below by editing the file ``tutorial_02.py``:
-
-.. code-block:: python
-
-    strategy = 'basic_early_binding'
-
-This is all that is required to in theory make drastic changes to the
-(policy of) the execution.
-
-Note that a change with the same effect could also have been made in
-the configuration, specifically in ``config_troy.json`` (line 13).
-
-.. code-block:: json
-
-    "troy_strategy" : "basic_late_binding",
-
-
-Now that we have changed the strategy, we can run the program again by:
-
-.. code-block:: bash
-
-    > python tutorial_02.py config_application.json config_troy.json
-    
-    
