@@ -6,8 +6,7 @@
 #
 {
     # frequently changing variables
-  # "hosts"         : "pbs+ssh://sierra.futuregrid.org",
-    "hosts"         : "pbs+ssh://sierra.futuregrid.org,pbs+ssh://stampede.tacc.utexas.edu",
+    "hosts"         : "pbs+ssh://sierra.futuregrid.org",
     "pilot_size"    : "4",
     "concurrency"   : "100",
     "pilot_backend" : "sagapilot",

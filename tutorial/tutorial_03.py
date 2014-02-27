@@ -15,8 +15,6 @@ import troy
 #
 configs  = sys.argv[1:]
 session  = troy.Session (configs)
-strategy = session.cfg.get ('troy_strategy', troy.AUTOMATIC)
-
 
 # ------------------------------------------------------------------------------
 #

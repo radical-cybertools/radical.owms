@@ -10,23 +10,35 @@ The Troy Workload...
 
 .. #############################################################################
 
-.. autoclass:: troy.workload.ComputeUnitDescription
+.. autoclass:: troy.WorkloadManager
    :members:
    :undoc-members:
 
-.. autoclass:: troy.workload.ComputeUnit
+.. autoclass:: troy.Workload
    :members:
    :undoc-members:
 
-.. autoclass:: troy.workload.TaskDescription
+.. autoclass:: troy.TaskDescription
    :members:
    :undoc-members:
 
-.. autoclass:: troy.workload.Task
+.. autoclass:: troy.Task
    :members:
    :undoc-members:
 
-.. autoclass:: troy.workload.Workload
+.. autoclass:: troy.RelationDescription
+   :members:
+   :undoc-members:
+
+.. autoclass:: troy.Relation
+   :members:
+   :undoc-members:
+
+.. autoclass:: troy.ComputeUnitDescription
+   :members:
+   :undoc-members:
+
+.. autoclass:: troy.ComputeUnit
    :members:
    :undoc-members:
 
