@@ -26,6 +26,14 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    This plugin creates pilots via the SAGA-Pilot Pilot API.
+
+    **Configuration Options:**
+
+    * `coordination_url`: the redis URL to be used by SAGA-Pilot.  The environment
+        variable COORDINATION_URL is used as fallback.
+    """
 
     __metaclass__ = ru.Singleton
 
@@ -33,10 +41,6 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
-        """
-        invoked when plugin is loaded. Only do sanity checks, no other
-        initialization
-        """
 
         troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
@@ -48,11 +52,8 @@ class PLUGIN_CLASS (troy.PluginBase):
     #
     def init (self):
         """
-        invoked by user of plugin, i.e. a overlay manager.  May get invoked
-        multiple times -- plugins are singletons, and thus shared amongst all
-        overlay managers!
+        check for basic setup -- in particular get the SAGA-Pilot coordination URL
         """
-
 
         if  'coordination_url' in self.cfg :
             self._coord = self.cfg['coordination_url']

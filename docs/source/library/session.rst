@@ -8,5 +8,5 @@ Session -- :mod:`troy.session`
 
 .. automodule:: troy.session
    :show-inheritance:
-   :members: Session
+   :members: troy.Session
 

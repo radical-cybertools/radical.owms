@@ -19,6 +19,11 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    This plugin schedules all pilots on `localhost`.
+
+    **Configuration Options:** None
+    """
 
     __metaclass__ = ru.Singleton
 
@@ -33,8 +38,10 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def schedule (self, overlay) :
+        """
+        we simply assign all pilots to localhost
+        """
 
-        # we simply assign all pilots to localhost
         for pid in overlay.pilots.keys() :
 
             pilot = overlay.pilots[pid]

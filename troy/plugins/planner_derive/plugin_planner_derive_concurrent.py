@@ -20,6 +20,21 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    This plugin splits a workload in a certain number of partitions.  It assumes
+    that a certain percentage (see option below) of tasks can run concurrently,
+    and that all other tasks need to run sequentially, i.e. in their own
+    partition.  Based on the resulting workload, an overlay is derived which has
+    the size of the largest workload partition (partition 1).
+
+    .. note:: This plugin can restructure the workload while deriving
+       the overlay description!
+    
+    **Configuration Options:**
+
+    * `concurrency`: percentage of concurrent tasks in the workload.  
+      Default: `100%`
+    """
 
     __metaclass__ = ru.Singleton
 
@@ -34,6 +49,10 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def derive_overlay(self, workload):
+        """
+        Split the overlay into partitions, according to the set concurrency.
+        Once done, count the cores needed to run the largest (first) partition.
+        """
 
         # partition workload according to given concurrency
         if  len(workload.partitions) > 1 :
@@ -88,6 +107,8 @@ class PLUGIN_CLASS (troy.PluginBase):
         c_partition_id = workload.partitions[0] # max 1
         c_partition    = troy.WorkloadManager.get_workload (c_partition_id)
 
+        if 'pilot_size' in self.cfg :
+            pilot_size = int(self.cfg['pilot_size'])
 
         for tid in c_partition.tasks :
             cores += c_partition.tasks[tid].cores

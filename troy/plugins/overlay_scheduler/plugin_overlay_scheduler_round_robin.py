@@ -20,6 +20,17 @@ _idx  = 0
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    This plugin schedules pilots over a set of resources in reound-robin
+    fashion.
+
+    **Configuration Options:**
+
+    * `resources`: list of resources to cycle over.  The list is a string with
+      comma separated resource names (no spaces!).  Example:
+
+          "resources" : "pbs+ssh://india.futuregrid.org,ssh://localhost"
+    """
 
     __metaclass__ = ru.Singleton
 
