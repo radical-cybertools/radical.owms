@@ -25,6 +25,8 @@ PLUGIN_DESCRIPTION = {
 class PLUGIN_CLASS (troy.PluginBase):
     """
     This plugin leaves the workload unchanged.
+    
+    **Configuration Options:** None
     """
 
     __metaclass__ = ru.Singleton

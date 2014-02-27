@@ -20,6 +20,21 @@ _idx = 0
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    This workload scheduler will evenly distribute tasks over the set of known
+    pilots.  It does not take pilot sizes into account, nor pilot state, nor
+    does it care about task relationships or data dependencies.  It is not
+    a clever plugin.
+
+    **Configuration Options:** None
+    This assumes that one of the earlier Troy plugins, or the user, is abvle to
+    determine reasonably TTC estimates -- otherwise the plugin will behave like
+    round-robin.  This plugin does not take the number of cores into account,
+    neither for the pilots, nor for the CUs, nor does the plugin look at the
+    *actual* pilot load (i.e. does not check if CUs have finished meanwhile).
+
+    **Configuration Options:** None
+    """
 
     __metaclass__ = ru.Singleton
 
@@ -34,6 +49,11 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def schedule (self, workload, overlay) :
+        """
+        Iterate over the workload's CUs, and give them to the pilot which at
+        this point accumulated the least load.  Add the CUs TTC to the pilots
+        load property.
+        """
       # print "########################################"
       # print "# Unit information"
       # print "########################################"
@@ -44,10 +64,10 @@ class PLUGIN_CLASS (troy.PluginBase):
             for u_id in task.units.keys():
               # print "u_id", u_id
                 unit = task.units[u_id]
-              # print unit.description
+              # print unit.as_dict()
                 # this is hacky as all get-out but this IS a WIP... TODO
                 try:
-                    unit.description._ttc = int(unit.description.walltime)
+                    unit._ttc = int(unit.as_dict().get ('walltime', 1))
                 except:
                     pass
 
@@ -104,7 +124,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
                 # assign task to the soonest available pilot
                 unit._bind(p_optimal)
-                overlay.pilots[p_optimal].est_begin+=int(unit.description._ttc)
+                overlay.pilots[p_optimal].est_begin+=int(unit._ttc)
                 troy.logger.debug ("assigning unit %s to pilot %s" % (u_id, p_optimal))
 
         # # schedule to first 'next' pilot

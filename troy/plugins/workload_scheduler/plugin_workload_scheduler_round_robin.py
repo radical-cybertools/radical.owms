@@ -20,6 +20,14 @@ _idx = 0
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    This workload scheduler will evenly distribute tasks over the set of known
+    pilots.  It does not take pilot sizes into account, nor pilot state, nor
+    does it care about task relationships or data dependencies.  It is not
+    a clever plugin.
+
+    **Configuration Options:** None
+    """
 
     __metaclass__ = ru.Singleton
 
@@ -34,6 +42,9 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def schedule (self, workload, overlay) :
+        """
+        round-robin over pilots, givem them one unit in each turn.
+        """
 
         global _idx
 

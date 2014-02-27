@@ -19,6 +19,14 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    This simple workload scheduler plugin will place all compute units on the
+    first pilot in the given overlay -- all other pilots will remain idle.  This
+    is close to be the worst possible (while still functional) scheduler
+    imaginable.
+
+    **Configuration Options:** None
+    """
 
     __metaclass__ = ru.Singleton
 
@@ -33,6 +41,9 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def schedule (self, workload, overlay) :
+        """
+        Assign all units to pilot nu. 0
+        """
 
         # schedule to first available pilot
 

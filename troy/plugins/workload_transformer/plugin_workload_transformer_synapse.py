@@ -19,6 +19,9 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    This plugin is not documented.  Go figure.
+    """
 
     __metaclass__ = ru.Singleton
     
@@ -33,6 +36,9 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def translate (self, workload, overlay=None) :
+        """
+        This method does not exist in Troy.  Officially.
+        """
 
         for tid in workload.tasks.keys () :
 

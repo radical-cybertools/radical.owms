@@ -22,6 +22,11 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    This plugin creates compute units via fork/exec.  It is not a clever plugin.
+
+    **Configuration Options:** None
+    """
 
     __metaclass__ = ru.Singleton
 
@@ -29,10 +34,6 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
-        """
-        invoked when plugin is loaded. Only do sanity checks, no other
-        initialization
-        """
 
         troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
@@ -43,6 +44,10 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def dispatch (self, workload, overlay) :
+        """
+        dig the commands out of the unit descriptions, and run them as
+        subprocesses.
+        """
 
         for tid in workload.tasks.keys () :
 
@@ -72,6 +77,9 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def unit_get_info (self, unit) :
+        """
+        Check the state of the subprocesses
+        """
 
         # find out what we can about the pilot...
         u = unit._get_instance ('default')
@@ -97,6 +105,9 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def unit_cancel (self, unit) :
+        """
+        Kill the sub processes
+        """
 
         u = unit._get_instance ('default')
         u.cancel ()

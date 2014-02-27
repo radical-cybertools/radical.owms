@@ -51,9 +51,6 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def init (self):
-        """
-        check for basic setup -- in particular get the SAGA-Pilot coordination URL
-        """
 
         if  'coordination_url' in self.cfg :
             self._coord = self.cfg['coordination_url']

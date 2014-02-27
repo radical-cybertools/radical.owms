@@ -19,6 +19,15 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    The early binding strategy will execute a workload in very basic fasion: use
+    planner, overlay_mgr and workload_mgr as configured, etc.  The interesting
+    part is that it will schedule the units over the pilots *before* the pilots
+    are scheduled over resources.  That scheduling will have less information,
+    but can happen early in the game.
+    
+    **Configuration Options:** None
+    """
 
     __metaclass__ = ru.Singleton
 
@@ -34,10 +43,7 @@ class PLUGIN_CLASS (troy.PluginBase):
     #
     def execute (self, workload_id, planner, overlay_mgr, workload_mgr) :
         """
-        This simple implementation does the expected thing: executes one
-        subworkload after the other, on the given overlay.  Other
-        implementations may want to alter the overlay, or may run subworkloads
-        concurrently, etc.
+        run the given workload, using the given managers, in early-binding mode.
         """
 
         workload = None

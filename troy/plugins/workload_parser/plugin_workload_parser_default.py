@@ -22,6 +22,22 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    This pugin consumes a json file, and creates a troy workload from the task
+    and relation descriptions therein.  The structure of the json file should
+    be::
+       
+       {
+           "tasks"     : [ {<task_description>    , ... ],
+           "relations" : [ {<relation_description>, ... ]
+       }
+
+    where `<task_description>` and `<relation_description>` are dict
+    representatios of the normal :class:`troy.TaskDescription` and
+    :class:`troy.RelationDescription` classes.
+
+    **Configuration Options:** None
+    """
 
     __metaclass__ = ru.Singleton
 
@@ -36,6 +52,10 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def parse (self, workload_description):
+        """
+        Parse the given json into  task and relation descriptions, and create
+        a workload out of them.
+        """
 
         troy._logger.info ("parsing workload")
 

@@ -18,7 +18,11 @@ PLUGIN_DESCRIPTION = {
 
 # ------------------------------------------------------------------------------
 #
-class PLUGIN_CLASS (troy.PluginBase):
+class PLUGIN_CLASS (troy.PluginBase) :
+    """
+    This is a simple workload translator, which will create exactly one CU per
+    task.  This is not a clever plugin.
+    """
 
     __metaclass__ = ru.Singleton
     
@@ -33,6 +37,10 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def translate (self, workload, overlay=None) :
+        """
+        Iterate over tasks, and essentially cast the task's description into
+        a CU description.  Et voila!
+        """
 
         for tid in workload.tasks.keys () :
 
@@ -40,14 +48,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             # we simply and stupidly translate one task into one unit description
             cu_descr = troy.ComputeUnitDescription (task.as_dict ())
-
-            # this translator adds a TTC estimate -- for now, it assumes
-            # something stupid, like the number of characters in the arguments
-            # representing estimated TTC in seconds...
-            # This is required by the load balancing scheduler
-            cu_descr._ttc = int(len(str(cu_descr.arguments)))
-
-            cu_id = task._add_unit (cu_descr)
+            cu_id    = task._add_unit (cu_descr)
             troy._logger.info ('workload translate: derive unit %-18s for %s' % (cu_id, task.id))
 
 

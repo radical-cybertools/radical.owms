@@ -45,9 +45,6 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def init (self):
-        """
-        check for basic setup -- in particular get the BigJob coordination URL
-        """
 
         self._coord = None
 
