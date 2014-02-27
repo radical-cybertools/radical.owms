@@ -4,11 +4,8 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
-import os
-import radical.utils      as ru
-import troy.utils         as tu
-from   troy.constants import *
-import troy
+import radical.utils  as ru
+import troy.utils     as tu
 
 
 # ------------------------------------------------------------------------------
@@ -30,6 +27,7 @@ class TaskDescription (tu.Properties) :
 
         # set property defaults
         self.tag               = None
+        self.cardinality       = 1
         self.executable        = None
         self.arguments         = list()
         self.stdin             = None
@@ -41,6 +39,20 @@ class TaskDescription (tu.Properties) :
         self.outputs           = list()
 
         tu.Properties.__init__ (self, descr)
+
+
+    def expand_description (self, session) :
+
+        # This will apply any application configuration wildcards we find in the
+        # session config.
+        
+        td_dict = self.as_dict()
+        print td_dict
+        ru.dict_stringexpand (td_dict, session.cfg)
+        print td_dict
+
+        # we need to re-initialize our properties with the expanded dict values
+        tu.Properties.__init__ (self, td_dict)
 
 
 # ------------------------------------------------------------------------------

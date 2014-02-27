@@ -1,0 +1,10 @@
+
+{
+  "tasks" : [
+    {
+      "executable"        : "/bin/echo",
+      "arguments"         : ["hello", "world"]
+    }
+  ]
+}
+

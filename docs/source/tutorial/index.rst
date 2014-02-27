@@ -1,11 +1,11 @@
 
 .. _chapter_tutorial:
 
-********************************************************************************
+********
 Tutorial
-********************************************************************************
+********
 
-This Tutorial will introduce the different usage modes of Troy, by example.  
+This Tutorial will introduce the different usage modes of TROY, by example.  
 
 **Prerequisites:**
 
@@ -17,7 +17,7 @@ This Tutorial will introduce the different usage modes of Troy, by example.
 
 **You will learn how to:**
 
-* Install Troy on your own machine
+* Install TROY on your own machine
 * Write a program that runs a workload locally on your machine
 * Use the same program with a different plugins to run on a remote site
 
@@ -26,7 +26,7 @@ This Tutorial will introduce the different usage modes of Troy, by example.
 .. toctree::
    :maxdepth: 1
 
-   part1
-   part2
+   part1 
+   part2 
    part3
 

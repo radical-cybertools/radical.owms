@@ -189,9 +189,9 @@ class _Pilot (object) :
 #
 class PLUGIN_CLASS (troy.PluginBase):
     """
-    This class implements the defaul overlay provisioner for TROY.  It simply
-    assumes that the application is its own pilot, and does not create a new
-    pilot...
+    This plugin fakes non-existing pilots.  It is not a clever plugin.
+
+    **Configuration Options:**  None
     """
 
     __metaclass__ = ru.Singleton
@@ -210,6 +210,10 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def provision (self, overlay) :
+        """
+        We basically do just enough to make TROY think that we did something
+        useful, like creating pilots and stuff.  Ha!
+        """
 
         # we simply assign all pilots to localhost
         for pid in overlay.pilots.keys() :
@@ -241,6 +245,9 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def pilot_reconnect (self, native_id) :
+        """
+        Since we have no real pilots, we *are* reconnected.  Duh!
+        """
 
         if  native_id in self.pilots :
             return self.pilots[native_id]
@@ -251,6 +258,10 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def pilot_get_info (self, pilot) :
+        """
+        This just returns some basic info, mostly the list of known units, and
+        state.
+        """
  
  
         # find out what we can about the pilot...
@@ -287,6 +298,9 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def pilot_cancel (self, pilot) :
+        """
+        Nothing to do here really than to update state.
+        """
  
         p   = pilot._get_instance ('default')
         pid = p.id

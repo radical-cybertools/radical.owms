@@ -10,7 +10,7 @@ The Troy Planner...
 
 .. #############################################################################
 
-.. autoclass:: troy.planner.Planner
+.. autoclass:: troy.Planner
    :members:
    :undoc-members:
 

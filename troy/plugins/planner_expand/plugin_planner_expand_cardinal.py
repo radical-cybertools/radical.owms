@@ -25,6 +25,16 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    This plugin expands a workload by inspecting all tasks, and multiplying them
+    according to their `cardinality` property.  If that property is not set, no
+    additional tasks will be created.  The new tasks will have a new property,
+    `cardinal`, which is set to their index respecitive to their sibling tasks.
+    That property can also be used for expansion in other task properties.
+    workload tasks.
+    
+    **Configuration Options:** None
+    """
 
     __metaclass__ = ru.Singleton
 
@@ -39,6 +49,12 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def expand_workload (self, workload):
+        """
+        Inspect all workload tasks, check if cardinality is set and larger than
+        1.  If so, created that many identical tasks, assign them an `cardinal`
+        index, and have that set replace the original task.  All new tasks
+        will have a cardinality of 1.
+        """
 
         task_descriptions = list()
 

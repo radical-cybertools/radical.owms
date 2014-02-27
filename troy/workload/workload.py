@@ -237,6 +237,12 @@ class Workload (tu.Properties, tu.Timed) :
             if  not isinstance (d, troy.TaskDescription) :
                 raise TypeError ("expected TaskDescription, got %s" % type(d))
 
+
+            # now that we have a task description, we want to expand it with the
+            # session information
+            d.expand_description (self.session)
+
+
             # FIXME: add sanity checks for task syntax / semantics
             task = troy.Task (self.session, descr=d, _workload=self)
         

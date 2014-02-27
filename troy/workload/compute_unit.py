@@ -174,6 +174,10 @@ class ComputeUnit (tu.Properties, tu.Timed) :
         resource information, or application specific data
         """
 
+      # print 'merging  unit %s' % self.id
+      # print '         with %s' % source
+      # print '          and %s' % self.as_dict()
+
         # we only allow this in DESCRIBED or BOUND state
         if  not self.state in [DESCRIBED, BOUND] :
             raise RuntimeError ('unit is not in DESCRIBED state (%s)' \

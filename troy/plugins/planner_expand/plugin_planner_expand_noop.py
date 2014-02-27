@@ -23,6 +23,11 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    This plugin leaves the workload unchanged.
+    
+    **Configuration Options:** None
+    """
 
     __metaclass__ = ru.Singleton
 
@@ -37,8 +42,9 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def expand_workload(self, workload):
-
-        # Do nothing for now
+        """
+        Do nothing.
+        """
 
         troy._logger.info ("planner  expand wl: noop expand workload : %s" % workload)
 

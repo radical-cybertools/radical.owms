@@ -44,13 +44,20 @@ def manage_workload (workload, config) :
 # ------------------------------------------------------------------------------
 #
 def execute_workload (workload, planner, overlay_mgr, workload_mgr, 
-                      strategy='default') : 
+                      strategy=troy.AUTOMATIC) : 
 
     """
     Execute the given workload -- i.e., translate, bind and dispatch it, and
     then wait until its execution is completed.  For that to happen, we also
     need to plan, translate, schedule and dispatch an overlay, obviously...
     """
+
+    if  strategy == troy.AUTOMATIC :
+
+        if  'plugin_strategy' in workload.session.cfg :
+            strategy = workload.session.cfg['plugin_strategy']
+        else :
+            strategy =  'basic_late_binding'
 
     plugin_mgr = ru.PluginManager ('troy')
     strategy   = plugin_mgr.load  ('strategy', strategy)

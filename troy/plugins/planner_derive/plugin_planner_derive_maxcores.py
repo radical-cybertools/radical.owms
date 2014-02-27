@@ -23,6 +23,12 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    This plugin determines the overlay size by simply adding the sizes of all
+    workload tasks.
+    
+    **Configuration Options:** None
+    """
 
     __metaclass__ = ru.Singleton
 
@@ -37,6 +43,10 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def derive_overlay(self, workload):
+        """
+        Counts the cores needed to run the workload, assuming that all tasks are
+        to be running concurrently.
+        """
 
         # Ask for as many pilots as tasks*cores
         cores = 0

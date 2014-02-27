@@ -29,6 +29,16 @@ class PLUGIN_CLASS (troy.PluginBase):
     This class implements the default overlay translator algorithm for
     TROY, which splits the requested overlay size over N pilots of configured
     size n.
+
+    **Configuration Options:**
+
+    * `pilot_size`: size for each pilot.  If the overlay size is not a multiple
+      of `pilot_size`, the total number of cores will be larger than overlay
+      size.  The pilot backend is expected to honor the pilot size, and not to
+      create smaller or larger pilots.
+      Example:
+
+          "pilot_size" : 32
     """
 
     __metaclass__ = ru.Singleton
@@ -44,6 +54,11 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def translate (self, overlay) :
+        """
+        check if the overlay's description has a size specified.  If so,
+        translate that into the necessary number of pilots of the configured
+        size.
+        """
 
 
         # a pilot can be at max 8 cores large.  Yes, we made this up...

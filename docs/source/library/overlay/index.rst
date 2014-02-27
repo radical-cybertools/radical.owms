@@ -10,15 +10,23 @@ The Troy Overlay...
 
 .. #############################################################################
 
-.. autoclass:: troy.overlay.PilotDescription
+.. autoclass:: troy.OverlayManager
    :members:
    :undoc-members:
 
-.. autoclass:: troy.overlay.Pilot
+.. autoclass:: troy.OverlayDescription
    :members:
    :undoc-members:
 
-.. autoclass:: troy.overlay.Overlay
+.. autoclass:: troy.Overlay
+   :members:
+   :undoc-members:
+
+.. autoclass:: troy.PilotDescription
+   :members:
+   :undoc-members:
+
+.. autoclass:: troy.Pilot
    :members:
    :undoc-members:
 

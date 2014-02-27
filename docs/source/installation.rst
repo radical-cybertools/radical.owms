@@ -1,41 +1,45 @@
 .. _chapter_installation:
 
-********************************************************************************
+************
 Installation
-********************************************************************************
+************
 
 Currently, TROY can only be installed via pip directly from GitHub. In a near
-future TROY will be available from the `pypi repository
-<https://pypi.python.org/>`_. 
+future TROY will be available from the `pypi repository <https://pypi.python.org/>`_. 
 
 
 Requirements 
-========================================
+============
 
 TROY relies on a set of external software packages, both core and additional.
-The core dependencies are installed automatically as dependencies, while the
-additional dependencies need to be explicitly installed by the user.
+The core dependencies are automatically installed alongisde TROY, while the additional dependencies need to be explicitly installed by the user.
 
 Core dependencies:
 
-* Python        (>= 2.5, < 3.x)
+* Python (>= 2.5, < 3.x)
 * radical.utils (https://pypi.python.org/pypi/radical.utils)
-* saga-python   (https://pypi.python.org/pypi/saga-python)
+* saga-python (https://pypi.python.org/pypi/saga-python)
+* pymongo (https://pypi.python.org/pypi/pymongo)
+* paramiko (https://pypi.python.org/pypi/paramiko/1.12.2)
 
 Additional dependencies:
 
 * sagapilot (https://github.com/saga-project/saga-pilot)
 * BigJob    (https://pypi.python.org/pypi/BigJob)
 
-.. note:: You will need to install at least one pilot framework - sagapilot,
-          BigJob, or both.  If neither is installed, a fake `local` backend 
-          will be used to run workloads on the local machine.
+.. note:: You will need to install at least one pilot framework - sagapilot, BigJob, or both.  If neither is installed, a fake `local` backend will be used to run workloads on the local machine.
 
+.. _installation_from_github:
 
 Installation from GitHub
-========================================
+========================
 
-To install TROY from the stable (main) branch in a virtual environment, 
+To install TROY from the stable (main) branch in a virtual environment, you will need to install at least three distinct python packages:
+
+* TROY;
+* saga-pilot and/or BigJob; and
+* saga-python.
+
 open a terminal and run:
 
 .. code-block:: bash
@@ -44,8 +48,7 @@ open a terminal and run:
     > source $HOME/myenv/bin/activate
     > pip install --upgrade -e git://github.com/saga-project/troy.git@master#egg=troy
 
-Next, you can do a quick sanity check to make sure that the the packages have
-been installed properly. In the same virtualenv, run:
+Once the installation process has completed, you can do a quick sanity check to make sure that the the packages have been installed properly. In the same virtualenv, run:
 
 .. code-block:: bash
 
@@ -54,9 +57,20 @@ been installed properly. In the same virtualenv, run:
 
 This should return the version of the TROY installation, similar to the above.
 
+To install one or more pilot frameworks see:
+
+*  Sagapilot (http://saga-pilot.readthedocs.org/en/latest/installation.html#id1)
+*  BigJob (http://saga-project.github.io/BigJob/)
+
+Finally, to install saga-python run in your terminal:
+
+.. code-block:: bash
+
+    > pip install --upgrade -e git://github.com/saga-project/saga-python.git@master#egg=saga-python 
+    
 
 Installation from Source
-========================================
+========================
 
 If you are planning to contribute to the TROY codebase, you can download
 and install TROY directly from the sources.
@@ -89,5 +103,3 @@ set up a virtualenv):
     ...
     ...
     Cleaning up...
-
-

@@ -23,6 +23,14 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    This plugin creates pilots via the BigJob Pilot API.
+
+    **Configuration Options:**
+
+    * `coordination_url`: the redis URL to be used by BigJob.  The environment
+        variable COORDINATION_URL is used as fallback.
+    """
 
     __metaclass__ = ru.Singleton
 
@@ -30,10 +38,6 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def __init__ (self) :
-        """
-        invoked when plugin is loaded. Only do sanity checks, no other
-        initialization
-        """
 
         troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
@@ -41,11 +45,6 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def init (self):
-        """
-        invoked by user of plugin, i.e. a overlay manager.  May get invoked
-        multiple times -- plugins are singletons, and thus shared amongst all
-        overlay managers!
-        """
 
         self._coord = None
 
@@ -69,7 +68,7 @@ class PLUGIN_CLASS (troy.PluginBase):
     #
     def provision (self, overlay) :
         """
-        provision a given overlay -- inspect that overlay, dig out the pilots
+        provision the pilots of the overlay -- inspect that overlay, dig out the pilots
         and their description, check state, and instantiate them via the backend
         system.
         """

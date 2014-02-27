@@ -40,6 +40,13 @@ PLUGIN_DESCRIPTION = {
 # ------------------------------------------------------------------------------
 #
 class PLUGIN_CLASS (troy.PluginBase):
+    """
+    This plugin is not used at this point.
+
+    **Configuration Options:**
+
+    * `guard`: documentation for guard
+    """
 
     __metaclass__ = ru.Singleton
 
@@ -56,6 +63,9 @@ class PLUGIN_CLASS (troy.PluginBase):
     def init(self):
 
         troy._logger.debug ("init plugin %s (bundles)" % self.name)
+
+        self.guard = self.cfg.get ('guard', None)
+
         self.init_bundles()
 
 
@@ -87,6 +97,8 @@ class PLUGIN_CLASS (troy.PluginBase):
             }
             self.bm.add_cluster(cred, finished_job_trace)
 
+        if 'pilot_size' in self.cfg :
+            pilot_size = int(self.cfg['pilot_size'])
         self.cluster_list = self.bm.get_cluster_list()
 
         if not self.cluster_list:
@@ -110,18 +122,22 @@ class PLUGIN_CLASS (troy.PluginBase):
     # --------------------------------------------------------------------------
     #
     def derive_overlay(self, workload, guard=LOWER_LIMIT):
+        """
+        Based on obtained bundle information, derive a useful overlay
+        description.  Guard is respected.
+        """
 
         # Determine the number of cores required
-        if guard == UPPER_LIMIT:
+        if self.guard == UPPER_LIMIT:
             # We don't have any concurrency mechanisms yet,
             # so assume all concurrent.
             cores = len(workload.tasks)
-        elif guard == LOWER_LIMIT:
+        elif self.guard == LOWER_LIMIT:
             # We don't have any concurrency mechanisms yet,
             # so lower limit is 1
             cores = 1
         else:
-            raise RuntimeError('Unknown guard: "%d') % guard
+            raise RuntimeError('Unknown guard: "%d') % self.guard
 
         ovl_descr = troy.OverlayDescription (
             {

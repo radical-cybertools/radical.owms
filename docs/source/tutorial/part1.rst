@@ -1,65 +1,346 @@
+.. _chapter_tutorial_01:
 
-Part 1: Introduction
-========================================
+**********************
+TROY Tutorial - Part 1
+**********************
 
-The Troy Python module provides ...
-
+The first part of this TROY tutorial will teach you how to use TROY to write
+a very simple application that executes a bag of tasks on a remote DCI. You will
+go through three phases, starting from installing TROY, then configuring it, and
+finally running your application.
 
 Installation
-----------------------------------------
+============
+Please follow the instructions to install TROY from GitHub at
+:ref:`installation_from_github`.
 
-.. warning:: Troy requires **Python >= 2.5**. It won't work with an older version of Python.
+Execution of a Bag of Tasks
+===========================
+We start by looking at **what** TROY can do for you, then we move on and see
+**how** it does it. In order to run an application with say 10 tasks, each
+running an instance of gromacs with an input file and producing some output
+files, do the following:
 
-
-For detailed installation instructions, see `FIXME: here`.  For the scope of the
-tutorial you can, however, follow the simple receipe below to set up t roy and
-its dependencies.
-
-
-.. code-block:: bash
-
-    # sanity checks
-    > python -V ; which virtualenv 
-    Python 2.7
-    /usr/local/python/2.7/bin/virtualenv
-
-    # create and use the virtualenv
-    > virtualenv ~/tutorial
-    PYTHONHOME is set.  You *must* activate the virtualenv before using it
-    New python executable in ~/tutorial/bin/python
-    Installing setuptools............done.
-    Installing pip...............done.
-    > source ~/tutorial/bin/activate
-
-    # install radical.utils from devel branch
-    > pip install git+git://github.com/saga-project/radical.utils.git@devel
-    ...
-
-    # install saga-pilot from master branch
-    > pip install git+git://github.com/saga-project/saga-pilot.git@master
-    ...
-
-    # install troy from master branch, this will pull the remaining dependencies
-    > pip install git+git://github.com/saga-project/troy.git@master
-    ...
-
-    # ready to run the tutorial -- set verbosity to see things happening:
-    # log levels: DEBUG, INFO, WARN, ERROR, CRITICAL
-    > export TROY_VERBOSE=INFO
-
-
-To make sure that your installation works, run the following command to check if
-the troy module can be imported by the interpreter (the output of the
-command below should be version number of the troy module):
-
+1. Move into the directory ``tutorial``;
+2. Use your preferred editor to edit the file ``config_application.json``;
+3. Enter your username in where you see: ``"username" : "<your_user_name>"``;
+4. Enter 10 in: ``"bag_size" : <number_of_task>``;
+5. Save the file;
+6. Run the following commands:
 
 .. code-block:: bash
 
-   > python -c "import troy; print troy.version"
-   2014:02:23 20:05:40 MainThread   troy.logger           : [INFO    ] troy            version: 0.0.1-569-gd89bdc0-devel
-   0.0.1-569-gd89bdc0-master
+	> export TROY_VERBOSE=INFO
+	> python tutorial_01.py workload_gromacs.json config_application.json config_troy.json
+
+The output of your distributed application is in the directory ``output``.
+
+Now, to understand why this is cool, let's have a look at the code we have executed:
+
+.. code-block:: python
+
+    #!/usr/bin/env python
+
+    # tutorial_01.py
+
+    import sys
+    import troy
+
+    troy.manage_workload (workload = sys.argv[1],
+                          config   = sys.argv[2:])
+
+That is all it needs! From the log messages, you may be able to discern that
+TROY had done the following for you:
+
+1.  Parse the workload;
+2.  expand it with some 'expand_cardinality' plugin;
+3.  derive a pilot overlay;
+4.  schedule the pilot overlay to some backend resources;
+5.  submit those pilots;
+6.  schedule the workload tasks over the pilots;
+7.  stage the input file to the target resource;
+8.  submit the tasks for execution;
+9.  wait for them to complete;
+10. fetche the results back; and
+11. shut the whole thing down.
+
+Obviously, for this one-liner to trigger that activity chain meaningfully, there
+must be a number of things going on. If you need just to run a bag of task this
+is everything you need to know, and you can stop the tutorial here. 
+
+If, however, you want to do more, if you need to decide how many pilots to
+run, to programmatically define your application and workload, to tweak the
+degree of concurrency of your tasks, or to choose alternative scheduling
+algorithms both for your tasks and for your pilots, possibly across multiple
+DCIs for the same workload, then keep reading :)
+
+Configuration
+=============
+TROY offers a powerful configuration subsystem that allows for the users to
+leverage the many functionalities it implements. Most of the configuration
+parameters are set to sensible defaults so that the user has to set explicitly
+only those parameters for which no defaults can be provided:
+
+* credentials and login names on the targeted DCIs; and
+* parameters relative to the workload she wants to execute.
+
+Detailed documentation about the TROY configuration subsystem can be found
+:ref:`chapter_configuration`. For this tutorial, the TROY development team
+crated a set of configuration files that you will be able to edit whether and
+when required. The configuration files are:
+
+* ``workload_gromacs.json``: Contains an abstracted description of a workload
+  for an application of type "bag of tasks".  
+  
+* ``config_application.json``: Contains the parameters required by the bag of
+  task application to run on a (set of) remote DCI. Currently TROY supports only
+  bag of tasks but in a near future it will support more complex distributed
+  applications as, for example, different types of ensembles or workflow-based
+  applications.
+
+* ``config_troy.json``: Contains those configuration parameters that are
+  specific to TROY and its execution.
+
+Here a detailed analysis of each configuration file.
+
+Workload Descriptions
+---------------------
+Troy is designed to eventually understand a multitude of workload descriptions
+- but at the moment it is equipped to accept descriptions in its own JSON
+format. An exemplary description is provided with the workload configuration
+files used the this part of the tutorial:
+
+.. code-block:: python
+
+    # ------------------------------------------------------------------------------
+    #
+    # workload_gromacs.json
+    #
+    # This file defines a simple gromacs workload, i.e. a number of gromacs tasks
+    # with input and output staging.
+    #
+    # cardinality: 
+    #     the task is run that many times all string based values will be expanded
+    #     with matching values from the application config.  
+    #
+    #     For example, if the application config sets 
+    #         "bag_size"    : 10
+    #     then 
+    #         "cardinality" : "%(bag_size)s"
+    #     will expand to 
+    #         "cardinality" : "10"
+    #
+    #     The placeholder "%(cardinal)s" will expand to the sequential task number
+    #     (0..9 in our example).
+    #
+    # Other placeholders will be expanded depending on the resource the task will
+    # land on, such as "%(username)s", "%(mdrun)s" or "%(home)".   Note that the
+    # mdrun location is set in 'config_application.json'.
+    #
+    # Note that the output data will be stored in `output`, relative to pwd.
+    # 
+
+    {
+      "tasks" :
+      [
+        {
+          "cardinality"       : "%(bag_size)s",
+          "executable"        : "%(mdrun)s",
+          "working_directory" : "%(home)s/troy_tutorial/troy_tutorial_01_%(cardinal)s/",
+          "inputs"            : ["input/topol.tpr > topol.tpr"],
+          "outputs"           : ["output/%(demo_id)s_state.cpt.%(cardinal)s   < state.cpt",
+                                 "output/%(demo_id)s_confout.gro.%(cardinal)s < confout.gro",
+                                 "output/%(demo_id)s_ener.edr.%(cardinal)s    < ener.edr",
+                                 "output/%(demo_id)s_traj.trr.%(cardinal)s    < traj.trr",
+                                 "output/%(demo_id)s_md.log.%(cardinal)s      < md.log"]
+        }
+      ]
+    }
+
+The basic structure of this workload is as follow:
+
+1. A set of tasks are described;
+2. each task runs the ``mdrun`` executable on an input files ``topol.tpr``; and
+3. a set of output files is generated.
+
+A number of placeholders are used:
+
+* ``%(bag_size)s``: Holds the number of tasks of the workload that TROY will execute.
+* ``%(home)s``: Holds the home directory on the targeted DCI.
+* ``%(mdrun)s``: Holds the mdrun executable location, for the target resource.
+* ``%(cardinal)s``: a ``magic`` variable set by the planner plugin ``plugin_planner_expand_cardinal.py`` that holds the index of the iterator over the list of tasks.
+
+Thanks to these placeholders, the description of the workload can become
+resource independent. TROY's is given discretion on replacing each placeholder
+with an appropriate value, depending on the execution context. For example,
+``%(home)s`` will be replaced with the appropriate home directory depending on
+the remote machine on which the workload will be executed.
+
+Each placeholder is interpreted by TROY at different stages, depending on the
+context in which they are needed:
+
+* ``%(home)s`` and ``%(mdrun)s`` are resource-specific placeholders, expanded
+  after the tasks have been scheduled on a specific resource (i.e., on
+  a specific pilot which runs on a specific resource).
+
+* ``%(cardinal)s`` is a planner-specific placeholder, therefore expanded while
+  TROY interprets the workload. In particular, ``%(cardinal)s`` is set to the
+  task number, so that, for example, the output files can be staged back under
+  a unique file name to avoid collisions.
+
+* ``%(bag_size)s`` is an application-specific placeholder, expanded immediately
+  by TROY upon workload parsing, in order to produce its internal workload
+  description. In the example above, ``%(bag_size)s`` could be part of an
+  application config file and the users may want to change it for every run.
+
+The values for these placeholders are set on the application configuration file.
+This is just a convention because, as explained in :ref:`chapter_configuration`,
+all the configuration directives can be written into a single file, or split
+into arbitrary files.
+
+Application Configuration
+-------------------------
+The application configuration file contains parametrization and placeholder
+values for workload expansion and transformations:
+
+.. code-block:: python
+
+    # config_application.json
+
+    {
+        # variables we want to vary for each experiment run.
+        "steps"            : 256,
+        "bag_size"         : 5,
+
+        # build up a unique session id from those variables.  This
+        # ID will be used by try to identify this run.
+        "session_id"       : "gromacs_%(steps)s_%(bag_size)s",
+
+        # We add some additional, app specific information to the
+        # troy resource configuration, so that we can use placeholder
+        # like '%(mdrun)s' in our workload descriptions.
+        # This section *must* be named `resources`.
+        "resources" : {
+            # Mark installed gromacs on futuregrid
+            "*.futuregrid.org" : {
+                "username"     : "merzky",
+                "mdrun"        : "/N/u/marksant/bin/mdrun"
+            },
+
+            # stampede has mdrun in path (add 'module load gromacs' in bashrc)
+            "stampede.*" : {
+                "home"         : "/home1/01083/tg803521",
+                "username"     : "tg803521",
+                "mdrun"        : "mdrun"
+            },
+
+            # localhost has mdrun in path
+            "localhost" : {
+                "mdrun"        : "mdrun"
+            }
+        }
+    }
+
+TROY Configuration
+------------------
+
+We also have a TROY configuration file, which selects the plugins TROY is using
+to execute the workload, and also configures those plugins. For the simple
+configuration settings we use, the TROY configuration structure looks almost
+empty though:
+
+.. code-block:: python
+
+    # config_troy.json
+
+    {
+    	# frequently changing variables
+    	"hosts"         : "pbs+ssh://sierra.futuregrid.org",
+        "pilot_size"    : "4",
+        "concurrency"   : "100",
+        "pilot_backend" : "sagapilot",
+        "troy_strategy" : "basic_late_binding",
 
 
-The log message is triggered by setting `TROY_VERBOSE` to `INFO` or higher -- it
-won't appear otherwise.
+        # troy plugin selection
+        "plugin_strategy"                : "%(troy_strategy)s",
+
+        "planner"                        : {
+            "plugin_planner_expand"      : "cardinal",
+            "plugin_planner_derive"      : "maxcores",
+        },
+        "workload_manager"               : {
+            "plugin_workload_translator" : "direct",
+            "plugin_workload_scheduler"  : "round_robin",
+            "plugin_workload_dispatcher" : "%(pilot_backend)s"
+        },
+        "overlay_manager"                : {
+            "plugin_overlay_translator"  : "max_pilot_size",
+            "plugin_overlay_scheduler"   : "round_robin",
+            "plugin_overlay_provisioner" : "%(pilot_backend)s"
+        },
+
+        # plugin configurations
+        "planner"                        : {
+            "derive"                     : {
+                "concurrent"             : {
+                    "concurrency"        : "%(concurrency)s"
+                }
+            }
+        },
+
+        "overlay_manager"                : {
+            "overlay_provisioner"        : {
+                "bigjob"                 : {
+                    "coordination_url"   : "redis://%(redis_passwd)s@gw68.quarry.iu.teragrid.org:6379"
+                },
+                "sagapilot"              : {
+                    "coordination_url"   : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/"
+                }
+            },
+            "overlay_scheduler"          : {
+                "round_robin"            : {
+                    "resources"          : "%(hosts)s"
+                }
+            },
+            "overlay_translator"         : {
+                "max_pilot_size"         : {
+                    "pilot_size"         : "%(pilot_size)s"
+                }
+            }
+        },
+
+        "workload_manager"             : {
+            "workload_dispatcher"      : {
+                "bigjob"               : {
+                    "coordination_url" : "redis://%(redis_passwd)s@gw68.quarry.iu.teragrid.org:6379"
+                },
+                "sagapilot"            : {
+                    "coordination_url" : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/"
+                }
+            }
+        }
+    }
+
+Remember that you can move config settings which you do not consider specific to
+an application into the ``$HOME/.troy/`` directory, so that they are
+automatically picked up on every troy run.  For example, the above setting would
+benefit from a config file like
+
+.. code-block:: python
+
+    # $HOME/.troy/config_passwords.json
+
+    {
+        "redis_passwd" : "secret-password"
+    }
+
+if you want to run the examples over BigJob pilots -- that password is then
+expanded in the settings for the bigjob coordination URL, and will not be shared
+if you pass your config files to other users, or if you push them into a code
+repository.
+
+You may have noted that we set a TROY **strategy** plugin, to the value
+``basic_late_binding``:  that is the point where we want to look deeper into
+Troy's internals in the next tutorial section :ref:`chapter_tutorial_02`.
 
