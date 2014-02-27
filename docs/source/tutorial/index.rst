@@ -26,6 +26,7 @@ This Tutorial will introduce the different usage modes of TROY, by example.
 .. toctree::
    :maxdepth: 1
 
+   setup
    part1 
    part2 
    part3
