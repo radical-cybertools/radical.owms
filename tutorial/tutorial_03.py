@@ -65,6 +65,10 @@ print "overlay id   : %s" % overlay.id
 overlay_mgr.translate_overlay (overlay.id)
 print overlay.pilots
 
+#######################################################################
+# 
+# NOTE: we schedule instantiate the pilots before scheduling the units
+#
 # decide which resources to use for constructing the overlay
 overlay_mgr.schedule_overlay (overlay.id)
 print overlay.pilots
@@ -72,6 +76,8 @@ print overlay.pilots
 # instantiate pilots on specified resources
 overlay_mgr.provision_overlay (overlay.id)
 print overlay.pilots
+#
+#######################################################################
 
 # ------------------------------------------------------------------------------
 # 
