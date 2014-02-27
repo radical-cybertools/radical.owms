@@ -31,8 +31,10 @@ Starting a Session
     session  = troy.Session (configs)
 
 Here we get the files that were passed as command line arguments and create
-a TROY session with of it.
-A session is TODO
+a TROY session with of it.  A :class:`troy.Session` is essentially a container
+for TROY configuration settings, and for security contexts (which are not
+discussed in this Tutorial).
+
 
 Constructing a Workload
 =======================
