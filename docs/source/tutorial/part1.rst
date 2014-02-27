@@ -18,7 +18,7 @@ files, do the following:
 
 1. Use your preferred editor to edit the file ``config_application.json``;
 2. Enter your username in where you see: ``"username" : "<your_user_name>"``;
-3. Enter 10 in: ``"bag_size" : <number_of_task>``;
+3. Enter 10 in: ``"bag_size" : <number_of_tasks>``;
 4. Save the file;
 5. Run the following commands:
 
