@@ -29,7 +29,7 @@ Additional dependencies:
 
 .. note:: You will need to install at least one pilot framework - sagapilot, BigJob, or both.  If neither is installed, a fake `local` backend will be used to run workloads on the local machine.
 
-.. _installation_for_github:
+.. _installation_from_github:
 
 Installation from GitHub
 ========================

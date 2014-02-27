@@ -419,13 +419,13 @@ class WorkloadManager (tu.Timed) :
         # make sure we can honor the requested scheduling mode
         if  bind_mode == EARLY :
             if  overlay.state not in [TRANSLATED, SCHEDULED] :
-                raise ValueError ("overlay '%s' not in TRANSLATED or SCHEDULED state, cannot " \
-                                  "do early binding" % str(overlay.id))
+                raise ValueError ("overlay '%s' not in TRANSLATED or SCHEDULED " \
+                                  "state, cannot do early binding" % str(overlay.id))
 
         elif bind_mode == LATE :
-            if  overlay.state != PROVISIONED :
-                raise ValueError ( "overlay '%s' neither scheduled nor " % str(overlay.id) \
-                                 + "dispatched, cannot do late binding")
+            if  overlay.state not in [SCHEDULED, PROVISIONED] :
+                raise ValueError ( "overlay '%s' not in SCHEDULED or PROVISIONED "  \
+                                   "state, cannot do late binding" % str(overlay.id))
 
         # make sure manager is initialized
         self._init_plugins ()

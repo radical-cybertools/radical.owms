@@ -120,6 +120,10 @@ class DataStager (object) :
         unit.merge_description (resource_cfg)
         workdir = unit.working_directory
 
+        username = None
+        if  'username' in unit.as_dict() :
+            username = unit.username
+
         # sanity checks
         if  not workdir :
             raise RuntimeError ("no working directory defined for %s - cannot stage-in" % unit.id)
@@ -146,14 +150,14 @@ class DataStager (object) :
             troy._logger.info ("staging_in %s < %s / %s / %s" \
                                          %  (one, pilot.resource, workdir, two))
 
-            self._stage_in_file (one, pilot.resource, workdir, two)
+            self._stage_in_file (one, pilot.resource, workdir, two, username)
 
         unit.staged_in = True
 
 
     # --------------------------------------------------------------------------
     #
-    def _stage_in_file (self, src, resource, workdir, tgt) :
+    def _stage_in_file (self, src, resource, workdir, tgt, username=None) :
         """
         src file element can contain wildcards.  
         tgt can not contain wildcards -- but must be a directory URL.
@@ -185,6 +189,9 @@ class DataStager (object) :
             resource_url.schema = 'ssh'
         if  resource_url.schema.endswith ('fork') :
             resource_url.schema = 'file'
+
+        if  username :
+            resource_url.username = username
 
         troy._logger.debug ('copy %s -> %s / %s' % (src_url, resource_url, tgt))
 
@@ -230,6 +237,10 @@ class DataStager (object) :
         resource = pilot.resource
         workdir  = unit.working_directory
 
+        username = None
+        if  'username' in unit.as_dict() :
+            username = unit.username
+
         # sanity checks
         if  not workdir :
             raise RuntimeError ("no working directory defined for %s - cannot stage-out" % unit.id)
@@ -255,13 +266,13 @@ class DataStager (object) :
 
             troy._logger.info ("staging_out %s < %s / %s / %s" \
                                          %  (one, pilot.resource, workdir, two))
-            self._stage_out_file (one, pilot.resource, workdir, two)
+            self._stage_out_file (one, pilot.resource, workdir, two, username)
 
         unit.staged_out = True
 
     # --------------------------------------------------------------------------
     #
-    def _stage_out_file (self, tgt, resource, srcdir, src) :
+    def _stage_out_file (self, tgt, resource, srcdir, src, username=None) :
         """
         src file element can contain wildcards.  
         tgt can not contain wildcards -- but it can be a directory URL (and, in
@@ -286,12 +297,17 @@ class DataStager (object) :
 
         # find a file transfer schema which matches the resource access
         resource_url = saga.Url (resource)
-        if  resource_url.schema.endswith ('ssh+') :
+        if  resource_url.schema.startswith (   'ssh+' ) or \
+            resource_url.schema.startswith ( 'gsissh+') or \
+            resource_url.schema.endswith   (   '+ssh' ) or \
+            resource_url.schema.endswith   ('+gsissh' ) :
             resource_url.schema = 'ssh'
-        if  resource_url.schema.endswith ('+ssh') :
-            resource_url.schema = 'ssh'
+
         if  resource_url.schema.endswith ('fork') :
             resource_url.schema = 'file'
+
+        if  username :
+            resource_url.username = username
 
         troy._logger.debug ('copy %s <- %s' % (tgt_url, src_url))
 
