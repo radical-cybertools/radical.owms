@@ -79,27 +79,32 @@ class Timed (object) :
     #
     def __init__ (self, type, id) :
 
-       self.timed_type            = type
-       self.timed_id              = id
-       self.timed_events          = list()
-       self.timed_events_known    = list()
-       self.timed_durations       = list()
-       self.timed_durations_known = list()
-       self.timed_components      = dict()
-       self._timed_current        = dict()
+        self.timed_type            = type
+        self.timed_id              = id
+        self.timed_events          = list()
+        self.timed_events_known    = list()
+        self.timed_durations       = list()
+        self.timed_durations_known = list()
+        self.timed_components      = dict()
+        self._timed_current        = dict()
 
-       self.timed_event ('timed_create', id)
+        self.timed_event ('timed_create', id)
 
 
     # --------------------------------------------------------------------------
     #
     def timed_dump (self, _indent=None) :
 
-        _toplevel = False
+        toplevel = False
 
         if  not _indent : 
-            _toplevel = True
-            _indent   = ""
+            toplevel = True
+            _indent  = ""
+
+        # for the top level, we also store the time of dump.  For a troy session
+        # that gives, for example, the approximate lifetime of the session.
+        if  toplevel :
+            self.timed_event ('timed_dump', id)
 
         print "%s  %s" % (_indent, self.timed_id)
         for e in self.timed_events :
@@ -113,7 +118,7 @@ class Timed (object) :
                 print "%s      %s (%s)"  % (_indent, cid, type(c))
                 c.timed_dump (_indent+'  ')
 
-        if  _toplevel :
+        if  toplevel :
             print " === dumped %s ===" % self.timed_id
 
 
