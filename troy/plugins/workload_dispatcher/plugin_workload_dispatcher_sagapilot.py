@@ -199,13 +199,19 @@ class PLUGIN_CLASS (troy.PluginBase):
         # register them multiple times though, but duplication is filtered out
         # on time keeping level
         if 'submission_time' in info and info['submission_time'] :
-            unit.timed_event ('submission', 'sagapilot', info['submission_time'])
+            unit.timed_event ('monitor', 'submission', 
+                              tags  = ['sagapilot', 'submission_time'], 
+                              timer = info['submission_time'])
 
         if 'start_time' in info and info['start_time'] :
-            unit.timed_event ('start', 'sagapilot', info['start_time'])
+            unit.timed_event ('monitor', 'start',  
+                              tags  = ['sagapilot', 'start_time'], 
+                              timer = info['start_time'])
 
         if 'stop_time' in info and info['stop_time'] :
-            unit.timed_event ('stop', 'sagapilot', info['stop_time'])
+            unit.timed_event ('monitor', 'stop',  
+                              tags  = ['sagapilot', 'stop_time'], 
+                              timer = info['stop_time'])
 
         if  info['state'] == FAILED :
             troy._logger.error ('CU %s failed' % unit.id)

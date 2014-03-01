@@ -313,7 +313,7 @@ class Workload (tu.Properties, tu.Timed) :
 
         if  self.state != new_state :
             self.state  = new_state
-            self.timed_event ('state', [new_state])
+            self.timed_event ('state', new_state)
 
 
     # --------------------------------------------------------------------------

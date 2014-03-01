@@ -106,9 +106,10 @@ class Overlay (tu.Properties, tu.Timed) :
         self.register_property ('manager')
 
         # initialize essential properties
-        self.state       = DESCRIBED
         self.description = descr
         self.pilots      = dict()
+        self.state       = None
+        self._set_state (DESCRIBED)
 
         # register this instance, so that overlay can be passed around by id.
         troy.OverlayManager.register_overlay (self)
@@ -122,6 +123,18 @@ class Overlay (tu.Properties, tu.Timed) :
         """
 
         self.cancel ()
+
+
+    # --------------------------------------------------------------------------
+    #
+    def _set_state (self, new_state) :
+        """
+        Private method which updates the workload state, and logs the event time
+        """
+
+        if  self.state != new_state :
+            self.state  = new_state
+            self.timed_event ('state', new_state)
 
 
     # --------------------------------------------------------------------------

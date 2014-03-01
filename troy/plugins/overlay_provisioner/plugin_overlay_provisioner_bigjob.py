@@ -156,19 +156,29 @@ class PLUGIN_CLASS (troy.PluginBase):
       # pprint.pprint (details)
         
         if 'start_time' in details and details['start_time'] :
-            pilot.timed_event ('submission', 'bigjob', details['start_time'])
+            pilot.timed_event ('monitor', 'submission', 
+                               tags  = ['bigjob', 'start_time'], 
+                               timer = details['start_time'])
 
         if 'end_queue_time' in details and details['end_queue_time'] :
-            pilot.timed_event ('start', 'bigjob', details['end_queue_time'])
+            pilot.timed_event ('monitor', 'start', 
+                               tags  = ['bigjob', 'end_queue_time'], 
+                               timer = details['end_queue_time'])
 
         if 'end_time' in details and details['end_time'] :
-            pilot.timed_event ('stop', 'bigjob', details['end_time'])
+            pilot.timed_event ('monitor', 'stop', 
+                               tags  = ['bigjob', 'end_time'], 
+                               timer = details['end_time'])
 
         if 'last_contact' in details and details['last_contact'] :
-            pilot.timed_event ('heartbeat', 'bigjob', details['last_contact'])
+            pilot.timed_event ('monitor', 'heartbeat', 
+                               tags  = ['bigjob', 'last_contact'], 
+                               timer = details['last_contact'])
 
         if 'start_staging_time' in details and details['start_staging_time'] :
-            pilot.timed_event ('start_staging', 'bigjob', details['start_staging_time'])
+            pilot.timed_event ('monitor', 'start_staging', 
+                               tags  = ['bigjob', 'start_staging_time'], 
+                               timer = details['start_staging_time'])
 
  
         # translate bj state to troy state

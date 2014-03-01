@@ -227,17 +227,25 @@ class PLUGIN_CLASS (troy.PluginBase):
         # register them multiple times though, but duplication is filtered out
         # on time keeping level
         if 'submission_time' in info and info['submission_time'] :
-            pilot.timed_event ('submission', 'sagapilot', info['submission_time'])
+            pilot.timed_event ('monitor', 'submission', 
+                               tags  = ['sagapilot', 'submission_time'],
+                               timer = info['submission_time'])
 
         if 'start_time' in info and info['start_time'] :
-            pilot.timed_event ('start', 'sagapilot', info['start_time'])
+            pilot.timed_event ('monitor', 'start', 
+                               tags  = ['sagapilot', 'start_time'],
+                               timer = info['start_time'])
 
         if 'stop_time' in info and info['stop_time'] :
-            pilot.timed_event ('stop', 'sagapilot', info['stop_time'])
+            pilot.timed_event ('monitor', 'stop', 
+                               tags  = ['sagapilot', 'stop_time'],
+                               timer = info['stop_time'])
 
         if 'log' in info :
             for log in info['log'] :
-                pilot.timed_event ('state_detail', ['sagapilot', log], -1)
+                pilot.timed_event ('monitor', 'state_detail', 
+                                   tags  = ['sagapilot', log], 
+                                   timer = -1)
 
         return info
  

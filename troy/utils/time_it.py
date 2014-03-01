@@ -230,7 +230,7 @@ class Timed (object) :
 
     # --------------------------------------------------------------------------
     #
-    def timed_event (self, event, tags, timer=None) :
+    def timed_event (self, event, name, tags=[], timer=None) :
 
         if  not isinstance (tags, list) :
             tags = [tags]
@@ -241,7 +241,7 @@ class Timed (object) :
             timer = None
 
 
-        event_sig = "%s %s" % (event, tags)
+        event_sig = "%s [%s] %s" % (event, name, tags)
         if  event_sig in self.timed_events_known :
             # don't do it twice
             return
@@ -249,9 +249,11 @@ class Timed (object) :
         self.timed_events_known.append (event_sig)
         self.timed_events.append ({'time'  : timer, 
                                    'event' : event, 
+                                   'name'  : name,  
                                    'tags'  : tags })
 
-        troy._logger.debug ('timed event [%s]   : %s : %s (UTC)' % (self.timed_id, event, tags))
+        troy._logger.debug ('timed event [%s]   : %s : %s : %s' \
+                         % (self.timed_id, event, name, tags))
 
 
     # --------------------------------------------------------------------------
