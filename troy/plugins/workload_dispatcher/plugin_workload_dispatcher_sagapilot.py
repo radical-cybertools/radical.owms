@@ -171,7 +171,7 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         # translate sagapilot state to troy state
         if  'state' in info :
-            troy._logger.debug ('sagalilot level cu state: %s' % info['state'])
+            troy._logger.debug ('sagapilot level cu state: %s' % info['state'])
             # hahaha python switch statement hahahahaha
             info['state'] =  {sp.states.PENDING                 : PENDING, 
                               sp.states.PENDING_EXECUTION       : PENDING, 
