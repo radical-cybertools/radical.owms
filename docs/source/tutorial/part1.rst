@@ -24,16 +24,14 @@ files, do the following:
 
 .. code-block:: bash
 
-	> export TROY_VERBOSE=INFO
-	> python tutorial_01.py workload_gromacs.json config_application.json config_troy.json
+	export TROY_VERBOSE=INFO
+	python tutorial_01.py workload_gromacs.json config_application.json config_troy.json
 
 The output of your distributed application is in the directory ``output``:
 
 .. code-block:: bash
 
-	> cd output
-	> ls -al
-	> cd ..
+	ls -l output/
 
 Now, to understand why this is cool, let's have a look at the code we have executed:
 

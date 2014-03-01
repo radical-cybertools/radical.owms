@@ -113,8 +113,8 @@ workload inside our application).
 
 .. code-block:: bash
 
-	> export TROY_VERBOSE=INFO
-	> python tutorial_02.py config_application.json config_troy.json
+	export TROY_VERBOSE=INFO
+	python tutorial_02.py config_application.json config_troy.json
 
 Sit back, relax, and enjoy the horses do the work!
 The execution should look similar to that of earlier runs.

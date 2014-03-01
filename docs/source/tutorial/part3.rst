@@ -15,8 +15,8 @@ You can run ``tutorial_03.py`` exactly like ``tutorial_03.py`` as it will accept
 
 .. code-block:: bash
 
-	> export TROY_VERBOSE=INFO
-	> python tutorial_03.py config_application.json config_troy.json
+	export TROY_VERBOSE=INFO
+	python tutorial_03.py config_application.json config_troy.json
 
 
 Note that the code in `tutorial_03.py` is implementing exactly the execution
