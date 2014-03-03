@@ -46,7 +46,7 @@ In order to go through this tutorial you will have to use either a MAC OSX or a 
 
 .. code-block:: bash
 
-	> ssh <your_login_name>@sierra.gfurturegrid.org
+	> ssh <your_login_name>@sierra.furturegrid.org
 	> ssh <your_login_name>@stampede.tacc.xsede.org
 
 
