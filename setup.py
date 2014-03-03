@@ -13,7 +13,7 @@ import subprocess
 from setuptools import setup, Command
 
 srcroot = 'troy'
-name    = 'TROY'
+name    = 'troy'
 
 # ------------------------------------------------------------------------------
 #
