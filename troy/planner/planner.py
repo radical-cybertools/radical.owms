@@ -30,8 +30,7 @@ class Planner (tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, session, expand=AUTOMATIC, 
-                                 derive=AUTOMATIC) :
+    def __init__ (self, session) :
         """
         Create a new planner instance for this workload.
 
@@ -53,19 +52,10 @@ class Planner (tu.Timed) :
         # We leave actual plugin initialization for later, in case a strategy
         # wants to alter / complete the plugin selection
         #
-        # FIXME: we don't need no stupid arguments, ey!  Just use
-        #        AUTOMATIC by default...
-        self.plugins['expand' ] = expand
-        self.plugins['derive' ] = derive
-
-        # lets see if there are any plugin preferences in the config
-        # note that config settings supercede arguments!
         cfg = session.get_config ('planner')
 
-        if  'plugin_planner_derive' in cfg : 
-            self.plugins['derive']  =  cfg['plugin_planner_derive']
-        if  'plugin_planner_expand' in cfg : 
-            self.plugins['expand']  =  cfg['plugin_planner_expand']
+        self.plugins['derive'] = cfg.get ('plugin_planner_derive', AUTOMATIC)
+        self.plugins['expand'] = cfg.get ('plugin_planner_expand', AUTOMATIC)
 
 
 

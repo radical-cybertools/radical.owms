@@ -50,10 +50,7 @@ class WorkloadManager (tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, session,
-                        translator  = AUTOMATIC,
-                        scheduler   = AUTOMATIC,
-                        dispatcher  = AUTOMATIC) :
+    def __init__ (self, session) :
         """
         Create a new workload manager instance.
 
@@ -70,28 +67,15 @@ class WorkloadManager (tu.Timed) :
         self._plugin_mgr = None
         self.plugins     = dict ()
 
-        # setup plugins from aruments
+        # setup plugins from session config
         #
         # We leave actual plugin initialization for later, in case a strategy
         # wants to alter / complete the plugin selection
-        #
-        # FIXME: we don't need no stupid arguments, ey!  Just use
-        #        AUTOMATIC by default...
-        self.plugins['translator'] = translator
-        self.plugins['scheduler' ] = scheduler
-        self.plugins['dispatcher'] = dispatcher
-
-
-        # lets see if there are any plugin preferences in the config
-        # note that config settings supercede arguments!
         cfg = session.get_config ('workload_manager')
 
-        if  'plugin_workload_translator' in cfg : 
-            self.plugins['translator']   =  cfg['plugin_workload_translator']
-        if  'plugin_workload_scheduler'  in cfg : 
-            self.plugins['scheduler' ]   =  cfg['plugin_workload_scheduler' ]
-        if  'plugin_workload_dispatcher' in cfg : 
-            self.plugins['dispatcher']   =  cfg['plugin_workload_dispatcher']
+        self.plugins['translator'] = cfg.get ('plugin_workload_translator', AUTOMATIC)
+        self.plugins['scheduler' ] = cfg.get ('plugin_workload_scheduler' , AUTOMATIC)
+        self.plugins['dispatcher'] = cfg.get ('plugin_workload_dispatcher', AUTOMATIC)
 
       # import pprint
       # pprint.pprint (session.cfg)
