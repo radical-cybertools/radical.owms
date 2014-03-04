@@ -79,8 +79,8 @@ class Planner (tu.Timed) :
 
         # load plugins
         self._plugin_mgr = ru.PluginManager ('troy')
-        self._strategy   = self._plugin_mgr.load ('strategy' self.plugins['strategy'])
-        self._derive     = self._plugin_mgr.load ('derive',  self.plugins['derive'])
+        self._strategy   = self._plugin_mgr.load ('strategy', self.plugins['strategy'])
+        self._derive     = self._plugin_mgr.load ('derive',   self.plugins['derive'])
 
         if  not self._strategy :
             raise RuntimeError ("Could not load strategy overlay_derive plugin")
