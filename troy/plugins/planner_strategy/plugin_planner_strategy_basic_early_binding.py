@@ -9,7 +9,7 @@ import troy
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
-    'type'        : 'strategy', 
+    'type'        : 'planner_strategy', 
     'name'        : 'basic_early_binding', 
     'version'     : '0.1',
     'description' : 'this is the basic troy strategy for executing workloads.'

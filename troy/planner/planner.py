@@ -54,7 +54,8 @@ class Planner (tu.Timed) :
         #
         cfg = session.get_config ('planner')
 
-        self.plugins['derive'] = cfg.get ('plugin_planner_derive', AUTOMATIC)
+        self.plugins['strategy'] = cfg.get ('plugin_planner_strategy', AUTOMATIC)
+        self.plugins['derive']   = cfg.get ('plugin_planner_derive',   AUTOMATIC)
 
 
 
@@ -70,20 +71,59 @@ class Planner (tu.Timed) :
       # troy._logger.debug ("initializing planner (%s)" % self.plugins)
 
         # for each plugin set to 'AUTOMATIC', do the clever thing
-        if  self.plugins['derive' ]  == AUTOMATIC :
-            self.plugins['derive' ]  = 'maxcores'
+        if  self.plugins['strategy'] == AUTOMATIC :
+            self.plugins['strategy'] = 'basic_late_binding'
+        if  self.plugins['derive'  ] == AUTOMATIC :
+            self.plugins['derive'  ] = 'maxcores'
 
 
         # load plugins
         self._plugin_mgr = ru.PluginManager ('troy')
-        self._derive     = self._plugin_mgr.load ('derive', self.plugins['derive'])
+        self._strategy   = self._plugin_mgr.load ('strategy' self.plugins['strategy'])
+        self._derive     = self._plugin_mgr.load ('derive',  self.plugins['derive'])
+
+        if  not self._strategy :
+            raise RuntimeError ("Could not load strategy overlay_derive plugin")
 
         if  not self._derive :
             raise RuntimeError ("Could not load planner overlay_derive plugin")
 
-        self._derive.init_plugin (self.session, 'planner')
+        self._strategy.init_plugin (self.session, 'planner')
+        self._derive.init_plugin   (self.session, 'planner')
 
         troy._logger.info ("initialized  planner (%s)" % self.plugins)
+
+
+    # ------------------------------------------------------------------------------
+    #
+    def execute_workload (workload) :
+        """
+        Parse and execute a given workload, i.e., translate, bind and dispatch it,
+        and then wait until its execution is completed.  For that to happen, we also
+        need to plan, translate, schedule and dispatch an overlay, obviously...
+        """
+    
+        overlay_mgr  = troy.OverlayManager  (self.session)
+        workload_mgr = troy.WorkloadManager (self.session)
+
+        workload_id  = None
+    
+        if  isinstance (workload, basestring) :
+            if  workload.beginswith ('wl.') :
+                workload_id = workload
+            else :
+                # we assume this string points to a file containing a workload description 
+                parsed_workload = workload_mgr.parse_workload (workload)
+        elif  isinstance (workload, troy.Workload) :
+            workload_id = workload.id
+        else :
+            raise TypeError ("workload needs to be a troy.Workload or a filename "
+                             "pointing to a workload description, not '%s'" 
+                             % type (workload))
+    
+        # hand over control the selected strategy plugin, 
+        # so it can do what it has to do.
+        strategy.execute (workload_id, self, overlay_mgr, workload_mgr)
 
 
     # --------------------------------------------------------------------------
