@@ -13,7 +13,7 @@ import troy
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
-    'type'        : 'expand',
+    'type'        : 'workload_expander',
     'name'        : 'noop',
     'version'     : '0.1',
     'description' : 'This is the default workload expander, which does nothing'
@@ -46,7 +46,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         Do nothing.
         """
 
-        troy._logger.info ("planner  expand wl: noop expand workload : %s" % workload)
+        troy._logger.info ("expand workload: noop: %s" % workload)
 
 
 # ------------------------------------------------------------------------------

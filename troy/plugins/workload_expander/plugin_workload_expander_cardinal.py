@@ -14,7 +14,7 @@ import troy
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
-    'type'        : 'expand',
+    'type'        : 'workload_expander',
     'name'        : 'cardinal',
     'version'     : '0.1',
     'description' : "This workload expander can multiplies tasks according to "
@@ -85,7 +85,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         # and add fresh ones
         workload.add_task (task_descriptions)
 
-        troy._logger.info ("planner  expand wl cardinality: %s" % workload)
+        troy._logger.info ("expand workload cardinality: %s" % workload)
 
 
 # ------------------------------------------------------------------------------

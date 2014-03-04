@@ -42,7 +42,7 @@ class WorkloadManager (tu.Timed) :
 
     """
 
-    # FIXME: state checks ignore PLANNED state...
+    # FIXME: state checks ignore EXPANDED state...
 
     # this map is used to translate between troy unit IDs and native backend
     # IDs.
@@ -74,6 +74,7 @@ class WorkloadManager (tu.Timed) :
         cfg = session.get_config ('workload_manager')
 
         self.plugins['translator'] = cfg.get ('plugin_workload_translator', AUTOMATIC)
+        self.plugins['expander']   = cfg.get ('plugin_workload_expander',   AUTOMATIC)
         self.plugins['scheduler' ] = cfg.get ('plugin_workload_scheduler' , AUTOMATIC)
         self.plugins['dispatcher'] = cfg.get ('plugin_workload_dispatcher', AUTOMATIC)
 
@@ -106,6 +107,8 @@ class WorkloadManager (tu.Timed) :
 
         if  self.plugins['translator']  == AUTOMATIC :
             self.plugins['translator']  = 'direct'
+        if  self.plugins['expander'  ]  == AUTOMATIC :
+            self.plugins['expander'  ]  = 'cardinal'
         if  self.plugins['scheduler' ]  == AUTOMATIC :
             self.plugins['scheduler' ]  = 'round_robin'
         if  self.plugins['dispatcher']  == AUTOMATIC :
@@ -118,14 +121,17 @@ class WorkloadManager (tu.Timed) :
 
         # FIXME: error handling
         self._translator = self._plugin_mgr.load  ('workload_translator', self.plugins['translator'])
+        self._expander   = self._plugin_mgr.load  ('workload_expander',   self.plugins['expander'])
         self._scheduler  = self._plugin_mgr.load  ('workload_scheduler',  self.plugins['scheduler' ])
         self._dispatcher = self._plugin_mgr.load  ('workload_dispatcher', self.plugins['dispatcher'])
 
         if  not self._translator : raise RuntimeError ("Could not load translator plugin")
+        if  not self._expander   : raise RuntimeError ("Could not load expander   plugin")
         if  not self._scheduler  : raise RuntimeError ("Could not load scheduler  plugin")
         if  not self._dispatcher : raise RuntimeError ("Could not load dispatcher plugin")
 
         self._translator.init_plugin (self.session, 'workload_manager')
+        self._expander  .init_plugin (self.session, 'workload_manager')
         self._scheduler .init_plugin (self.session, 'workload_manager')
         self._dispatcher.init_plugin (self.session, 'workload_manager')
 
@@ -350,8 +356,8 @@ class WorkloadManager (tu.Timed) :
         overlay  = troy.OverlayManager .get_overlay  (overlay_id,  _manager=self)
 
         # make sure the workflow is 'fresh', so we can translate it
-        if  workload.state not in [DESCRIBED, PLANNED] :
-            raise ValueError ("workload '%s' not in DESCRIBED nor PLANNED state" % workload.id)
+        if  workload.state not in [DESCRIBED, EXPANDED] :
+            raise ValueError ("workload '%s' not in DESCRIBED nor EXPANDED state" % workload.id)
 
         # make sure manager is initialized
         self._init_plugins ()
@@ -368,6 +374,39 @@ class WorkloadManager (tu.Timed) :
         for partition_id in workload.partitions :
             partition = self.get_workload (partition_id)
             partition._set_state (TRANSLATED)
+
+
+    # --------------------------------------------------------------------------
+    #
+    def expand_workload (self, workload_id):
+        """
+        Expand cardinality parameters in workload.
+
+        Notes
+
+        . Currently, this method is empty. What is its goal? Answering this
+          question should also clarify why 'expand'.
+
+        """
+
+        # Get the workload from the repo
+        workload = troy.WorkloadManager.get_workload (workload_id)
+
+        self.timed_component (workload, 'troy.Workload', workload.id)
+
+        # make sure the workflow is 'fresh', so we can translate it
+        if workload.state != DESCRIBED:
+            raise ValueError ("workload '%s' not in DESCRIBED state" %
+                              workload.id)
+
+        self._init_plugins (workload)
+
+        # Expand (optional) cardinality in workload
+        workload.timed_method ('expand', [], 
+                               self._expand.expand_workload, [workload])
+
+        # Workload is now ready to go to the workload manager
+        workload.state = EXPANDED
 
 
     # --------------------------------------------------------------------------

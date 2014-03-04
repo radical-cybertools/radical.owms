@@ -48,7 +48,6 @@ _config_skeleton = {
         'resource_config'          : None,
         'resources'                : dict(),
         'planner'                : {
-            'expand'               : dict(),
             'derive'               : dict(),
         },
         'overlay_manager'        : {
@@ -60,6 +59,7 @@ _config_skeleton = {
         'workload_manager'       : {
             'workload_parser'      : dict(),
             'workload_translator'  : dict(),
+            'workload_expander'    : dict(),
             'workload_transformer' : dict(),
             'workload_scheduler'   : dict(),
             'workload_dispatcher'  : dict(),

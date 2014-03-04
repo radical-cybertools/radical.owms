@@ -57,9 +57,9 @@ class Workload (tu.Properties, tu.Timed) :
     ---------------
 
     A workload can be in different states, depending on the transformations
-    performed on it.  Specifically, it can be in `DESCRIBED`, `PLANNED`,
+    performed on it.  Specifically, it can be in `DESCRIBED`, `EXPANDED`,
     `TRANSLATED`, `SCHEDULED`, `DISPATCHED`, `DONE` or `FAILED`.
-    A workload enters the workload manager in `DESCRIBED` or `PLANNED` state,
+    A workload enters the workload manager in `DESCRIBED` or `EXPANDED` state,
     and all follow-up state transitions are kept within the workload manager.
 
     Those states are ill defined in case of partial transformations -- if, for
@@ -325,7 +325,7 @@ class Workload (tu.Properties, tu.Timed) :
 
         The initial stages of Troy cause atomic state transitions for the
         workload -- it is created as `DESCRIBED`, 
-        `planner.plan()`                        moves it to `PLANNED`, 
+        `planner.plan()`                        moves it to `EXPANDED`, 
         `workload_manager.translate_workload()` moves it to `TRANSLATED`,
         `workload_manager.bind_workload()`      moves it to `BOUND`,       and
         `workload_manager.dispatch_workload()`  moves it to `DISPATCHED`.
@@ -350,7 +350,7 @@ class Workload (tu.Properties, tu.Timed) :
         """
 
         # atomic states are set elsewhere
-        if  self.state in [DESCRIBED, PLANNED] :
+        if  self.state in [DESCRIBED, EXPANDED] :
             return self.state
 
         # final states are never left

@@ -33,7 +33,7 @@ AUTOMATIC    =  AUTO         # alias
 # workload states
 #
 DESCRIBED    = 'Described'   # tasks known
-PLANNED      = 'Planned'     # overlay derived
+EXPANDED     = 'Expanded'    # tasks expanded
 TRANSLATED   = 'Translated'  # tasks derived
 BOUND        = 'Bound'       # tasks bound
 DISPATCHED   = 'Dispatched'  # tasks dispatched

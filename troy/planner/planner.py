@@ -55,7 +55,6 @@ class Planner (tu.Timed) :
         cfg = session.get_config ('planner')
 
         self.plugins['derive'] = cfg.get ('plugin_planner_derive', AUTOMATIC)
-        self.plugins['expand'] = cfg.get ('plugin_planner_expand', AUTOMATIC)
 
 
 
@@ -73,22 +72,15 @@ class Planner (tu.Timed) :
         # for each plugin set to 'AUTOMATIC', do the clever thing
         if  self.plugins['derive' ]  == AUTOMATIC :
             self.plugins['derive' ]  = 'maxcores'
-        if  self.plugins['expand' ]  == AUTOMATIC :
-            self.plugins['expand' ]  = 'cardinal'
 
 
         # load plugins
         self._plugin_mgr = ru.PluginManager ('troy')
-        self._expand     = self._plugin_mgr.load ('expand', self.plugins['expand'])
         self._derive     = self._plugin_mgr.load ('derive', self.plugins['derive'])
-
-        if  not self._expand :
-            raise RuntimeError ("Could not load planner workload_expand plugin")
 
         if  not self._derive :
             raise RuntimeError ("Could not load planner overlay_derive plugin")
 
-        self._expand.init_plugin (self.session, 'planner')
         self._derive.init_plugin (self.session, 'planner')
 
         troy._logger.info ("initialized  planner (%s)" % self.plugins)
@@ -142,13 +134,13 @@ class Planner (tu.Timed) :
 
         self.timed_component (workload, 'troy.Workload', workload.id)
 
-        # Workload doesn't need to be PLANNED, but if it is only DESCRIBED,
+        # Workload doesn't need to be EXPANDED, but if it is only DESCRIBED,
         # it can't be parametrized.
-        if  workload.state not in [PLANNED, DESCRIBED]:
-            raise ValueError("workload '%s' not in DESCRIBED or PLANNED "
+        if  workload.state not in [EXPANDED, DESCRIBED]:
+            raise ValueError("workload '%s' not in DESCRIBED or EXPANDED "
                              "state" % workload.id)
         elif workload.state is DESCRIBED and workload.parametrized:
-            raise ValueError("Parametrized workload '%s' not PLANNED yet."
+            raise ValueError("Parametrized workload '%s' not EXPANDED yet."
                              % workload.id)
 
         # make sure manager is initialized
@@ -164,37 +156,6 @@ class Planner (tu.Timed) :
         # Only pass the ID back
         return overlay_descr
 
-    # --------------------------------------------------------------------------
-    #
-    def expand_workload (self, workload_id):
-        """
-        Expand cardinality parameters in workload.
-
-        Notes
-
-        . Currently, this method is empty. What is its goal? Answering this
-          question should also clarify why 'expand'.
-
-        """
-
-        # Get the workload from the repo
-        workload = troy.WorkloadManager.get_workload(workload_id)
-
-        self.timed_component (workload, 'troy.Workload', workload.id)
-
-        # make sure the workflow is 'fresh', so we can translate it
-        if workload.state != DESCRIBED:
-            raise ValueError("workload '%s' not in DESCRIBED state" %
-                             workload.id)
-
-        self._init_plugins (workload)
-
-        # Expand (optional) cardinality in workload
-        workload.timed_method ('expand', [], 
-                               self._expand.expand_workload, [workload])
-
-        # Workload is now ready to go to the workload manager
-        workload.state = PLANNED
 
 # ------------------------------------------------------------------------------
 
