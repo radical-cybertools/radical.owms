@@ -9,55 +9,38 @@ import troy
 
 # ------------------------------------------------------------------------------
 #
-def manage_workload (workload, config) :
+def execute_workload (workload, config. 
+                      strategy=troy.AUTOMATIC) : 
     """
-    Parse and execute a given workload (see `execute_workload()`)
+    Parse and execute a given workload, i.e., translate, bind and dispatch it,
+    and then wait until its execution is completed.  For that to happen, we also
+    need to plan, translate, schedule and dispatch an overlay, obviously...
     """
 
-    session      = troy.Session         (config)
-    planner      = troy.Planner         (session)
-    overlay_mgr  = troy.OverlayManager  (session)
-    workload_mgr = troy.WorkloadManager (session)
-
-
+    session  = troy.Session (config)
     strategy = troy.AUTOMATIC
+
     if  'plugin_strategy' in session.cfg :
         strategy = session.cfg['plugin_strategy']
 
     if  strategy == troy.AUTOMATIC :
         strategy =  'basic_late_binding'
 
-    # FIXME: we should also accept workload instances or json strings -- bext
-    # put that flexibility into parse_workload
-    parsed_workload = workload_mgr.parse_workload (workload)
 
-    return troy.execute_workload (parsed_workload, planner, 
-                                  overlay_mgr, workload_mgr,
-                                  strategy)
+    planner      = troy.Planner         (session)
+    overlay_mgr  = troy.OverlayManager  (session)
+    workload_mgr = troy.WorkloadManager (session)
 
+    if  isinstance (workload, basestring) :
+        # we assume this string points to a file containing a workload description 
+        parsed_workload = workload_mgr.parse_workload (workload)
+    elif  isinstance (workload, troy.Workload) :
+        parsed_workload = workload
+    else :
+        raise TypeError ("workload needs to be a troy.Workload or a filename "
+                         "pointing to a workload description, not '%s'" 
+                         % type (workload))
 
-
-
-
-
-
-# ------------------------------------------------------------------------------
-#
-def execute_workload (workload, planner, overlay_mgr, workload_mgr, 
-                      strategy=troy.AUTOMATIC) : 
-
-    """
-    Execute the given workload -- i.e., translate, bind and dispatch it, and
-    then wait until its execution is completed.  For that to happen, we also
-    need to plan, translate, schedule and dispatch an overlay, obviously...
-    """
-
-    if  strategy == troy.AUTOMATIC :
-
-        if  'plugin_strategy' in workload.session.cfg :
-            strategy = workload.session.cfg['plugin_strategy']
-        else :
-            strategy =  'basic_late_binding'
 
     plugin_mgr = ru.PluginManager ('troy')
     strategy   = plugin_mgr.load  ('strategy', strategy)
