@@ -11,6 +11,7 @@ import troy
 
 FGCONF    = 'https://raw.github.com/saga-project/saga-pilot/master/configs/futuregrid.json'
 XSEDECONF = 'https://raw.github.com/saga-project/saga-pilot/master/configs/xsede.json'
+WALLTIME_OVERHEAD = 10.0
 
 
 # ------------------------------------------------------------------------------
@@ -54,6 +55,9 @@ class PLUGIN_CLASS (troy.PluginBase):
     #
     def init (self):
 
+        # dig parameters out of the config
+        self._overhead = self.cfg.get ('walltime_overhead', WALLTIME_OVERHEAD)
+
         if  'coordination_url' in self.cfg :
             self._coord = self.cfg['coordination_url']
 
@@ -66,8 +70,8 @@ class PLUGIN_CLASS (troy.PluginBase):
             troy._logger.info  ("Contact Radica@Ritgers for the redis password")
             raise RuntimeError ("Cannot use sagapilot backend - no COORDINATION_URL -- see debug log for details")
 
-        self._overhead = self.cfg.get ('walltime_overhead', 0.0)
-        self._sp  = sp.Session (database_url = self._coord)
+
+        self._sp = sp.Session (database_url = self._coord)
 
 
     # --------------------------------------------------------------------------
