@@ -130,6 +130,9 @@ class Workload (tu.Properties, tu.Timed) :
 
         self.id = ru.generate_id ('wl.')
 
+        print self
+        print type(self)
+
         tu.Timed.__init__            (self, 'troy.Workload', self.id)
         self.session.timed_component (self, 'troy.Workload', self.id)
 
