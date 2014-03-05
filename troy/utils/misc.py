@@ -35,7 +35,7 @@ def get_config (params) :
 
     for param in params :
 
-        if  not param or None == param : 
+        if  not param or None == param or 'None' == param : 
 
             # we silently accept None's, to save some 
             # repetetetetive checks on the calling side

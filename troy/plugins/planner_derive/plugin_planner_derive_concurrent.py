@@ -51,7 +51,8 @@ class PLUGIN_CLASS (troy.PluginBase):
     def derive_overlay(self, workload):
         """
         Split the overlay into partitions, according to the set concurrency.
-        Once done, count the cores needed to run the largest (first) partition.
+        Once done, count the cores needed to run the largest (first) partition,
+        and also sum up the walltime of all resulting partitions.
         """
 
         # partition workload according to given concurrency
@@ -102,7 +103,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             troy._logger.info ("created %d workload partitions" % len(workload.partitions))
 
 
-        # plan the overlay large enough to hold the first, concurrent partition.
+        # plan the overlay *large* enough to hold the first, concurrent partition.
         cores          = 0
         c_partition_id = workload.partitions[0] # max 1
         c_partition    = troy.WorkloadManager.get_workload (c_partition_id)
@@ -113,7 +114,16 @@ class PLUGIN_CLASS (troy.PluginBase):
         for tid in c_partition.tasks :
             cores += c_partition.tasks[tid].cores
 
-        ovl_descr = troy.OverlayDescription ({'cores' : cores})
+
+        # plan the overlay *long* enough to hold all partitions.
+        walltime = 0.0
+        for c_partition_id in workload.partitions :
+            c_partition = troy.WorkloadManager.get_workload (c_partition_id)
+            walltime += c_partition.get_walltime ()
+
+        # have all information needed for the overlay
+        ovl_descr = troy.OverlayDescription ({'cores'    : cores, 
+                                              'walltime' : walltime})
 
         troy._logger.info ("planner  derive ol: derive overlay for workload: %s" % ovl_descr)
 

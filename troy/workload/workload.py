@@ -318,6 +318,40 @@ class Workload (tu.Properties, tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
+    def get_walltime (self) :
+        """
+        This method will derive a walltime estimate, in the following
+        (recursive) manner:
+
+            walltime = 0.0
+
+            if  self.partitions :
+                for partition in self.partitions :
+                    walltime += partition.get_walltime ()
+            else :
+                for task in self.tasks :
+                    walltime += task.walltime
+
+            return walltime
+
+        """
+        walltime = 0.0
+
+        if  len(self.partitions) > 1 :
+            for partition_id in self.partitions :
+                partition = troy.WorkloadManager.get_workload (partition_id)
+                print partition
+                walltime += partition.get_walltime ()
+        else :
+            for (task_id, task) in self.tasks.iteritems() :
+                print task
+                walltime = max (walltime, task.get_walltime ())
+
+        return walltime
+
+
+    # --------------------------------------------------------------------------
+    #
     def get_state (self) :
         """
         The workload state is a wonderous thing -- it is sometimes atomic, and

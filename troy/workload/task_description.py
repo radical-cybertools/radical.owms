@@ -34,6 +34,7 @@ class TaskDescription (tu.Properties) :
         self.stdout            = None
 
         self.cores             = 1
+        self.walltime          = 0.0
 
         self.inputs            = list()
         self.outputs           = list()
