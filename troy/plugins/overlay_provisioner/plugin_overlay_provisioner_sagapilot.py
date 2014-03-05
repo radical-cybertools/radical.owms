@@ -33,6 +33,8 @@ class PLUGIN_CLASS (troy.PluginBase):
 
     * `coordination_url`: the redis URL to be used by SAGA-Pilot.  The environment
         variable COORDINATION_URL is used as fallback.
+    * `walltime_overhead`:   a constant walltime offset to add to troy-derived
+        pilot walltimes, to cater for sagapilot internal overhead.
     """
 
     __metaclass__ = ru.Singleton
@@ -64,6 +66,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             troy._logger.info  ("Contact Radica@Ritgers for the redis password")
             raise RuntimeError ("Cannot use sagapilot backend - no COORDINATION_URL -- see debug log for details")
 
+        self._overhead = self.cfg.get ('walltime_overhead', 0.0)
         self._sp  = sp.Session (database_url = self._coord)
 
 
@@ -93,7 +96,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             pilot_descr = sp.ComputePilotDescription ()
             pilot_descr.resource = troy_pilot.description['hostname']
             pilot_descr.cores    = troy_pilot.description['size']
-            pilot_descr.runtime  = troy_pilot.description['walltime']
+            pilot_descr.runtime  = troy_pilot.description['walltime'] + self._overhead
             pilot_descr.queue    = troy_pilot.description['queue']
             pilot_descr.sandbox  = "%s/troy_agents/" % troy_pilot.description['home']
 
