@@ -72,15 +72,15 @@ class Planner (tu.Timed) :
 
         # for each plugin set to 'AUTOMATIC', do the clever thing
         if  self.plugins['strategy'] == AUTOMATIC :
-            self.plugins['strategy'] = 'basic_late_binding'
+            self.plugins['strategy'] = 'late_binding'
         if  self.plugins['derive'  ] == AUTOMATIC :
             self.plugins['derive'  ] = 'maxcores'
 
 
         # load plugins
         self._plugin_mgr = ru.PluginManager ('troy')
-        self._strategy   = self._plugin_mgr.load ('strategy', self.plugins['strategy'])
-        self._derive     = self._plugin_mgr.load ('derive',   self.plugins['derive'])
+        self._strategy   = self._plugin_mgr.load ('planner_strategy', self.plugins['strategy'])
+        self._derive     = self._plugin_mgr.load ('planner_derive',   self.plugins['derive'])
 
         if  not self._strategy :
             raise RuntimeError ("Could not load strategy overlay_derive plugin")
@@ -96,7 +96,7 @@ class Planner (tu.Timed) :
 
     # ------------------------------------------------------------------------------
     #
-    def execute_workload (workload) :
+    def execute_workload (self, workload) :
         """
         Parse and execute a given workload, i.e., translate, bind and dispatch it,
         and then wait until its execution is completed.  For that to happen, we also
@@ -109,21 +109,35 @@ class Planner (tu.Timed) :
         workload_id  = None
     
         if  isinstance (workload, basestring) :
-            if  workload.beginswith ('wl.') :
+            if  workload.startswith ('wl.') :
+                print 'is id %s' % workload
                 workload_id = workload
             else :
+                print 'is path %s' % workload
                 # we assume this string points to a file containing a workload description 
-                parsed_workload = workload_mgr.parse_workload (workload)
+                workload_id = workload_mgr.parse_workload (workload)
         elif  isinstance (workload, troy.Workload) :
+            print 'is instance %s' % workload
             workload_id = workload.id
         else :
             raise TypeError ("workload needs to be a troy.Workload or a filename "
                              "pointing to a workload description, not '%s'" 
                              % type (workload))
     
+        workload = troy.WorkloadManager.get_workload (workload_id)
+
+        self.timed_component (workload, 'troy.Workload', workload_id)
+
+        # Workload needs to be in DESCRIBED state to be expanded
+        if  workload.state not in [DESCRIBED]:
+            raise ValueError("workload '%s' not in DESCRIBED state" % workload.id)
+
+        # make sure manager is initialized
+        self._init_plugins (workload)
+
         # hand over control the selected strategy plugin, 
         # so it can do what it has to do.
-        strategy.execute (workload_id, self, overlay_mgr, workload_mgr)
+        self._strategy.execute (workload_id, self, overlay_mgr, workload_mgr)
 
 
     # --------------------------------------------------------------------------
@@ -164,7 +178,7 @@ class Planner (tu.Timed) :
             the cores available from the accessible resources, raise Exception.
           - Max/Min queing time required by the given workload. If Max > of
             the cores available from the accessible resources, raise Exception.
-          - Max/Min degree of concurrency for the given workload - derived
+          - Max/Min degree of concurrency for the given wortroy/planner/planner.pykload - derived
             from the two previous parameters.
 
         """
@@ -181,7 +195,7 @@ class Planner (tu.Timed) :
                              "state" % workload.id)
         elif workload.state is DESCRIBED and workload.parametrized:
             raise ValueError("Parametrized workload '%s' not EXPANDED yet."
-                             % workload.id)
+                             % wortroy/planner/planner.pykload.id)
 
         # make sure manager is initialized
         self._init_plugins (workload)

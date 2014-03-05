@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
     pilot_backend  = 'bigjob_pilot'
     
-    plugin_strategy            = 'basic_early_binding' # early, late
+    plugin_strategy            = 'early_binding' # early, late
     plugin_planner             = 'concurrent'          # concurrent, bundles, maxcores
     plugin_overlay_translator  = 'max_pilot_size'      # max_pilot_size
     plugin_overlay_scheduler   = 'round_robin'         # rr, local
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     plugin_workload_dispatcher = pilot_backend         # sinon, bj, local
 
     # Create a session for TROY, and configure some plugins
-    session = troy.Session (cfg = {'overlay_scheduler_round_robin' : {
+    session = troy.Session (user_cfg = {'overlay_scheduler_round_robin' : {
                                        'resources'   : resources
                                        },
                                    'planner_concurrent' : {

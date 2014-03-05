@@ -31,9 +31,7 @@
   "tasks" : [
     {
       "cardinality"       : "%(bag_size)s",
-    # "executable"        : "%(mdrun)s",
-      "executable"        : "/bin/sh",
-      "arguments"         : ["-c", "cd %(working_directory)s; %(mdrun)s"],
+      "executable"        : "%(mdrun)s",
       "working_directory" : "%(home)s/troy_tutorial/troy_tutorial_01_%(cardinal)s/",
       "inputs"            : ["input/topol.tpr > topol.tpr"],
       "outputs"           : ["output/%(session_id)s_state.cpt.%(cardinal)s   < state.cpt",

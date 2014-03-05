@@ -6,11 +6,13 @@
 #
 {
     # frequently changing variables
-    "hosts"         : "pbs+ssh://sierra.futuregrid.org",
+  # "hosts"         : "pbs+ssh://sierra.futuregrid.org",
+  # "hosts"         : "slurm+ssh://stampede.tacc.utexas.edu",
+    "hosts"         : "ssh://localhost/",
     "pilot_size"    : "4",
     "concurrency"   : "100",
     "pilot_backend" : "sagapilot",
-    "troy_strategy" : "basic_late_binding",
+    "troy_strategy" : "early_binding",
 
 
     # troy plugin selection & plugin configurations

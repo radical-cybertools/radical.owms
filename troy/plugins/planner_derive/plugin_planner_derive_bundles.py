@@ -30,7 +30,7 @@ Notes
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
-    'type'        : 'derive',
+    'type'        : 'planner_derive',
     'name'        : 'bundles',
     'version'     : '0.1',
     'description' : 'This plugin derives an overlay from bundles information.'

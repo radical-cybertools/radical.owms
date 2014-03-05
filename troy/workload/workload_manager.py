@@ -399,11 +399,11 @@ class WorkloadManager (tu.Timed) :
             raise ValueError ("workload '%s' not in DESCRIBED state" %
                               workload.id)
 
-        self._init_plugins (workload)
+        self._init_plugins ()
 
         # Expand (optional) cardinality in workload
         workload.timed_method ('expand', [], 
-                               self._expand.expand_workload, [workload])
+                               self._expander.expand_workload, [workload])
 
         # Workload is now ready to go to the workload manager
         workload.state = EXPANDED

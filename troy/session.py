@@ -48,7 +48,8 @@ _config_skeleton = {
         'resource_config'          : None,
         'resources'                : dict(),
         'planner'                : {
-            'derive'               : dict(),
+            'planner_strategy'     : dict(),
+            'planner_derive'       : dict(),
         },
         'overlay_manager'        : {
             'overlay_translator'   : dict(),
@@ -63,9 +64,6 @@ _config_skeleton = {
             'workload_transformer' : dict(),
             'workload_scheduler'   : dict(),
             'workload_dispatcher'  : dict(),
-        },
-        'strategy'               : {
-            'strategy'             : dict(),
         },
     }
 

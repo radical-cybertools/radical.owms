@@ -26,6 +26,7 @@
         },
         # localhost has mdrun in path
         "localhost" : {
+            "username"     : "merzky",
             "mdrun"        : "mdrun"
         }
     }
