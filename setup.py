@@ -83,7 +83,6 @@ def get_version (paths=None):
         # if we didn't find it, get it from git 
         if  not long_version :
 
-
             # make sure we look at the right git repo
             if  len(paths) :
                 git_cd  = "cd %s ;" % paths[0]
@@ -226,11 +225,7 @@ setup_args = {
     'cmdclass'         : {
         'test'         : our_test,
     },
-  # 'install_requires' : ['saga-python', 'radical.utils'],
-  # At the moment, the radical.utils plugin manager has trouble when any plugin
-  # fails to load.  Until that is fixed, we have to make sure that all
-  # dependencies are met -- so we add the all for the time being.
-    'install_requires' : ['saga-python', 'radical.utils', 'pymongo', 'paramiko'],
+    'install_requires' : ['saga-python', 'radical.utils'],
     'extras_require'   : {
         'sagapilot'    :  ["sagapilot"],
         'bigjob'       :  ["bigjob"],

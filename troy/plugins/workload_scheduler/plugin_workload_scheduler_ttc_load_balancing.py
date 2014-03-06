@@ -125,7 +125,7 @@ class PLUGIN_CLASS (troy.PluginBase):
                 # assign task to the soonest available pilot
                 unit._bind(p_optimal)
                 overlay.pilots[p_optimal].est_begin+=int(unit._ttc)
-                troy.logger.debug ("assigning unit %s to pilot %s" % (u_id, p_optimal))
+                troy._logger.debug ("assigning unit %s to pilot %s" % (u_id, p_optimal))
 
         # # schedule to first 'next' pilot
         # for tid in workload.tasks:
