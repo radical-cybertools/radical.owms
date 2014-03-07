@@ -88,7 +88,7 @@ class Timed (object) :
         self.timed_components      = dict()
         self._timed_current        = dict()
 
-        self.timed_event ('timed_create', id)
+        self.timed_event ('state', 'Created')
 
 
     # --------------------------------------------------------------------------
@@ -104,7 +104,7 @@ class Timed (object) :
         # for the top level, we also store the time of dump.  For a troy session
         # that gives, for example, the approximate lifetime of the session.
         if  toplevel :
-            self.timed_event ('timed_dump', id)
+            self.timed_event ('state', 'Dumped')
 
         print "%s  %s" % (_indent, self.timed_id)
         for e in self.timed_events :
