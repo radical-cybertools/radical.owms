@@ -56,7 +56,7 @@ class PLUGIN_CLASS (troy.PluginBase):
     def init (self):
 
         # dig parameters out of the config
-        self._overhead = self.cfg.get ('walltime_overhead', WALLTIME_OVERHEAD)
+        self._overhead = float(self.cfg.get ('walltime_overhead', WALLTIME_OVERHEAD))
 
         if  'coordination_url' in self.cfg :
             self._coord = self.cfg['coordination_url']
@@ -104,8 +104,8 @@ class PLUGIN_CLASS (troy.PluginBase):
             pilot_descr.queue    = troy_pilot.description['queue']
             pilot_descr.sandbox  = "%s/troy_agents/" % troy_pilot.description['home']
 
-            troy._logger.info ('overlay  provision: provision   pilot  %s : %s ' \
-                            % (pid, troy_pilot.resource))
+            troy._logger.info ('overlay  provision: provision   pilot  %s : %s : %s' \
+                            % (pid, troy_pilot.resource, pilot_descr))
 
             if  'username' in troy_pilot.description :
                  username = troy_pilot.description['username']

@@ -119,7 +119,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         walltime = 0.0
         for c_partition_id in workload.partitions :
             c_partition = troy.WorkloadManager.get_workload (c_partition_id)
-            walltime += c_partition.get_walltime ()
+            walltime += float(c_partition.get_walltime ())
 
         # have all information needed for the overlay
         ovl_descr = troy.OverlayDescription ({'cores'    : cores, 

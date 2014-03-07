@@ -145,10 +145,10 @@ class Pilot (tu.Properties, tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def merge_description (self, source) :
+    def merge_description (self, source, policy="preserve") :
         """
         merge additional information into the pilot description -- such as
-        resource information, or application specific data
+        resource information, or application specific data.
         """
 
         # we only allow this in DESCRIBED or BOUND state
@@ -157,7 +157,7 @@ class Pilot (tu.Properties, tu.Timed) :
                              % self.state)
 
         pd_dict = self.description.as_dict ()
-        ru.dict_merge        (pd_dict, source, policy='overwrite')
+        ru.dict_merge        (pd_dict, source, policy=policy)
         ru.dict_stringexpand (pd_dict)
         ru.dict_stringexpand (pd_dict, self.session.cfg)
 
