@@ -129,7 +129,7 @@ class Overlay (tu.Properties, tu.Timed) :
     #
     def _set_state (self, new_state) :
         """
-        Private method which updates the workload state, and logs the event time
+        Private method which updates the object state, and logs the event time
         """
 
         if  self.state != new_state :
@@ -147,6 +147,8 @@ class Overlay (tu.Properties, tu.Timed) :
         for pid in self.pilots.keys () :
             pilot = self.pilots[pid]
             pilot.cancel ()
+
+        self._set_state (CANCELED)
 
 
     # --------------------------------------------------------------------------

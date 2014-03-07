@@ -137,6 +137,12 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             troy._logger.info ("all partition done (%s)" % workload.state)
 
+            troy._logger.warn ("shutting down workload: %s" % workload.id)
+            workload_mgr.cancel_workload (workload.id)
+
+            troy._logger.warn ("shutting down overlay: %s" % overlay.id)
+            overlay_mgr.cancel_overlay (overlay.id)
+
             session = planner.session
             if  session.cfg.get ('troy_timing') == 'store' :
                 tgt = session.cfg.get ('troy_timing_db')
@@ -151,16 +157,11 @@ class PLUGIN_CLASS (troy.PluginBase):
 
             troy._logger.critical ("strategy execution failed: %s" % e)
 
+            troy._logger.warn ("shutting down workload: %s" % workload.id)
+            workload_mgr.cancel_workload (workload.id)
 
-        finally :
-
-            if  workload :
-                troy._logger.warn ("shutting down workload: %s" % workload.id)
-                workload_mgr.cancel_workload (workload.id)
-
-            if  overlay :
-                troy._logger.warn ("shutting down overlay: %s" % overlay.id)
-                overlay_mgr.cancel_overlay (overlay.id)
+            troy._logger.warn ("shutting down overlay: %s" % overlay.id)
+            overlay_mgr.cancel_overlay (overlay.id)
 
 
 # ------------------------------------------------------------------------------

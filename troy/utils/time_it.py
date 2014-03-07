@@ -167,7 +167,7 @@ class Timed (object) :
                                       'events'     : component.timed_events, 
                                       'durations'  : component.timed_durations})
 
-        troy._logger.debug ('timed dump for : %s (%s)' % (self.timed_id, url))
+        troy._logger.debug ('dumped timing to %s/%s' % (url, self.timed_id))
 
 
 
