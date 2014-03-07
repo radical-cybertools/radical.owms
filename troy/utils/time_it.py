@@ -115,8 +115,9 @@ class Timed (object) :
             print "%s    %s"  % (_indent, ct)
             for cid in self.timed_components[ct] :
                 c = self.timed_components[ct][cid]()
-                print "%s      %s (%s)"  % (_indent, cid, type(c))
-                c.timed_dump (_indent+'  ')
+                if  c :
+                    print "%s      %s (%s)"  % (_indent, cid, type(c))
+                    c.timed_dump (_indent+'  ')
 
         if  toplevel :
             print " === dumped %s ===" % self.timed_id
@@ -150,19 +151,22 @@ class Timed (object) :
         for component_type in self.timed_components :
             for component_id in self.timed_components[component_type] :
 
-                component  = self.timed_components[component_type][component_id]()
-                # build up an index of related components
-                components = list()
-                for ct in component.timed_components :
-                    components.append ({'type' : ct, 
-                                        'ids'  : component.timed_components[ct].keys ()})
+                component = self.timed_components[component_type][component_id]()
 
-                # store the timing and component info
-                collection.save ({'_id'        : component.timed_id, 
-                                  'type'       : component.timed_type, 
-                                  'components' : components,
-                                  'events'     : component.timed_events, 
-                                  'durations'  : component.timed_durations})
+                if  component :
+                    # weakref was valid
+                    # build up an index of related components
+                    components = list()
+                    for ct in component.timed_components :
+                        components.append ({'type' : ct, 
+                                            'ids'  : component.timed_components[ct].keys ()})
+
+                    # store the timing and component info
+                    collection.save ({'_id'        : component.timed_id, 
+                                      'type'       : component.timed_type, 
+                                      'components' : components,
+                                      'events'     : component.timed_events, 
+                                      'durations'  : component.timed_durations})
 
 
 
