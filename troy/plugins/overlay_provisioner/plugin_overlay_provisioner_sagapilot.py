@@ -248,12 +248,6 @@ class PLUGIN_CLASS (troy.PluginBase):
                                tags  = ['sagapilot', 'stop_time'],
                                timer = info['stop_time'])
 
-        if 'log' in info :
-            for log in info['log'] :
-                pilot.timed_event ('monitor', 'state_detail', 
-                                   tags  = ['sagapilot', log], 
-                                   timer = -1)
-
         return info
  
  
