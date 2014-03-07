@@ -67,21 +67,24 @@ class PLUGIN_CLASS (troy.PluginBase):
             # make sure all known config vars are expanded
             ru.dict_stringexpand (task_dict, self.session.cfg)
 
+
             if  'cardinality' in task_dict :
                 cardinality = int(task_dict['cardinality'])
 
                 # if cardinality is specified, create 'that many -1' new tasks.
                 # '-1' because we keep the original task around...
-                for c in range(cardinality-1) :
+                for c in range(1, cardinality) :
 
                     new_task_dict = copy.deepcopy(task_dict)
-                    new_task_dict['cardinality'] = 1 # avoid repeated expansion
-                    new_task_dict['cardinal']    = c
+                    new_task_dict['cardinal'] = c
                     task_descriptions.append (troy.TaskDescription (new_task_dict))
+
 
                 # add the fresh tasks
                 workload.add_task (task_descriptions)
 
+            # set cardinal of the original to 0
+            task.cardinal = 0
 
         troy._logger.info ("planner  expand wl cardinality: %s" % workload)
 
