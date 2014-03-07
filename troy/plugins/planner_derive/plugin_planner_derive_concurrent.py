@@ -125,7 +125,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         ovl_descr = troy.OverlayDescription ({'cores'    : cores, 
                                               'walltime' : walltime})
 
-        troy._logger.info ("planner  derive ol: derive overlay for workload: %s" % ovl_descr)
+        troy._logger.info ("planner  derived overlay: %s" % ovl_descr)
 
         return ovl_descr
 

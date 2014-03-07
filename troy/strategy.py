@@ -81,4 +81,6 @@ def execute_workload (workload, planner, overlay_mgr, workload_mgr,
     # so it can do what it has to do.
     strategy.execute (workload_id, planner, overlay_mgr, workload_mgr)
 
+    return session
+
 

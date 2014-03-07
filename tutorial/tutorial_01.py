@@ -9,8 +9,8 @@ import sys
 import troy
 
 
-troy.manage_workload (workload = sys.argv[1], 
-                      config   = sys.argv[2:])
+session = troy.manage_workload (workload = sys.argv[1], 
+                                config   = sys.argv[2:])
 
 # Woohooo!  Magic has happened!
 
