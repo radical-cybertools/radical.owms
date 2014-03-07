@@ -58,7 +58,8 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         task_descriptions = list()
 
-        for task_id in workload.tasks :
+        task_ids = workload.tasks.keys ()
+        for task_id in task_ids :
 
             task = workload.tasks[task_id]
             task_dict = task.as_dict ()
@@ -69,23 +70,23 @@ class PLUGIN_CLASS (troy.PluginBase):
             if  'cardinality' in task_dict :
                 cardinality = int(task_dict['cardinality'])
 
-                for c in range(cardinality) :
+                # if cardinality is specified, create 'that many -1' new tasks.
+                # '-1' because we keep the original task around...
+                for c in range(cardinality-1) :
 
                     new_task_dict = copy.deepcopy(task_dict)
                     new_task_dict['cardinality'] = 1 # avoid repeated expansion
                     new_task_dict['cardinal']    = c
                     task_descriptions.append (troy.TaskDescription (new_task_dict))
 
-            else :
-                task_descriptions.append (task.as_dict ())
+                # add the fresh tasks
+                workload.add_task (task_descriptions)
 
-        # remove old tasks
-        workload.tasks = dict()
-
-        # and add fresh ones
-        workload.add_task (task_descriptions)
 
         troy._logger.info ("planner  expand wl cardinality: %s" % workload)
+
+        print workload.tasks
+        print len(workload.tasks)
 
 
 # ------------------------------------------------------------------------------
