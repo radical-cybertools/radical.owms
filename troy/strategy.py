@@ -31,10 +31,11 @@ def manage_workload (workload, config) :
     # put that flexibility into parse_workload
     parsed_workload = workload_mgr.parse_workload (workload)
 
-    return troy.execute_workload (parsed_workload, planner, 
-                                  overlay_mgr, workload_mgr,
-                                  strategy)
+    troy.execute_workload (parsed_workload, planner, 
+                           overlay_mgr, workload_mgr,
+                           strategy)
 
+    return session
 
 
 
@@ -81,6 +82,5 @@ def execute_workload (workload, planner, overlay_mgr, workload_mgr,
     # so it can do what it has to do.
     strategy.execute (workload_id, planner, overlay_mgr, workload_mgr)
 
-    return session
 
 
