@@ -101,11 +101,6 @@ class Timed (object) :
             toplevel = True
             _indent  = ""
 
-        # for the top level, we also store the time of dump.  For a troy session
-        # that gives, for example, the approximate lifetime of the session.
-        if  toplevel :
-            self.timed_event ('state', 'Dumped')
-
         print "%s  %s" % (_indent, self.timed_id)
         for e in self.timed_events :
             print "%s    event     %26s : %-15s : %s" % (_indent, e['time'], e['event'], e['tags'])
@@ -126,6 +121,10 @@ class Timed (object) :
     # --------------------------------------------------------------------------
     #
     def timed_store (self, url) :
+
+        # we also store the time of dump.  For a troy session
+        # that gives, for example, the approximate lifetime of the session.
+        self.timed_event ('state', 'Dumped')
 
         # get mongodb database details, and connect to it
         host, port, dbname, _, _ = ru.split_dburl (url)
@@ -168,6 +167,7 @@ class Timed (object) :
                                       'events'     : component.timed_events, 
                                       'durations'  : component.timed_durations})
 
+        troy._logger.debug ('timed dump for : %s (%s)' % (self.timed_id, url))
 
 
 
