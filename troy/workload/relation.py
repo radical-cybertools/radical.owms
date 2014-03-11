@@ -50,12 +50,16 @@ class Relation (tu.Properties) :
         self.register_property ('id')
         self.register_property ('head')
         self.register_property ('tail')
+        self.register_property ('time')
+        self.register_property ('space')
         self.register_property ('description')
 
         # initialize essential properties
         self.id          = tid
         self.head        = descr.head
         self.tail        = descr.tail
+        self.time        = descr.relation_time
+        self.space       = descr.relation_space
         self.description = descr
 
         # FIXME: complete attribute list, dig properties from description,

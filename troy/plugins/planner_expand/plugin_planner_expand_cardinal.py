@@ -88,8 +88,8 @@ class PLUGIN_CLASS (troy.PluginBase):
 
         troy._logger.info ("planner  expand wl cardinality: %s" % workload)
 
-        print workload.tasks
-        print len(workload.tasks)
+      # print workload.tasks
+      # print len(workload.tasks)
 
 
 # ------------------------------------------------------------------------------

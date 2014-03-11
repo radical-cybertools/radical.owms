@@ -40,8 +40,8 @@ class Workload (tu.Properties, tu.Timed) :
 
     * *Planning:* A workload is inspected and its cardinal parameters are
       expanded, based on the overlay if it exists.
-
-    * *Translation:* A workload is inspected, and its tasks are translated into 
+relation
+relation    * *Translation:* A workload is inspected, and its tasks are translated into 
       compute units.  A single task may result in one or more compute units.
       Multiple tasks may be combined into one compute unit.
 
@@ -64,8 +64,8 @@ class Workload (tu.Properties, tu.Timed) :
 
     Those states are ill defined in case of partial transformations -- if, for
     example, a translation step only derives compute units for some of the
-    tasks, but not for others.  As a general rule, a workload will remain in
-    a state until the transformation has been performed on all applicable
+    tasks, but not for others.  As a general rule, a workload will remain inrelation
+    a state until the transformation has been performed on all applicable   relation
     workload components (tasks and relations).
 
     Even on fully transformed workloads, the actual workload state may not be
@@ -92,8 +92,8 @@ class Workload (tu.Properties, tu.Timed) :
     not honor the defined partitions -- the plugin documentation should document
     if partitions are honored or not.
 
-    Partitions are provided as `workload.partitions`, which is a list of
-    partition IDs, which can be translated to `troy.Workload` instances via
+    Partitions are provided as `workload.partitions`, which is a list ofrelation
+    partition IDs, which can be translated to `troy.Workload` instances relationvia
     `troy.WorkloadManager.get_workload (workload.partitions[0])` etc.  That list
     will contain at least one partition, the original workload itself --
     algorithms can thus transparently operate over partitioned and unpartitioned
@@ -277,6 +277,10 @@ class Workload (tu.Properties, tu.Timed) :
             bulk  = False
             descr = [descr]
 
+        # grep all known tags from tasks...
+        tags = [self.tasks[t].tag for t in self.tasks]
+
+
         # check type, uniqueness and validity for each relation
         ret = []
 
@@ -288,10 +292,10 @@ class Workload (tu.Properties, tu.Timed) :
             if  d in self.relations :
                 raise ValueError ("Relation '%s' cannot be added again" % d.name)
 
-            if  not d.head in self.tasks :
+            if  not d.head in tags :
                 raise ValueError ("relation head '%s' no known" % d.head)
 
-            if  not d.tail in self.tasks :
+            if  not d.tail in tags :
                 raise ValueError ("relation tail '%s' no known" % d.tail)
 
             r = troy.Relation (d)
@@ -340,11 +344,9 @@ class Workload (tu.Properties, tu.Timed) :
         if  len(self.partitions) > 1 :
             for partition_id in self.partitions :
                 partition = troy.WorkloadManager.get_workload (partition_id)
-                print partition
                 walltime += partition.get_walltime ()
         else :
             for (task_id, task) in self.tasks.iteritems() :
-                print task
                 walltime = max (walltime, task.get_walltime ())
 
         return walltime

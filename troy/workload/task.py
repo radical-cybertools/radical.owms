@@ -155,7 +155,7 @@ class Task (tu.Properties, tu.Timed) :
         else :
             walltime = 0.0
             for unit in self.units :
-                print unit
+              # print unit
                 walltime = max (walltime, unit.walltime)
 
             return walltime
