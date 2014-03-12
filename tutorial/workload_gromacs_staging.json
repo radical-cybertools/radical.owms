@@ -26,6 +26,12 @@
 #
 # Note that the output data will be stored in `output`, relative to pwd.
 #
+#
+# DATA_HACK: we introduce a separate data stager task, to share the staged 
+# input file for all tasks (its only staged once this way).  This will break 
+# if an overlay spans multiple resources...
+#
+
 
 {
   "tasks" : [
