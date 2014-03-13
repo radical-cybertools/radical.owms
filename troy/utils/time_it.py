@@ -89,7 +89,7 @@ class Timed (object) :
         self.timed_components      = dict()
         self._timed_current        = dict()
 
-        self.timed_event ('timed_create', id)
+        self.timed_event ('state', 'Created')
 
 
     # --------------------------------------------------------------------------
@@ -123,7 +123,8 @@ class Timed (object) :
             for cid in self.timed_components[ct] :
                 c = self.timed_components[ct][cid]()
 
-                if  c.timed_id != self.timed_id:
+                if  c and c.timed_id != self.timed_id:
+                    print "%s      %s (%s)"  % (_indent, cid, type(c))
                     c.timed_dump (_indent+'  ')
 
         if  toplevel :
@@ -133,6 +134,10 @@ class Timed (object) :
     # --------------------------------------------------------------------------
     #
     def timed_store (self, url) :
+
+        # we also store the time of dump.  For a troy session
+        # that gives, for example, the approximate lifetime of the session.
+        self.timed_event ('state', 'Dumped')
 
         # get mongodb database details, and connect to it
         host, port, dbname, _, _ = ru.split_dburl (url)
@@ -158,20 +163,24 @@ class Timed (object) :
         for component_type in self.timed_components :
             for component_id in self.timed_components[component_type] :
 
-                component  = self.timed_components[component_type][component_id]()
-                # build up an index of related components
-                components = list()
-                for ct in component.timed_components :
-                    components.append ({'type' : ct, 
-                                        'ids'  : component.timed_components[ct].keys ()})
+                component = self.timed_components[component_type][component_id]()
 
-                # store the timing and component info
-                collection.save ({'_id'        : component.timed_id, 
-                                  'type'       : component.timed_type, 
-                                  'components' : components,
-                                  'events'     : component.timed_events, 
-                                  'durations'  : component.timed_durations})
+                if  component :
+                    # weakref was valid
+                    # build up an index of related components
+                    components = list()
+                    for ct in component.timed_components :
+                        components.append ({'type' : ct, 
+                                            'ids'  : component.timed_components[ct].keys ()})
 
+                    # store the timing and component info
+                    collection.save ({'_id'        : component.timed_id, 
+                                      'type'       : component.timed_type, 
+                                      'components' : components,
+                                      'events'     : component.timed_events, 
+                                      'durations'  : component.timed_durations})
+
+        troy._logger.debug ('dumped timing to %s/%s' % (url, self.timed_id))
 
 
 

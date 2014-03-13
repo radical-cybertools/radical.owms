@@ -43,7 +43,15 @@ if __name__ == '__main__':
         tmp.write   ("%s\n" % r)
         tmp.close   ()
 
-    session = troy.Session ()
+    session = troy.Session (user_cfg = {
+        'planner' : {
+            'derive' : {
+                'concurrent' : {
+                    'concurrency' : 50
+                    }
+                }
+            }
+        })
 
     # Responsible for application workload
     workload_mgr = troy.WorkloadManager (session)
@@ -62,6 +70,7 @@ if __name__ == '__main__':
 
         task_descr                   = troy.TaskDescription()
         task_descr.tag               = "%s" % r
+        task_descr.walltime          = len(r)
         task_descr.executable        = '/bin/cp'
         task_descr.arguments         = ['input', 'output']
 

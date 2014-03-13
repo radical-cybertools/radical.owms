@@ -34,6 +34,7 @@ class TaskDescription (tu.Properties) :
         self.stdout            = None
 
         self.cores             = 1
+        self.walltime          = 0.0
 
         self.inputs            = list()
         self.outputs           = list()
@@ -47,9 +48,9 @@ class TaskDescription (tu.Properties) :
         # session config.
         
         td_dict = self.as_dict()
-        print td_dict
+      # print td_dict
         ru.dict_stringexpand (td_dict, session.cfg)
-        print td_dict
+      # print td_dict
 
         # we need to re-initialize our properties with the expanded dict values
         tu.Properties.__init__ (self, td_dict)

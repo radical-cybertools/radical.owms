@@ -89,9 +89,11 @@ class Pilot (tu.Properties, tu.Timed) :
         self.register_property ('affinity_machine_label')
          
         # initialize essential properties
-        self.state          = DESCRIBED
-        self.description    = descr
+        self.state          = None
         self.resource       = None
+        self.description    = descr
+
+        self._set_state (DESCRIBED)
 
         # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks
@@ -108,9 +110,10 @@ class Pilot (tu.Properties, tu.Timed) :
 
             self.id,             self.native_id, \
             self._provisioner,   self._instance, \
-            self._instance_type, self._state,    \
+            self._instance_type, state,          \
             self.resource = self._instance_cache.get (instance_id = self.id, 
                                                       native_id   = self.native_id)
+            self._set_state (state)
 
             if  not self._instance :
                 troy._logger.warn ("Could not reconnect to pilot %s (%s)" % (self.id, self.native_id))
@@ -145,10 +148,22 @@ class Pilot (tu.Properties, tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def merge_description (self, source) :
+    def _set_state (self, new_state) :
+        """
+        Private method which updates the object state, and logs the event time
+        """
+
+        if  self.state != new_state :
+            self.state  = new_state
+            self.timed_event ('state', new_state)
+
+
+    # --------------------------------------------------------------------------
+    #
+    def merge_description (self, source, policy="preserve") :
         """
         merge additional information into the pilot description -- such as
-        resource information, or application specific data
+        resource information, or application specific data.
         """
 
         # we only allow this in DESCRIBED or BOUND state
@@ -157,7 +172,7 @@ class Pilot (tu.Properties, tu.Timed) :
                              % self.state)
 
         pd_dict = self.description.as_dict ()
-        ru.dict_merge        (pd_dict, source, policy='overwrite')
+        ru.dict_merge        (pd_dict, source, policy=policy)
         ru.dict_stringexpand (pd_dict)
         ru.dict_stringexpand (pd_dict, self.session.cfg)
 
@@ -178,7 +193,7 @@ class Pilot (tu.Properties, tu.Timed) :
             if  self._provisioner :
                 self._provisioner.pilot_cancel (self)
 
-            self.state = CANCELED
+            self._set_state (CANCELED)
 
 
     # --------------------------------------------------------------------------
@@ -189,7 +204,7 @@ class Pilot (tu.Properties, tu.Timed) :
             raise RuntimeError ("Can only bind pilots in DESCRIBED state (%s)" % self.state)
 
         self.resource = resource
-        self.state    = BOUND
+        self._set_state (BOUND)
 
         # update cache
         self._instance_cache.put (instance_id = self.id, 
@@ -215,7 +230,9 @@ class Pilot (tu.Properties, tu.Timed) :
         self._instance      = instance
 
         self.native_id      = native_id
-        self.state          = PROVISIONED
+
+        self._set_state (PROVISIONED)
+
 
         troy.OverlayManager.pilot_id_to_native_id (self.id, native_id)
 

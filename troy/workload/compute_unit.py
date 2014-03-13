@@ -195,7 +195,6 @@ class ComputeUnit (tu.Properties, tu.Timed) :
       # print '-------------'
       # pprint.pprint (self.session.cfg)
       # print '-------------'
-      # exit()
 
         for (key, val) in ud_dict.iteritems () :
             try :

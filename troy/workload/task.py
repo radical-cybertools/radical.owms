@@ -60,6 +60,7 @@ class Task (tu.Properties, tu.Timed) :
         self.register_property ('cardinality')
         self.register_property ('units')
         self.register_property ('workload')
+        self.register_property ('description')
 
 
         # initialize essential properties
@@ -67,6 +68,7 @@ class Task (tu.Properties, tu.Timed) :
         self.tag         = descr.get ('tag', None)
         self.units       = dict()
         self.workload    = _workload
+        self.description = descr
 
         # FIXME: complete attribute list, dig properties from description,
         # perform sanity checks
@@ -133,6 +135,30 @@ class Task (tu.Properties, tu.Timed) :
         self.timed_component (unit, 'troy.Unit', unit.id)
 
         return unit.id
+
+
+    # --------------------------------------------------------------------------
+    #
+    def get_walltime (self) :
+        """
+        This method will return a walltime estimate for the task.  If walltime
+        was given for the task description, we use it.  If it was not, or is
+        zero, then we sum up the max walltime of all CUs currently defined (i.e.
+        we assume CUs in one task to always (be able to) run concurrently.
+        """
+
+        if  'walltime' in self.description and \
+            self.description['walltime'] :
+
+            return self.description['walltime']
+
+        else :
+            walltime = 0.0
+            for unit in self.units :
+              # print unit
+                walltime = max (walltime, unit.walltime)
+
+            return walltime
 
 
     # --------------------------------------------------------------------------
