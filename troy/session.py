@@ -130,6 +130,7 @@ class Session (saga.Session, tu.Timed) :
         self.id         = ru.generate_id (session_id_stub, mode=ru.ID_UNIQUE)
         troy._logger.info ("session id: %s" % self.id)
         
+
         # and initialize the inherited saga session
         tu.Timed.__init__ (self, 'troy.Session', self.id)
         self.timed_method ('saga.Session', ['init'],  

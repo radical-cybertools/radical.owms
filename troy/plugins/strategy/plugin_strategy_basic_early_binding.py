@@ -208,6 +208,8 @@ class PLUGIN_CLASS (troy.PluginBase):
         except Exception as e :
 
             troy._logger.critical ("strategy execution failed: %s" % e)
+            import traceback
+            traceback.print_exc()
 
             troy._logger.warn ("shutting down workload: %s" % workload.id)
             workload_mgr.cancel_workload (workload.id)
