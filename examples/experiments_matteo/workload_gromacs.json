@@ -1,0 +1,48 @@
+
+# ------------------------------------------------------------------------------
+#
+# workload_gromacs.json
+#
+# This file defines a simple gromacs workload, i.e. a number of gromacs tasks
+# with input and output staging.
+#
+# cardinality: 
+#     the task is run that many times all string based values will be expanded
+#     with matching values from the application config.  
+#
+#     For example, if the application config sets 
+#         "bag_size"    : 10
+#     then 
+#         "cardinality" : "%(bag_size)s"
+#     will expand to 
+#         "cardinality" : "10"
+#
+#     The placeholder "%(cardinal)s" will expand to the sequential task number
+#     (0..9 in our example).
+#
+# Other placeholders will be expanded depending on the resource the task will
+# land on, such as "%(username)s", "%(mdrun)s" or "%(home)".   Note that the
+# mdrun location is set in 'config_application.json'.
+#
+# Note that the output data will be stored in `output`, relative to pwd.
+#
+
+{
+  "tasks" : [
+    {
+      "cardinality"       : "%(bag_size)s",
+    # "executable"        : "%(mdrun)s",
+      "executable"        : "/bin/sh",
+      "walltime"          : 1,
+      "arguments"         : ["-c", "cd %(working_directory)s; %(mdrun)s"],
+      "working_directory" : "%(home)s/troy_tutorial/troy_tutorial_01_%(cardinal)s/",
+      "inputs"            : ["input/topol.tpr > topol.tpr"],
+      "outputs"           : ["output/%(session_id)s_state.cpt.%(cardinal)s   < state.cpt",
+                             "output/%(session_id)s_confout.gro.%(cardinal)s < confout.gro",
+                             "output/%(session_id)s_ener.edr.%(cardinal)s    < ener.edr",
+                             "output/%(session_id)s_traj.trr.%(cardinal)s    < traj.trr",
+                             "output/%(session_id)s_md.log.%(cardinal)s      < md.log"]
+    }
+  ]
+}
+
