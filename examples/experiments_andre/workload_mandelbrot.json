@@ -1,0 +1,26 @@
+
+# workload
+{
+    "tasks"                     : [
+        {
+            "tag"               : "master",
+            "cardinality"       : 1,
+            "executable"        : "python",
+            "arguments"         : ["%(home)s/synapse_mb/mandelbrot_master.py",
+                                   "-i=%(session_id)s", 
+                                   "-s=%(mb_size)s", 
+                                   "-n=%(bag_size)s"]
+        },
+        {
+            "tag"               : "worker",
+            "cardinality"       : "%(bag_size)s",
+            "executable"        : "python",
+            "arguments"         : ["%(home)s/synapse_mb/mandelbrot_worker.py",
+                                   "-i=%(session_id)s", 
+                                   "-n=%(cardinal)s"],
+            "working_directory" : "%(home)s/troy_mb/worker_%(cardinal)s/",
+            "outputs"           : ["output/mb_out_%(cardinal)s.png   < mb_out.png"]
+        }
+    ]
+}
+
