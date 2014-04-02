@@ -3,16 +3,16 @@
     "resources" : {
         "*.futuregrid.org" : {
             "home"     : "/N/u/%(username)s/",
-            "walltime" : 600
+            "walltime" : 60
         },
             
         "stampede.tacc.utexas.edu" : {
-            "walltime" : 600
+            "walltime" : 60
         },
             
         "localhost"    : {
             "home"     : "/home/%(username)s/",
-            "walltime" : 600
+            "walltime" : 60
         }
     }
 }

@@ -232,7 +232,7 @@ setup_args = {
   # dependencies are met -- so we add the all for the time being.
     'install_requires' : ['saga-python', 'radical.utils', 'pymongo', 'paramiko'],
     'extras_require'   : {
-        'sagapilot'    :  ["sagapilot"],
+        'radical.pilot':  ["radical.pilot"],
         'bigjob'       :  ["bigjob"],
         'bundles'      :  ["paramiko"]
     },

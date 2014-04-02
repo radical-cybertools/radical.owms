@@ -129,7 +129,7 @@ to the configuration of the :class:`troy.WorkloadManager` class:
    {
        "hosts"         : "pbs+ssh://sierra.futuregrid.org",
        "pilot_size"    : "4",
-       "pilot_backend" : "sagapilot",
+       "pilot_backend" : "radical.pilot",
    
        "overlay_manager"                : {
    
@@ -142,7 +142,7 @@ to the configuration of the :class:`troy.WorkloadManager` class:
                "bigjob"                 : {
                    "coordination_url"   : "redis://%(redis_passwd)s@gw68.quarry.iu.teragrid.org:6379"
                },
-               "sagapilot"              : {
+               "radical.pilot"          : {
                    "coordination_url"   : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/"
                }
            },docs/source

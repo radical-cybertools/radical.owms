@@ -54,12 +54,12 @@ if __name__ == '__main__':
         })
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (session, dispatcher = 'sagapilot')
+    workload_mgr = troy.WorkloadManager (session, dispatcher = 'radical.pilot')
 
     # Responsible for managing the pilot overlay
     overlay_mgr = troy.OverlayManager (session, 
                                        scheduler    = 'round_robin', 
-                                       provisioner  = 'sagapilot')
+                                       provisioner  = 'radical.pilot')
 
     # Planning makes initial mapping of workload to overlay
     planner = troy.Planner (session, derive = 'concurrent')

@@ -65,7 +65,7 @@ In order to create a pilot overlay on some target resources, TROY needs to know 
 .. note:: You may also use **wildcards** to specify settings for classes of resources. For example: `"*.futuregrid.org"`.  Wildcards are only evaluated for resource config sections.
 
 Beyond providing information about the target resources, TROY may also require
-users to provide settings for the pilot backends. Both the backends that are currently supported - i.e., `sagapilot` and `BigJob` - require, for example, a coordination URL. Further, TROY needs to know what target resources are considered eligible for use.
+users to provide settings for the pilot backends. Both the backends that are currently supported - i.e., `RADICAL-Pilot` and `BigJob` - require, for example, a coordination URL. Further, TROY needs to know what target resources are considered eligible for use.
 
 The example configuration section below shows how to pass those settings to
 respective TROY plugins. Note again the use of placeholders.
@@ -76,15 +76,15 @@ respective TROY plugins. Note again the use of placeholders.
     {
         "redis_password"               : "secret",
         "bigjob_coordination_url"      : "redis://%(redis_passwd)s-REdIS@gw68.quarry.iu.teragrid.org:6379",
-        "sagapilot_coordination_url"   : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/",
+        "radcal_pilot_coordination_url"   : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/",
 
         "workload_manager"             : {
             "workload_dispatcher"      : {
                 "bigjob"               : {
                     "coordination_url" : "%(bigjob_coordination_url)s"
                 },
-                "sagapilot"            : {
-                    "coordination_url" : "%(sagapilot_coordination_url)s"
+                "radical.pilot"        : {
+                    "coordination_url" : "%(radcal_pilot_coordination_url)s"
                 }
             }
         },
@@ -94,8 +94,8 @@ respective TROY plugins. Note again the use of placeholders.
                 "bigjob"               : {
                     "coordination_url" : "%(bigjob_coordination_url)s"
                 },
-                "sagapilot"            : {
-                    "coordination_url" : "%(sagapilot_coordination_url)s"
+                "radical.pilot"        : {
+                    "coordination_url" : "%(radcal_pilot_coordination_url)s"
                 }
             },
             "overlay_scheduler"        : {
@@ -166,7 +166,7 @@ Here a concrete example:
     {
         "workload_manager"               : {
             "plugin_workload_dispatcher" : {
-                "sagapilot"              : {
+                "radical.pilot"          : {
                     "coordination_url"   : "redis://localhost"
                 }
             }
