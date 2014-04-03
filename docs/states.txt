@@ -48,6 +48,12 @@ FAILED       = 'Failed'      # oops
 CANCELED     = 'Canceled'    # Unit canceled
 UNKNOWN      = 'Unknown'     # what?
 
+Proposed Amendments:
+--------------------
+  - rename BOUND to SCHEDULED (or make otherwise consistent)
+  - split  DISPATCHED into PENDING and RUNNING
+  - allow PENDING -> DESCRIBED and PENDING -> SCHEDULED etc?
+
 
 # ------------------------------------------------------------------------------
 # Task states
@@ -101,6 +107,13 @@ DONE         = 'Done'        # all units are          DONE
 FAILED       = 'Failed'      # one unit               FAILED
 CANCELED     = 'Canceled'    # one unit  was          CANCELED
 UNKNOWN      = 'Unknown'     # what?
+
+Proposed Amendments:
+--------------------
+  - rename BOUND to SCHEDULED (or make otherwise consistent)
+  - split  DISPATCHED into PENDING and RUNNING
+  - allow PENDING -> DESCRIBED and PENDING -> SCHEDULED etc?
+
 
 # ------------------------------------------------------------------------------
 # workload states
@@ -156,6 +169,13 @@ FAILED       = 'Failed'      # one task           FAILED
 CANCELED     = 'Canceled'    # one task  was      CANCELED
 UNKNOWN      = 'Unknown'     # what?
 
+Proposed Amendments:
+--------------------
+  - rename BOUND to SCHEDULED (or make otherwise consistent)
+  - split  DISPATCHED into PENDING and RUNNING
+  - allow PENDING -> DESCRIBED and PENDING -> SCHEDULED etc?
+
+
 
 # ---------- --------------------------------------------------------------------
 # pilot states
@@ -189,6 +209,13 @@ COMPLETED    = 'Completed'   # finished as planned
 CANCELED     = 'Canceled'    # finished as requested
 FAILED       = 'Failed'      # oops
 UNKNOWN      = 'Unknown'     # what?
+
+Proposed Amendments:
+--------------------
+  - rename BOUND       to SCHEDULED (or make otherwise consistent)
+  - split  PROVISIONED into PENDING and RUNNING
+  - allow PENDING -> DESCRIBED and PENDING -> SCHEDULED etc?
+
 
 # ------------------------------------------------------------------------------
 # overlay states
@@ -229,5 +256,11 @@ COMPLETED    = 'Completed'   # pilots completed
 CANCELED     = 'Canceled'    # pilots canceled
 FAILED       = 'Failed'      # oops
 UNKNOWN      = 'Unknown'     # what?
+
+Proposed Amendments:
+--------------------
+  - rename SCHEDULED   to BOUND (or make otherwise consistent)
+  - split  PROVISIONED into PENDING and RUNNING  (or make otherwise consistent)
+  - allow PENDING -> TRANSLATED and PENDING -> SCHEDULED etc?
 
 
