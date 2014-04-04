@@ -51,8 +51,8 @@ UNKNOWN      = 'Unknown'     # what?
 Proposed Amendments:
 --------------------
   - rename BOUND to SCHEDULED (or make otherwise consistent)
-  - split  DISPATCHED into PENDING and RUNNING
-  - allow PENDING -> DESCRIBED and PENDING -> SCHEDULED etc?
+  - remove DISPATCHED (this is covered by PENDING and RUNNING)
+  - allow  PENDING -> DESCRIBED and PENDING -> SCHEDULED etc?
 
 
 # ------------------------------------------------------------------------------
@@ -78,18 +78,6 @@ Proposed Amendments:
                |                 |                  |
                |          +------v------+           |
                |          | DISPATCHED  |           |
-               |          +---+--+--+---+           |
-               |                 |                  |
-               +-----------------+------------------+
-               |                 |                  |
-               |          +------v------+           |
-               |          |   PENDING   |           |
-               |          +---+--+--+---+           |
-               |                 |                  |
-               +-----------------+------------------+
-               |                 |                  |
-               |          +------v------+           |
-               |          |   RUNNING   |           |
                |          +---+--+--+---+           |
                |                 |                  |
                +-----------------+------------------+
@@ -138,18 +126,6 @@ Proposed Amendments:
                |                 |                  |
                |          +------v------+           |
                |          | DISPATCHED  |           |
-               |          +---+--+--+---+           |
-               |                 |                  |
-               +-----------------+------------------+
-               |                 |                  |
-               |          +------v------+           |
-               |          |   PENDING   |           |
-               |          +---+--+--+---+           |
-               |                 |                  |
-               +-----------------+------------------+
-               |                 |                  |
-               |          +------v------+           |
-               |          |   RUNNING   |           |
                |          +---+--+--+---+           |
                |                 |                  |
                +-----------------+------------------+
