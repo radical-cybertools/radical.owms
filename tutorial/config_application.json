@@ -3,7 +3,7 @@
 {
     # variables we want to vary for each experiment run
     "steps"            : 256,
-    "bag_size"         : 8,
+    "bag_size"         : 18,
 
     # build up a unique session id from those variables.  This 
     # ID will be used by try to identify this run

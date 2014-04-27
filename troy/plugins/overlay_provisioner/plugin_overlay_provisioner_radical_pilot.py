@@ -72,8 +72,6 @@ class PLUGIN_CLASS (troy.PluginBase):
             raise RuntimeError ("Cannot use radical.pilot backend - no COORDINATION_URL -- see debug log for details")
 
 
-        self._rp = rp.Session (database_url = self._coord)
-
 
     # --------------------------------------------------------------------------
     #
@@ -92,6 +90,12 @@ class PLUGIN_CLASS (troy.PluginBase):
         for pid in overlay.pilots.keys() :
 
             troy_pilot = overlay.pilots[pid]
+
+            # one session per pilot, so that we always have one credential per
+            # session (saga likes it that way).  We could cache sessions per
+            # credential though...
+            session = rp.Session (database_url = self._coord)
+
  
             # only BOUND pilots have a target resource assigned.
             if  troy_pilot.state not in [BOUND] :
@@ -119,14 +123,14 @@ class PLUGIN_CLASS (troy.PluginBase):
 
                     cred = rp.SSHCredential()
                     cred.user_id = username
-                    self._rp.add_credential(cred)
+                    session.add_credential(cred)
                     print "added username %s @ %s" % (username, pilot_descr.resource)
 
 
             # and create the pilot overlay
-            rp_um    = rp.UnitManager  (session   = self._rp, 
+            rp_um    = rp.UnitManager  (session   = session, 
                                         scheduler = 'direct_submission')
-            rp_pm    = rp.PilotManager (session   = self._rp, 
+            rp_pm    = rp.PilotManager (session   = session, 
                                         resource_configurations = [FGCONF, XSEDECONF])
             rp_pilot = rp_pm.submit_pilots (pilot_descr)
 
@@ -156,9 +160,11 @@ class PLUGIN_CLASS (troy.PluginBase):
         rp_pm_id    = native_id[1]
         rp_pilot_id = native_id[2]
 
-        rp_um       = self._rp.get_unit_managers  (rp_um_id)
-        rp_pm       = self._rp.get_pilot_managers (rp_pm_id)
-        rp_pilot    = rp_pm.get_pilots            (rp_pilot_id)
+        session = rp.Session (database_url = self._coord)
+
+        rp_um       = session.get_unit_managers  (rp_um_id)
+        rp_pm       = session.get_pilot_managers (rp_pm_id)
+        rp_pilot    = rp_pm.get_pilots           (rp_pilot_id)
 
         return [rp_um, rp_pm, rp_pilot]
     
