@@ -5,7 +5,7 @@ include LICENSE.md
 include CHANGES.md 
 include VERSION
 
-recursive-include tests *
-recursive-include troy  *
+recursive-include tests         *
+recursive-include radical/owms  *
 
 

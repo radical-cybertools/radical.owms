@@ -1,5 +1,5 @@
 
-__author__    = "TROY Development Team"
+__author__    = "RADICAL Development Team"
 __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
@@ -17,7 +17,7 @@ import shlex
 import getpass
 import synapse
 
-import troy
+import radical.owms
 
 app_num   = 4
 app_size  = 100
@@ -61,34 +61,34 @@ if __name__ == '__main__' :
 
     start   = time.time ()
     mode    = None # synapse.PROFILE
-    session = troy.Session ()
+    session = radical.owms.Session ()
 
-    # troy managers for master
-    m_planner      = troy.Planner         (session)
-    m_overlay_mgr  = troy.OverlayManager  (session)
-    m_workload_mgr = troy.WorkloadManager (session)
+    # radical.owms managers for master
+    m_planner      = radical.owms.Planner         (session)
+    m_overlay_mgr  = radical.owms.OverlayManager  (session)
+    m_workload_mgr = radical.owms.WorkloadManager (session)
 
-    # troy managers for workers
-    w_planner      = troy.Planner         (session)
-    w_overlay_mgr  = troy.OverlayManager  (session)
-    w_workload_mgr = troy.WorkloadManager (session)
+    # radical.owms managers for workers
+    w_planner      = radical.owms.Planner         (session)
+    w_overlay_mgr  = radical.owms.OverlayManager  (session)
+    w_workload_mgr = radical.owms.WorkloadManager (session)
 
 
     # --------------------------------------------------------------------------
     # Create and dispatch the master workload first.
-    m_workload    = troy.Workload (session)
+    m_workload    = radical.owms.Workload (session)
     m_workload_id = m_workload.id
 
-    td = troy.TaskDescription ({'tag'       : 'master',
-                                'executable': 'mandelbrot_master.py',
-                                'arguments' : ['--master_id=%s' % app_id,
-                                               '-n=%s'          % app_num,
-                                               '-s=%s'          % app_size,
-                                               '-d=%s'          % app_depth]})
+    td = radical.owms.TaskDescription ({'tag'       : 'master',
+                                        'executable': 'mandelbrot_master.py',
+                                        'arguments' : ['--master_id=%s' % app_id,
+                                                       '-n=%s'          % app_num,
+                                                       '-s=%s'          % app_size,
+                                                       '-d=%s'          % app_depth]})
     m_workload.add_task (synapsify (td, mode))
 
     m_overlay_descr = m_planner.derive_overlay (m_workload_id)
-    m_overlay       = troy.Overlay (session, m_overlay_descr)
+    m_overlay       = radical.owms.Overlay (session, m_overlay_descr)
     m_overlay_id    = m_overlay.id
 
     m_overlay_mgr.translate_overlay         (m_overlay_id)
@@ -108,30 +108,30 @@ if __name__ == '__main__' :
         for m_unit_id, m_unit in m_task.units.items() :
             m_units.append (m_unit)
 
-    while troy.RUNNING not in [m_unit.state for m_unit in m_units] :
+    while radical.owms.RUNNING not in [m_unit.state for m_unit in m_units] :
         time.sleep (1)
-        troy._logger.info  ("wait for master to come up")
+        radical.owms._logger.info  ("wait for master to come up")
 
     m_workload.state
 
 
     # --------------------------------------------------------------------------
     # now create and dispatch worker workload (essentially bag of tasks)
-    w_workload    = troy.Workload (session)
+    w_workload    = radical.owms.Workload (session)
     w_workload_id = w_workload.id
 
     for i in range (0, app_num) :
-        td = troy.TaskDescription ({'tag'       : 'worker_%d' % i,
-                                    'executable': 'mandelbrot_worker.py',
-                                    'arguments' : ['--master_id=%s'   % app_id,
-                                                   '-n=%s'            % app_num,
-                                                   '-s=%s'            % app_size,
-                                                   '-d=%s'            % app_depth, 
-                                                   '--worker_id=%d'   % i]})
+        td = radical.owms.TaskDescription ({'tag'       : 'worker_%d' % i,
+                                            'executable': 'mandelbrot_worker.py',
+                                            'arguments' : ['--master_id=%s'   % app_id,
+                                                           '-n=%s'            % app_num,
+                                                           '-s=%s'            % app_size,
+                                                           '-d=%s'            % app_depth, 
+                                                           '--worker_id=%d'   % i]})
         w_workload.add_task (synapsify (td, mode))
 
     w_overlay_descr = w_planner.derive_overlay (w_workload_id)
-    w_overlay       = troy.Overlay (session, w_overlay_descr)
+    w_overlay       = radical.owms.Overlay (session, w_overlay_descr)
     w_overlay_id    = w_overlay.id
 
     w_overlay_mgr.translate_overlay         (w_overlay_id)
@@ -145,17 +145,17 @@ if __name__ == '__main__' :
 
     # we wait until the worker workload is done, but don't really care about the
     # states of the individual CUs
-    while w_workload.state not in [troy.DONE, troy.FAILED, troy.CANCELED] :
+    while w_workload.state not in [radical.owms.DONE, radical.owms.FAILED, radical.owms.CANCELED] :
         time.sleep (1)
-        troy._logger.info  ("wait for workers to finish")
+        radical.owms._logger.info  ("wait for workers to finish")
 
 
 
     # --------------------------------------------------------------------------
     # at that point, the master should also finish (eventually)
-    while m_workload.state not in [troy.DONE, troy.FAILED, troy.CANCELED] :
+    while m_workload.state not in [radical.owms.DONE, radical.owms.FAILED, radical.owms.CANCELED] :
         time.sleep (1)
-        troy._logger.info  ("wait for master  to finish")
+        radical.owms._logger.info  ("wait for master  to finish")
 
 
     # --------------------------------------------------------------------------

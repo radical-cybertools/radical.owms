@@ -11,7 +11,7 @@
 
 
     # We add some additional, app specific information to the 
-    # troy resource configuration, so that we can use placeholder
+    # radical.owms resource configuration, so that we can use placeholder
     # like '%(mdrun)s' in our workload descriptions.
     # This section *must* be named `resources`.
     "resources" : {

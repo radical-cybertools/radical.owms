@@ -3,36 +3,32 @@
 
 ### Pointers
 
-* home page:     http://saga-project.github.io/troy/
-* documentation: http://saga-project.github.io/troy/docs/build/html/
-* wiki pages:    https://github.com/saga-project/troy/wiki/
-* issue tracker: https://github.com/saga-project/troy/issues/
+* home page:     http://radical-cybertools.github.io/radical.owms/
+* documentation: http://radical-cybertools.github.io/radical.owms/docs/build/html/
+* wiki pages:    https://github.com/radical-cybertools/radical.owms/wiki/
+* issue tracker: https://github.com/radical-cybertools/radical.owms/issues/
 
 
 ### Installation Notes
 
-At this stage, the devel branches of saga-python, radical.utils, and bigjob should
-be used with TROY.  (If these are not manually installed, the
-TROY installer may pull in non-devel versions.)
+To set up the RADICAL-OWMS environment, use 
 
-To set up the TROY environment, use 
+    pip install .
 
-pip install .
-
-Or, to make extra-sure TROY is installed correctly with all trace
+Or, to make extra-sure RADICAL-OWMS is installed correctly with all trace
 of previous installations removed:
 
-pip uninstall troy; rm -rf ./build; pip install .
+    pip uninstall radical.owms; rm -rf ./build; pip install .
 
 
 ### Configuration
 
-You can use a configuration file in the location "~/.troy.cfg".
-An example is provided in `examples/troy.cfg`, you can copy
-that to "~/.troy.cfg" and customize to your environment.
+You can use a configuration file in the location "~/.radical.owms.cfg".
+An example is provided in `examples/radical.owms.cfg`, you can copy
+that to "~/.radical.owms.cfg" and customize to your environment.
 
 Available configuration options are explained in more detailed 
-in the Troy library documentation, and apply mostly to the Troy 
+in the OWMS library documentation, and apply mostly to the OWMS 
 plugins.
 
 
@@ -48,11 +44,11 @@ from `devel` to `master`, to prepare for a release.
 An usual development workflow should look like:
 
 ```
-git clone git@github.com:saga-project/troy.git # get repostory
-cd troy                                        # 
+git clone git@github.com:radical-cybertools/radical.owms.git # get repostory
+cd radical.owms                                        # 
 git checkout devel                             # switch to devel branch
 git checkout -b feature/world_domination       # create a feature branch from there
-vim troy/world_domination.py                   # do the deed...
+vim radical/owms/world_domination.py           # do the deed...
 vim tests/test_world_domination.py             #
 git commit -am 'we now dominate the world'     # commit your changes
 git push origin feature/world_domination       # sync with github

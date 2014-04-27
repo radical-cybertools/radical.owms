@@ -7,8 +7,8 @@ __license__   = "MIT"
 import os
 import sys
 
-import troy.utils.test_config as tutc
-import radical.utils.testing  as rut
+import radical.owms.utils.test_config as tutc
+import radical.utils.testing          as rut
 
 
 #-----------------------------------------------------------------------------
@@ -16,7 +16,7 @@ import radical.utils.testing  as rut
 if __name__ == "__main__":
 
     # set up the testing framework
-    testing = rut.Testing ('troy', __file__)
+    testing = rut.Testing ('radical.owms', __file__)
 
     for config in sys.argv[1:] :
 

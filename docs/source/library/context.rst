@@ -3,10 +3,10 @@
 Security Contexts 
 *****************
 
-Context Class -- :mod:`troy.context`
-------------------------------------
+Context Class -- :mod:`radical.owms.context`
+--------------------------------------------
 
-.. automodule:: troy.context
+.. automodule:: radical.owms.context
    :show-inheritance:
    :members: Context
 
@@ -23,13 +23,13 @@ The following context attributes are supported:
 .. data::  Contex("UserPass")
 
     The type for this context has to be set to "UserPass" in the constructor, 
-    i.e., ``troy.Context("ssh")``.
+    i.e., ``radical.owms.Context("ssh")``.
 
-.. data::  troy.context.user_id
+.. data::  radical.owms.context.user_id
 
     The username on the target resource. 
 
-.. data::  troy.context.user_pass
+.. data::  radical.owms.context.user_pass
 
     The pass-phrase to use.
 
@@ -38,16 +38,16 @@ The following context attributes are supported:
 
 **Example**::
 
-    ctx = troy.Context("UserPass")
+    ctx = radical.owms.Context("UserPass")
 
     ctx.user_id   = "johndoe"
     ctx.user_pass = os.environ['MY_USER_PASS']
 
-    session = troy.Session()
+    session = radical.owms.Session()
     session.add_context(ctx)
 
-    js = troy.job.Service("ssh://machine_y.futuregrid.org",
-                          session=session)
+    js = radical.owms.job.Service("ssh://machine_y.futuregrid.org",
+                                  session=session)
 
 SSH Context
 -----------
@@ -60,18 +60,18 @@ The following context attributes are supported:
 .. data::  Contex("SSH")
 
     The type for this context has to be set to "SSH" in the constructor, 
-    i.e., ``troy.Context("SSH")``.
+    i.e., ``radical.owms.Context("SSH")``.
 
-.. data::  troy.context.user_id
+.. data::  radical.owms.context.user_id
 
     The username on the target resource. 
 
-.. data::  troy.context.user_key
+.. data::  radical.owms.context.user_key
 
     The public ssh key file to use for the connection. This attribute is useful
     if an SSH key-pair other than the default one (in $HOME/.ssh/) is required to establish a connection.
 
-.. data::  troy.context.user_pass
+.. data::  radical.owms.context.user_pass
 
     The pass-phrase to use to decrypt a password-protected key.
 
@@ -80,17 +80,17 @@ The following context attributes are supported:
 
 **Example**::
 
-    ctx = troy.Context("SSH")
+    ctx = radical.owms.Context("SSH")
 
     ctx.user_id   = "johndoe"
     ctx.user_key  = "/home/johndoe/.ssh/key_for_machine_x"
     ctx.user_pass = "XXXX"  # password to decrypt 'user_key' (if required)
 
-    session = troy.Session()
+    session = radical.owms.Session()
     session.add_context(ctx)
 
-    js = troy.job.Service("ssh://machine_x.futuregrid.org",
-                          session=session)
+    js = radical.owms.job.Service("ssh://machine_x.futuregrid.org",
+                                  session=session)
 
 
 
@@ -104,9 +104,9 @@ The following context attributes are supported:
 .. data::  Contex("X509")
 
     The type for this context has to be set to "X509" in the constructor, 
-    i.e., ``troy.Context("X509")``.
+    i.e., ``radical.owms.Context("X509")``.
 
-.. data::  troy.context.user_proxy
+.. data::  radical.owms.context.user_proxy
 
     The X509 user proxy file to use for the connection. This attribute is useful
     if a proxy file other than the default one (in /tmp/x509_u<uid>) is required to establish a connection.
@@ -114,15 +114,15 @@ The following context attributes are supported:
 
 **Example**::
 
-    ctx = troy.Context("X509")
+    ctx = radical.owms.Context("X509")
 
     ctx.user_proxy = "/tmp/x509_u123_for_machine_y"
 
-    session = troy.Session()
+    session = radical.owms.Session()
     session.add_context(ctx)
 
-    js = troy.job.Service("gsissh://machine_y.futuregrid.org",
-                          session=session)
+    js = radical.owms.job.Service("gsissh://machine_y.futuregrid.org",
+                                  session=session)
 
 
 MyProxy Context
@@ -135,24 +135,24 @@ The following context attributes are supported:
 .. data::  Contex("MyProxy")
 
     The type for this context has to be set to "MyProxy" in the constructor, 
-    i.e., ``troy.Context("MyProxy")``.
+    i.e., ``radical.owms.Context("MyProxy")``.
 
-.. data::  troy.context.server
+.. data::  radical.owms.context.server
 
     The hostname of the myproxy server. 
     This is equivalent to ``myproxy-logon --pshost``.
 
-.. data::  troy.context.user_id
+.. data::  radical.owms.context.user_id
 
     The username for the delegated proxy. 
     This is equivalent to ``myproxy-logon --username``.
 
-.. data::  troy.context.life_time
+.. data::  radical.owms.context.life_time
 
     The lifetime of the delegated proxy.
     This is equivalent to ``myproxy-logon --proxy_lifetime`` (default is 12h).
 
-.. data::  troy.context.user_pass
+.. data::  radical.owms.context.user_pass
 
     The password for the delegated proxy.
 
@@ -161,17 +161,17 @@ The following context attributes are supported:
 
 **Example**::
 
-    c = troy.Context("MyProxy")
+    c = radical.owms.Context("MyProxy")
 
     c.server    = "myproxy.teragrid.org"
     c.user_id   = "johndoe"
     c.user_pass = os.environ['MY_USER_PASS']
 
-    session = troy.Session()
+    session = radical.owms.Session()
     session.add_context(ctx)
 
-    js = troy.job.Service("pbs+gsissh://gsissh.kraken.nics.xsede.org",
-                           session=session)
+    js = radical.owms.job.Service("pbs+gsissh://gsissh.kraken.nics.xsede.org",
+                                   session=session)
 
 
 EC2 Context
@@ -187,40 +187,40 @@ The following context attributes are supported:
 .. data::  Contex("MyProxy")
 
     The type for this context has to be set to "EC2" in the constructor, 
-    i.e., ``troy.Context("EC2")``.
+    i.e., ``radical.owms.Context("EC2")``.
 
 
-.. data::  troy.context.user_id
+.. data::  radical.owms.context.user_id
 
     The Amazon EC2 ID. See the Amazon Web-Services website for more details.
 
-.. data::  troy.context.user_key
+.. data::  radical.owms.context.user_key
 
     The Amazon EC2 key. See the Amazon Web-Services website for more details.
 
 
 **Example**::
 
-    ec2_ctx = troy.Context('EC2')
+    ec2_ctx = radical.owms.Context('EC2')
     ec2_ctx.user_id = 'XXXXXXXXXXYYYYYYYYZ'
     ec2_ctx.user_key = 'WwwwwwXxxxxxxxxxYyyyyyyyyZzzzzzz'
 
     # The SSH key-pair we want to use the access the EC2 VM. If the keypair is
-    # not yet registered on EC2 troy will register it automatically.
-    ec2keypair_ctx = troy.Context('EC2_KEYPAIR')
-    ec2keypair_ctx.token = 'KeyName'
+    # not yet registered on EC2 radical.owms will register it automatically.
+    ec2keypair_ctx          = radical.owms.Context('EC2_KEYPAIR')
+    ec2keypair_ctx.token    = 'KeyName'
     ec2keypair_ctx.user_key = '$HOME/.ssh/ec2_key'
-    ec2keypair_ctx.user_id = 'root'  # the user id on the target VM
+    ec2keypair_ctx.user_id  = 'root'  # the user id on the target VM
 
     # The same SSH key-pair as above, but this one will be picked up by the SSH
     # adaptor. While this is somewhat redundant, it is still necessary because
     # of current limitations imposed by 'liblcoud', the library which implements
-    # the troy-python EC2 adaptor. 
-    ssh_ctx = troy.Context('SSH')
-    ssh_ctx.user_id = 'root'
+    # the radical.owms-python EC2 adaptor. 
+    ssh_ctx          = radical.owms.Context('SSH')
+    ssh_ctx.user_id  = 'root'
     ssh_ctx.user_key = '$HOME/.ssh/ec2_key'
 
-    session = troy.Session(False)  # FALSE: don't use other (default) contexts
+    session = radical.owms.Session(False)  # FALSE: don't use other (default) contexts
     session.contexts.append(ec2_ctx)
     session.contexts.append(ec2keypair_ctx)
     session.contexts.append(ssh_ctx)
@@ -238,22 +238,22 @@ The following context attributes are supported:
 .. data::  Contex("EC2_KEYPAIR")
 
     The type for this context has to be set to "EC2_KEYPAIR" in the constructor, 
-    i.e., ``troy.Context("EC2_KEYPAIR")``.
+    i.e., ``radical.owms.Context("EC2_KEYPAIR")``.
 
-.. data::  troy.context.user_id
+.. data::  radical.owms.context.user_id
 
     The username on the target resource. 
 
-.. data::  troy.context.user_key
+.. data::  radical.owms.context.user_key
 
     The public ssh key file to use for the connection. This attribute is useful
     if an SSH key-pair other than the default one (in $HOME/.ssh/) is required to establish a connection.
 
-.. data::  troy.context.user_pass
+.. data::  radical.owms.context.user_pass
 
     The pass-phrase to use to decrypt a password-protected key.
 
-.. data:: troy.context.token
+.. data:: radical.owms.context.token
 
     The Amazon EC2 identifier for this key-pair. 
 

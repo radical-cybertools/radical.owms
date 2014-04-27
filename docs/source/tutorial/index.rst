@@ -5,7 +5,7 @@
 Tutorial
 ********
 
-This Tutorial will introduce the different usage modes of TROY, by example.  
+This Tutorial will introduce the different usage modes of RADICAL-OWMS, by example.  
 
 **Prerequisites:**
 
@@ -17,7 +17,7 @@ This Tutorial will introduce the different usage modes of TROY, by example.
 
 **You will learn how to:**
 
-* Install TROY on your own machine
+* Install RADICAL-OWMS on your own machine
 * Write a program that runs a workload locally on your machine
 * Use the same program with a different plugins to run on a remote site
 

@@ -36,10 +36,10 @@ The steps below lead to a usable installation on `india.futuregrid.org`::
     # we need radical.utils from master branch
     (ve)[merzky@i136 ~]$ pip install git+git://github.com/saga-project/radical.utils.git@master
 
-    # install troy and remaining dependencies.  'pip install' cannot access provate
+    # install radical.owms and remaining dependencies.  'pip install' cannot access provate
     # github repos on india, so we have to clone first
-    (ve)[merzky@i136 ~]$ git clone git@github.com:saga-project/troy.git 
-    Cloning into 'troy'...
+    (ve)[merzky@i136 ~]$ git clone git@github.com:saga-project/radical.owms.git 
+    Cloning into 'radical.owms'...
     remote: Counting objects: 2677, done.
     remote: Compressing objects: 100% (1185/1185), done.
     remote: Total 2677 (delta 1467), reused 2632 (delta 1422)
@@ -47,13 +47,13 @@ The steps below lead to a usable installation on `india.futuregrid.org`::
     Resolving deltas: 100% (1467/1467), done.
 
     # now install
-    (ve)[merzky@i136 ~]$ pip install --upgrade troy/
+    (ve)[merzky@i136 ~]$ pip install --upgrade radical.owms/
     ...
 
 
     # ready to run the demo -- set verbosity to see things happening:
-    (ve)[merzky@i136 ~]$ export TROY_VERBOSE=DEBUG
-    (ve)[merzky@i136 ~]$ python troy/examples/phase1_demo_2.py 
+    (ve)[merzky@i136 ~]$ export RADICAL_OWMS_VERBOSE=DEBUG
+    (ve)[merzky@i136 ~]$ python radical.owms/examples/phase1_demo_2.py 
 
 
 

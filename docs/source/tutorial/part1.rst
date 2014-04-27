@@ -1,17 +1,18 @@
 .. _chapter_tutorial_01:
 
 **********************
-TROY Tutorial - Part 1
+RADICAL-OWMS Tutorial - Part 1
 **********************
 
-The first part of this TROY tutorial will teach you how to use TROY to write
+The first part of this RADICAL-OWMS tutorial will teach you how to use
+RADICAL-OWMS to write
 a very simple application that executes a bag of tasks on a remote DCI. You will
-go through three phases, starting from installing TROY, then configuring it, and
+go through three phases, starting from installing RADICAL-OWMS, then configuring it, and
 finally running your application.
 
 Execution of a Bag of Tasks
 ===========================
-We start by looking at **what** TROY can do for you, then we move on and see
+We start by looking at **what** RADICAL-OWMS can do for you, then we move on and see
 **how** it does it. In order to run an application with say 10 tasks, each
 running an instance of gromacs with an input file and producing some output
 files, do the following:
@@ -24,8 +25,8 @@ files, do the following:
 
 .. code-block:: bash
 
-	export TROY_VERBOSE=INFO
-	python tutorial_01.py workload_gromacs.json config_application.json config_troy.json
+	export RADICAL_OWMS_VERBOSE=INFO
+	python tutorial_01.py workload_gromacs.json config_application.json config_radical_owms.json
 
 The output of your distributed application is in the directory ``output``:
 
@@ -42,13 +43,13 @@ Now, to understand why this is cool, let's have a look at the code we have execu
     # tutorial_01.py
 
     import sys
-    import troy
+    import radical.owms
 
-    troy.manage_workload (workload = sys.argv[1],
+    radical.owms.manage_workload (workload = sys.argv[1],
                           config   = sys.argv[2:])
 
 That is all it needs! From the log messages, you may be able to discern that
-TROY had done the following for you:
+RADICAL-OWMS had done the following for you:
 
 1.  Parse the workload;
 2.  expand it with some 'expand_cardinality' plugin;
@@ -74,7 +75,7 @@ DCIs for the same workload, then keep reading :)
 
 Configuration
 =============
-TROY offers a powerful configuration subsystem that allows for the users to
+RADICAL-OWMS offers a powerful configuration subsystem that allows for the users to
 leverage the many functionalities it implements. Most of the configuration
 parameters are set to sensible defaults so that the user has to set explicitly
 only those parameters for which no defaults can be provided:
@@ -82,8 +83,8 @@ only those parameters for which no defaults can be provided:
 * credentials and login names on the targeted DCIs; and
 * parameters relative to the workload she wants to execute.
 
-Detailed documentation about the TROY configuration subsystem can be found
-:ref:`chapter_configuration`. For this tutorial, the TROY development team
+Detailed documentation about the RADICAL-OWMS configuration subsystem can be found
+:ref:`chapter_configuration`. For this tutorial, the RADICAL-OWMS development team
 crated a set of configuration files that you will be able to edit whether and
 when required. The configuration files are:
 
@@ -91,19 +92,19 @@ when required. The configuration files are:
   for an application of type "bag of tasks".  
   
 * ``config_application.json``: Contains the parameters required by the bag of
-  task application to run on a (set of) remote DCI. Currently TROY supports only
+  task application to run on a (set of) remote DCI. Currently RADICAL-OWMS supports only
   bag of tasks but in a near future it will support more complex distributed
   applications as, for example, different types of ensembles or workflow-based
   applications.
 
-* ``config_troy.json``: Contains those configuration parameters that are
-  specific to TROY and its execution.
+* ``config_radical_owms.json``: Contains those configuration parameters that are
+  specific to RADICAL-OWMS and its execution.
 
 Here a detailed analysis of each configuration file.
 
 Workload Descriptions
 ---------------------
-Troy is designed to eventually understand a multitude of workload descriptions
+RADICAL-OWMS is designed to eventually understand a multitude of workload descriptions
 - but at the moment it is equipped to accept descriptions in its own JSON
 format. An exemplary description is provided with the workload configuration
 files used the this part of the tutorial:
@@ -144,7 +145,7 @@ files used the this part of the tutorial:
         {
           "cardinality"       : "%(bag_size)s",
           "executable"        : "%(mdrun)s",
-          "working_directory" : "%(home)s/troy_tutorial/troy_tutorial_01_%(cardinal)s/",
+          "working_directory" : "%(home)s/radical_owms_tutorial/radical_owms_tutorial_01_%(cardinal)s/",
           "inputs"            : ["input/topol.tpr > topol.tpr"],
           "outputs"           : ["output/%(demo_id)s_state.cpt.%(cardinal)s   < state.cpt",
                                  "output/%(demo_id)s_confout.gro.%(cardinal)s < confout.gro",
@@ -163,18 +164,18 @@ The basic structure of this workload is as follow:
 
 A number of placeholders are used:
 
-* ``%(bag_size)s``: Holds the number of tasks of the workload that TROY will execute.
+* ``%(bag_size)s``: Holds the number of tasks of the workload that RADICAL-OWMS will execute.
 * ``%(home)s``: Holds the home directory on the targeted DCI.
 * ``%(mdrun)s``: Holds the mdrun executable location, for the target resource.
 * ``%(cardinal)s``: a ``magic`` variable set by the planner plugin ``plugin_planner_expand_cardinal.py`` that holds the index of the iterator over the list of tasks.
 
 Thanks to these placeholders, the description of the workload can become
-resource independent. TROY's is given discretion on replacing each placeholder
+resource independent. RADICAL-OWMS's is given discretion on replacing each placeholder
 with an appropriate value, depending on the execution context. For example,
 ``%(home)s`` will be replaced with the appropriate home directory depending on
 the remote machine on which the workload will be executed.
 
-Each placeholder is interpreted by TROY at different stages, depending on the
+Each placeholder is interpreted by RADICAL-OWMS at different stages, depending on the
 context in which they are needed:
 
 * ``%(home)s`` and ``%(mdrun)s`` are resource-specific placeholders, expanded
@@ -182,12 +183,12 @@ context in which they are needed:
   a specific pilot which runs on a specific resource).
 
 * ``%(cardinal)s`` is a planner-specific placeholder, therefore expanded while
-  TROY interprets the workload. In particular, ``%(cardinal)s`` is set to the
+  RADICAL-OWMS interprets the workload. In particular, ``%(cardinal)s`` is set to the
   task number, so that, for example, the output files can be staged back under
   a unique file name to avoid collisions.
 
 * ``%(bag_size)s`` is an application-specific placeholder, expanded immediately
-  by TROY upon workload parsing, in order to produce its internal workload
+  by RADICAL-OWMS upon workload parsing, in order to produce its internal workload
   description. In the example above, ``%(bag_size)s`` could be part of an
   application config file and the users may want to change it for every run.
 
@@ -215,7 +216,7 @@ values for workload expansion and transformations:
         "session_id"       : "gromacs_%(steps)s_%(bag_size)s",
 
         # We add some additional, app specific information to the
-        # troy resource configuration, so that we can use placeholder
+        # RADICAL-OWMS resource configuration, so that we can use placeholder
         # like '%(mdrun)s' in our workload descriptions.
         # This section *must* be named `resources`.
         "resources" : {
@@ -239,29 +240,29 @@ values for workload expansion and transformations:
         }
     }
 
-TROY Configuration
-------------------
+RADICAL-OWMS Configuration
+--------------------------
 
-We also have a TROY configuration file, which selects the plugins TROY is using
+We also have a RADICAL-OWMS configuration file, which selects the plugins RADICAL-OWMS is using
 to execute the workload, and also configures those plugins. For the simple
-configuration settings we use, the TROY configuration structure looks almost
+configuration settings we use, the RADICAL-OWMS configuration structure looks almost
 empty though:
 
 .. code-block:: python
 
-    # config_troy.json
+    # config_radical_owms.json
 
     {
     	# frequently changing variables
-    	"hosts"         : "pbs+ssh://sierra.futuregrid.org",
-        "pilot_size"    : "4",
-        "concurrency"   : "100",
-        "pilot_backend" : "radical.pilot",
-        "troy_strategy" : "basic_late_binding",
+    	"hosts"                 : "pbs+ssh://sierra.futuregrid.org",
+        "pilot_size"            : "4",
+        "concurrency"           : "100",
+        "pilot_backend"         : "radical.pilot",
+        "radical_owms_strategy" : "late_binding",
 
 
-        # troy plugin selection
-        "plugin_strategy"                : "%(troy_strategy)s",
+        # radical.owms plugin selection
+        "plugin_strategy"                : "%(radical_owms_strategy)s",
 
         "planner"                        : {
             "plugin_planner_expand"      : "cardinal",
@@ -321,13 +322,13 @@ empty though:
     }
 
 Remember that you can move config settings which you do not consider specific to
-an application into the ``$HOME/.troy/`` directory, so that they are
-automatically picked up on every troy run.  For example, the above setting would
+an application into the ``$HOME/.radical.owms/`` directory, so that they are
+automatically picked up on every RADICAL-OWMS run.  For example, the above setting would
 benefit from a config file like
 
 .. code-block:: python
 
-    # $HOME/.troy/config_passwords.json
+    # $HOME/.radical.owms/config_passwords.json
 
     {
         "redis_passwd" : "secret-password"
@@ -338,9 +339,10 @@ expanded in the settings for the bigjob coordination URL, and will not be shared
 if you pass your config files to other users, or if you push them into a code
 repository.
 
-.. You may have noted that we set a TROY **strategy** plugin, to the value
+.. You may have noted that we set a RADICAL-OWMS **strategy** plugin, to the value
    ``basic_late_binding``:  that is the point where we want to look deeper into
-   Troy's internals in the next tutorial section :ref:`chapter_tutorial_02`.
+   RADICAL-OWMS's internals in the next tutorial section :ref:`chapter_tutorial_02`.
 
-We will look deeper into Troy's internals in the next tutorial section
+We will look deeper into RADICAL-OWMS's internals in the next tutorial section
 :ref:`chapter_tutorial_02`.
+

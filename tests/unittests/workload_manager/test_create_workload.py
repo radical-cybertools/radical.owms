@@ -6,7 +6,7 @@ __license__   = "MIT"
 
 import radical.utils.testing as rut
 
-import troy
+import radical.owms
 
 # ------------------------------------------------------------------------------
 #
@@ -16,7 +16,7 @@ def test_workload_create () :
     """
     tc = rut.get_test_config ()
     wl_dict = tc.workload_dict
-    wl      = troy.Workload ()
+    wl      = radical.owms.Workload ()
 
     if  not 'tasks' in wl_dict :
         assert False, "no tasks in workload dict" 
@@ -25,7 +25,7 @@ def test_workload_create () :
         assert False, "zero tasks in workload dict" 
 
     for task_dict in wl_dict['tasks'] :
-        task_description = troy.TaskDescription (task_dict)
+        task_description = radical.owms.TaskDescription (task_dict)
         wl.add_task (task_description)
 
   # wl._dump ()

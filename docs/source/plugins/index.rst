@@ -5,7 +5,7 @@
 Plugin Reference
 ********************************************************************************
 
-This is the documentation of the Troy Plugins
+This is the documentation of the RADICAL-OWMS Plugins
 
 .. toctree::
 

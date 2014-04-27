@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 
-__author__    = "TROY Development Team"
+__author__    = "RADICAL Development Team"
 __copyright__ = "Copyright 2014, RADICAL"
 __license__   = "MIT"
 
 
 import sys
-import troy
+import radical.owms
 
 
 """
     Demo application for 1 Feb 2014, a MD Bag of Task with data staging
 
     A suitable virtualenv can be created by sourcing 'prepare_demo.sh' -- this
-    will create a temporary repository space under `troy_install`, and
-    a virtualenv with all required dependencies under `troy_virtualenv`.
+    will create a temporary repository space under `radical_owms_install`, and
+    a virtualenv with all required dependencies under `radical_owms_virtualenv`.
 
     Additionally, you will need a demo configuration file, like this::
 
@@ -39,14 +39,14 @@ import troy
     govern the task distribution over the pilots. 
 
     The additional host configuration info are somewhat redundant with resource
-    information available on Troy and other layers -- but are required for data
+    information available on RADICAL-OWMS and other layers -- but are required for data
     staging, which is at this point not well integrated in the Pilot layer
-    interactions.  For further Troy configuration options, you may want to check
-    out `examples/troy.cfg`.
+    interactions.  For further RADICAL-OWMS configuration options, you may want to check
+    out `examples/radical_owms.cfg`.
 
     The demo supports the execution of different `traces`, by the virtue of
     selecting different plugins, pilot backends, execution strategies, and
-    target resources.  See code section `TROY CONFIGURATION` below.
+    target resources.  See code section `RADICAL-OWMS CONFIGURATION` below.
 
     You can run the demo by calling::
 
@@ -83,11 +83,11 @@ if __name__ == '__main__':
     bag_size    = int(demo_config['bag_size'])      # number of mdrun tasks
     pilot_size  = int(demo_config['pilot_size'])    # number of cores per pilot
     concurrency = int(demo_config['concurrency'])   # % of concurrent tasks
-    log_level   =     demo_config['log_level']      # troy logging detail
+    log_level   =     demo_config['log_level']      # radical.owms logging detail
 
     # --------------------------------------------------------------------------
     # 
-    # TROY CONFIGURATION: what plugins are being used, whet resources are
+    # RADICAL-OWMS CONFIGURATION: what plugins are being used, whet resources are
     # targeted, etc
     #
     resources      = "slurm+ssh://tg803521@stampede.tacc.utexas.edu,pbs+ssh://merzky@india.futuregrid.org"
@@ -100,19 +100,19 @@ if __name__ == '__main__':
 
     pilot_backend  = 'radical.pilot'
     
-    plugin_strategy            = 'early_binding' # early, late
-    plugin_planner             = 'concurrent'          # concurrent, bundles, maxcores
-    plugin_overlay_translator  = 'max_pilot_size'      # max_pilot_size
-    plugin_overlay_scheduler   = 'round_robin'         # rr, local
-    plugin_overlay_provisioner = pilot_backend         # rp, bj, local
-    plugin_workload_translator = troy.AUTOMATIC        # direct
-    plugin_workload_scheduler  = 'round_robin'         # rr, first, ttc
-    plugin_workload_dispatcher = pilot_backend         # rp, bj, local
+    plugin_strategy            = 'early_binding'        # early, late
+    plugin_planner             = 'concurrent'           # concurrent, bundles, maxcores
+    plugin_overlay_translator  = 'max_pilot_size'       # max_pilot_size
+    plugin_overlay_scheduler   = 'round_robin'          # rr, local
+    plugin_overlay_provisioner = pilot_backend          # rp, bj, local
+    plugin_workload_translator = radical.owms.AUTOMATIC # direct
+    plugin_workload_scheduler  = 'round_robin'          # rr, first, ttc
+    plugin_workload_dispatcher = pilot_backend          # rp, bj, local
 
-    # Create a session for TROY, and configure some plugins
-    session = troy.Session (user_cfg = {
+    # Create a session for RADICAL-OWMS, and configure some plugins
+    session = radical.owms.Session (user_cfg = {
                                            'resources' : demo_config['resources'],
-                                           'troy'                           : {
+                                           'radical.owms'                   : {
                                                'plugin_planner'             : plugin_planner,
                                                'plugin_strategy'            : plugin_strategy,
                                                'log_level'                  : log_level,
@@ -153,12 +153,12 @@ if __name__ == '__main__':
     task_descriptions = list()
     for n in range(bag_size):
 
-        task_descr                   = troy.TaskDescription()
+        task_descr                   = radical.owms.TaskDescription()
         task_descr.tag               = "%d" % n
       # task_descr.executable        = "/bin/echo"
-      # task_descr.arguments         = ['hello troy']
+      # task_descr.arguments         = ['hello radical.owms']
         task_descr.executable        = "%(mdrun)s"
-        task_descr.working_directory = "%(home)s/troy_demo/tasks/" + "%d/" % n
+        task_descr.working_directory = "%(home)s/radical_owms_demo/tasks/" + "%d/" % n
         task_descr.inputs            = ['input/topol.tpr > topol.tpr']
         task_descr.outputs           = ['output/%s_state.cpt.%d   < state.cpt'   % (demo_id, n),
                                         'output/%s_confout.gro.%d < confout.gro' % (demo_id, n),
@@ -170,21 +170,21 @@ if __name__ == '__main__':
         task_descriptions.append (task_descr)
 
 
-    # create a troy.Workload from all those task descriptions
-    workload = troy.Workload (session, task_descriptions)
+    # create a radical.owms.Workload from all those task descriptions
+    workload = radical.owms.Workload (session, task_descriptions)
 
 
     # --------------------------------------------------------------------------
     #
-    # create the troy manager objects: planner, overlay manager and workload 
+    # create the radical.owms manager objects: planner, overlay manager and workload 
     # manager
     #
-    # the troy.Planner accepts a workload, and derives an overlay to execute it
-    planner = troy.Planner (session)
+    # the radical.owms.Planner accepts a workload, and derives an overlay to execute it
+    planner = radical.owms.Planner (session)
 
     # The order of actions on the planner, overlay manager and workload manager
-    # is orchestrated by a troy execution strategy (which represents a specific
-    # trace in the original troy design).
+    # is orchestrated by a radical.owms execution strategy (which represents a specific
+    # trace in the original radical.owms design).
     planner.execute_workload (workload)
 
     # Woohooo!  Magic has happened!

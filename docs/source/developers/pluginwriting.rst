@@ -1,14 +1,14 @@
 
 .. _chapter_plugin_writing
 
-********************
-Writing Troy Plugins
-********************
+****************************
+Writing RADICAL-OWMS Plugins
+****************************
 
 .. note::
 
-   This part of the Troy documentation is not for *users* of Troy, but rather
-   for implementors of Troy plugins.
+   This part of the RADICAL-OWMS documentation is not for *users* of RADICAL-OWMS, but rather
+   for implementors of RADICAL-OWMS plugins.
 
 
 
@@ -17,10 +17,10 @@ Writing Troy Plugins
 Plugin Structure
 ----------------
 
-A Troy plugin is a Python module with well defined structure.  The
+A RADICAL-OWMS plugin is a Python module with well defined structure.  The
 module must expose a class ``PLUGIN_CLASS``, and a dictionary ``PLUGIN_DESCRIPTION``, similar to this::
 
-    import troy
+    import radical.owms
 
     PLUGIN_DESCRIPTION = {
         'type'        : 'overlay_provisioner',
@@ -29,10 +29,10 @@ module must expose a class ``PLUGIN_CLASS``, and a dictionary ``PLUGIN_DESCRIPTI
         'description' : 'This is the Azure VM provisioner.'
       }
 
-    class PLUGIN_CLASS (troy.PluginBase) :
+    class PLUGIN_CLASS (radical.owms.PluginBase) :
 
         def __init__ (self) :
-            troy.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
+            radical.owms.PluginBase.__init__ (self, PLUGIN_DESCRIPTION)
 
         def init (self) :
             # this method is optional, do some env checking here if needed
@@ -54,7 +54,7 @@ the existing methods.
 Plugin Registration
 -------------------
 
-Troy plugins are automatically loaded once they ar installed in the correct
+RADICAL-OWMS plugins are automatically loaded once they ar installed in the correct
 location -- i.e. once they are placed next to the existing plugins, with the
 same naming scheme.
 
@@ -67,8 +67,9 @@ Exception Handling
 
 Plugins should never to terminate an application, e.g. via `sys.exit()`.
 Instead, plugins should raise exceptions, preferably native python exceptions
-such as `RunttimError` or `TypeError` etc.  Troy may convert any plugin
-exceptions into warnings, and attempt may attempt to continue operation.  Troy
+such as `RunttimError` or `TypeError` etc.  RADICAL-OWMS may convert any plugin
+exceptions into warnings, and attempt may attempt to continue operation.
+RADICAL-OWMS
 may also try to call the plugin again.
 
 
@@ -78,8 +79,8 @@ may also try to call the plugin again.
 Plugin Logging
 --------------
 
-Plugins have access to the Troy logging system::
+Plugins have access to the RADICAL-OWMS logging system::
 
-    troy.logger.info ("loading plugin my_plugin")
+    radical.owms.logger.info ("loading plugin my_plugin")
 
 

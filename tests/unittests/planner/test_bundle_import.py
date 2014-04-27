@@ -12,6 +12,6 @@ def test_bundle_import():
     """
 
     try:
-        from troy.bundle_wrapper import BundleManager
+        from radical.owms.bundle_wrapper import BundleManager
     except ImportError:
         assert False, 'Can not find (external) bundle module'

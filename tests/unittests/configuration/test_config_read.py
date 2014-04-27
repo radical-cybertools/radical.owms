@@ -7,7 +7,7 @@ __license__   = "MIT"
 import os
 import radical.utils.testing as rut
 
-import troy
+import radical.owms
 
 
 # ------------------------------------------------------------------------------
@@ -17,9 +17,9 @@ def test_config_read():
     test configuration reading
     """
 
-    os.environ ['TROY_CONFIG'] = "%s/troy.cfg" % os.path.dirname (__file__)
+    os.environ ['RADICAL_OWMS_CONFIG'] = "%s/radical_owms.cfg" % os.path.dirname (__file__)
 
-    configurable = troy.Configuration ()
+    configurable = radical.owms.Configuration ()
     config       = configurable.get_config ('general')
     outdir       = config['output_directory'].get_value ()
 

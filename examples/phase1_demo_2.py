@@ -1,5 +1,5 @@
 
-__author__    = "TROY Development Team"
+__author__    = "RADICAL Development Team"
 __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
@@ -10,15 +10,15 @@ Demo application for 1 feb 2014 - Bag of Task (BoT)
 
 import sys
 import time
-import troy
+import radical.owms
 import getpass
 
 
 PLUGIN_OVERLAY_DERIVE       = 'concurrent'
 PLUGIN_OVERLAY_SCHEDULER    = 'round_robin'
-PLUGIN_OVERLAY_TRANSLATOR   = troy.AUTOMATIC
+PLUGIN_OVERLAY_TRANSLATOR   = radical.owms.AUTOMATIC
 PLUGIN_OVERLAY_PROVISIONER  = 'sagapilot'
-PLUGIN_WORKLOAD_SCHEDULER   = troy.AUTOMATIC
+PLUGIN_WORKLOAD_SCHEDULER   = radical.owms.AUTOMATIC
 PLUGIN_WORKLOAD_DISPATCHER  = 'sagapilot'
 
 
@@ -28,11 +28,11 @@ def create_task_description (r, msg) :
     litte helper which creates a task description for a radical member greeting
     """
 
-    task_descr                   = troy.TaskDescription ()
+    task_descr                   = radical.owms.TaskDescription ()
     task_descr.tag               = "%s" % r
     task_descr.executable        = '/bin/echo'
     task_descr.arguments         = ['Hello', msg, r, '!']
-    task_descr.working_directory = "%(home)s/troy_demo"
+    task_descr.working_directory = "%(home)s/radical_owms_demo"
 
     return task_descr
 
@@ -54,7 +54,7 @@ if __name__ == '__main__' :
     radical_oldfarts = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner']
 
     # create a session with custom config options
-    session = troy.Session ({
+    session = radical.owms.Session ({
         'planner' : {
             'derive' : { 
                 'concurrent' : {
@@ -73,15 +73,15 @@ if __name__ == '__main__' :
         })
 
     # create planner, overlay and workload manager, with plugins as configured
-    planner      = troy.Planner         (session)
-    workload_mgr = troy.WorkloadManager (session)
-    overlay_mgr  = troy.OverlayManager  (session)
+    planner      = radical.owms.Planner         (session)
+    workload_mgr = radical.owms.WorkloadManager (session)
+    overlay_mgr  = radical.owms.OverlayManager  (session)
 
 
     # --------------------------------------------------------------------------
     # Create the student workload first.  Makes sense, amiright?
     # Create two task for every radical student.  They love getting more tasks!
-    workload_1 = troy.Workload (session=session)
+    workload_1 = radical.owms.Workload (session=session)
 
     for r in radical_students :
         workload_1.add_task (create_task_description (r+'_1', 'student       '))
@@ -91,7 +91,7 @@ if __name__ == '__main__' :
     # Initial description of the overlay based on the workload, and translate the
     # overlay into N pilot descriptions.
     overlay_descr = planner.derive_overlay (workload_1.id)
-    overlay       = troy.Overlay           (session, overlay_descr)
+    overlay       = radical.owms.Overlay           (session, overlay_descr)
 
     # make sure the overlay is properly represented by pilots
     overlay_mgr.translate_overlay   (overlay.id)
@@ -101,7 +101,8 @@ if __name__ == '__main__' :
     # to specific pilots (which are not yet running, thus early binding)
     workload_mgr.expand_workload    (workload_1.id)
     workload_mgr.translate_workload (workload_1.id, overlay.id)
-    workload_mgr.bind_workload      (workload_1.id, overlay.id, bind_mode=troy.EARLY)
+    workload_mgr.bind_workload      (workload_1.id, overlay.id,
+            bind_mode=radical.owms.EARLY)
 
     # Schedule pilots on the set of target resources, then instantiate Pilots as
     # scheduled
@@ -116,7 +117,7 @@ if __name__ == '__main__' :
     # Now take care of the oldfart workload -- not so many tasks for the old
     # people, and we lazily reuse the same overlay -- which is running, so,
     # late binding in this case.
-    workload_2 = troy.Workload (session)
+    workload_2 = radical.owms.Workload (session)
 
     for r in radical_oldfarts :
         workload_2.add_task (create_task_description (r, 'oldfart'))
@@ -127,21 +128,22 @@ if __name__ == '__main__' :
     # different plugins here...
     workload_mgr.expand_workload    (workload_2.id)
     workload_mgr.translate_workload (workload_2.id, overlay.id)
-    workload_mgr.bind_workload      (workload_2.id, overlay.id, bind_mode=troy.LATE)
+    workload_mgr.bind_workload      (workload_2.id, overlay.id,
+            bind_mode=radical.owms.LATE)
     workload_mgr.dispatch_workload  (workload_2.id, overlay.id)
 
 
     # --------------------------------------------------------------------------
-    # Of course nothing will fail due to TROY's magic robustness and
+    # Of course nothing will fail due to radical.owms's magic robustness and
     # and we therefore just wait until its done!
     state_1 = workload_1.state
     state_2 = workload_2.state
 
-    while state_1 not in [troy.DONE, troy.FAILED] or \
-          state_2 not in [troy.DONE, troy.FAILED] :
+    while state_1 not in [radical.owms.DONE, radical.owms.FAILED] or \
+          state_2 not in [radical.owms.DONE, radical.owms.FAILED] :
 
-        troy._logger.info  ("workload_1 state: %s)" % state_1)
-        troy._logger.info  ("workload_2 state: %s)" % state_2)
+        radical.owms._logger.info  ("workload_1 state: %s)" % state_1)
+        radical.owms._logger.info  ("workload_2 state: %s)" % state_2)
 
         state_1 = workload_1.state
         state_2 = workload_2.state
@@ -150,15 +152,15 @@ if __name__ == '__main__' :
 
 
     # 'analyse' the results
-    if workload_1.state == troy.DONE and \
-       workload_2.state == troy.DONE : 
-        troy._logger.info  ("workload_1 done")
-        troy._logger.info  ("workload_2 done")
+    if workload_1.state == radical.owms.DONE and \
+       workload_2.state == radical.owms.DONE : 
+        radical.owms._logger.info  ("workload_1 done")
+        radical.owms._logger.info  ("workload_2 done")
 
     else :
-        troy._logger.error ("workload(s) failed!")
-        troy._logger.info  ("workload_1 state: %s)" % workload_1.state)
-        troy._logger.info  ("workload_2 state: %s)" % workload_2.state)
+        radical.owms._logger.error ("workload(s) failed!")
+        radical.owms._logger.info  ("workload_1 state: %s)" % workload_1.state)
+        radical.owms._logger.info  ("workload_2 state: %s)" % workload_2.state)
 
     # --------------------------------------------------------------------------
     # We are done -- clean up

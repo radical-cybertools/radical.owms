@@ -1,5 +1,5 @@
 
-__author__    = "TROY Development Team"
+__author__    = "RADICAL Development Team"
 __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
@@ -11,14 +11,14 @@ __license__   = "MIT"
 """
 
 import time
-import troy
+import radical.owms
 import getpass
 
 # ------------------------------------------------------------------------------
 #
 if __name__ == '__main__':
 
-    session = troy.Session ()
+    session = radical.owms.Session ()
 
     radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner',
                    'Andre Luckow',     'Matteo Turilli',     'Melissa Romanus',
@@ -27,23 +27,23 @@ if __name__ == '__main__':
                    'Vishal Shah',      'Radicalobot']
     radicalists = ['Shantenu Jha',     'Andre Merzky',       'Ole Weidner']
 
-    session = troy.Session ()
+    session = radical.owms.Session ()
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (session)
+    workload_mgr = radical.owms.WorkloadManager (session)
 
     # Responsible for managing the pilot overlay
-    overlay_mgr = troy.OverlayManager (session)
+    overlay_mgr = radical.owms.OverlayManager (session)
 
     # Planning makes initial mapping of workload to overlay
-    planner = troy.Planner (session)
+    planner = radical.owms.Planner (session)
 
-    # TROY data structure that holds the tasks and their relations
-    workload = troy.Workload (session)
+    # radical.owms data structure that holds the tasks and their relations
+    workload = radical.owms.Workload (session)
 
     # Create a task for every radicalist
     for r in radicalists:
-        task_descr            = troy.TaskDescription()
+        task_descr            = radical.owms.TaskDescription()
         task_descr.tag        = "%s" % r
 
         task_descr.executable = '/bin/echo'
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     overlay_descr = planner.derive_overlay (workload.id)
 
     # get overlay for that description
-    overlay = troy.Overlay (session, overlay_descr)
+    overlay = radical.owms.Overlay (session, overlay_descr)
 
     # Translate 1 workload into N ComputeUnits and N DataUnits
     workload_mgr.translate_workload(workload.id, overlay.id)
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     # Schedule the workload onto the overlay
     # Early binding assumes the overlay is not yet scheduled.
     workload_mgr.bind_workload (workload.id, overlay.id,
-                                bind_mode=troy.EARLY)
+                                bind_mode=radical.owms.EARLY)
 
     # Decide which resources to use for constructing the overlay
     overlay_mgr.schedule_overlay(overlay.id)
@@ -82,18 +82,18 @@ if __name__ == '__main__':
     # Execute the ComputeUnits on the Pilots
     workload_mgr.dispatch_workload (workload.id, overlay.id)
 
-    # Of course nothing will fail due to TROY's magic robustness and
+    # Of course nothing will fail due to RADICAL-OWMS's magic robustness and
     # and we therefore just wait until its done!
-    while workload.state not in [troy.DONE, troy.FAILED]:
-        troy._logger.info ("whats up, buddy? (workload state: %s)" % workload.state)
+    while workload.state not in [radical.owms.DONE, radical.owms.FAILED]:
+        radical.owms._logger.info ("whats up, buddy? (workload state: %s)" % workload.state)
         time.sleep(1)
 
-    troy._logger.info ("ok, buddy, lets see what you got (workload state: %s)" % workload.state)
+    radical.owms._logger.info ("ok, buddy, lets see what you got (workload state: %s)" % workload.state)
 
-    if workload.state == troy.DONE :
-        troy._logger.info ("game over")
+    if workload.state == radical.owms.DONE :
+        radical.owms._logger.info ("game over")
     else :
-        troy._logger.info ("game over -- play again?")
+        radical.owms._logger.info ("game over -- play again?")
 
     workload_mgr.cancel_workload (workload.id)   # same as workload.cancel ()
     overlay_mgr .cancel_overlay  (overlay.id)

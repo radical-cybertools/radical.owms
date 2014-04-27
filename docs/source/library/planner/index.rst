@@ -3,14 +3,14 @@
 Planner
 =======
 
-The Troy Planner...
+The RADICAL-OWMS Planner...
 
 .. contents:: Table of Contents
    :local:
 
 .. #############################################################################
 
-.. autoclass:: troy.Planner
+.. autoclass:: radical.owms.Planner
    :members:
    :undoc-members:
 

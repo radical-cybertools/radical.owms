@@ -7,7 +7,7 @@ __license__   = "MIT"
 
 import radical.utils.testing as rut
 
-import troy
+import radical.owms
 
 # ------------------------------------------------------------------------------
 #
@@ -15,17 +15,17 @@ def test_workload_create () :
     """ 
     test workload creation
     """
-    wl1  = troy.Workload ()
+    wl1  = radical.owms.Workload ()
     wlid = wl1.id
 
-    wl2 = troy.WorkloadManager.get_workload (wlid)
+    wl2 = radical.owms.WorkloadManager.get_workload (wlid)
 
     assert wl1 == wl2, "%s == %s" % (wl1, wl2)
 
-    troy.WorkloadManager.unregister_workload (wlid)
+    radical.owms.WorkloadManager.unregister_workload (wlid)
 
     try :
-        wl2 = troy.WorkloadManager.get_workload (wlid)
+        wl2 = radical.owms.WorkloadManager.get_workload (wlid)
         assert False, "Expected LookupError, got nothing"
 
     except LookupError :

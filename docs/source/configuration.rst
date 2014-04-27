@@ -5,41 +5,41 @@
 Configuration
 *************
 
-In order to use TROY, the user needs to: 
+In order to use RADICAL-OWMS, the user needs to: 
 
 * Copy or write a set of configuration files.
 * Add some mandatory configuration parameters to one or more of these files.
 
-This chapter describes the configuration mechanism of TROY and offers sample files with both **mandatory** and **optional** configuration parameters.
+This chapter describes the configuration mechanism of RADICAL-OWMS and offers sample files with both **mandatory** and **optional** configuration parameters.
 
-.. note:: Due to its flexibility, composability, and large set of capabilities, TROY depends on a number of configuration parameters. Such dependency is planned to be progressively reduced along the TROY development roadmap.
+.. note:: Due to its flexibility, composability, and large set of capabilities, RADICAL-OWMS depends on a number of configuration parameters. Such dependency is planned to be progressively reduced along the RADICAL-OWMS development roadmap.
 
 
 Configuration Mechanism
 =======================
-TROY pulls config settings from different locations, in this order:
+RADICAL-OWMS pulls config settings from different locations, in this order:
 
-1. any config files in `$(HOME)/.troy/`
-2. any files or directory pointed to by `$TROY_CONFIG`
-3. any configuration passed to a class:`troy.Session` constructor
+1. any config files in `$(HOME)/.radical.owms/`
+2. any files or directory pointed to by `$RADICAL_OWMS_CONFIG`
+3. any configuration passed to a class:`radical.owms.Session` constructor
 
-Configuration files are expected to be in `JSON` format -- Python-like comments are allowed though.  When passing settings to a `troy.Session`, one can pass a list of configuration locations (files or directories), or directly a Python dictionary with the respective settings.
+Configuration files are expected to be in `JSON` format -- Python-like comments are allowed though.  When passing settings to a `radical.owms.Session`, one can pass a list of configuration locations (files or directories), or directly a Python dictionary with the respective settings.
 
-Additionally, TROY uses a number of internal configurations, be it for default
+Additionally, RADICAL-OWMS uses a number of internal configurations, be it for default
 configuration, or for details of some known and frequently used target resources (mostly on FutureGrid and XSEDE).
 
 
 Required Configuration Settings
 ===============================
-In order to create a pilot overlay on some target resources, TROY needs to know some details about those resources, such as `username`, `queue` to be used, etc. While some of those information are stored in an internal TROY configuration file, others need to be provided by the user.  A typical configuration file for a local machine and some FutureGrid machines may look like:
+In order to create a pilot overlay on some target resources, RADICAL-OWMS needs to know some details about those resources, such as `username`, `queue` to be used, etc. While some of those information are stored in an internal RADICAL-OWMS configuration file, others need to be provided by the user.  A typical configuration file for a local machine and some FutureGrid machines may look like:
 
 .. code-block:: python
 
-    # $HOME/.troy/resource.json
+    # $HOME/.radical.owms/resource.json
     {
         "hosts"                     : "pbs+ssh://sierra.futuregrid.org,ssh://lakota",
 
-        # augment the TROY resource configuration
+        # augment the RADICAL-OWMS resource configuration
         "resources"                 : {
     
             # add a local resource for testing -- it does not use any queuing
@@ -50,7 +50,7 @@ In order to create a pilot overlay on some target resources, TROY needs to know 
                 "username"          : "surehand"
             },
     
-            # change some user specific variable for existing TROY config entries
+            # change some user specific variable for existing RADICAL-OWMS config entries
             "*.futuregrid.org"      : {
                 "username"          : "winnetou"
             },
@@ -64,15 +64,15 @@ In order to create a pilot overlay on some target resources, TROY needs to know 
 
 .. note:: You may also use **wildcards** to specify settings for classes of resources. For example: `"*.futuregrid.org"`.  Wildcards are only evaluated for resource config sections.
 
-Beyond providing information about the target resources, TROY may also require
-users to provide settings for the pilot backends. Both the backends that are currently supported - i.e., `RADICAL-Pilot` and `BigJob` - require, for example, a coordination URL. Further, TROY needs to know what target resources are considered eligible for use.
+Beyond providing information about the target resources, RADICAL-OWMS may also require
+users to provide settings for the pilot backends. Both the backends that are currently supported - i.e., `RADICAL-Pilot` and `BigJob` - require, for example, a coordination URL. Further, RADICAL-OWMS needs to know what target resources are considered eligible for use.
 
 The example configuration section below shows how to pass those settings to
-respective TROY plugins. Note again the use of placeholders.
+respective RADICAL-OWMS plugins. Note again the use of placeholders.
 
 .. code-block:: python
 
-    # $HOME/.troy/pilots.config
+    # $HOME/.radical.owms/pilots.config
     {
         "redis_password"               : "secret",
         "bigjob_coordination_url"      : "redis://%(redis_passwd)s-REdIS@gw68.quarry.iu.teragrid.org:6379",
@@ -106,7 +106,7 @@ respective TROY plugins. Note again the use of placeholders.
         }
     }
 
-.. note:: These settings should be sufficient to run the examples in the TROY tutorial. Beyond that, the rest of this Chapter provides details on additional settings for TROY and its plugins.
+.. note:: These settings should be sufficient to run the examples in the RADICAL-OWMS tutorial. Beyond that, the rest of this Chapter provides details on additional settings for RADICAL-OWMS and its plugins.
 
 Referencing Settings in Workloads
 =================================
@@ -115,8 +115,8 @@ Referencing Settings in Workloads
 
 Additional Configuration Settings
 =================================
-There are two main types of configurations in TROY: Those which apply to TROY
-plugins, and those which apply to TROY internals, such as the selection of
+There are two main types of configurations in RADICAL-OWMS: Those which apply to RADICAL-OWMS
+plugins, and those which apply to RADICAL-OWMS internals, such as the selection of
 plugins. The config snippet below shows the complete set of plugin selection
 settings, with their default values:
 

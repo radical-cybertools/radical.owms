@@ -1,12 +1,12 @@
 Sessions
 ********
 
-.. todo:: Intro to Troy Session
+.. todo:: Intro to RADICAL-OWMS Session
 
-Session -- :mod:`troy.session`
+Session -- :mod:`radical.owms.session`
 ------------------------------
 
-.. automodule:: troy.session
+.. automodule:: radical.owms.session
    :show-inheritance:
-   :members: troy.Session
+   :members: radical.owms.Session
 

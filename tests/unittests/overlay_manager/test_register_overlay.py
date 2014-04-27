@@ -7,7 +7,7 @@ __license__   = "MIT"
 
 import radical.utils.testing as rut
 
-import troy
+import radical.owms
 
 # ------------------------------------------------------------------------------
 #
@@ -15,18 +15,18 @@ def test_overlay_create () :
     """ 
     test overlay creation
     """
-    ol1  = troy.Overlay ()
+    ol1  = radical.owms.Overlay ()
     olid = ol1.id
 
-    troy.OverlayManager.register_overlay  (ol1)
-    ol2 = troy.OverlayManager.get_overlay (olid)
+    radical.owms.OverlayManager.register_overlay  (ol1)
+    ol2 = radical.owms.OverlayManager.get_overlay (olid)
 
     assert ol1 == ol2, "%s == %s" % (ol1, ol2)
 
-    troy.OverlayManager.unregister_overlay (olid)
+    radical.owms.OverlayManager.unregister_overlay (olid)
 
     try :
-        ol2 = troy.OverlayManager.get_overlay (olid)
+        ol2 = radical.owms.OverlayManager.get_overlay (olid)
         assert False, "Expected LookupError, got nothing"
 
     except LookupError :

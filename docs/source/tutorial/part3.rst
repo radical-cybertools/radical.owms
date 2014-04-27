@@ -1,22 +1,22 @@
 .. _chapter_tutorial_03:
 
-**********************
-TROY Tutorial - Part 3
-**********************
+******************************
+RADICAL-OWMS Tutorial - Part 3
+******************************
 
-The second part of this tutorial illustrated how workloads can be created programmatically in TROY, and it hinted at the existence of several manager classes: :class:`troy.Planner`, :class:`troy.WorkloadManager`, and :class:`troy.OverlayManager`.  The third and last part of this tutorial will expand on the capabilities of those managers, and show how they provide very fine grained control over the execution strategy of the workload of a distributed application. If you look at `tutorial_03.py`, all  code beginning from line 50 downwards is basically replacing this single line from `tutorial_02.py`:
+The second part of this tutorial illustrated how workloads can be created programmatically in RADICAL-OWMS, and it hinted at the existence of several manager classes: :class:`radical.owms.Planner`, :class:`radical.owms.WorkloadManager`, and :class:`radical.owms.OverlayManager`.  The third and last part of this tutorial will expand on the capabilities of those managers, and show how they provide very fine grained control over the execution strategy of the workload of a distributed application. If you look at `tutorial_03.py`, all  code beginning from line 50 downwards is basically replacing this single line from `tutorial_02.py`:
 
 .. code-block:: python
 
-    troy.execute_workload (workload, planner, overlay_mgr, workload_mgr,
+    radical.owms.execute_workload (workload, planner, overlay_mgr, workload_mgr,
                            strategy=strategy)
 
 You can run ``tutorial_03.py`` exactly like ``tutorial_03.py`` as it will accept the same config settings:
 
 .. code-block:: bash
 
-	export TROY_VERBOSE=INFO
-	python tutorial_03.py config_application.json config_troy.json
+	export RADICAL_OWMS_VERBOSE=INFO
+	python tutorial_03.py config_application.json config_radical_owms.json
 
 
 Note that the code in `tutorial_03.py` is implementing exactly the execution
@@ -25,24 +25,24 @@ strategy which was previously encapsulated in the used strategy plugin.
 **At this point, please skim through that code (and comments!) to get an idea on the type of actions the execution strategy is comprised of.**
 
 There are two major aspects to designing an execution strategy: the setup and
-configuration of the TROY manager classes, to make them fit for purpose; and the
+configuration of the RADICAL-OWMS manager classes, to make them fit for purpose; and the
 order of calls on those manager classes, to express the actual strategy.  
 This tutorial section will shortly describe both aspects, but cannot target for
 complete coverage of the topic.  The reader shoul, however, be able to make use
-of the TROY Library Reference and Plugin Documentation once completing this
+of the RADICAL-OWMS Library Reference and Plugin Documentation once completing this
 tutorial, for further guidelines and more in-depths information.
 
 .. note:: Once an execution strategy is created, and it proves useful to you for
-   repeated use, you may consider to put it into a **TROY strategy plugin**.  That
+   repeated use, you may consider to put it into a **RADICAL-OWMS strategy plugin**.  That
    will make your application code simpler, and easier for others to use.
 
 
-The TROY Manager Classes
+The RADICAL-OWMS Manager Classes
 ================================
 
-TROY features three different manager classes:
+RADICAL-OWMS features three different manager classes:
 
-* :class:`troy.Planner`: the Planner performs the following actions, among
+* :class:`radical.owms.Planner`: the Planner performs the following actions, among
   others:
 
   * **expand the workload:** expansion plugins can be used to transform a
@@ -53,10 +53,10 @@ TROY features three different manager classes:
     determine what type of overlay (size and structure) will be needed to
     execute that workload.
 
-* :class:`troy.WorkloadManager`: the WorkloadManager performs the following
+* :class:`radical.owms.WorkloadManager`: the WorkloadManager performs the following
   actions, among others:
 
-  * **parse the workload:** parser plugins will create a :class:`troy.Workload`
+  * **parse the workload:** parser plugins will create a :class:`radical.owms.Workload`
     instances just like the one created in the provious tutorial example.
 
   * **translate a workload:** use translator plugins to convert Tasks into pilot
@@ -66,7 +66,7 @@ TROY features three different manager classes:
   * **schedule a workload:** scheduler plugins will bind the units to the
     overlay pilots assigned to them in the provious step.
 
-* :class:`troy.OverlayManager`: the OverlayManager performs the following
+* :class:`radical.owms.OverlayManager`: the OverlayManager performs the following
   actions, among others:
 
   * **translate an overlay:** use translator plugins to translate an overlay
@@ -84,13 +84,13 @@ TROY features three different manager classes:
 **Not that *all* activities are performed by plugins!**
 
 
-Configuring TROY Manager Classes
-================================
+Configuring RADICAL-OWMS Manager Classes
+========================================
 
 It may not come as a surprise for the careful tutorial attendee that we already
-configures TROY managers in part one and two.  Please revisit the
-`config_troy.json` config file -- it contains sections for each of the manager
-classes.   That configuration is passed to the :class:`troy.Session`
+configures RADICAL-OWMS managers in part one and two.  Please revisit the
+`config_radical_owms.json` config file -- it contains sections for each of the manager
+classes.   That configuration is passed to the :class:`radical.owms.Session`
 construction, and the thus configured session is passed to the manager classes
 in turn:
 
@@ -101,7 +101,7 @@ in turn:
     # Configure session, get application config elements
     #
     configs  = sys.argv[1:]
-    session  = troy.Session (configs)
+    session  = radical.owms.Session (configs)
     
     ...
     
@@ -109,9 +109,9 @@ in turn:
     #
     # create managers within session (and its configs)
     #
-    planner      = troy.Planner         (session)
-    overlay_mgr  = troy.OverlayManager  (session)
-    workload_mgr = troy.WorkloadManager (session)
+    planner      = radical.owms.Planner         (session)
+    overlay_mgr  = radical.owms.OverlayManager  (session)
+    workload_mgr = radical.owms.WorkloadManager (session)
 
 The managers thus receive their setup from the session, and the same
 configurations we have used in the previous tutorial parts will apply.
@@ -121,8 +121,8 @@ There are two components to a manager configuration:
 * specify the plugins to use, for each manager
 * configure the plugins
 
-The excerpt below from `config_troy.json` shows those elements which are related
-to the configuration of the :class:`troy.WorkloadManager` class:
+The excerpt below from `config_radical_owms.json` shows those elements which are related
+to the configuration of the :class:`radical.owms.WorkloadManager` class:
 
 .. code-block:: python
 
@@ -162,21 +162,21 @@ to the configuration of the :class:`troy.WorkloadManager` class:
 The same mechanism holds for all other managers, and for all plugin types.  For
 further configuration details, please refer to:
 
-* TROY :ref:`chapter_configuration` 
+* RADICAL-OWMS :ref:`chapter_configuration` 
   
-* TROY Manager Reference: :class:`troy.Planner`, :class:`troy.OverlayManager`
-  and :class:`troy.WorkloadManager`, 
+* RADICAL-OWMS Manager Reference: :class:`radical.owms.Planner`, :class:`radical.owms.OverlayManager`
+  and :class:`radical.owms.WorkloadManager`, 
 
-* TROY Plugin Reference: :ref:`chapter_plugin_reference`
+* RADICAL-OWMS Plugin Reference: :ref:`chapter_plugin_reference`
 
 
-The Usage of TROY Manager Classes
-=================================
+The Usage of RADICAL-OWMS Manager Classes
+=========================================
 
 The second part of an execution strategy is the order in which the managers are
 used.  For example, the overlay can be scheduled before the workload is
 scheduled, or vice versa.  In fact, those two options are the main difference
-between the early and late binding strategy plugins provided by TROY!
+between the early and late binding strategy plugins provided by RADICAL-OWMS!
 
 In pseudo-code:
 

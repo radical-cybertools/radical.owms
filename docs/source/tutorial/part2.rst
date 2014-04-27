@@ -1,11 +1,11 @@
 .. _chapter_tutorial_02:
 
-**********************
-TROY Tutorial - Part 2
-**********************
+******************************
+RADICAL-OWMS Tutorial - Part 2
+******************************
 
-Once understood how simple TROY can make running a bag of task, the second
-part of this tutorial will show you how TROY can be used programmatically
+Once understood how simple RADICAL-OWMS can make running a bag of task, the second
+part of this tutorial will show you how RADICAL-OWMS can be used programmatically
 so to gain control over the many aspects involved into executing a
 distributed application.
 
@@ -28,11 +28,11 @@ Starting a Session
     # Configure session, get application config elements
     #
     configs  = sys.argv[1:]
-    session  = troy.Session (configs)
+    session  = radical.owms.Session (configs)
 
 Here we get the files that were passed as command line arguments and create
-a TROY session with of it.  A :class:`troy.Session` is essentially a container
-for TROY configuration settings, and for security contexts (which are not
+a RADICAL-OWMS session with of it.  A :class:`RADICAL-OWMS.Session` is essentially a container
+for RADICAL-OWMS configuration settings, and for security contexts (which are not
 discussed in this Tutorial).
 
 
@@ -44,7 +44,7 @@ Constructing a Workload
     #
     # define tasks
     #
-    task_descr = troy.TaskDescription()
+    task_descr = radical.owms.TaskDescription()
     task_descr.executable  =  "%(mdrun)s"
     task_descr.cardinality =  "%(bag_size)s"
     task_descr.inputs      =  ["input/topol.tpr > topol.tpr"]
@@ -53,7 +53,7 @@ Constructing a Workload
                                "output/%(session_id)s_ener.edr.%(cardinal)s    < ener.edr",
                                "output/%(session_id)s_traj.trr.%(cardinal)s    < traj.trr",
                                "output/%(session_id)s_md.log.%(cardinal)s      < md.log"]
-    task_descr.working_directory = "%(home)s/troy_tutorial/troy_tutorial_02_%(cardinal)s/"
+    task_descr.working_directory = "%(home)s/radical_owms_tutorial/radical_owms_tutorial_02_%(cardinal)s/"
 
 This snippet of code defines a task, that is semantically equivalent
 to the task defined in ``workload_gromacs.json`` and although the syntax
@@ -64,7 +64,7 @@ is different, I'm sure you will see the similarity.
     #
     # construct workload
     #
-    workload = troy.Workload (session, task_descr)
+    workload = radical.owms.Workload (session, task_descr)
 
 With this call, the task description is associated with the session and a
 workload handle is returned.  Some placeholders in the task description
@@ -80,11 +80,11 @@ Managing Managers and Submission
     #
     # create managers within session (and its configs)
     #
-    planner      = troy.Planner         (session)
-    overlay_mgr  = troy.OverlayManager  (session)
-    workload_mgr = troy.WorkloadManager (session)
+    planner      = radical.owms.Planner         (session)
+    overlay_mgr  = radical.owms.OverlayManager  (session)
+    workload_mgr = radical.owms.WorkloadManager (session)
 
-The architecture of TROY <link> is very modular and consists of many
+The architecture of RADICAL-OWMS <link> is very modular and consists of many
 components that can be configured and used independently.
 Here we create a Planner, Overlay Manager and Workload Manager using the
 configuration that we had associated with the session.
@@ -94,7 +94,7 @@ configuration that we had associated with the session.
     #
     # execute workload
     #
-    troy.execute_workload (workload, planner, overlay_mgr, workload_mgr,
+    radical.owms.execute_workload (workload, planner, overlay_mgr, workload_mgr,
                            strategy=strategy)
 
 With the instantiated Workload, the configured Planner and Managers we
@@ -113,8 +113,9 @@ workload inside our application).
 
 .. code-block:: bash
 
-	export TROY_VERBOSE=INFO
-	python tutorial_02.py config_application.json config_troy.json
+	export RADICAL_OWMS_VERBOSE=INFO
+	python tutorial_02.py config_application.json config_radical_owms.json
 
 Sit back, relax, and enjoy the horses do the work!
 The execution should look similar to that of earlier runs.
+

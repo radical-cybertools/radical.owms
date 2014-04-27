@@ -1,4 +1,4 @@
-.. _chapter_troy_plugins:
+.. _chapter_radical_owms_plugins:
 
 ***********************
 Developer Documentation

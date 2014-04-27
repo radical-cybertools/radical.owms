@@ -7,7 +7,7 @@ __license__   = "MIT"
 import pprint
 import radical.utils.testing as rut
 
-import troy
+import radical.owms
 
 
 # ------------------------------------------------------------------------------
@@ -19,8 +19,8 @@ def test_expand_workload():
     tc = rut.get_test_config()
     wl_dict = tc.workload_dict
 
-    wl = troy.Workload()
-    planner = troy.Planner()
+    wl = radical.owms.Workload()
+    planner = radical.owms.Planner()
   # pprint.pprint(wl_dict)
 
     if not 'tasks' in wl_dict:
@@ -30,18 +30,18 @@ def test_expand_workload():
         assert False, "zero tasks in workload dict"
 
     for task_dict in wl_dict['tasks']:
-        task_description = troy.TaskDescription(task_dict)
+        task_description = radical.owms.TaskDescription(task_dict)
         wl.add_task(task_description)
 
     for relation_dict in wl_dict['relations']:
-        relation_description = troy.RelationDescription(relation_dict)
+        relation_description = radical.owms.RelationDescription(relation_dict)
         wl.add_relation(relation_description)
 
-    if not wl.state is troy.DESCRIBED:
+    if not wl.state is radical.owms.DESCRIBED:
         assert False, "Workload state != DESCRIBED"
 
     planner.expand_workload(wl.id)
 
-    if not wl.state is troy.PLANNED:
+    if not wl.state is radical.owms.PLANNED:
         assert False, "Workload state != PLANNED"
 

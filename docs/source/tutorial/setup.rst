@@ -1,8 +1,8 @@
 .. _chapter_tutorial_setup:
 
-**********************
-TROY Tutorial - Setup
-**********************
+******************************
+RADICAL-OWMS Tutorial - Setup
+******************************
 
 In order to go through this tutorial you will have to use either a MAC OSX or a Linux OS and you will need to use a terminal. In order to setup the environment where to execute the tutorial open a terminal and do the following:
 
@@ -10,33 +10,33 @@ In order to go through this tutorial you will have to use either a MAC OSX or a 
 
 .. code-block:: bash
 
-	> mkdir troy_tutorial
+	> mkdir radical_owms_tutorial
 
 2. Move into the tutorial directory:
 
 .. code-block:: bash
 
-	> cd troy_tutorial
+	> cd radical_owms_tutorial
 
 3. Download the repository containing the tutorial code and configuration files.
 
 .. code-block:: bash
 
-	> curl -L -o troy_tutorial_examples.tgz https://github.com/saga-project/troy/raw/master/tutorial/troy_tutorial_examples.tgz
+	> curl -L -o radical_owms_tutorial_examples.tgz https://github.com/radical-cybertools/radical.owms/raw/master/tutorial/radical_owms_tutorial_examples.tgz
 	
 4. Uncompress and untar the repository into your working directory:
 
 .. code-block:: bash
 
-	> tar xvfz troy_tutorial_examples.tgz
+	> tar xvfz radical_owms_tutorial_examples.tgz
 	
 5. Move into the directory with the examples for this tutorial:
 
 .. code-block:: bash
 
-	> cd troy_tutorial_examples/
+	> cd radical_owms_tutorial_examples/
 	
-6. Install TROY following the instructions at: 
+6. Install RADICAL-OWMS following the instructions at: 
 
 	:ref:`installation_from_github` 
 	
@@ -50,5 +50,5 @@ In order to go through this tutorial you will have to use either a MAC OSX or a 
 	> ssh <your_login_name>@stampede.tacc.xsede.org
 
 
-Now you are ready for the first part of the TROY tutorial :ref:`chapter_tutorial_01`.
+Now you are ready for the first part of the RADICAL-OWMS tutorial :ref:`chapter_tutorial_01`.
  

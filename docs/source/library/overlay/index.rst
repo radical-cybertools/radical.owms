@@ -3,30 +3,30 @@
 Overlay
 =======
 
-The Troy Overlay...
+The RADICAL-OWMS Overlay...
 
 .. contents:: Table of Contents
    :local:
 
 .. #############################################################################
 
-.. autoclass:: troy.OverlayManager
+.. autoclass:: radical.owms.OverlayManager
    :members:
    :undoc-members:
 
-.. autoclass:: troy.OverlayDescription
+.. autoclass:: radical.owms.OverlayDescription
    :members:
    :undoc-members:
 
-.. autoclass:: troy.Overlay
+.. autoclass:: radical.owms.Overlay
    :members:
    :undoc-members:
 
-.. autoclass:: troy.PilotDescription
+.. autoclass:: radical.owms.PilotDescription
    :members:
    :undoc-members:
 
-.. autoclass:: troy.Pilot
+.. autoclass:: radical.owms.Pilot
    :members:
    :undoc-members:
 

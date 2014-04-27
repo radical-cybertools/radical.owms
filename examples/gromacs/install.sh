@@ -3,8 +3,8 @@
 deactivate || true
 
 export OLDPWD=`pwd`
-export INSTALL_ROOT=$OLDPWD/troy_install/
-export INSTALL_VE=$OLDPWD/troy_virtualenv/
+export INSTALL_ROOT=$OLDPWD/radical_owms_install/
+export INSTALL_VE=$OLDPWD/radical_owms_virtualenv/
 
 rm    -rf  $INSTALL_VE
 virtualenv $INSTALL_VE
@@ -17,11 +17,11 @@ easy_install threadpool
 
     
 cd   $INSTALL_ROOT
-test -e troy || git clone git@github.com:saga-project/troy.git
-cd   troy
+test -e radical.owms || git clone git@github.com:saga-project/radical.owms
+cd   radical.owms
 git  checkout devel
 git  pull
-yes  | pip  uninstall troy
+yes  | pip  uninstall radical.owms
 pip  install .
     
 cd   $INSTALL_ROOT

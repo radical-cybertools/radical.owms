@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+
+import radical.owms
+
+print radical.owms.version
+

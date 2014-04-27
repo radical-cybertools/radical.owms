@@ -4,25 +4,25 @@
 Testing
 *******
 
-Along with TROY's functionalities, we develop also a growing set of unit 
-tests. The unit test source code can be found in ``troy/tests``. You 
+Along with RADICAL-OWMS's functionalities, we develop also a growing set of unit 
+tests. The unit test source code can be found in ``radical.owms/tests``. You 
 can run the unit tests directly from the source directory without having
-to install TROY first:
+to install RADICAL-OWMS first:
 
 .. code-block:: bash
 
-    TROY_VERBOSE=debug \
+    RADICAL_OWMS_VERBOSE=debug \
     python setup.py test
 
 .. note:: 
 
-    If you run the same command in an environment where TROY is already
+    If you run the same command in an environment where RADICAL-OWMS is already
     installed, the unit tests will test the installed version instead of the 
     source version. 
 
 Remote Testing 
 ==============
-The TROY unit tests use pilot agents launched on the local machine (`localhost`) by default. However, it is possible to run a subset of the  unit tests (``troy/tests/remote/``) on a remote machine. Remote testing can  be controlled via a set of environment variables:
+The RADICAL-OWMS unit tests use pilot agents launched on the local machine (`localhost`) by default. However, it is possible to run a subset of the  unit tests (``radical.owms/tests/remote/``) on a remote machine. Remote testing can  be controlled via a set of environment variables:
 
 	+-------------------------------------------+---------------------------------------------------------------+
 	| Environment Variable                      | What                                                          |

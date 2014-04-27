@@ -2,8 +2,8 @@
 import time
 import radical.utils.testing as rut
 
-from   troy.constants import *
-import troy
+from   radical.owms.constants import *
+import radical.owms
 
 # ------------------------------------------------------------------------------
 #
@@ -21,7 +21,7 @@ def test_pilot_inspection () :
     #
 
     overlay_dict = test_conf.overlay_dict
-    overlay      = troy.Overlay ({'cores' : 1})
+    overlay      = radical.owms.Overlay ({'cores' : 1})
 
     if  not 'pilots' in overlay_dict :
         assert False, "no pilots in overlay dict" 
@@ -30,12 +30,12 @@ def test_pilot_inspection () :
         assert False, "zero pilots in overlay dict" 
 
     for pilot_dict in overlay_dict['pilots'] :
-        pilot_description = troy.PilotDescription (pilot_dict)
+        pilot_description = radical.owms.PilotDescription (pilot_dict)
         overlay._add_pilot (pilot_description)
 
-    troy.OverlayManager.register_overlay (overlay)
+    radical.owms.OverlayManager.register_overlay (overlay)
 
-    overlay_mgr = troy.OverlayManager ()
+    overlay_mgr = radical.owms.OverlayManager ()
     overlay_mgr.translate_overlay (overlay.id)
     overlay_mgr.schedule_overlay  (overlay.id)
     overlay_mgr.provision_overlay (overlay.id)
@@ -48,7 +48,7 @@ def test_pilot_inspection () :
     #
 
     workload_dict = test_conf.workload_dict
-    workload      = troy.Workload ()
+    workload      = radical.owms.Workload ()
 
     if  not 'tasks' in workload_dict :
         assert False, "no tasks in workload dict" 
@@ -57,14 +57,14 @@ def test_pilot_inspection () :
         assert False, "zero tasks in workload dict" 
 
     for task_dict in workload_dict['tasks'] :
-        task_description = troy.TaskDescription (task_dict)
+        task_description = radical.owms.TaskDescription (task_dict)
         workload.add_task (task_description)
 
 
-    workload_mgr = troy.WorkloadManager ()
+    workload_mgr = radical.owms.WorkloadManager ()
     workload_mgr.translate_workload(workload.id, overlay.id)
     workload_mgr.bind_workload     (workload.id, overlay.id,
-                                    bind_mode=troy.LATE)
+                                    bind_mode=radical.owms.LATE)
     workload_mgr.dispatch_workload (workload.id, overlay.id)
 
 

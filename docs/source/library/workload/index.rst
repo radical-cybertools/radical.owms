@@ -3,42 +3,42 @@
 Workload
 ========
 
-The Troy Workload...
+The RADICAL-OWMS Workload...
 
 .. contents:: Table of Contents
    :local:
 
 .. #############################################################################
 
-.. autoclass:: troy.WorkloadManager
+.. autoclass:: radical.owms.WorkloadManager
    :members:
    :undoc-members:
 
-.. autoclass:: troy.Workload
+.. autoclass:: radical.owms.Workload
    :members:
    :undoc-members:
 
-.. autoclass:: troy.TaskDescription
+.. autoclass:: radical.owms.TaskDescription
    :members:
    :undoc-members:
 
-.. autoclass:: troy.Task
+.. autoclass:: radical.owms.Task
    :members:
    :undoc-members:
 
-.. autoclass:: troy.RelationDescription
+.. autoclass:: radical.owms.RelationDescription
    :members:
    :undoc-members:
 
-.. autoclass:: troy.Relation
+.. autoclass:: radical.owms.Relation
    :members:
    :undoc-members:
 
-.. autoclass:: troy.ComputeUnitDescription
+.. autoclass:: radical.owms.ComputeUnitDescription
    :members:
    :undoc-members:
 
-.. autoclass:: troy.ComputeUnit
+.. autoclass:: radical.owms.ComputeUnit
    :members:
    :undoc-members:
 

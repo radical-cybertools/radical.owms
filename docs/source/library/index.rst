@@ -5,7 +5,7 @@
 Library Reference
 *****************
 
-This is the Troy library reference
+This is the RADICAL-OWMS library reference
 
 .. toctree::
 

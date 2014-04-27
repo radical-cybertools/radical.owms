@@ -2,10 +2,10 @@ Attributes and Callbacks
 ************************
 
 
-Attribute -- :class:`troy.Attributes`
+Attribute -- :class:`radical.owms.Attributes`
 -------------------------------------
 
-.. autoclass:: troy.utils.Attributes
+.. autoclass:: radical.owms.utils.Attributes
    :show-inheritance:
    :members:
 
