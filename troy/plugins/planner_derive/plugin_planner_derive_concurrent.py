@@ -9,7 +9,7 @@ import troy
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
-    'type'        : 'derive',
+    'type'        : 'planner_derive',
     'name'        : 'concurrent',
     'version'     : '0.1',
     'description' : 'This plugin derives an overlay for partial concurrent ' \

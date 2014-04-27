@@ -9,8 +9,8 @@ import troy
 # ------------------------------------------------------------------------------
 #
 PLUGIN_DESCRIPTION = {
-    'type'        : 'strategy', 
-    'name'        : 'basic_early_binding', 
+    'type'        : 'planner_strategy', 
+    'name'        : 'early_binding', 
     'version'     : '0.1',
     'description' : 'this is the basic troy strategy for executing workloads.'
   }
@@ -59,7 +59,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             workload = workload_mgr.get_workload (workload_id)
 
             # combine or split tasks in te workload
-            planner.expand_workload (workload.id)
+            workload_mgr.expand_workload (workload.id)
 
             # Initial description of the overlay based on the workload
             overlay_descr = planner.derive_overlay (workload.id)

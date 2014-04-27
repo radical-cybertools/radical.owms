@@ -57,9 +57,9 @@ relation    * *Translation:* A workload is inspected, and its tasks are translat
     ---------------
 
     A workload can be in different states, depending on the transformations
-    performed on it.  Specifically, it can be in `DESCRIBED`, `PLANNED`,
+    performed on it.  Specifically, it can be in `DESCRIBED`, `EXPANDED`,
     `TRANSLATED`, `SCHEDULED`, `DISPATCHED`, `DONE` or `FAILED`.
-    A workload enters the workload manager in `DESCRIBED` or `PLANNED` state,
+    A workload enters the workload manager in `DESCRIBED` or `EXPANDED` state,
     and all follow-up state transitions are kept within the workload manager.
 
     Those states are ill defined in case of partial transformations -- if, for
@@ -129,6 +129,9 @@ relation    * *Translation:* A workload is inspected, and its tasks are translat
         self.session = session
 
         self.id = ru.generate_id ('wl.')
+
+        print self
+        print type(self)
 
         tu.Timed.__init__            (self, 'troy.Workload', self.id)
         self.session.timed_component (self, 'troy.Workload', self.id)
@@ -361,7 +364,7 @@ relation    * *Translation:* A workload is inspected, and its tasks are translat
 
         The initial stages of Troy cause atomic state transitions for the
         workload -- it is created as `DESCRIBED`, 
-        `planner.plan()`                        moves it to `PLANNED`, 
+        `planner.plan()`                        moves it to `EXPANDED`, 
         `workload_manager.translate_workload()` moves it to `TRANSLATED`,
         `workload_manager.bind_workload()`      moves it to `BOUND`,       and
         `workload_manager.dispatch_workload()`  moves it to `DISPATCHED`.
@@ -386,7 +389,7 @@ relation    * *Translation:* A workload is inspected, and its tasks are translat
         """
 
         # atomic states are set elsewhere
-        if  self.state in [DESCRIBED, PLANNED] :
+        if  self.state in [DESCRIBED, EXPANDED] :
             return self.state
 
         # final states are never left

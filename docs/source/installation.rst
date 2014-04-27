@@ -24,10 +24,10 @@ Core dependencies:
 
 Additional dependencies:
 
-* sagapilot (https://github.com/saga-project/saga-pilot)
-* BigJob    (https://pypi.python.org/pypi/BigJob)
+* RADICAL-Pilot (https://github.com/saga-project/saga-pilot)
+* BigJob        (https://pypi.python.org/pypi/BigJob)
 
-.. note:: You will need to install at least one pilot framework - sagapilot, BigJob, or both.  If neither is installed, a fake `local` backend will be used to run workloads on the local machine.
+.. note:: You will need to install at least one pilot framework - RADICAL-Pilot, BigJob, or both.  If neither is installed, a fake `local` backend will be used to run workloads on the local machine.
 
 .. _installation_from_github:
 
@@ -59,8 +59,8 @@ This should return the version of the TROY installation, similar to the above.
 
 To install one or more pilot frameworks see the following instructions but please **DO NOT CREATE A NEW VIRTUAL ENVIRONMENT** with commands like ``virtualenv $HOME/myenv``:
 
-*  Sagapilot (http://saga-pilot.readthedocs.org/en/latest/installation.html#id1)
-*  BigJob (http://saga-project.github.io/BigJob/)
+*  RADICAL-Pilot (http://saga-pilot.readthedocs.org/en/latest/installation.html#id1)
+*  BigJob        (http://saga-project.github.io/BigJob/)
     
 
 Installation from Source

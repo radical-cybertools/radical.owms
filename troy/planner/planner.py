@@ -30,8 +30,7 @@ class Planner (tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, session, expand=AUTOMATIC, 
-                                 derive=AUTOMATIC) :
+    def __init__ (self, session) :
         """
         Create a new planner instance for this workload.
 
@@ -53,19 +52,10 @@ class Planner (tu.Timed) :
         # We leave actual plugin initialization for later, in case a strategy
         # wants to alter / complete the plugin selection
         #
-        # FIXME: we don't need no stupid arguments, ey!  Just use
-        #        AUTOMATIC by default...
-        self.plugins['expand' ] = expand
-        self.plugins['derive' ] = derive
-
-        # lets see if there are any plugin preferences in the config
-        # note that config settings supercede arguments!
         cfg = session.get_config ('planner')
 
-        if  'plugin_planner_derive' in cfg : 
-            self.plugins['derive']  =  cfg['plugin_planner_derive']
-        if  'plugin_planner_expand' in cfg : 
-            self.plugins['expand']  =  cfg['plugin_planner_expand']
+        self.plugins['strategy'] = cfg.get ('plugin_planner_strategy', AUTOMATIC)
+        self.plugins['derive']   = cfg.get ('plugin_planner_derive',   AUTOMATIC)
 
 
 
@@ -81,27 +71,73 @@ class Planner (tu.Timed) :
       # troy._logger.debug ("initializing planner (%s)" % self.plugins)
 
         # for each plugin set to 'AUTOMATIC', do the clever thing
-        if  self.plugins['derive' ]  == AUTOMATIC :
-            self.plugins['derive' ]  = 'maxcores'
-        if  self.plugins['expand' ]  == AUTOMATIC :
-            self.plugins['expand' ]  = 'cardinal'
+        if  self.plugins['strategy'] == AUTOMATIC :
+            self.plugins['strategy'] = 'late_binding'
+        if  self.plugins['derive'  ] == AUTOMATIC :
+            self.plugins['derive'  ] = 'maxcores'
 
 
         # load plugins
         self._plugin_mgr = ru.PluginManager ('troy')
-        self._expand     = self._plugin_mgr.load ('expand', self.plugins['expand'])
-        self._derive     = self._plugin_mgr.load ('derive', self.plugins['derive'])
+        self._strategy   = self._plugin_mgr.load ('planner_strategy', self.plugins['strategy'])
+        self._derive     = self._plugin_mgr.load ('planner_derive',   self.plugins['derive'])
 
-        if  not self._expand :
-            raise RuntimeError ("Could not load planner workload_expand plugin")
+        if  not self._strategy :
+            raise RuntimeError ("Could not load strategy overlay_derive plugin")
 
         if  not self._derive :
             raise RuntimeError ("Could not load planner overlay_derive plugin")
 
-        self._expand.init_plugin (self.session, 'planner')
-        self._derive.init_plugin (self.session, 'planner')
+        self._strategy.init_plugin (self.session, 'planner')
+        self._derive.init_plugin   (self.session, 'planner')
 
         troy._logger.info ("initialized  planner (%s)" % self.plugins)
+
+
+    # ------------------------------------------------------------------------------
+    #
+    def execute_workload (self, workload) :
+        """
+        Parse and execute a given workload, i.e., translate, bind and dispatch it,
+        and then wait until its execution is completed.  For that to happen, we also
+        need to plan, translate, schedule and dispatch an overlay, obviously...
+        """
+    
+        overlay_mgr  = troy.OverlayManager  (self.session)
+        workload_mgr = troy.WorkloadManager (self.session)
+
+        workload_id  = None
+    
+        if  isinstance (workload, basestring) :
+            if  workload.startswith ('wl.') :
+                print 'is id %s' % workload
+                workload_id = workload
+            else :
+                print 'is path %s' % workload
+                # we assume this string points to a file containing a workload description 
+                workload_id = workload_mgr.parse_workload (workload)
+        elif  isinstance (workload, troy.Workload) :
+            print 'is instance %s' % workload
+            workload_id = workload.id
+        else :
+            raise TypeError ("workload needs to be a troy.Workload or a filename "
+                             "pointing to a workload description, not '%s'" 
+                             % type (workload))
+    
+        workload = troy.WorkloadManager.get_workload (workload_id)
+
+        self.timed_component (workload, 'troy.Workload', workload_id)
+
+        # Workload needs to be in DESCRIBED state to be expanded
+        if  workload.state not in [DESCRIBED]:
+            raise ValueError("workload '%s' not in DESCRIBED state" % workload.id)
+
+        # make sure manager is initialized
+        self._init_plugins (workload)
+
+        # hand over control the selected strategy plugin, 
+        # so it can do what it has to do.
+        self._strategy.execute (workload_id, self, overlay_mgr, workload_mgr)
 
 
     # --------------------------------------------------------------------------
@@ -142,7 +178,7 @@ class Planner (tu.Timed) :
             the cores available from the accessible resources, raise Exception.
           - Max/Min queing time required by the given workload. If Max > of
             the cores available from the accessible resources, raise Exception.
-          - Max/Min degree of concurrency for the given workload - derived
+          - Max/Min degree of concurrency for the given wortroy/planner/planner.pykload - derived
             from the two previous parameters.
 
         """
@@ -152,10 +188,14 @@ class Planner (tu.Timed) :
 
         self.timed_component (workload, 'troy.Workload', workload.id)
 
-        # Workload doesn't need to be PLANNED, can also be DESCRIBED only
+        # Workload doesn't need to be PLANNED, but if it is only DESCRIBED,
+        # it can't be parametrized.
         if  workload.state not in [PLANNED, DESCRIBED]:
-            raise ValueError("workload '%s' not in DESCRIBED or PLANNED "
+            raise ValueError("workload '%s' not in DESCRIBED or PLANNED " 
                              "state" % workload.id)
+        elif workload.state is DESCRIBED and workload.parametrized:
+            raise ValueError("Parametrized workload '%s' not PLANNED yet."
+                             % workload.id)
 
         # make sure manager is initialized
         self._init_plugins (workload)
@@ -170,37 +210,6 @@ class Planner (tu.Timed) :
         # Only pass the ID back
         return overlay_descr
 
-    # --------------------------------------------------------------------------
-    #
-    def expand_workload (self, workload_id):
-        """
-        Expand cardinality parameters in workload.
-
-        Notes
-
-        . Currently, this method is empty. What is its goal? Answering this
-          question should also clarify why 'expand'.
-
-        """
-
-        # Get the workload from the repo
-        workload = troy.WorkloadManager.get_workload(workload_id)
-
-        self.timed_component (workload, 'troy.Workload', workload.id)
-
-        # make sure the workflow is 'fresh', so we can translate it
-        if workload.state != DESCRIBED:
-            raise ValueError("workload '%s' not in DESCRIBED state" %
-                             workload.id)
-
-        self._init_plugins (workload)
-
-        # Expand (optional) cardinality in workload
-        workload.timed_method ('expand', [], 
-                               self._expand.expand_workload, [workload])
-
-        # Workload is now ready to go to the workload manager
-        workload.state = PLANNED
 
 # ------------------------------------------------------------------------------
 

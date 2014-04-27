@@ -83,7 +83,6 @@ def get_version (paths=None):
         # if we didn't find it, get it from git 
         if  not long_version :
 
-
             # make sure we look at the right git repo
             if  len(paths) :
                 git_cd  = "cd %s ;" % paths[0]
@@ -202,16 +201,16 @@ setup_args = {
         "troy.overlay",
         "troy.workload",
         "troy.plugins",
-        "troy.plugins.strategy",
+        "troy.plugins.planner_strategy",
         "troy.plugins.planner_derive",
-        "troy.plugins.planner_expand",
         "troy.plugins.overlay_translator",
         "troy.plugins.overlay_scheduler",
         "troy.plugins.overlay_provisioner",
-        "troy.plugins.workload_scheduler",
-        "troy.plugins.workload_translator",
-        "troy.plugins.workload_dispatcher",
         "troy.plugins.workload_parser",
+        "troy.plugins.workload_translator",
+        "troy.plugins.workload_expander",
+        "troy.plugins.workload_scheduler",
+        "troy.plugins.workload_dispatcher",
         "troy.external",
         "troy.external.bundle",
         "troy.external.bundle.src",
@@ -226,13 +225,9 @@ setup_args = {
     'cmdclass'         : {
         'test'         : our_test,
     },
-  # 'install_requires' : ['saga-python', 'radical.utils'],
-  # At the moment, the radical.utils plugin manager has trouble when any plugin
-  # fails to load.  Until that is fixed, we have to make sure that all
-  # dependencies are met -- so we add the all for the time being.
-    'install_requires' : ['saga-python', 'radical.utils', 'pymongo', 'paramiko'],
+    'install_requires' : ['saga-python', 'radical.utils'],
     'extras_require'   : {
-        'sagapilot'    :  ["sagapilot"],
+        'radical.pilot':  ["radical.pilot"],
         'bigjob'       :  ["bigjob"],
         'bundles'      :  ["paramiko"]
     },

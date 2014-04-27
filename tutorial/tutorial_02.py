@@ -15,7 +15,6 @@ import troy
 #
 configs  = sys.argv[1:]
 session  = troy.Session (configs)
-strategy = session.cfg.get ('troy_strategy', troy.AUTOMATIC)
 
 
 # ------------------------------------------------------------------------------
@@ -37,19 +36,16 @@ workload = troy.Workload (session, task_descr)
 
 # ------------------------------------------------------------------------------
 #
-# create managers within session (and its configs)
+# create a troy planner within session (and its configs)
 #
-planner      = troy.Planner         (session)
-overlay_mgr  = troy.OverlayManager  (session)
-workload_mgr = troy.WorkloadManager (session)
+planner = troy.Planner (session)
 
 
 # ------------------------------------------------------------------------------
 #
 # execute workload
 #
-troy.execute_workload (workload, planner, overlay_mgr, workload_mgr,
-                       strategy=strategy)
+planner.execute_workload (workload)
 
 # ------------------------------------------------------------------------------
 

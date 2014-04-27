@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
     pilot_backend  = 'bigjob_pilot'
     
-    plugin_strategy            = 'basic_early_binding' # early, late
+    plugin_strategy            = 'early_binding' # early, late
     plugin_planner             = 'concurrent'          # concurrent, bundles, maxcores
     plugin_overlay_translator  = 'max_pilot_size'      # max_pilot_size
     plugin_overlay_scheduler   = 'round_robin'         # rr, local
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     plugin_workload_dispatcher = pilot_backend         # sinon, bj, local
 
     # Create a session for TROY, and configure some plugins
-    session = troy.Session (cfg = {'overlay_scheduler_round_robin' : {
+    session = troy.Session (user_cfg = {'overlay_scheduler_round_robin' : {
                                        'resources'   : resources
                                        },
                                    'planner_concurrent' : {
@@ -168,7 +168,7 @@ if __name__ == '__main__':
 
 
     # create a troy.Workload from all those task descriptions
-    workload = troy.Workload (task_descriptions)
+    workload = troy.Workload (session, task_descriptions)
 
 
     # --------------------------------------------------------------------------
@@ -177,33 +177,12 @@ if __name__ == '__main__':
     # manager
     #
     # the troy.Planner accepts a workload, and derives an overlay to execute it
-    planner = troy.Planner (planner = plugin_planner,
-                            session = session)
-
-
-    # the troy.OverlayManager translates an overlay transcription into an
-    # overlay, then schedules and provisions it.
-    overlay_mgr = troy.OverlayManager (translator   = plugin_overlay_translator,
-                                       scheduler    = plugin_overlay_scheduler,
-                                       provisioner  = plugin_overlay_provisioner,
-                                       session      = session)
-
-
-    # the troy.WorkloadManager transforms a workload, schedules it over an
-    # overlay, and dispatches it to the pilots.
-    workload_mgr = troy.WorkloadManager (translator  = plugin_workload_translator,   
-                                         scheduler   = plugin_workload_scheduler,
-                                         dispatcher  = plugin_workload_dispatcher,
-                                         session     = session)
+    planner = troy.Planner (session)
 
     # The order of actions on the planner, overlay manager and workload manager
     # is orchestrated by a troy execution strategy (which represents a specific
     # trace in the original troy design).
-    troy.execute_workload (workload     = workload, 
-                           planner      = planner, 
-                           overlay_mgr  = overlay_mgr, 
-                           workload_mgr = workload_mgr, 
-                           strategy     = plugin_strategy)
+    planner.execute_workload (workload)
 
     # Woohooo!  Magic has happened!
 

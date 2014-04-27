@@ -17,9 +17,9 @@ import getpass
 PLUGIN_OVERLAY_DERIVE       = 'concurrent'
 PLUGIN_OVERLAY_SCHEDULER    = 'round_robin'
 PLUGIN_OVERLAY_TRANSLATOR   = troy.AUTOMATIC
-PLUGIN_OVERLAY_PROVISIONER  = 'bigjob'
+PLUGIN_OVERLAY_PROVISIONER  = 'sagapilot'
 PLUGIN_WORKLOAD_SCHEDULER   = troy.AUTOMATIC
-PLUGIN_WORKLOAD_DISPATCHER  = 'bigjob'
+PLUGIN_WORKLOAD_DISPATCHER  = 'sagapilot'
 
 
 # ------------------------------------------------------------------------------
@@ -73,15 +73,9 @@ if __name__ == '__main__' :
         })
 
     # create planner, overlay and workload manager, with plugins as configured
-    planner      = troy.Planner         (session     = session                   ,
-                                         derive      = PLUGIN_OVERLAY_DERIVE     )
-    workload_mgr = troy.WorkloadManager (session     = session                   ,
-                                         scheduler   = PLUGIN_WORKLOAD_SCHEDULER , 
-                                         dispatcher  = PLUGIN_WORKLOAD_DISPATCHER)
-    overlay_mgr  = troy.OverlayManager  (session     = session                   ,
-                                         scheduler   = PLUGIN_OVERLAY_SCHEDULER  ,
-                                         translator  = PLUGIN_OVERLAY_TRANSLATOR ,
-                                         provisioner = PLUGIN_OVERLAY_PROVISIONER)
+    planner      = troy.Planner         (session)
+    workload_mgr = troy.WorkloadManager (session)
+    overlay_mgr  = troy.OverlayManager  (session)
 
 
     # --------------------------------------------------------------------------
@@ -105,7 +99,7 @@ if __name__ == '__main__' :
 
     # Translate 1 workload into N tasks and then M ComputeUnits, and bind them 
     # to specific pilots (which are not yet running, thus early binding)
-    planner.expand_workload         (workload_1.id)
+    workload_mgr.expand_workload    (workload_1.id)
     workload_mgr.translate_workload (workload_1.id, overlay.id)
     workload_mgr.bind_workload      (workload_1.id, overlay.id, bind_mode=troy.EARLY)
 
@@ -125,13 +119,13 @@ if __name__ == '__main__' :
     workload_2 = troy.Workload (session)
 
     for r in radical_oldfarts :
-        workload_2.add_task (create_task_description (r, 'oldfart       '))
+        workload_2.add_task (create_task_description (r, 'oldfart'))
 
 
     # Translate expand, translate and bind workload again, and immediately
     # dispatch it, too.  We could have used
     # different plugins here...
-    planner.expand_workload         (workload_2.id)
+    workload_mgr.expand_workload    (workload_2.id)
     workload_mgr.translate_workload (workload_2.id, overlay.id)
     workload_mgr.bind_workload      (workload_2.id, overlay.id, bind_mode=troy.LATE)
     workload_mgr.dispatch_workload  (workload_2.id, overlay.id)
@@ -175,10 +169,7 @@ if __name__ == '__main__' :
 
     # --------------------------------------------------------------------------
     # We are done -- save traces
-  # workload_mgr.timed_dump ()
-  # workload_mgr.timed_store ('mongodb://localhost/timing/')
     session.timed_dump ()
-  # session.timed_store ('mongodb://localhost/timing/')
     session.timed_store ('mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/timing/')
 
 
