@@ -1,5 +1,5 @@
 
-__author_   _ = "RADICAL Development Team"
+__author__    = "RADICAL Development Team"
 __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 

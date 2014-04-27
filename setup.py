@@ -170,7 +170,7 @@ setup_args = {
         "radical.owms.external.bundle.src.bundle.example",
         "radical.owms.bundle_wrapper",
     ],
-    'scripts'            : ['bin/owms.py', 'bin/radical-owms-version'],
+    'scripts'            : ['bin/radical-owms.py', 'bin/radical-owms-version'],
     'package_data'       : {'' : ['*.sh', 'VERSION', 'VERSION.git', 'resources.json']},
     'cmdclass'           : {
         'test'           : our_test,
