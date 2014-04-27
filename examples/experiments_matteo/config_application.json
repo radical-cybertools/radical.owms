@@ -1,0 +1,34 @@
+
+# config_application.json
+{
+    # variables we want to vary for each experiment run
+    "steps"            : 256,
+    "bag_size"         : 16, 
+
+    # build up a unique session id from those variables.  This 
+    # ID will be used by try to identify this run
+    "session_id"       : "gromacs_%(steps)s_%(bag_size)s",
+
+
+    # We add some additional, app specific information to the 
+    # troy resource configuration, so that we can use placeholder
+    # like '%(mdrun)s' in our workload descriptions.
+    # This section *must* be named `resources`.
+    "resources" : {
+        "*.futuregrid.org" : {
+            "username"     : "merzky",
+            "mdrun"        : "/N/u/marksant/bin/mdrun"
+        },
+        "stampede.*" : {
+            "username"     : "tg803521",
+            "home"         : "/home1/01083/tg803521",
+            "mdrun"        : "/home1/01740/marksant/bin/mdrun"
+        },
+        # localhost has mdrun in path
+        "localhost" : {
+            "username"     : "merzky",
+            "mdrun"        : "mdrun"
+        }
+    }
+}
+
