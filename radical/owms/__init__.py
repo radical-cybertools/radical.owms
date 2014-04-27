@@ -8,7 +8,6 @@ import os
 import radical.utils        as ru
 import radical.utils.logger as rul
 
-
 # ------------------------------------------------------------------------------
 #
 # the radical.owms API layer
@@ -53,7 +52,6 @@ version = long_version
 # radical configuration system has changed to json
 _logger = rul.logger.getLogger  ('radical.owms')
 _logger.info ('radical.owms    version: %s' % version)
-
 
 # ------------------------------------------------------------------------------
 

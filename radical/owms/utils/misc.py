@@ -9,7 +9,7 @@ import sys
 import glob
 
 import radical.utils as ru
-import radical.owms
+# import radical.owms
 
 
 # ------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ def get_config (params) :
                 cfg_files = [param]
 
             else :
-                radical.owms._logger.warning ("cannot handle config location %s" % param)
+                # radical.owms._logger.warning ("cannot handle config location %s" % param)
                 cfg_files = list()
 
             print 'files: %s' % cfg_files
@@ -76,9 +76,9 @@ def get_config (params) :
                 cfg_dict = dict()
                 try :
                     cfg_dict = ru.read_json (cfg_file)
-                    radical.owms._logger.info ("reading  config in %s" % cfg_file)
+                    # radical.owms._logger.info ("reading  config in %s" % cfg_file)
                 except Exception as e :
-                    radical.owms._logger.critical ("skipping config in %s (%s)" % (cfg_file, e))
+                    # radical.owms._logger.critical ("skipping config in %s (%s)" % (cfg_file, e))
                     raise
 
               # import pprint

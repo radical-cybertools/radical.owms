@@ -4,7 +4,6 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
-import radical.utils as ru
 import os
 import re
 import fnmatch
@@ -13,7 +12,7 @@ import logging
 import radical.utils as ru
 
 import radical.owms
-import radical.owms.utils    as tu
+from   radical.owms import utils as tu
 
 
 

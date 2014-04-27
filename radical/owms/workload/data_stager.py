@@ -6,11 +6,10 @@ __license__   = "MIT"
 
 import os
 import saga
-import radical.utils      as ru
-
-import radical.owms.utils         as tu
 from   radical.owms.constants import *
 import radical.owms
+from   radical.owms import utils  as tu
+import radical.utils              as ru
 
 
 """

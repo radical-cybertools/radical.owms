@@ -1,7 +1,7 @@
 
 
 import time
-import radical.owms
+# import radical.owms
 import pymongo
 import weakref
 import datetime
@@ -180,7 +180,7 @@ class Timed (object) :
                                       'events'     : component.timed_events, 
                                       'durations'  : component.timed_durations})
 
-        radical.owms._logger.debug ('dumped timing to %s/%s' % (url, self.timed_id))
+        # radical.owms._logger.debug ('dumped timing to %s/%s' % (url, self.timed_id))
 
 
 
@@ -215,8 +215,8 @@ class Timed (object) :
             'tags'  : tags,
         }
 
-        radical.owms._logger.debug ('timed start    : %s %s %s : %s (UTC)' \
-                         % (event, name, tags, start))
+        # radical.owms._logger.debug ('timed start    : %s %s %s : %s (UTC)' \
+        #                  % (event, name, tags, start))
 
         return start
 
@@ -241,8 +241,8 @@ class Timed (object) :
         self.timed_durations.append (self._timed_current[event])
         self._timed_current[event] = None
 
-        radical.owms._logger.debug ('timed stop     : %s %s : %s (UTC)' % (event, tags, stop))
-        radical.owms._logger.debug ('timed duration : %s %s : %s  sec'  % (event, tags, timer))
+        # radical.owms._logger.debug ('timed stop     : %s %s : %s (UTC)' % (event, tags, stop))
+        # radical.owms._logger.debug ('timed duration : %s %s : %s  sec'  % (event, tags, timer))
 
         return timer
 
@@ -272,8 +272,8 @@ class Timed (object) :
                                    'name'  : name,  
                                    'tags'  : tags })
 
-        radical.owms._logger.debug ('timed event [%s]   : %s : %s : %s' \
-                         % (self.timed_id, event, name, tags))
+        # radical.owms._logger.debug ('timed event [%s]   : %s : %s : %s' \
+        #                  % (self.timed_id, event, name, tags))
 
 
     # --------------------------------------------------------------------------
@@ -303,7 +303,7 @@ def timeit (method) :
         timer  = stop - start
 
         signature = "%s (%s, %s) " % (method.__name__, args, kwargs)
-        radical.owms._logger.debug ('%30s : %6.2f sec' % (signature, timer))
+        # radical.owms._logger.debug ('%30s : %6.2f sec' % (signature, timer))
 
         return result
 
