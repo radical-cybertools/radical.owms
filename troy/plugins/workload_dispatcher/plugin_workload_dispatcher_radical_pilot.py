@@ -107,23 +107,23 @@ class PLUGIN_CLASS (troy.PluginBase):
                     'working_directory' : 'working_directory_priv'
                   }
 
-                sp_cu_descr = rp.ComputeUnitDescription ()
+                rp_cu_descr = rp.ComputeUnitDescription ()
                 for key in unit_descr :
                     if  key in keymap :
-                        sp_cu_descr[keymap[key]] = unit_descr[key]
+                        rp_cu_descr[keymap[key]] = unit_descr[key]
 
 
                 # FIXME: sanity check for pilot type
-                [sp_um, sp_pm, sp_pilot] = pilot._get_instance ('radical.pilot')
-                sp_cu = sp_um.submit_units (sp_cu_descr)
+                [rp_um, rp_pm, rp_pilot] = pilot._get_instance ('radical.pilot')
+                rp_cu = rp_um.submit_units (rp_cu_descr)
 
                 # attach the backend instance to the unit, for later state
                 # checks etc. We leave it up to the unit to decide if it wants
                 # to cache the instance, or just the ID and then later
                 # reconnect.
                 unit._set_instance ('radical.pilot', self, 
-                                    instance  = [sp_um,     sp_cu],
-                                    native_id = [sp_um.uid, sp_cu.uid])
+                                    instance  = [rp_um,     rp_cu],
+                                    native_id = [rp_um.uid, rp_cu.uid])
 
 
     # --------------------------------------------------------------------------
@@ -136,13 +136,13 @@ class PLUGIN_CLASS (troy.PluginBase):
         """
 
         troy._logger.debug ("reconnect to radical.pilot cu %s" % native_id)
-        sp_um_id = native_id[0]
-        sp_cu_id = native_id[1]
+        rp_um_id = native_id[0]
+        rp_cu_id = native_id[1]
 
-        sp_um    = self._sp.get_unit_managers (sp_um_id)
-        sp_cu    = sp_um.get_units (sp_cu_id)
+        rp_um    = self._sp.get_unit_managers (rp_um_id)
+        rp_cu    = rp_um.get_units (rp_cu_id)
 
-        return [sp_um, sp_cu]
+        return [rp_um, rp_cu]
 
 
     # --------------------------------------------------------------------------
@@ -155,18 +155,18 @@ class PLUGIN_CLASS (troy.PluginBase):
         """
 
         # find out what we can about the pilot...
-        [sp_um, sp_cu] = unit._get_instance ('radical.pilot')
+        [rp_um, rp_cu] = unit._get_instance ('radical.pilot')
 
-        info = {'uid'              : sp_cu.uid,
-                'description'      : sp_cu.description,
-                'state'            : sp_cu.state,
-                'stdout'           : sp_cu.stdout,
-                'stderr'           : sp_cu.stderr,
-                'log'              : sp_cu.log,
-                'execution_details': sp_cu.execution_details,
-                'submission_time'  : sp_cu.submission_time,
-                'start_time'       : sp_cu.start_time,
-                'stop_time'        : sp_cu.stop_time}
+        info = {'uid'              : rp_cu.uid,
+                'description'      : rp_cu.description,
+                'state'            : rp_cu.state,
+                'stdout'           : rp_cu.stdout,
+                'stderr'           : rp_cu.stderr,
+                'log'              : rp_cu.log,
+                'execution_details': rp_cu.execution_details,
+                'submission_time'  : rp_cu.submission_time,
+                'start_time'       : rp_cu.start_time,
+                'stop_time'        : rp_cu.stop_time}
 
 
         # translate radical.pilot state to troy state
@@ -230,8 +230,8 @@ class PLUGIN_CLASS (troy.PluginBase):
         bye bye bye Junimond, es ist vorbei, bye bye...
         """
 
-        [sp_um, sp_cu] = unit._get_instance ('radical.pilot')
-        sp_cu.cancel ()
+        [rp_um, rp_cu] = unit._get_instance ('radical.pilot')
+        rp_cu.cancel ()
 
 
 # ------------------------------------------------------------------------------

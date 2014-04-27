@@ -188,13 +188,13 @@ class Planner (tu.Timed) :
 
         self.timed_component (workload, 'troy.Workload', workload.id)
 
-        # Workload doesn't need to be PLANNED, but if it is only DESCRIBED,
+        # Workload doesn't need to be EXPANDED, but if it is only DESCRIBED,
         # it can't be parametrized.
-        if  workload.state not in [PLANNED, DESCRIBED]:
-            raise ValueError("workload '%s' not in DESCRIBED or PLANNED " 
+        if  workload.state not in [EXPANDED, DESCRIBED]:
+            raise ValueError("workload '%s' not in DESCRIBED or EXPANDED " 
                              "state" % workload.id)
         elif workload.state is DESCRIBED and workload.parametrized:
-            raise ValueError("Parametrized workload '%s' not PLANNED yet."
+            raise ValueError("Parametrized workload '%s' not EXPANDED yet."
                              % workload.id)
 
         # make sure manager is initialized

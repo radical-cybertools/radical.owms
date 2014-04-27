@@ -114,7 +114,6 @@ class Session (saga.Session, tu.Timed) :
                            policy='preserve', 
                            logger=troy._logger)
 
-
         # we set the log level as indicated in the troy config or user
         # config, fallback being log level ERROR
         log_level = 'ERROR'
@@ -159,6 +158,7 @@ class Session (saga.Session, tu.Timed) :
 
         current_cfg  = self.cfg
         current_path = 'troy'
+
 
         for idx, elem in enumerate(path) :
 

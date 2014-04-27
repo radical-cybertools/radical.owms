@@ -72,7 +72,7 @@ class PLUGIN_CLASS (troy.PluginBase):
             raise RuntimeError ("Cannot use radical.pilot backend - no COORDINATION_URL -- see debug log for details")
 
 
-        self._sp = rp.Session (database_url = self._coord)
+        self._rp = rp.Session (database_url = self._coord)
 
 
     # --------------------------------------------------------------------------
@@ -103,36 +103,39 @@ class PLUGIN_CLASS (troy.PluginBase):
             pilot_descr.cores    = troy_pilot.description['size']
             pilot_descr.runtime  = troy_pilot.description['walltime'] + self._overhead
             pilot_descr.queue    = troy_pilot.description['queue']
-            pilot_descr.sandbox  = "%s/troy_agents/" % troy_pilot.description['home']
+
+            if  'home' in troy_pilot.description and troy_pilot.description['home']:
+                print troy_pilot.description['home']
+                pilot_descr.sandbox  = "%s/troy_agents/" % troy_pilot.description['home']
 
             troy._logger.info ('overlay  provision: provision   pilot  %s : %s : %s' \
                             % (pid, troy_pilot.resource, pilot_descr))
 
             if  'username' in troy_pilot.description :
-                 username = troy_pilot.description['username']
+                username = troy_pilot.description['username']
 
-                 if  username not in self._credentials :
-                     self._credentials.append (username)
+                if  username and username not in self._credentials :
+                    self._credentials.append (username)
 
-                     cred = rp.SSHCredential()
-                     cred.user_id = username
-                     self._sp.add_credential(cred)
-                     print "added username %s @ %s" % (username, pilot_descr.resource)
+                    cred = rp.SSHCredential()
+                    cred.user_id = username
+                    self._rp.add_credential(cred)
+                    print "added username %s @ %s" % (username, pilot_descr.resource)
 
 
             # and create the pilot overlay
-            sp_um    = rp.UnitManager  (session   = self._sp, 
+            rp_um    = rp.UnitManager  (session   = self._rp, 
                                         scheduler = 'direct_submission')
-            sp_pm    = rp.PilotManager (session   = self._sp, 
+            rp_pm    = rp.PilotManager (session   = self._rp, 
                                         resource_configurations = [FGCONF, XSEDECONF])
-            sp_pilot = sp_pm.submit_pilots (pilot_descr)
+            rp_pilot = rp_pm.submit_pilots (pilot_descr)
 
-            sp_um.add_pilots (sp_pilot)
+            rp_um.add_pilots (rp_pilot)
 
             troy_pilot._set_instance (instance_type = 'radical.pilot', 
                                       provisioner   = self, 
-                                      instance      = [sp_um,     sp_pm,     sp_pilot], 
-                                      native_id     = [sp_um.uid, sp_pm.uid, sp_pilot.uid])
+                                      instance      = [rp_um,     rp_pm,     rp_pilot], 
+                                      native_id     = [rp_um.uid, rp_pm.uid, rp_pilot.uid])
 
             troy._logger.info ('overlay  provision: provisioned pilot  %s : %s (%s)' \
                             % (troy_pilot, 
@@ -149,15 +152,15 @@ class PLUGIN_CLASS (troy.PluginBase):
         troy.Pilot doesn't have that instance anymore...
         """
 
-        sp_um_id    = native_id[0]
-        sp_pm_id    = native_id[1]
-        sp_pilot_id = native_id[2]
+        rp_um_id    = native_id[0]
+        rp_pm_id    = native_id[1]
+        rp_pilot_id = native_id[2]
 
-        sp_um       = self._sp.get_unit_managers  (sp_um_id)
-        sp_pm       = self._sp.get_pilot_managers (sp_pm_id)
-        sp_pilot    = sp_pm.get_pilots            (sp_pilot_id)
+        rp_um       = self._rp.get_unit_managers  (rp_um_id)
+        rp_pm       = self._rp.get_pilot_managers (rp_pm_id)
+        rp_pilot    = rp_pm.get_pilots            (rp_pilot_id)
 
-        return [sp_um, sp_pm, sp_pilot]
+        return [rp_um, rp_pm, rp_pilot]
     
  
     # --------------------------------------------------------------------------
@@ -171,33 +174,33 @@ class PLUGIN_CLASS (troy.PluginBase):
  
  
         # find out what we can about the pilot...
-        [sp_um, sp_pm, sp_pilot] = pilot._get_instance ('radical.pilot')
+        [rp_um, rp_pm, rp_pilot] = pilot._get_instance ('radical.pilot')
 
-      # sp_pilot._attributes_dump ()
+      # rp_pilot._attributes_dump ()
 
-        info = { 'uid'              : sp_pilot.uid, 
-                 'description'      : sp_pilot.description, 
-                 'state'            : sp_pilot.state, 
-                 'log'              : sp_pilot.log, 
-                 'resource_detail'  : sp_pilot.resource_detail, 
-                 'cores_per_node'   : sp_pilot.resource_detail['cores_per_node'],
-                 'nodes'            : sp_pilot.resource_detail['nodes'],
+        info = { 'uid'              : rp_pilot.uid, 
+                 'description'      : rp_pilot.description, 
+                 'state'            : rp_pilot.state, 
+                 'log'              : rp_pilot.log, 
+                 'resource_detail'  : rp_pilot.resource_detail, 
+                 'cores_per_node'   : rp_pilot.resource_detail['cores_per_node'],
+                 'nodes'            : rp_pilot.resource_detail['nodes'],
                  'unit_ids'         : list(),
-               # 'unit_ids'         : sp_pilot.units,          # FIXME
+               # 'unit_ids'         : rp_pilot.units,          # FIXME
                  'unit_managers'    : list(),
-               # 'unit_managers'    : sp_pilot.unit_managers,  # FIXME
-                 'pilot_manager'    : sp_pilot.pilot_manager, 
-                 'submission_time'  : sp_pilot.submission_time, 
-                 'start_time'       : sp_pilot.start_time, 
-                 'stop_time'        : sp_pilot.stop_time, 
+               # 'unit_managers'    : rp_pilot.unit_managers,  # FIXME
+                 'pilot_manager'    : rp_pilot.pilot_manager, 
+                 'submission_time'  : rp_pilot.submission_time, 
+                 'start_time'       : rp_pilot.start_time, 
+                 'stop_time'        : rp_pilot.stop_time, 
              }
 
         
       # # FIXME
-      # for sp_unit_id in sp_pilot.units :
+      # for rp_unit_id in rp_pilot.units :
       #     
       #     unit = troy.ComputeUnit (pilot.session, 
-      #                              _native_id=[sp_um.uid, sp_unit_id], 
+      #                              _native_id=[rp_um.uid, rp_unit_id], 
       #                              _pilot_id=pilot.id)
       #     info['units'][unit.id] = unit
  
@@ -208,7 +211,7 @@ class PLUGIN_CLASS (troy.PluginBase):
                           rp.states.DONE     : COMPLETED, 
                           rp.states.CANCELED : CANCELED, 
                           rp.states.FAILED   : FAILED, 
-                          rp.states.UNKNOWN  : UNKNOWN}.get (sp_pilot.state, UNKNOWN)
+                          rp.states.UNKNOWN  : UNKNOWN}.get (rp_pilot.state, UNKNOWN)
  
       # import pprint
       # pprint.pprint (info)
@@ -257,8 +260,8 @@ class PLUGIN_CLASS (troy.PluginBase):
     #
     def pilot_cancel (self, pilot) :
  
-        [sp_um, sp_pm, sp_pilot] = pilot._get_instance ('radical.pilot')
-        sp_pilot.cancel ()
+        [rp_um, rp_pm, rp_pilot] = pilot._get_instance ('radical.pilot')
+        rp_pilot.cancel ()
 
 
 # ------------------------------------------------------------------------------

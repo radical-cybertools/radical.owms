@@ -293,6 +293,7 @@ class OverlayManager (tu.Timed) :
             # and merge it conservatively into the pilot config
             pilot.merge_description (resource_cfg)
 
+            print resource_cfg
 
         # hand over control over overlay to the provisioner plugin, so it can do
         # what it has to do.
