@@ -1,44 +1,242 @@
 
 
-  CU: state from BJ, with 
-      "New"    : DESCRIBED
-      "Running": RUNNING
-      "Staging": RUNNING
-      "Failed" : FAILED
-      "Done"   : DONE
-      "Unknown": UNKNOWN
-    
-  Task:
-           if any unit  is  FAILED     : task.state = FAILED
-      else if any unit  is  CANCELED   : task.state = CANCELED
-      else if any unit  is  DISPATCHED : task.state = DISPATCHED
-      else if any unit  is  DISPATCHED : task.state = RUNNING
-      else if any unit  is  RUNNING    : task.state = RUNNING
-      else if all units are DONE       : task.state = DONE
-      else                             : task.state = UNKNOWN
+# ------------------------------------------------------------------------------
+# Unit states
+   
+  +-------------+         +-------------+
+  |   UNKNONWN  |         |  DESCRIBED  |
+  +-------------+         +---+--+--+---+
+                                 |                   
+               +-----------------+------------------+
+               |                 |                  |
+               |          +------v------+           |
+               |          |    BOUND    |           |
+               |          +---+--+--+---+           |
+               |                 |                  |
+               +-----------------+------------------+
+               |                 |                  |
+               |          +------v------+           |
+               |          | DISPATCHED  |           |
+               |          +---+--+--+---+           |
+               |                 |                  |
+               +-----------------+------------------+
+               |                 |                  |
+               |          +------v------+           |
+               |          |   PENDING   |           |
+               |          +---+--+--+---+           |
+               |                 |                  |
+               +-----------------+------------------+
+               |                 |                  |
+               |          +------v------+           |
+               |          |   RUNNING   |           |
+               |          +---+--+--+---+           |
+               |                 |                  |
+               +-----------------+------------------+
+               |                 |                  |
+        +------v------+   +------v------+    +------v------+
+        |   FAILED    |   |    DONE     |    |   CANCELED  |
+        +=============+   +=============+    +=============+
 
 
-   Workload:
-           if any task  is  FAILED     :  workload.state = FAILED
-      else if any task  is  CANCELED   :  workload.state = CANCELED
-      else if any task  is  DISPATCHED :  workload.state = DISPATCHED
-      else if all tasks are DONE       :  workload.state = DONE
-      else                             :  workload.state = UNKNOWN
-      
+DESCRIBED    = 'Described'   # Unit newly created
+BOUND        = 'Bound'       # Unit bound to pilot
+DISPATCHED   = 'Dispatched'  # Unit submitted to pilot
+PENDING      = 'Pending'     # Unit scheduled on pilot
+RUNNING      = 'Running'     # Unit active    on pilot
+DONE         = 'Done'        # Unit completed
+FAILED       = 'Failed'      # oops
+CANCELED     = 'Canceled'    # Unit canceled
+UNKNOWN      = 'Unknown'     # what?
 
-  Pilot:
-    state from BJ, with 
-    "New"    : DESCRIBED
-    "Running": PROVISIONED
-    "Failed" : FAILED
-    "Done"   : DONE
-    "Unknown": UNKNOWN
+Proposed Amendments:
+--------------------
+  - rename BOUND to SCHEDULED (or make otherwise consistent)
+  - remove DISPATCHED (this is covered by PENDING and RUNNING)
+  - allow  PENDING -> DESCRIBED and PENDING -> SCHEDULED etc?
 
-  Overlay:
-           if any pilot  is  FAILED      :  overlay.state = FAILED
-      else if any pilot  is  CANCELED    :  overlay.state = CANCELED
-      else if any pilot  is  DESCRIBED   :  overlay.state = DESCRIBED
-      else if any pilot  is  PROVISIONED :  overlay.state = PROVISIONED
-      else if all pilots are DONE        :  overlay.state = DONE
-      else                               :  overlay.state = UNKNOWN
+
+# ------------------------------------------------------------------------------
+# Task states
+
+  +-------------+         +-------------+
+  |   UNKNONWN  |         |  DESCRIBED  |
+  +-------------+         +---+--+--+---+
+                                 |                   
+               +-----------------+------------------+
+               |                 |                  |
+               |          +------v------+           |
+               |          | TRANSLATED  |           |
+               |          +---+--+--+---+           |
+               |                 |                  |
+               +-----------------+------------------+
+               |                 |                  |
+               |          +------v------+           |
+               |          |    BOUND    |           |
+               |          +---+--+--+---+           |
+               |                 |                  |
+               +-----------------+------------------+
+               |                 |                  |
+               |          +------v------+           |
+               |          | DISPATCHED  |           |
+               |          +---+--+--+---+           |
+               |                 |                  |
+               +-----------------+------------------+
+               |                 |                  |
+        +------v------+   +------v------+    +------v------+
+        |   FAILED    |   |    DONE     |    |   CANCELED  |
+        +=============+   +=============+    +=============+
+
+
+DESCRIBED    = 'Described'   # Task newly created
+TRANSLATED   = 'Translated'  # all units are at least DESCRIBED
+BOUND        = 'Bound'       # all units are at least BOUND
+DISPATCHED   = 'Dispatched'  # all units are at least DISPATCHED
+DONE         = 'Done'        # all units are          DONE
+FAILED       = 'Failed'      # one unit               FAILED
+CANCELED     = 'Canceled'    # one unit  was          CANCELED
+UNKNOWN      = 'Unknown'     # what?
+
+Proposed Amendments:
+--------------------
+  - rename BOUND to SCHEDULED (or make otherwise consistent)
+  - split  DISPATCHED into PENDING and RUNNING
+  - allow PENDING -> DESCRIBED and PENDING -> SCHEDULED etc?
+
+
+# ------------------------------------------------------------------------------
+# workload states
+
+  +-------------+         +-------------+
+  |   UNKNONWN  |         |  DESCRIBED  |
+  +-------------+         +---+--+--+---+
+                                 |                   
+               +-----------------+------------------+
+               |                 |                  |
+               |          +------v------+           |
+               |          | TRANSLATED  |           |
+               |          +---+--+--+---+           |
+               |                 |                  |
+               +-----------------+------------------+
+               |                 |                  |
+               |          +------v------+           |
+               |          |    BOUND    |           |
+               |          +---+--+--+---+           |
+               |                 |                  |
+               +-----------------+------------------+
+               |                 |                  |
+               |          +------v------+           |
+               |          | DISPATCHED  |           |
+               |          +---+--+--+---+           |
+               |                 |                  |
+               +-----------------+------------------+
+               |                 |                  |
+        +------v------+   +------v------+    +------v------+
+        |   FAILED    |   |    DONE     |    |   CANCELED  |
+        +=============+   +=============+    +=============+
+
+
+DESCRIBED    = 'Described'   # workload newly created
+PLANNED      = 'Planned'     # overlay derived (needs to be removed)
+TRANSLATED   = 'Translated'  # tasks are at least DESCRIBED
+BOUND        = 'Bound'       # tasks are at least BOUND
+DISPATCHED   = 'Dispatched'  # tasks are at least DISPATCHED
+DONE         = 'Done'        # all tasks are      DONE
+FAILED       = 'Failed'      # one task           FAILED
+CANCELED     = 'Canceled'    # one task  was      CANCELED
+UNKNOWN      = 'Unknown'     # what?
+
+Proposed Amendments:
+--------------------
+  - rename BOUND to SCHEDULED (or make otherwise consistent)
+  - split  DISPATCHED into PENDING and RUNNING
+  - allow PENDING -> DESCRIBED and PENDING -> SCHEDULED etc?
+
+
+
+# ---------- --------------------------------------------------------------------
+# pilot states
+
+  +-------------+         +-------------+
+  |   UNKNONWN  |         |  DESCRIBED  |
+  +-------------+         +---+--+--+---+
+                                 |                   
+               +-----------------+------------------+
+               |                 |                  |
+               |          +------v------+           |
+               |          |    BOUND    |           |
+               |          +---+--+--+---+           |
+               |                 |                  |
+               +-----------------+------------------+
+               |                 |                  |
+               |          +------v------+           |
+               |          | PROVISIONED |           |
+               |          +---+--+--+---+           |
+               |                 |                  |
+               +-----------------+------------------+
+               |                 |                  |
+        +------v------+   +------v------+    +------v------+
+        |   FAILED    |   |  COMPLETED  |    |   CANCELED  |
+        +=============+   +=============+    +=============+
+
+DESCRIBED    = 'Described'   # i.e. New
+BOUND        = 'Bound'       # assigned to a resource
+PROVISIONED  = 'Provisioned' # submitted to / running on a resource
+COMPLETED    = 'Completed'   # finished as planned
+CANCELED     = 'Canceled'    # finished as requested
+FAILED       = 'Failed'      # oops
+UNKNOWN      = 'Unknown'     # what?
+
+Proposed Amendments:
+--------------------
+  - rename BOUND       to SCHEDULED (or make otherwise consistent)
+  - split  PROVISIONED into PENDING and RUNNING
+  - allow PENDING -> DESCRIBED and PENDING -> SCHEDULED etc?
+
+
+# ------------------------------------------------------------------------------
+# overlay states
+
+  +-------------+         +-------------+
+  |   UNKNONWN  |         |  DESCRIBED  |
+  +-------------+         +---+--+--+---+
+                                 |                   
+               +-----------------+------------------+
+               |                 |                  |
+               |          +------v------+           |
+               |          | TRANSLATED  |           |
+               |          +---+--+--+---+           |
+               |                 |                  |
+               +-----------------+------------------+
+               |                 |                  |
+               |          +------v------+           |
+               |          |  SCHEDULED  |           |
+               |          +---+--+--+---+           |
+               |                 |                  |
+               +-----------------+------------------+
+               |                 |                  |
+               |          +------v------+           |
+               |          | PROVISIONED |           |
+               |          +---+--+--+---+           |
+               |                 |                  |
+               +-----------------+------------------+
+               |                 |                  |
+        +------v------+   +------v------+    +------v------+
+        |   FAILED    |   |  COMPLETED  |    |   CANCELED  |
+        +=============+   +=============+    +=============+
+
+DESCRIBED    = 'Described'   # requirements known
+TRANSLATED   = 'Translated'  # pilots derived
+SCHEDULED    = 'Scheduled'   # pilots scheduled
+PROVISIONED  = 'Provisioned' # pilots provisioned
+COMPLETED    = 'Completed'   # pilots completed 
+CANCELED     = 'Canceled'    # pilots canceled
+FAILED       = 'Failed'      # oops
+UNKNOWN      = 'Unknown'     # what?
+
+Proposed Amendments:
+--------------------
+  - rename SCHEDULED   to BOUND (or make otherwise consistent)
+  - split  PROVISIONED into PENDING and RUNNING  (or make otherwise consistent)
+  - allow PENDING -> TRANSLATED and PENDING -> SCHEDULED etc?
+
 

@@ -36,8 +36,6 @@ from overlay    import Overlay
 from overlay    import OverlayDescription
 from overlay    import OverlayManager
 
-from strategy   import manage_workload, execute_workload
-
 # internal helper classes, exposed for plugin developers
 from bundle_wrapper import BundleManager
 from plugin_base    import PluginBase

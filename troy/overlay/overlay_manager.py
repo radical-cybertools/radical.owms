@@ -51,10 +51,7 @@ class OverlayManager (tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, session, 
-                        translator  = AUTOMATIC,
-                        scheduler   = AUTOMATIC,
-                        provisioner = AUTOMATIC) :
+    def __init__ (self, session) :
         """
         Create a new overlay manager instance.
 
@@ -76,24 +73,11 @@ class OverlayManager (tu.Timed) :
         #
         # We leave actual plugin initialization for later, in case a strategy
         # wants to alter / complete the plugin selection
-        #
-        # FIXME: we don't need no stupid arguments, ey!  Just use
-        #        AUTOMATIC by default...
-        self.plugins['translator']  = translator
-        self.plugins['scheduler' ]  = scheduler
-        self.plugins['provisioner'] = provisioner
-
-
-        # lets see if there are any plugin preferences in the config
-        # note that config settings supercede arguments!
         cfg = session.get_config ('overlay_manager')
 
-        if  'plugin_overlay_translator'  in cfg : 
-            self.plugins['translator' ]  =  cfg['plugin_overlay_translator' ]
-        if  'plugin_overlay_scheduler'   in cfg : 
-            self.plugins['scheduler'  ]  =  cfg['plugin_overlay_scheduler'  ]
-        if  'plugin_overlay_provisioner' in cfg : 
-            self.plugins['provisioner']  =  cfg['plugin_overlay_provisioner']
+        self.plugins['translator' ] = cfg.get ('plugin_overlay_translator' , AUTOMATIC)
+        self.plugins['scheduler'  ] = cfg.get ('plugin_overlay_scheduler'  , AUTOMATIC)
+        self.plugins['provisioner'] = cfg.get ('plugin_overlay_provisioner', AUTOMATIC)
 
 
     # --------------------------------------------------------------------------
@@ -309,6 +293,7 @@ class OverlayManager (tu.Timed) :
             # and merge it conservatively into the pilot config
             pilot.merge_description (resource_cfg)
 
+            print resource_cfg
 
         # hand over control over overlay to the provisioner plugin, so it can do
         # what it has to do.

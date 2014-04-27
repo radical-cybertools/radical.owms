@@ -24,36 +24,36 @@ Remote Testing
 ==============
 The TROY unit tests use pilot agents launched on the local machine (`localhost`) by default. However, it is possible to run a subset of the  unit tests (``troy/tests/remote/``) on a remote machine. Remote testing can  be controlled via a set of environment variables:
 
-	+----------------------------------------+---------------------------------------------------------------+
-	| Environment Variable                   | What                                                          |
-	+========================================+===============================================================+
-	| ``SAGAPILOT_TEST_REMOTE_RESOURCE``     | The name (key) of the resource.                               |
-	+----------------------------------------+---------------------------------------------------------------+
-	| ``SAGAPILOT_TEST_REMOTE_SSH_USER_ID``  | The user ID on the remote system.                             |
-	+----------------------------------------+---------------------------------------------------------------+
-	| ``SAGAPILOT_TEST_REMOTE_SSH_USER_KEY`` | The SSH key to use for the connection.                        |
-	+----------------------------------------+---------------------------------------------------------------+
-	| ``SAGAPILOT_TEST_REMOTE_WORKDIR``      | The working directory on the remote system.                   |
-	+----------------------------------------+---------------------------------------------------------------+
-	| ``SAGAPILOT_TEST_REMOTE_CORES``        | The number of cores to allocate.                              |
-	+----------------------------------------+---------------------------------------------------------------+
-	| ``SAGAPILOT_TEST_REMOTE_NUM_CUS``      | The number of Compute Units to run.                           |
-	+----------------------------------------+---------------------------------------------------------------+
-	| ``SAGAPILOT_TEST_TIMEOUT``             | Set a timeout in minutes after which the tests will terminate.|
-	+----------------------------------------+---------------------------------------------------------------+
+	+-------------------------------------------+---------------------------------------------------------------+
+	| Environment Variable                      | What                                                          |
+	+===========================================+===============================================================+
+	| ``RADICALPILOT_TEST_REMOTE_RESOURCE``     | The name (key) of the resource.                               |
+	+-------------------------------------------+---------------------------------------------------------------+
+	| ``RADICALPILOT_TEST_REMOTE_SSH_USER_ID``  | The user ID on the remote system.                             |
+	+-------------------------------------------+---------------------------------------------------------------+
+	| ``RADICALPILOT_TEST_REMOTE_SSH_USER_KEY`` | The SSH key to use for the connection.                        |
+	+-------------------------------------------+---------------------------------------------------------------+
+	| ``RADICALPILOT_TEST_REMOTE_WORKDIR``      | The working directory on the remote system.                   |
+	+-------------------------------------------+---------------------------------------------------------------+
+	| ``RADICALPILOT_TEST_REMOTE_CORES``        | The number of cores to allocate.                              |
+	+-------------------------------------------+---------------------------------------------------------------+
+	| ``RADICALPILOT_TEST_REMOTE_NUM_CUS``      | The number of Compute Units to run.                           |
+	+-------------------------------------------+---------------------------------------------------------------+
+	| ``RADICALPILOT_TEST_TIMEOUT``             | Set a timeout in minutes after which the tests will terminate.|
+	+-------------------------------------------+---------------------------------------------------------------+
 
 So if for example you want to run the unit tests on Futuregrid's `India cluster <http://manual.futuregrid.org/hardware.html>`_, run:
 
 .. code-block:: bash
 
-    SAGAPILOT_VERBOSE=debug \
-    SAGAPILOT_TEST_REMOTE_SSH_USER_ID=oweidner # optional \
-    SAGAPILOT_TEST_REMOTE_RESOURCE=futuregrid.INDIA \
-    SAGAPILOT_TEST_REMOTE_WORKDIR=/N/u/oweidner/sagapilot.sandbox \
-    SAGAPILOT_TEST_REMOTE_CORES=32 \
-    SAGAPILOT_TEST_REMOTE_NUM_CUS=64 \
+    RADICALPILOT_VERBOSE=debug \
+    RADICALPILOT_TEST_REMOTE_SSH_USER_ID=oweidner # optional \
+    RADICALPILOT_TEST_REMOTE_RESOURCE=futuregrid.INDIA \
+    RADICALPILOT_TEST_REMOTE_WORKDIR=/N/u/oweidner/radical.pilot.sandbox \
+    RADICALPILOT_TEST_REMOTE_CORES=32 \
+    RADICALPILOT_TEST_REMOTE_NUM_CUS=64 \
     python setup.py test
 
 .. note:: 
  
-    Be aware that it can take quite some time for pilots to get scheduled on the remote system. You can set ``SAGAPILOT_TEST_TIMEOUT`` to force the tests to abort after a given number of minutes.
+    Be aware that it can take quite some time for pilots to get scheduled on the remote system. You can set ``RADICALPILOT_TEST_TIMEOUT`` to force the tests to abort after a given number of minutes.

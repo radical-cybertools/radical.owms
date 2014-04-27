@@ -48,8 +48,8 @@ _config_skeleton = {
         'resource_config'          : None,
         'resources'                : dict(),
         'planner'                : {
-            'expand'               : dict(),
-            'derive'               : dict(),
+            'planner_strategy'     : dict(),
+            'planner_derive'       : dict(),
         },
         'overlay_manager'        : {
             'overlay_translator'   : dict(),
@@ -60,12 +60,10 @@ _config_skeleton = {
         'workload_manager'       : {
             'workload_parser'      : dict(),
             'workload_translator'  : dict(),
+            'workload_expander'    : dict(),
             'workload_transformer' : dict(),
             'workload_scheduler'   : dict(),
             'workload_dispatcher'  : dict(),
-        },
-        'strategy'               : {
-            'strategy'             : dict(),
         },
     }
 
@@ -75,7 +73,7 @@ _resource_config_skeleton = {
         'username'  : None,
         'home'      : None,
         'queue'     : None,
-        'walltime'  : int(60*24) # default: 1 day
+        'walltime'  : int(60) # default: 1 hour
     }
 
 
@@ -115,7 +113,6 @@ class Session (saga.Session, tu.Timed) :
                            _resource_config_skeleton, 
                            policy='preserve', 
                            logger=troy._logger)
-
 
         # we set the log level as indicated in the troy config or user
         # config, fallback being log level ERROR
@@ -161,6 +158,7 @@ class Session (saga.Session, tu.Timed) :
 
         current_cfg  = self.cfg
         current_path = 'troy'
+
 
         for idx, elem in enumerate(path) :
 

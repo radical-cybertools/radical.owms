@@ -59,37 +59,24 @@ if __name__ == '__main__' :
     workers on india.
     """
 
-    start = time.time ()
-    mode  = None # synapse.PROFILE
+    start   = time.time ()
+    mode    = None # synapse.PROFILE
+    session = troy.Session ()
 
     # troy managers for master
-    m_planner      = troy.Planner         (planner     = 'default'     )
-    m_overlay_mgr  = troy.OverlayManager  (scheduler   = 'default'     ,
-                                           translator  = 'default'     ,
-                                           provisioner = 'default'     )
-    m_workload_mgr = troy.WorkloadManager (scheduler   = 'default'     ,
-                                           dispatcher  = 'default'     )
+    m_planner      = troy.Planner         (session)
+    m_overlay_mgr  = troy.OverlayManager  (session)
+    m_workload_mgr = troy.WorkloadManager (session)
 
     # troy managers for workers
-    w_planner      = troy.Planner         (planner     = 'default'     )
-    w_overlay_mgr  = troy.OverlayManager  (scheduler   = 'default'     ,
-                                           translator  = 'default'     ,
-                                           provisioner = 'default'     )
-    w_workload_mgr = troy.WorkloadManager (scheduler   = 'default'     ,
-                                           dispatcher  = 'default'     )
-
-  # # troy managers for workers
-  # w_planner      = troy.Planner         (planner     = 'default'     )
-  # w_overlay_mgr  = troy.OverlayManager  (scheduler   = 'round_robin' ,
-  #                                        translator  = 'default'     ,
-  #                                        provisioner = 'bigjob_pilot')
-  # w_workload_mgr = troy.WorkloadManager (scheduler   = 'round_robin' ,
-  #                                        dispatcher  = 'bigjob_pilot')
+    w_planner      = troy.Planner         (session)
+    w_overlay_mgr  = troy.OverlayManager  (session)
+    w_workload_mgr = troy.WorkloadManager (session)
 
 
     # --------------------------------------------------------------------------
     # Create and dispatch the master workload first.
-    m_workload    = troy.Workload ()
+    m_workload    = troy.Workload (session)
     m_workload_id = m_workload.id
 
     td = troy.TaskDescription ({'tag'       : 'master',
@@ -100,12 +87,15 @@ if __name__ == '__main__' :
                                                '-d=%s'          % app_depth]})
     m_workload.add_task (synapsify (td, mode))
 
-    m_overlay_id = m_planner.derive_overlay (m_workload_id)
+    m_overlay_descr = m_planner.derive_overlay (m_workload_id)
+    m_overlay       = troy.Overlay (session, m_overlay_descr)
+    m_overlay_id    = m_overlay.id
+
     m_overlay_mgr.translate_overlay         (m_overlay_id)
     m_overlay_mgr.schedule_overlay          (m_overlay_id)
     m_overlay_mgr.provision_overlay         (m_overlay_id)
 
-    m_planner.expand_workload               (m_workload_id)
+    m_workload_mgr.expand_workload          (m_workload_id)
     m_workload_mgr.translate_workload       (m_workload_id, m_overlay_id)
     m_workload_mgr.bind_workload            (m_workload_id, m_overlay_id)
     m_workload_mgr.dispatch_workload        (m_workload_id, m_overlay_id)
@@ -127,7 +117,7 @@ if __name__ == '__main__' :
 
     # --------------------------------------------------------------------------
     # now create and dispatch worker workload (essentially bag of tasks)
-    w_workload    = troy.Workload ()
+    w_workload    = troy.Workload (session)
     w_workload_id = w_workload.id
 
     for i in range (0, app_num) :
@@ -140,12 +130,15 @@ if __name__ == '__main__' :
                                                    '--worker_id=%d'   % i]})
         w_workload.add_task (synapsify (td, mode))
 
-    w_overlay_id = w_planner.derive_overlay (w_workload_id)
+    w_overlay_descr = w_planner.derive_overlay (w_workload_id)
+    w_overlay       = troy.Overlay (session, w_overlay_descr)
+    w_overlay_id    = w_overlay.id
+
     w_overlay_mgr.translate_overlay         (w_overlay_id)
     w_overlay_mgr.schedule_overlay          (w_overlay_id)
     w_overlay_mgr.provision_overlay         (w_overlay_id)
 
-    w_planner.expand_workload               (w_workload_id)
+    w_workload_mgr.expand_workload          (w_workload_id)
     w_workload_mgr.translate_workload       (w_workload_id, w_overlay_id)
     w_workload_mgr.bind_workload            (w_workload_id, w_overlay_id)
     w_workload_mgr.dispatch_workload        (w_workload_id, w_overlay_id)
@@ -175,8 +168,8 @@ if __name__ == '__main__' :
 
     # --------------------------------------------------------------------------
 
-    print "ttc: %.2f (%s %s %s %s)" % (time.time() - start, 
-                                       MODE, app_size, app_depth, app_num)
+    print "ttc: %.2f (%s %s %s)" % (time.time() - start, 
+                                       app_size, app_depth, app_num)
 
 
     # --------------------------------------------------------------------------

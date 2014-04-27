@@ -30,14 +30,13 @@ if __name__ == '__main__':
     session = troy.Session ()
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (session, dispatcher='sagapilot')
+    workload_mgr = troy.WorkloadManager (session)
 
     # Responsible for managing the pilot overlay
-    overlay_mgr = troy.OverlayManager (session, provisioner='sagapilot')
+    overlay_mgr = troy.OverlayManager (session)
 
     # Planning makes initial mapping of workload to overlay
-    planner = troy.Planner (session, derive='maxcores')
-  # planner = troy.Planner (session, derive='bundles')
+    planner = troy.Planner (session)
 
     # TROY data structure that holds the tasks and their relations
     workload = troy.Workload (session)
@@ -55,7 +54,7 @@ if __name__ == '__main__':
         # Tasks are uncoupled so no relationships are specified
 
     # combine or split tasks in te workload
-    planner.expand_workload(workload.id)
+    workload_mgr.expand_workload(workload.id)
 
     # Initial description of the overlay based on the workload
     overlay_descr = planner.derive_overlay (workload.id)
@@ -106,7 +105,7 @@ if __name__ == '__main__':
         for u_id in task.units.keys():
             print "u_id", u_id
             unit = task.units[u_id]
-            print unit.description
+            print unit.as_dict()
 
     workload_mgr.cancel_workload (workload.id)   # same as workload.cancel ()
     overlay_mgr .cancel_overlay  (overlay.id)

@@ -3,7 +3,7 @@
 {
     # variables we want to vary for each experiment run
     "steps"            : 256,
-    "bag_size"         : <number_of_tasks>,
+    "bag_size"         : 18,
 
     # build up a unique session id from those variables.  This 
     # ID will be used by try to identify this run
@@ -16,7 +16,7 @@
     # This section *must* be named `resources`.
     "resources" : {
         "*.futuregrid.org" : {
-            "username"     : "<your_user_name>",
+            "username"     : "merzky",
             "mdrun"        : "/N/u/marksant/bin/mdrun"
         },
         "stampede.*" : {
@@ -26,6 +26,7 @@
         },
         # localhost has mdrun in path
         "localhost" : {
+            "username"     : "merzky",
             "mdrun"        : "mdrun"
         }
     }

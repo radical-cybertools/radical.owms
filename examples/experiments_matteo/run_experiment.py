@@ -8,9 +8,9 @@ __license__   = "MIT"
 import sys
 import troy
 
-
-troy.manage_workload (workload = sys.argv[1], 
-                      config   = sys.argv[2:])
+session = troy.Session   (user_cfg = sys.argv[2:])
+planner = troy.Planner   (session)
+planner.execute_workload (workload = sys.argv[1])
 
 # Woohooo!  Magic has happened!
 

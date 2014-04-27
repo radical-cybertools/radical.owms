@@ -54,15 +54,13 @@ if __name__ == '__main__':
         })
 
     # Responsible for application workload
-    workload_mgr = troy.WorkloadManager (session, dispatcher = 'sagapilot')
+    workload_mgr = troy.WorkloadManager (session)
 
     # Responsible for managing the pilot overlay
-    overlay_mgr = troy.OverlayManager (session, 
-                                       scheduler    = 'round_robin', 
-                                       provisioner  = 'sagapilot')
+    overlay_mgr = troy.OverlayManager (session)
 
     # Planning makes initial mapping of workload to overlay
-    planner = troy.Planner (session, derive = 'concurrent')
+    planner = troy.Planner (session)
 
     # Create a task for every radicalist
     task_descriptions = list()
@@ -88,8 +86,7 @@ if __name__ == '__main__':
     workload = troy.Workload (session, task_descriptions)
 
     # execute the workload with the given execution strategy
-    troy.execute_workload (workload.id, planner, overlay_mgr, workload_mgr,
-                           strategy='basic_late_binding')
+    planner.execute_workload (workload.id)
 
     # Wohooo!  Magic has happened!
 

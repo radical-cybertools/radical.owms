@@ -85,61 +85,64 @@ if __name__ == '__main__':
     concurrency = int(demo_config['concurrency'])   # % of concurrent tasks
     log_level   =     demo_config['log_level']      # troy logging detail
 
-    # we also have some configuration parameters which eventually should not be
-    # needed anymore.  At this point, those information are still specific to
-    # the target resource, mostly for out-of-band data staging (troy stages data
-    # via saga, not via the pilot systems).
-    mdrun       =     demo_config['mdrun']          # application executable
-    remote_home =     demo_config['home']           # user home on resource
-    remote_user =     demo_config['user']           # user name on resource
-
-
     # --------------------------------------------------------------------------
     # 
     # TROY CONFIGURATION: what plugins are being used, whet resources are
     # targeted, etc
     #
-  # resources      = "slurm+ssh://tg803521@stampede.tacc.utexas.edu,pbs+ssh://merzky@india.futuregrid.org"
+    resources      = "slurm+ssh://tg803521@stampede.tacc.utexas.edu,pbs+ssh://merzky@india.futuregrid.org"
   # resources      = "slurm+ssh://stampede.tacc.utexas.edu"
-    resources      = "pbs+ssh://india.futuregrid.org"
+  # resources      = "pbs+ssh://india.futuregrid.org"
   # resources      = "pbs+ssh://hotel.futuregrid.org"
   # resources      = "pbs+ssh://alamo.futuregrid.org"
   # resources      = "pbs+ssh://sierra.futuregrid.org"
   # resources      = "fork://localhost"
 
-    pilot_backend  = 'bigjob_pilot'
+    pilot_backend  = 'radical.pilot'
     
-    plugin_strategy            = 'basic_early_binding' # early, late
+    plugin_strategy            = 'early_binding' # early, late
     plugin_planner             = 'concurrent'          # concurrent, bundles, maxcores
     plugin_overlay_translator  = 'max_pilot_size'      # max_pilot_size
     plugin_overlay_scheduler   = 'round_robin'         # rr, local
-    plugin_overlay_provisioner = pilot_backend         # sinon, bj, local
+    plugin_overlay_provisioner = pilot_backend         # rp, bj, local
     plugin_workload_translator = troy.AUTOMATIC        # direct
     plugin_workload_scheduler  = 'round_robin'         # rr, first, ttc
-    plugin_workload_dispatcher = pilot_backend         # sinon, bj, local
+    plugin_workload_dispatcher = pilot_backend         # rp, bj, local
 
     # Create a session for TROY, and configure some plugins
-    session = troy.Session (cfg = {'overlay_scheduler_round_robin' : {
-                                       'resources'   : resources
-                                       },
-                                   'planner_concurrent' : {
-                                       'concurrency' : concurrency,
-                                       },
-                                   'overlay_translator_max_pilot_size' : {
-                                       'pilot_size'  : pilot_size,
-                                       },
-                                   'troy' : {
-                                       'log_level'   : log_level,
-                                       },
-                                  })
-
-    # Also add some security credentials to the session (we assume ssh keys set
-    # up for this demo, so only need to specify the user name on the target
-    # resource).
-  # c1         = troy.Context ('ssh')
-  # c1.user_id = remote_user
-  # session.add_context (c1)
-
+    session = troy.Session (user_cfg = {
+                                           'resources' : demo_config['resources'],
+                                           'troy'                           : {
+                                               'plugin_planner'             : plugin_planner,
+                                               'plugin_strategy'            : plugin_strategy,
+                                               'log_level'                  : log_level,
+                                               'planner'                    : {
+                                                   'concurrent'             : {
+                                                       'concurrency'        : concurrency,
+                                                       },
+                                                   },
+                                               },
+                                           'overlay_manager'                : {
+                                               'plugin_overlay_translator'  : plugin_overlay_translator,
+                                               'plugin_overlay_scheduler'   : plugin_overlay_scheduler,
+                                               'plugin_overlay_provisioner' : plugin_overlay_provisioner,
+                                               'overlay_scheduler'          : {
+                                                   'round_robin'            : {
+                                                       'resources'          : resources
+                                                       },
+                                                   },
+                                               'overlay_translator'         : {
+                                                   'max_pilot_size'         : {
+                                                       'pilot_size'         : pilot_size,
+                                                       },
+                                                   },
+                                               },
+                                           'workload_manager'               : {
+                                               'plugin_workload_translator' : plugin_workload_translator,
+                                               'plugin_workload_scheduler'  : plugin_workload_scheduler,
+                                               'plugin_workload_dispatcher' : plugin_workload_dispatcher,
+                                               },
+                                        })
 
     # --------------------------------------------------------------------------
     #
@@ -152,23 +155,23 @@ if __name__ == '__main__':
 
         task_descr                   = troy.TaskDescription()
         task_descr.tag               = "%d" % n
-      # task_descr.executable        = mdrun
-        task_descr.executable        = "/bin/echo"
-        task_descr.arguments         = ['hello troy']
-      # task_descr.working_directory = "%s/troy_demo/tasks/%d/" % (remote_home, n)
-      # task_descr.inputs            = ['input/topol.tpr > topol.tpr']
-      # task_descr.outputs           = ['output/%s_state.cpt.%d   < state.cpt'   % (demo_id, n),
-      #                                 'output/%s_confout.gro.%d < confout.gro' % (demo_id, n),
-      #                                 'output/%s_ener.edr.%d    < ener.edr'    % (demo_id, n),
-      #                                 'output/%s_traj.trr.%d    < traj.trr'    % (demo_id, n),
-      #                                 'output/%s_md.log.%d      < md.log'      % (demo_id, n),
-      #                                ]
-
+      # task_descr.executable        = "/bin/echo"
+      # task_descr.arguments         = ['hello troy']
+        task_descr.executable        = "%(mdrun)s"
+        task_descr.working_directory = "%(home)s/troy_demo/tasks/" + "%d/" % n
+        task_descr.inputs            = ['input/topol.tpr > topol.tpr']
+        task_descr.outputs           = ['output/%s_state.cpt.%d   < state.cpt'   % (demo_id, n),
+                                        'output/%s_confout.gro.%d < confout.gro' % (demo_id, n),
+                                        'output/%s_ener.edr.%d    < ener.edr'    % (demo_id, n),
+                                        'output/%s_traj.trr.%d    < traj.trr'    % (demo_id, n),
+                                        'output/%s_md.log.%d      < md.log'      % (demo_id, n),
+                                       ]
+       
         task_descriptions.append (task_descr)
 
 
     # create a troy.Workload from all those task descriptions
-    workload = troy.Workload (task_descriptions)
+    workload = troy.Workload (session, task_descriptions)
 
 
     # --------------------------------------------------------------------------
@@ -177,33 +180,12 @@ if __name__ == '__main__':
     # manager
     #
     # the troy.Planner accepts a workload, and derives an overlay to execute it
-    planner = troy.Planner (planner = plugin_planner,
-                            session = session)
-
-
-    # the troy.OverlayManager translates an overlay transcription into an
-    # overlay, then schedules and provisions it.
-    overlay_mgr = troy.OverlayManager (translator   = plugin_overlay_translator,
-                                       scheduler    = plugin_overlay_scheduler,
-                                       provisioner  = plugin_overlay_provisioner,
-                                       session      = session)
-
-
-    # the troy.WorkloadManager transforms a workload, schedules it over an
-    # overlay, and dispatches it to the pilots.
-    workload_mgr = troy.WorkloadManager (translator  = plugin_workload_translator,   
-                                         scheduler   = plugin_workload_scheduler,
-                                         dispatcher  = plugin_workload_dispatcher,
-                                         session     = session)
+    planner = troy.Planner (session)
 
     # The order of actions on the planner, overlay manager and workload manager
     # is orchestrated by a troy execution strategy (which represents a specific
     # trace in the original troy design).
-    troy.execute_workload (workload     = workload, 
-                           planner      = planner, 
-                           overlay_mgr  = overlay_mgr, 
-                           workload_mgr = workload_mgr, 
-                           strategy     = plugin_strategy)
+    planner.execute_workload (workload)
 
     # Woohooo!  Magic has happened!
 

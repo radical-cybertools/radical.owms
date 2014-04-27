@@ -50,7 +50,7 @@ workload_mgr = troy.WorkloadManager (session)
 troy._logger.info ('apply custom strategy to workload %s!' % workload.id)
 
 # combine or split tasks in the workload (this expands cardinality)
-planner.expand_workload (workload.id)
+workload_mgr.expand_workload (workload.id)
 
 # derive initial description of the overlay based on the workload
 overlay_descr = planner.derive_overlay (workload.id)

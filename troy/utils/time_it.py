@@ -25,13 +25,14 @@ class TimedDuration (object) :
 
     # --------------------------------------------------------------------------
     #
-    def __init__ (self, timed, event, tags) :
+    def __init__ (self, timed, event, name, tags) :
 
         if  not isinstance (tags, list) :
             tags = [tags]
 
         self.timed = timed
         self.event = event
+        self.name  = name
         self.tags  = tags
 
 
@@ -39,14 +40,14 @@ class TimedDuration (object) :
     #
     def __enter__ (self) :
 
-        self.timed.timed_duration_start (self.event, self.tags)
+        self.timed.timed_duration_start (self.event, self.name, self.tags)
 
 
     # --------------------------------------------------------------------------
     #
     def __exit__(self, t, v, tb) :
 
-        self.timed.timed_duration_stop (self.event, self.tags)
+        self.timed.timed_duration_stop (self.event, self.name, self.tags)
 
 
 # ------------------------------------------------------------------------------
@@ -101,16 +102,28 @@ class Timed (object) :
             toplevel = True
             _indent  = ""
 
-        print "%s  %s" % (_indent, self.timed_id)
+        # for the top level, we also store the time of dump.  For a troy session
+        # that gives, for example, the approximate lifetime of the session.
+        if  toplevel :
+            self.timed_event ('timed_dump', self.timed_id)
+
+        print "%s  %s (%s)" % (_indent, self.timed_id, type (self).__name__)
+
         for e in self.timed_events :
-            print "%s    event     %26s : %-15s : %s" % (_indent, e['time'], e['event'], e['tags'])
+            print "%s    event     %26s : %-15s : %s"    \
+                % (_indent, e['time'],     e['event'], e['name'])
+
         for d in self.timed_durations :                       
-            print "%s    duration  %25.2fs : %-15s : %s" % (_indent, d['duration'], d['event'], d['tags'])
+            print "%s    duration  %25.2fs : %-15s : %s" \
+                % (_indent, d['duration'], d['event'], d['name'])
+
         for ct in self.timed_components.keys() :
-            print "%s    %s"  % (_indent, ct)
+            print "%s    %s"          % (_indent, ct)
+
             for cid in self.timed_components[ct] :
                 c = self.timed_components[ct][cid]()
-                if  c :
+
+                if  c and c.timed_id != self.timed_id:
                     print "%s      %s (%s)"  % (_indent, cid, type(c))
                     c.timed_dump (_indent+'  ')
 
@@ -179,12 +192,13 @@ class Timed (object) :
             self.timed_components[component_type] = dict()
 
         if  not component_id in self.timed_components[component_type] :
+            print 'add timed component %20s to %s' % (component_id, self.id)
             self.timed_components[component_type][component_id] = weakref.ref (component)
 
 
     # --------------------------------------------------------------------------
     #
-    def timed_duration_start (self, event, tags) :
+    def timed_duration_start (self, event, name, tags) :
 
         if  not isinstance (tags, list) :
             tags = [tags]
@@ -197,17 +211,19 @@ class Timed (object) :
         self._timed_current[event] = {
             'start' : start, 
             'event' : event,
+            'name'  : name,
             'tags'  : tags,
         }
 
-        troy._logger.debug ('timed start    : %s %s : %s (UTC)' % (event, tags, start))
+        troy._logger.debug ('timed start    : %s %s %s : %s (UTC)' \
+                         % (event, name, tags, start))
 
         return start
 
 
     # --------------------------------------------------------------------------
     #
-    def timed_duration_stop (self, event, tags) :
+    def timed_duration_stop (self, event, name, tags) :
 
         if  not isinstance (tags, list) :
             tags = [tags]
@@ -262,9 +278,12 @@ class Timed (object) :
 
     # --------------------------------------------------------------------------
     #
-    def timed_method (self, event, tags, method, args=[], kwargs={}) :
+    def timed_method (self, name, tags, method, args=[], kwargs={}) :
 
-        with TimedDuration (self, event, tags) :
+        event = 'method'
+        self.timed_event (event, name, tags)
+
+        with TimedDuration (self, event, name, tags) :
             return method (*args, **kwargs)
 
 
