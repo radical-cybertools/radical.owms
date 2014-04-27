@@ -11,9 +11,8 @@
     "hosts"         : "ssh://localhost/",
     "pilot_size"    : "4",
     "concurrency"   : "100",
-    "pilot_backend" : "sagapilot",
+    "pilot_backend" : "radical.pilot",
     "troy_strategy" : "early_binding",
-
 
     # troy plugin selection & plugin configurations
     "planner"                        : {
@@ -35,7 +34,7 @@
             "bigjob"                 : {
                 "coordination_url"   : "redis://%(redis_passwd)s@gw68.quarry.iu.teragrid.org:6379"
             },
-            "sagapilot"              : {
+            "radical.pilot"          : {
                 "coordination_url"   : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/"
             }
         },
@@ -58,7 +57,7 @@
             "bigjob"               : {
                 "coordination_url" : "redis://%(redis_passwd)s@gw68.quarry.iu.teragrid.org:6379"
             },
-            "sagapilot"            : {
+            "radical.pilot"        : {
                 "coordination_url" : "mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/"
             }
         }

@@ -26,7 +26,7 @@ Overlay Provisioner Plugins
 .. automodule:: troy.plugins.overlay_provisioner.plugin_overlay_provisioner_local
    :members: PLUGIN_CLASS
 
-.. automodule:: troy.plugins.overlay_provisioner.plugin_overlay_provisioner_sagapilot
+.. automodule:: troy.plugins.overlay_provisioner.plugin_overlay_provisioner_radical_pilot
    :members: PLUGIN_CLASS
 
 .. automodule:: troy.plugins.overlay_provisioner.plugin_overlay_provisioner_bigjob

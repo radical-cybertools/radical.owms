@@ -37,7 +37,7 @@ Workload Dispatcher Plugins
 .. automodule:: troy.plugins.workload_dispatcher.plugin_workload_dispatcher_local
    :members: PLUGIN_CLASS
 
-.. automodule:: troy.plugins.workload_dispatcher.plugin_workload_dispatcher_sagapilot
+.. automodule:: troy.plugins.workload_dispatcher.plugin_workload_dispatcher_radical_pilot
    :members: PLUGIN_CLASS
 
 .. automodule:: troy.plugins.workload_dispatcher.plugin_workload_dispatcher_bigjob

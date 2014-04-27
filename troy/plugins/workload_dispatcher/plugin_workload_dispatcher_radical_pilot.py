@@ -1,7 +1,7 @@
 
 
 import os
-import sagapilot     as sp
+import radical.pilot     as rp
 import radical.utils as ru
 from   troy.constants import *
 import troy
@@ -11,9 +11,9 @@ import troy
 #
 PLUGIN_DESCRIPTION = {
     'type'        : 'workload_dispatcher', 
-    'name'        : 'sagapilot', 
+    'name'        : 'radical.pilot', 
     'version'     : '0.1',
-    'description' : 'this is a dispatcher which submits to sagapilot pilots.'
+    'description' : 'this is a dispatcher which submits to radical.pilot pilots.'
   }
 
 
@@ -21,12 +21,12 @@ PLUGIN_DESCRIPTION = {
 #
 class PLUGIN_CLASS (troy.PluginBase):
     """
-    This plugin dispatches workloads (and their compute units) to SAGA-Pilot pilots,
-    uring SAGA-Pilot's pilot API.
+    This plugin dispatches workloads (and their compute units) to RADICAL-Pilot pilots,
+    uring RADICAL-Pilot's pilot API.
 
     **Configuration Options:**
 
-    * `coordination_url`: the redis URL to be used by SAGA-Pilot.  The environment
+    * `coordination_url`: the redis URL to be used by RADICAL-Pilot.  The environment
         variable COORDINATION_URL is used as fallback.
     """
 
@@ -53,12 +53,12 @@ class PLUGIN_CLASS (troy.PluginBase):
             self._coord = os.environ['COORDINATION_URL'] 
 
         else :
-            troy._logger.error ("No COORDINATION_URL set for sagapilot backend")
+            troy._logger.error ("No COORDINATION_URL set for radical.pilot backend")
             troy._logger.info  ("example: export COORDINATION_URL=redis://<pass>@gw68.quarry.iu.teragrid.org:6379")
             troy._logger.info  ("Contact Radica@Ritgers for the redis password")
-            raise RuntimeError ("Cannot use sagapilot backend - no COORDINATION_URL -- see debug log for details")
+            raise RuntimeError ("Cannot use radical.pilot backend - no COORDINATION_URL -- see debug log for details")
 
-        self._sp  = sp.Session (database_url = self._coord)
+        self._sp  = rp.Session (database_url = self._coord)
 
 
     # --------------------------------------------------------------------------
@@ -89,11 +89,11 @@ class PLUGIN_CLASS (troy.PluginBase):
 
                 # reconnect to the given pilot -- this is likely to pull the
                 # instance from a cache, so should not cost too much.
-                pilot      = troy.Pilot (self.session, pilot_id, _instance_type='sagapilot')
+                pilot      = troy.Pilot (self.session, pilot_id, _instance_type='radical.pilot')
                 troy._logger.info ('workload dispatch : dispatch %-18s to %s' \
-                                % (uid, pilot._get_instance('sagapilot')[1]))
+                                % (uid, pilot._get_instance('radical.pilot')[1]))
                 
-                # translate our information into sagapilot speak, and dispatch
+                # translate our information into radical.pilot speak, and dispatch
                 # a cu for the CU
 
                 keymap = {
@@ -107,21 +107,21 @@ class PLUGIN_CLASS (troy.PluginBase):
                     'working_directory' : 'working_directory_priv'
                   }
 
-                sp_cu_descr = sp.ComputeUnitDescription ()
+                sp_cu_descr = rp.ComputeUnitDescription ()
                 for key in unit_descr :
                     if  key in keymap :
                         sp_cu_descr[keymap[key]] = unit_descr[key]
 
 
                 # FIXME: sanity check for pilot type
-                [sp_um, sp_pm, sp_pilot] = pilot._get_instance ('sagapilot')
+                [sp_um, sp_pm, sp_pilot] = pilot._get_instance ('radical.pilot')
                 sp_cu = sp_um.submit_units (sp_cu_descr)
 
                 # attach the backend instance to the unit, for later state
                 # checks etc. We leave it up to the unit to decide if it wants
                 # to cache the instance, or just the ID and then later
                 # reconnect.
-                unit._set_instance ('sagapilot', self, 
+                unit._set_instance ('radical.pilot', self, 
                                     instance  = [sp_um,     sp_cu],
                                     native_id = [sp_um.uid, sp_cu.uid])
 
@@ -135,7 +135,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         troy.Unit doesn't have that instance anymore...
         """
 
-        troy._logger.debug ("reconnect to sagapilot cu %s" % native_id)
+        troy._logger.debug ("reconnect to radical.pilot cu %s" % native_id)
         sp_um_id = native_id[0]
         sp_cu_id = native_id[1]
 
@@ -155,7 +155,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         """
 
         # find out what we can about the pilot...
-        [sp_um, sp_cu] = unit._get_instance ('sagapilot')
+        [sp_um, sp_cu] = unit._get_instance ('radical.pilot')
 
         info = {'uid'              : sp_cu.uid,
                 'description'      : sp_cu.description,
@@ -169,21 +169,21 @@ class PLUGIN_CLASS (troy.PluginBase):
                 'stop_time'        : sp_cu.stop_time}
 
 
-        # translate sagapilot state to troy state
+        # translate radical.pilot state to troy state
         if  'state' in info :
-            troy._logger.debug ('sagapilot level cu state: %s' % info['state'])
+            troy._logger.debug ('radical.pilot level cu state: %s' % info['state'])
             # hahaha python switch statement hahahahaha
-            info['state'] =  {sp.states.PENDING                 : PENDING, 
-                              sp.states.PENDING_EXECUTION       : PENDING, 
-                              sp.states.PENDING_INPUT_TRANSFER  : RUNNING, 
-                              sp.states.TRANSFERRING_INPUT      : RUNNING, 
-                              sp.states.RUNNING                 : RUNNING, 
-                              sp.states.PENDING_OUTPUT_TRANSFER : RUNNING, 
-                              sp.states.TRANSFERRING_OUTPUT     : RUNNING, 
-                              sp.states.DONE                    : DONE, 
-                              sp.states.CANCELED                : CANCELED, 
-                              sp.states.FAILED                  : FAILED, 
-                              sp.states.UNKNOWN                 : UNKNOWN}.get (info['state'], UNKNOWN)
+            info['state'] =  {rp.states.PENDING                 : PENDING, 
+                              rp.states.PENDING_EXECUTION       : PENDING, 
+                              rp.states.PENDING_INPUT_TRANSFER  : RUNNING, 
+                              rp.states.TRANSFERRING_INPUT      : RUNNING, 
+                              rp.states.RUNNING                 : RUNNING, 
+                              rp.states.PENDING_OUTPUT_TRANSFER : RUNNING, 
+                              rp.states.TRANSFERRING_OUTPUT     : RUNNING, 
+                              rp.states.DONE                    : DONE, 
+                              rp.states.CANCELED                : CANCELED, 
+                              rp.states.FAILED                  : FAILED, 
+                              rp.states.UNKNOWN                 : UNKNOWN}.get (info['state'], UNKNOWN)
 
       # print 'unit_get_info: %s' % info
         # unit_get_info: {'log'               : None, 
@@ -193,24 +193,24 @@ class PLUGIN_CLASS (troy.PluginBase):
         #                 'execution_details' : [u'localhost:3'], 
         #                 'stop_time'         : datetime.datetime(2014, 2, 5, 12, 20, 41, 890000), 
         #                 'start_time'        : datetime.datetime(2014, 2, 5, 12, 20, 40, 884000), 
-        #                 'description'       : <sagapilot.compute_unit_description.ComputeUnitDescription object at 0x27ea990>}
+        #                 'description'       : <radical.pilot.compute_unit_description.ComputeUnitDescription object at 0x27ea990>}
 
-        # register sagapilot events when they have a valid time stamp.  This may
+        # register radical.pilot events when they have a valid time stamp.  This may
         # register them multiple times though, but duplication is filtered out
         # on time keeping level
         if 'submission_time' in info and info['submission_time'] :
             unit.timed_event ('monitor', 'submission', 
-                              tags  = ['sagapilot', 'submission_time'], 
+                              tags  = ['radical.pilot', 'submission_time'], 
                               timer = info['submission_time'])
 
         if 'start_time' in info and info['start_time'] :
             unit.timed_event ('monitor', 'start',  
-                              tags  = ['sagapilot', 'start_time'], 
+                              tags  = ['radical.pilot', 'start_time'], 
                               timer = info['start_time'])
 
         if 'stop_time' in info and info['stop_time'] :
             unit.timed_event ('monitor', 'stop',  
-                              tags  = ['sagapilot', 'stop_time'], 
+                              tags  = ['radical.pilot', 'stop_time'], 
                               timer = info['stop_time'])
 
         if  info['state'] == FAILED :
@@ -230,7 +230,7 @@ class PLUGIN_CLASS (troy.PluginBase):
         bye bye bye Junimond, es ist vorbei, bye bye...
         """
 
-        [sp_um, sp_cu] = unit._get_instance ('sagapilot')
+        [sp_um, sp_cu] = unit._get_instance ('radical.pilot')
         sp_cu.cancel ()
 
 

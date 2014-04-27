@@ -73,7 +73,7 @@ _resource_config_skeleton = {
         'username'  : None,
         'home'      : None,
         'queue'     : None,
-        'walltime'  : int(60*24) # default: 1 day
+        'walltime'  : int(60) # default: 1 hour
     }
 
 

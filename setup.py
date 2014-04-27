@@ -227,7 +227,7 @@ setup_args = {
     },
     'install_requires' : ['saga-python', 'radical.utils'],
     'extras_require'   : {
-        'sagapilot'    :  ["sagapilot"],
+        'radical.pilot':  ["radical.pilot"],
         'bigjob'       :  ["bigjob"],
         'bundles'      :  ["paramiko"]
     },
