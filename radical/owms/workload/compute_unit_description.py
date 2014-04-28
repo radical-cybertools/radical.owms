@@ -4,7 +4,6 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
-from   radical.owms.constants import *
 import radical.owms
 from   radical.owms import utils  as tu
 import radical.utils              as ru

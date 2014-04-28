@@ -6,7 +6,7 @@ __license__   = "MIT"
 
 from   radical.owms.constants import *
 import radical.owms
-from   radical.owms import utils  as tu
+from   radical.owms import utils  as ou
 import radical.utils              as ru
 
 
@@ -17,7 +17,7 @@ Manages the pilot-based overlays for radical.owms.
 
 # -----------------------------------------------------------------------------
 #
-class OverlayManager (tu.Timed) :
+class OverlayManager (ou.Timed) :
     """
     Generates and instantiates an overlay. An overlay consists of pilot
     descriptions and instances.
@@ -63,7 +63,7 @@ class OverlayManager (tu.Timed) :
         self.session = session
         self.id      = ru.generate_id ('olm.')
 
-        tu.Timed.__init__            (self, 'radical.owms.OverlayManager', self.id)
+        ou.Timed.__init__            (self, 'radical.owms.OverlayManager', self.id)
         self.session.timed_component (self, 'radical.owms.OverlayManager', self.id)
 
         self._plugin_mgr = None
@@ -75,9 +75,9 @@ class OverlayManager (tu.Timed) :
         # wants to alter / complete the plugin selection
         cfg = session.get_config ('overlay_manager')
 
-        self.plugins['translator' ] = cfg.get ('plugin_overlay_translator' , AUTOMATIC)
-        self.plugins['scheduler'  ] = cfg.get ('plugin_overlay_scheduler'  , AUTOMATIC)
-        self.plugins['provisioner'] = cfg.get ('plugin_overlay_provisioner', AUTOMATIC)
+        self.plugins['translator' ] = cfg.get ('plugin_overlay_translator' , radical.owms.AUTOMATIC)
+        self.plugins['scheduler'  ] = cfg.get ('plugin_overlay_scheduler'  , radical.owms.AUTOMATIC)
+        self.plugins['provisioner'] = cfg.get ('plugin_overlay_provisioner', radical.owms.AUTOMATIC)
 
 
     # --------------------------------------------------------------------------
@@ -94,20 +94,18 @@ class OverlayManager (tu.Timed) :
 
         # for each plugin set to 'AUTOMATIC', do the clever thing
         #
-        if  self.plugins['translator']  == AUTOMATIC :
+        if  self.plugins['translator']  == radical.owms.AUTOMATIC :
             self.plugins['translator']  = 'max_pilot_size'
-        if  self.plugins['scheduler' ]  == AUTOMATIC :
+        if  self.plugins['scheduler' ]  == radical.owms.AUTOMATIC :
             self.plugins['scheduler' ]  = 'local'
 
         # if AUTOMATIC, try to match the provisioner plugin with the workload
         # dispatcher plugin
-        if  self.plugins['provisioner']  == AUTOMATIC :
+        if  self.plugins['provisioner']  == radical.owms.AUTOMATIC :
             if  workload_mgr :
                 self.plugins['provisioner'] = workload_mgr.plugins['dispatcher']
-        if  self.plugins['provisioner']  == AUTOMATIC :
+        if  self.plugins['provisioner']  == radical.owms.AUTOMATIC :
             self.plugins['provisioner']  = 'local'
-
-      # radical.owms._logger.debug ("initializing overlay  manager (%s)" % self.plugins)
 
         self._plugin_mgr  = ru.PluginManager ('radical.owms')
 
@@ -216,7 +214,7 @@ class OverlayManager (tu.Timed) :
         self.timed_component (overlay, 'radical.owms.Overlay', overlay.id)
 
         # make sure the overlay is 'fresh', so we can translate it it
-        if  overlay.state != DESCRIBED :
+        if  overlay.state != radical.owms.DESCRIBED :
             raise ValueError ("overlay '%s' not in DESCRIBED state" % overlay.id)
 
         # make sure manager is initialized
@@ -228,7 +226,7 @@ class OverlayManager (tu.Timed) :
                               self._translator.translate, [overlay])
 
         # mark overlay as 'translated'
-        overlay.state = TRANSLATED
+        overlay.state = radical.owms.TRANSLATED
 
 
     # --------------------------------------------------------------------------
@@ -247,7 +245,7 @@ class OverlayManager (tu.Timed) :
         self.timed_component (overlay, 'radical.owms.Overlay', overlay.id)
 
         # make sure the overlay is 'fresh', so we can schedule it
-        if  overlay.state != TRANSLATED :
+        if  overlay.state != radical.owms.TRANSLATED :
             raise ValueError ("overlay '%s' not in TRANSLATED state" % overlay.id)
 
         # make sure manager is initialized
@@ -259,7 +257,7 @@ class OverlayManager (tu.Timed) :
                               self._scheduler.schedule, [overlay])
 
         # mark overlay as 'scheduled'
-        overlay.state = SCHEDULED
+        overlay.state = radical.owms.SCHEDULED
 
 
     # --------------------------------------------------------------------------
@@ -277,7 +275,7 @@ class OverlayManager (tu.Timed) :
         self.timed_component (overlay, 'radical.owms.Overlay', overlay.id)
 
         # make sure the overlay is 'fresh', so we can schedule it
-        if  overlay.state != SCHEDULED :
+        if  overlay.state != radical.owms.SCHEDULED :
             raise ValueError ("overlay '%s' not in SCHEDULED state" % overlay.id)
 
         # make sure manager is initialized
@@ -301,7 +299,7 @@ class OverlayManager (tu.Timed) :
                               self._provisioner.provision, [overlay])
 
         # mark overlay as 'provisioned'
-        overlay.state = PROVISIONED
+        overlay.state = radical.owms.PROVISIONED
 
 
     # --------------------------------------------------------------------------

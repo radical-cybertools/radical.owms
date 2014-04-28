@@ -4,17 +4,14 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
-import threading
-
-from   radical.owms.constants import *
 import radical.owms
-from   radical.owms import utils as tu
+from   radical.owms import utils as ou
 import radical.utils             as ru
 
 
 # ------------------------------------------------------------------------------
 #
-class Planner (tu.Timed) :
+class Planner (ou.Timed) :
     """
     The `Planner` class represents the upper layer, i.e. the application facing
     layer, of radical.owms, and thus hosts the API that ultimately will be used by end
@@ -40,7 +37,7 @@ class Planner (tu.Timed) :
         self.session = session
         self.id      = ru.generate_id ('planner.')
 
-        tu.Timed.__init__            (self, 'radical.owms.Planner', self.id)
+        ou.Timed.__init__            (self, 'radical.owms.Planner', self.id)
         self.session.timed_component (self, 'radical.owms.Planner', self.id)
 
         self._plugin_mgr = None
@@ -54,8 +51,8 @@ class Planner (tu.Timed) :
         #
         cfg = session.get_config ('planner')
 
-        self.plugins['strategy'] = cfg.get ('plugin_planner_strategy', AUTOMATIC)
-        self.plugins['derive']   = cfg.get ('plugin_planner_derive',   AUTOMATIC)
+        self.plugins['strategy'] = cfg.get ('plugin_planner_strategy', radical.owms.AUTOMATIC)
+        self.plugins['derive']   = cfg.get ('plugin_planner_derive',   radical.owms.AUTOMATIC)
 
 
 
@@ -68,12 +65,10 @@ class Planner (tu.Timed) :
             # consistency
             return
 
-      # radical.owms._logger.debug ("initializing planner (%s)" % self.plugins)
-
         # for each plugin set to 'AUTOMATIC', do the clever thing
-        if  self.plugins['strategy'] == AUTOMATIC :
+        if  self.plugins['strategy'] == radical.owms.AUTOMATIC :
             self.plugins['strategy'] = 'late_binding'
-        if  self.plugins['derive'  ] == AUTOMATIC :
+        if  self.plugins['derive'  ] == radical.owms.AUTOMATIC :
             self.plugins['derive'  ] = 'maxcores'
 
 
@@ -129,7 +124,7 @@ class Planner (tu.Timed) :
         self.timed_component (workload, 'radical.owms.Workload', workload_id)
 
         # Workload needs to be in DESCRIBED state to be expanded
-        if  workload.state not in [DESCRIBED]:
+        if  workload.state not in [radical.owms.DESCRIBED]:
             raise ValueError("workload '%s' not in DESCRIBED state" % workload.id)
 
         # make sure manager is initialized
@@ -190,10 +185,10 @@ class Planner (tu.Timed) :
 
         # Workload doesn't need to be EXPANDED, but if it is only DESCRIBED,
         # it can't be parametrized.
-        if  workload.state not in [EXPANDED, DESCRIBED]:
+        if  workload.state not in [radical.owms.EXPANDED, radical.owms.DESCRIBED]:
             raise ValueError("workload '%s' not in DESCRIBED or EXPANDED " 
                              "state" % workload.id)
-        elif workload.state is DESCRIBED and workload.parametrized:
+        elif workload.state is radical.owms.DESCRIBED and workload.parametrized:
             raise ValueError("Parametrized workload '%s' not EXPANDED yet."
                              % workload.id)
 

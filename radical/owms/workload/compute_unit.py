@@ -4,9 +4,8 @@ __copyright__ = "Copyright 2013, RADICAL"
 __license__   = "MIT"
 
 
-from   radical.owms.constants import *
 import radical.owms
-from   radical.owms import utils  as tu
+from   radical.owms import utils  as ou
 import radical.utils              as ru
 
 
@@ -17,7 +16,7 @@ Represent a compute unit, as element of a radical.owms.Task in a radical.owms.Wo
 
 # ------------------------------------------------------------------------------
 #
-class ComputeUnit (tu.Properties, tu.Timed) :
+class ComputeUnit (ou.Properties, ou.Timed) :
     """
     The `ComputeUnit` class represents the smallest element of work to be
     performed on behalf of an application, and is part of a workload managed by
@@ -27,7 +26,7 @@ class ComputeUnit (tu.Properties, tu.Timed) :
     i.e. a set of key-value pairs describing the represented workload element.
     """
 
-    _instance_cache = tu.InstanceCache ()
+    _instance_cache = ou.InstanceCache ()
 
     # --------------------------------------------------------------------------
     #
@@ -64,7 +63,7 @@ class ComputeUnit (tu.Properties, tu.Timed) :
                              "description (radical.owms.ComputeUnitDescription), not '%s'" \
                           % type(param))
 
-        tu.Timed.__init__            (self, 'radical.owms.Unit', self.id)
+        ou.Timed.__init__            (self, 'radical.owms.Unit', self.id)
         self.session.timed_component (self, 'radical.owms.Unit', self.id)
 
         # make sure we don't inherit IDs
@@ -72,7 +71,7 @@ class ComputeUnit (tu.Properties, tu.Timed) :
             del (descr['id'])
 
         # set properties which are known from the description
-        tu.Properties.__init__ (self, descr)
+        ou.Properties.__init__ (self, descr)
 
         # register properties
         self.register_property ('id')
@@ -104,7 +103,7 @@ class ComputeUnit (tu.Properties, tu.Timed) :
 
         # initialized essential properties
         self.native_id         = native_id
-        self.state             = DESCRIBED
+        self.state             = radical.owms.DESCRIBED
         self.pilot_id          = _pilot_id
         self.task              = _task
 
@@ -179,7 +178,7 @@ class ComputeUnit (tu.Properties, tu.Timed) :
       # print '          and %s' % self.as_dict()
 
         # we only allow this in DESCRIBED or BOUND state
-        if  not self.state in [DESCRIBED, BOUND] :
+        if  not self.state in [radical.owms.DESCRIBED, radical.owms.BOUND] :
             raise RuntimeError ('unit is not in DESCRIBED state (%s)' \
                              % self.state)
 
@@ -211,32 +210,32 @@ class ComputeUnit (tu.Properties, tu.Timed) :
         cancel the CU
         """
 
-        if  self.state in [PENDING, RUNNING] :
+        if  self.state in [radical.owms.PENDING, radical.owms.RUNNING] :
 
             radical.owms._logger.info ('cancel unit     %s' % self.id)
 
             if  self._dispatcher :
                 self._dispatcher.unit_cancel (self)
 
-            self.state = CANCELED
+            self.state = radical.owms.CANCELED
 
 
     # --------------------------------------------------------------------------
     #
     def _bind (self, pilot_id) :
 
-        if  self.state not in [DESCRIBED] :
+        if  self.state not in [radical.owms.DESCRIBED] :
             raise RuntimeError ("Can only bind pilots in DESCRIBED state (%s)" % self.state)
             
         self.pilot_id  = pilot_id
-        self.state     = BOUND
+        self.state     = radical.owms.BOUND
 
 
     # --------------------------------------------------------------------------
     #
     def _set_instance (self, instance_type, dispatcher, instance, native_id) :
 
-        if  self.state not in [BOUND] :
+        if  self.state not in [radical.owms.BOUND] :
             raise RuntimeError ("Can only dispatch units in BOUND state (%s)" % self.state)
 
         self._dispatcher    = dispatcher
@@ -244,7 +243,7 @@ class ComputeUnit (tu.Properties, tu.Timed) :
         self._instance      = instance
         self.native_id      = native_id
 
-        self.state          = DISPATCHED
+        self.state          = radical.owms.DISPATCHED
 
         radical.owms.WorkloadManager.unit_id_to_native_id (self.id, native_id)
 
@@ -309,7 +308,7 @@ class ComputeUnit (tu.Properties, tu.Timed) :
         # else we need to ask the unit dispatcher plugin -- but that is 
         # only available/usable after dispatching
         if  self._dispatcher :
-            if  self.state not in [COMPLETED, CANCELED, FAILED] :
+            if  self.state not in [radical.owms.COMPLETED, radical.owms.CANCELED, radical.owms.FAILED] :
 
                 # if we already got the requested information, return them
                 # FIXME: this assumes that data are updated only once, ever...  
