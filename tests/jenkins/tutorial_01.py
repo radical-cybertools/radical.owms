@@ -8,9 +8,10 @@ __license__   = "MIT"
 import sys
 import radical.owms
 
+session = radical.owms.Session (user_cfg = sys.argv[2:])
+planner = radical.owms.Planner (session)
 
-radical.owms.manage_workload (workload = sys.argv[1], 
-                              config   = sys.argv[2:])
-
+planner.execute_workload (workload = sys.argv[1])
+                      
 # Woohooo!  Magic has happened!
 

@@ -11,6 +11,7 @@ import radical.owms
 
 
 FGCONF    = 'https://raw.github.com/radical-cybertools/radical.pilot/master/configs/futuregrid.json'
+FGCONF    = 'file://localhost/tmp/futuregrid.json'
 XSEDECONF = 'https://raw.github.com/radical-cybertools/radical.pilot/master/configs/xsede.json'
 WALLTIME_OVERHEAD = 10.0
 

@@ -90,9 +90,9 @@ if __name__ == '__main__':
     # RADICAL-OWMS CONFIGURATION: what plugins are being used, whet resources are
     # targeted, etc
     #
-    resources      = "slurm+ssh://tg803521@stampede.tacc.utexas.edu,pbs+ssh://merzky@india.futuregrid.org"
+  # resources      = "slurm+ssh://tg803521@stampede.tacc.utexas.edu,pbs+ssh://merzky@india.futuregrid.org"
   # resources      = "slurm+ssh://stampede.tacc.utexas.edu"
-  # resources      = "pbs+ssh://india.futuregrid.org"
+    resources      = "pbs+ssh://india.futuregrid.org"
   # resources      = "pbs+ssh://hotel.futuregrid.org"
   # resources      = "pbs+ssh://alamo.futuregrid.org"
   # resources      = "pbs+ssh://sierra.futuregrid.org"
