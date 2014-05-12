@@ -1,0 +1,45 @@
+
+
+  - v1 has state constraints for all ops based on WL states, e.g.
+    'schedule' is only allowed on a 'translated' workload.  Those
+    constraints should be lifted, and ops should apply to all tasks
+    in the respective suitable state.
+
+  - an op which does not find any task in suitable state is considered
+    failed.
+
+  - an plugin should be able to register for re-invocation.  For
+    example, a Scheduler should be able to get the workload offered
+    for re-scheduling, either in certain time intervals, or on certain
+    events.  Those events can be plugin-external (some task finishes),
+    or internal (new information are a available from the information
+    bus).  The above would benefit from events / callbacks on new
+    information, obviously.
+    
+  - A planner can of course also re-invoke any plugin.
+
+  - is the separation between tasks and CUs really useful?  If not,
+    remove it.  If yes, the above becomes more complex for those steps
+    where no CUs are defined, yet.  The above would then be 'ops
+    should apply to the CUs or tasks...' etc.
+
+  - is the introduction of partitions as top level concept really
+    useful?  Consider this workload (tasks + deps):
+
+    
+    T1 --> T2 --> T3 --> T4 --> T5
+       \                   / 
+        ---> T6 --> T7 ---  
+
+    In our current definition (a partition is a set of tasks eligible
+    to run concurrently), T1 certainly would be its own partition.
+    When T1 is done, T2 and T6 also would form a partition -- but if
+    T7 is a partition with T3 or with T4 depends on when T2 is done.  
+
+    If we make the definition more strict, such as 'a partition is a
+    set of tasks which has the same set of dependencies', then it
+    would not be a powerful concept, as any algorithm would need to
+    inspect all partitions to find the *set of* partitions eligible to
+    run -- the same algorithm could just as well inspect the tasks
+    directly.
+
