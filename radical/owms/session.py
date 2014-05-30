@@ -140,14 +140,8 @@ class Session (saga.Session, tu.Timed) :
 
     # --------------------------------------------------------------------------
     #
-    def __deepcopy__ (self, other) :
-        # FIXME
-
-        return self
-
-    # --------------------------------------------------------------------------
-    #
     def get_config (self, path='radical:owms') :
+        # get a certain config section
 
         if  isinstance (path, basestring) :
             path = path.split (':')
