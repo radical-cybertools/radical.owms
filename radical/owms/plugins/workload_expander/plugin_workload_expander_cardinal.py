@@ -62,7 +62,7 @@ class PLUGIN_CLASS (radical.owms.PluginBase):
         for task_id in task_ids :
 
             task = workload.tasks[task_id]
-            task_dict = task.as_dict ()
+            task_dict = task.description.as_dict ()
 
             # make sure all known config vars are expanded
             ru.dict_stringexpand (task_dict, self.session.cfg)
